@@ -34,7 +34,9 @@ _etc/
 
 # HP Calc Explorer — Panamatik reference bundles and ilspycmd output
 Catalog/Workspace/HpCalcExplorer/Reference/Panamatik/**
+Catalog/Workspace/HpCalcExplorer/Reference/Panamatik New/**
 !Catalog/Workspace/HpCalcExplorer/Reference/Panamatik/.gitkeep
+!Catalog/Workspace/HpCalcExplorer/Reference/Panamatik New/.gitkeep
 Catalog/Workspace/HpCalcExplorer/Reference/Decompiled/**
 !Catalog/Workspace/HpCalcExplorer/Reference/Decompiled/.gitkeep
 # legacy flat layout (unused)

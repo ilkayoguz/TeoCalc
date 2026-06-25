@@ -1,0 +1,14 @@
+{
+  "Format": "TeoCalc.MicrocodeHandlers",
+  "SchemaVersion": 1,
+  "Family": "Spice",
+  "Description": "Study placeholder until Spice CPU dispatch is decoded.",
+  "Handlers": [
+    {
+      "HandlerId": "FirmwareStudy.PendingDispatch",
+      "Mnemonic": "RAW ",
+      "Title": "ROM word (handler decode pending)",
+      "PanamatikAlias": "study_raw"
+    }
+  ]
+}

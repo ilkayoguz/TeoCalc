@@ -1,0 +1,64 @@
+{
+  "Format": "TeoCalc.MicrocodeCrossRef",
+  "SchemaVersion": 1,
+  "Description": "Cross-reference between TeoCalc handler names, Panamatik study aliases, and published Classic-family microcode literature (HP patents, Nonpareil uasm, HP Journal).",
+  "Sources": [
+    {
+      "Id": "Nonpareil",
+      "Title": "Nonpareil / uasm Classic microcode",
+      "Url": "https://github.com/brouhaha/nonpareil"
+    },
+    {
+      "Id": "US3863060",
+      "Title": "US Patent 3,863,060 — Calculator",
+      "Note": "First-generation HP instruction set and HP-45 listings"
+    },
+    {
+      "Id": "US4001569",
+      "Title": "US Patent 4,001,569 — Calculator",
+      "Note": "Delayed ROM/group select, expanded Classic"
+    },
+    {
+      "Id": "HpJournal7405",
+      "Title": "HP Journal May 1974 — Programming the Personal Computer (HP-65)",
+      "Note": "3072 ten-bit microinstructions; firmware not keystroke program"
+    }
+  ],
+  "Handlers": [
+    { "HandlerId": "ClassicCpu.Nop", "PanamatikAlias": "op_nop", "NonpareilMnemonic": "nop", "PatentTerm": "no operation", "Verified": true },
+    { "HandlerId": "ClassicCpu.SubroutineJump", "PanamatikAlias": "op_jsb", "NonpareilMnemonic": "jsb", "PatentTerm": "jump to subroutine", "Verified": true },
+    { "HandlerId": "ClassicCpu.Branch", "PanamatikAlias": "op_goto", "NonpareilMnemonic": "go", "PatentTerm": "go to", "Verified": true },
+    { "HandlerId": "ClassicCpu.Return", "PanamatikAlias": "op_return", "NonpareilMnemonic": "rtn", "PatentTerm": "return", "Verified": true },
+    { "HandlerId": "ClassicCpu.Arithmetic", "PanamatikAlias": "op_arith", "NonpareilMnemonic": "(alu subdecode)", "PatentTerm": "a +/- b -> a[p], c -> a, ...", "Verified": true },
+    { "HandlerId": "ClassicCpu.SetStatus", "PanamatikAlias": "op_set_s", "NonpareilMnemonic": "sbit", "PatentTerm": "set status bit", "Verified": true },
+    { "HandlerId": "ClassicCpu.TestStatusZero", "PanamatikAlias": "op_test_s_eq_0", "NonpareilMnemonic": "sbit=0?", "PatentTerm": "test status zero", "Verified": true },
+    { "HandlerId": "ClassicCpu.SetFlag", "PanamatikAlias": "op_set_f", "NonpareilMnemonic": "fbit", "PatentTerm": "set/clear flag", "Verified": "partial" },
+    { "HandlerId": "ClassicCpu.ClearStatus", "PanamatikAlias": "op_clr_s", "NonpareilMnemonic": "cbit", "PatentTerm": "clear status bit", "Verified": true },
+    { "HandlerId": "ClassicCpu.ClearS", "PanamatikAlias": "op_clear_s", "NonpareilMnemonic": "clr s", "PatentTerm": "clear S register", "Verified": true },
+    { "HandlerId": "ClassicCpu.SetP", "PanamatikAlias": "op_set_p", "NonpareilMnemonic": "p=", "PatentTerm": "set P (digit pointer)", "Verified": true },
+    { "HandlerId": "ClassicCpu.TestP", "PanamatikAlias": "op_test_p", "NonpareilMnemonic": "p=?", "PatentTerm": "test P", "Verified": true },
+    { "HandlerId": "ClassicCpu.DecrementP", "PanamatikAlias": "op_dec_p", "NonpareilMnemonic": "p--", "PatentTerm": "decrement P", "Verified": true },
+    { "HandlerId": "ClassicCpu.IncrementP", "PanamatikAlias": "op_inc_p", "NonpareilMnemonic": "p++", "PatentTerm": "increment P", "Verified": true },
+    { "HandlerId": "ClassicCpu.LoadConstant", "PanamatikAlias": "op_load_constant", "NonpareilMnemonic": "digit", "PatentTerm": "load constant digit into C", "Verified": true },
+    { "HandlerId": "ClassicCpu.SelectRom", "PanamatikAlias": "op_sel_rom", "NonpareilMnemonic": "sel rom", "PatentTerm": "select ROM bank", "Verified": true },
+    { "HandlerId": "ClassicCpu.DelayedSelectRom", "PanamatikAlias": "op_del_sel_rom", "NonpareilMnemonic": "dsel rom", "PatentTerm": "delayed select ROM", "Verified": true },
+    { "HandlerId": "ClassicCpu.DelayedSelectGroup", "PanamatikAlias": "op_del_sel_grp", "NonpareilMnemonic": "dsel grp", "PatentTerm": "delayed select group", "Verified": true },
+    { "HandlerId": "ClassicCpu.KeysToRomAddress", "PanamatikAlias": "op_keys_to_rom_addr", "NonpareilMnemonic": "key->pc", "PatentTerm": "keys to ROM address", "Verified": "partial" },
+    { "HandlerId": "ClassicCpu.CToStack", "PanamatikAlias": "op_c_to_stack", "NonpareilMnemonic": "c->stk", "PatentTerm": "C to stack", "Verified": true },
+    { "HandlerId": "ClassicCpu.StackToA", "PanamatikAlias": "op_stack_to_a", "NonpareilMnemonic": "stk->a", "PatentTerm": "stack to A", "Verified": true },
+    { "HandlerId": "ClassicCpu.DownRotate", "PanamatikAlias": "op_down_rotate", "NonpareilMnemonic": "down", "PatentTerm": "down rotate", "Verified": true },
+    { "HandlerId": "ClassicCpu.ExchangeCAndM", "PanamatikAlias": "op_c_exch_m", "NonpareilMnemonic": "c exch m", "PatentTerm": "exchange C and M", "Verified": true },
+    { "HandlerId": "ClassicCpu.MToC", "PanamatikAlias": "op_m_to_c", "NonpareilMnemonic": "m->c", "PatentTerm": "M to C", "Verified": true },
+    { "HandlerId": "ClassicCpu.DataToC", "PanamatikAlias": "op_data_to_c", "NonpareilMnemonic": "ram->c", "PatentTerm": "data to C", "Verified": true },
+    { "HandlerId": "ClassicCpu.CToAddress", "PanamatikAlias": "op_c_to_addr", "NonpareilMnemonic": "c->addr", "PatentTerm": "C to address", "Verified": true },
+    { "HandlerId": "ClassicCpu.CToData", "PanamatikAlias": "op_c_to_data", "NonpareilMnemonic": "c->ram", "PatentTerm": "C to data", "Verified": true },
+    { "HandlerId": "ClassicCpu.DisplayToggle", "PanamatikAlias": "op_display_toggle", "NonpareilMnemonic": "dsp on", "PatentTerm": "display on/off toggle", "Verified": true },
+    { "HandlerId": "ClassicCpu.DisplayOff", "PanamatikAlias": "op_display_off", "NonpareilMnemonic": "dsp off", "PatentTerm": "display off", "Verified": true },
+    { "HandlerId": "ClassicCpu.MemoryInsert", "PanamatikAlias": "op_memoryinsert", "NonpareilMnemonic": "mins", "PatentTerm": "insert program step (HP-65)", "Verified": "partial" },
+    { "HandlerId": "ClassicCpu.MemoryDelete", "PanamatikAlias": "op_memorydelete", "NonpareilMnemonic": "mdel", "PatentTerm": "delete program step", "Verified": "partial" },
+    { "HandlerId": "ClassicCpu.MemoryInitialize", "PanamatikAlias": "op_memoryinitialize", "NonpareilMnemonic": "mini", "PatentTerm": "initialize program memory", "Verified": "partial" },
+    { "HandlerId": "ClassicCpu.SearchForLabel", "PanamatikAlias": "op_searchforlabel", "NonpareilMnemonic": "srch lbl", "PatentTerm": "search for label (HP-65)", "Verified": "partial" },
+    { "HandlerId": "ClassicCpu.MarkAndSearch", "PanamatikAlias": "op_markandsearch", "NonpareilMnemonic": "mark", "PatentTerm": "mark and search (HP-65)", "Verified": "partial" },
+    { "HandlerId": "ClassicCpu.PointerAdvance", "PanamatikAlias": "op_pointeradvance", "NonpareilMnemonic": "padv", "PatentTerm": "advance program pointer", "Verified": "partial" }
+  ]
+}

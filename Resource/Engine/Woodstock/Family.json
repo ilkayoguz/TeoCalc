@@ -1,0 +1,17 @@
+{
+  "Format": "TeoCalc.CpuFamily",
+  "SchemaVersion": 1,
+  "Family": "Woodstock",
+  "DisplayName": "HP Woodstock microprocessor family",
+  "HardwareDefaults": {
+    "RamBytes": 448,
+    "RegisterDigits": 14,
+    "RomWordCount": 2048
+  },
+  "Execution": {
+    "Fetch": "study pending",
+    "Dispatch": "op_fcn_* table (Panamatik study)",
+    "Reference": "Panamatik HP21/22/25/27/29 decompile"
+  },
+  "HandlerCatalog": "microcode.handlers.study.json"
+}

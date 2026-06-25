@@ -1,0 +1,37 @@
+{
+  "Format": "TeoCalc.Catalog",
+  "SchemaVersion": 1,
+  "Description": "Global TeoCalc configuration: CPU families, naming rules, resource layout.",
+  "Naming": {
+    "MicrocodeListingExtension": ".mlist",
+    "MicrocodeListingRole": "Human-readable ROM walk (viewer/debug). Not executed at runtime.",
+    "MicrocodeRomExtension": ".bin",
+    "MicrocodeRomRole": "Firmware ROM image; runtime source of truth (ushort little-endian).",
+    "HandlerCatalogFile": "microcode.handlers.json",
+    "HandlerMnemonicLength": 4,
+    "HandlerIdPattern": "ClassicCpu.{Name}",
+    "ProgramVocabularyFile": "program.vocabulary.json",
+    "PanamatikStudyNote": "Initial ROM and vocabulary from Panamatik; HP Museum cross-check later."
+  },
+  "CpuFamilies": {
+    "Classic": {
+      "DisplayName": "HP Classic (Nut predecessor)",
+      "Models": ["HP-35", "HP-45", "HP-55", "HP-65", "HP-70", "HP-80", "HP-67BE"],
+      "FamilyConfig": "Resource/Engine/Classic/Family.json",
+      "HandlerCatalog": "Resource/Engine/Classic/microcode.handlers.json"
+    },
+    "Woodstock": {
+      "DisplayName": "HP Woodstock",
+      "Models": ["HP-21", "HP-22", "HP-25", "HP-27", "HP-29"],
+      "FamilyConfig": "Resource/Engine/Woodstock/Family.json",
+      "HandlerCatalog": "Resource/Engine/Woodstock/microcode.handlers.study.json"
+    },
+    "Spice": {
+      "DisplayName": "HP Spice",
+      "Models": ["HP-31", "HP-32", "HP-33", "HP-34", "HP-37", "HP-38"],
+      "FamilyConfig": "Resource/Engine/Spice/Family.json",
+      "HandlerCatalog": "Resource/Engine/Spice/microcode.handlers.study.json"
+    }
+  },
+  "DefaultPriorityModel": "HP-65"
+}

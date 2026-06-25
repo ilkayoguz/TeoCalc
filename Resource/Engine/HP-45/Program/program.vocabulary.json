@@ -1,0 +1,595 @@
+{
+  "Format": "TeoCalc.ProgramVocabulary",
+  "SchemaVersion": 1,
+  "Model": "HP-45",
+  "Source": "Panamatik HPClassic (study extract)",
+  "CodeBits": 6,
+  "Steps": [
+    {
+      "Code": 0,
+      "Mnemonic": "NOP",
+      "StepId": "ProgramStep.NOP",
+      "Title": "NOP"
+    },
+    {
+      "Code": 1,
+      "Mnemonic": "STO 4",
+      "StepId": "ProgramStep.STO4",
+      "Title": "STO 4"
+    },
+    {
+      "Code": 2,
+      "Mnemonic": "3",
+      "StepId": "ProgramStep.3",
+      "Title": "3"
+    },
+    {
+      "Code": 3,
+      "Mnemonic": "2",
+      "StepId": "ProgramStep.2",
+      "Title": "2"
+    },
+    {
+      "Code": 4,
+      "Mnemonic": "1",
+      "StepId": "ProgramStep.1",
+      "Title": "1"
+    },
+    {
+      "Code": 5,
+      "Mnemonic": "STO 6",
+      "StepId": "ProgramStep.STO6",
+      "Title": "STO 6"
+    },
+    {
+      "Code": 6,
+      "Mnemonic": "*",
+      "StepId": "ProgramStep.CODE06",
+      "Title": "*"
+    },
+    {
+      "Code": 7,
+      "Mnemonic": "x!=y?",
+      "StepId": "ProgramStep.XY",
+      "Title": "x!=y?"
+    },
+    {
+      "Code": 8,
+      "Mnemonic": "g",
+      "StepId": "ProgramStep.G",
+      "Title": "g"
+    },
+    {
+      "Code": 9,
+      "Mnemonic": "RUP",
+      "StepId": "ProgramStep.RUP",
+      "Title": "RUP"
+    },
+    {
+      "Code": 10,
+      "Mnemonic": "RCL",
+      "StepId": "ProgramStep.RCL",
+      "Title": "RCL"
+    },
+    {
+      "Code": 11,
+      "Mnemonic": "STO",
+      "StepId": "ProgramStep.STO",
+      "Title": "STO"
+    },
+    {
+      "Code": 12,
+      "Mnemonic": "f-1",
+      "StepId": "ProgramStep.F1",
+      "Title": "f-1"
+    },
+    {
+      "Code": 13,
+      "Mnemonic": "RDOWN",
+      "StepId": "ProgramStep.RDOWN",
+      "Title": "RDOWN"
+    },
+    {
+      "Code": 14,
+      "Mnemonic": "f",
+      "StepId": "ProgramStep.F",
+      "Title": "f"
+    },
+    {
+      "Code": 15,
+      "Mnemonic": "RCL 8",
+      "StepId": "ProgramStep.RCL8",
+      "Title": "RCL 8"
+    },
+    {
+      "Code": 16,
+      "Mnemonic": "RCL 7",
+      "StepId": "ProgramStep.RCL7",
+      "Title": "RCL 7"
+    },
+    {
+      "Code": 17,
+      "Mnemonic": "X<>Y",
+      "StepId": "ProgramStep.XY",
+      "Title": "X<>Y"
+    },
+    {
+      "Code": 18,
+      "Mnemonic": "6",
+      "StepId": "ProgramStep.6",
+      "Title": "6"
+    },
+    {
+      "Code": 19,
+      "Mnemonic": "5",
+      "StepId": "ProgramStep.5",
+      "Title": "5"
+    },
+    {
+      "Code": 20,
+      "Mnemonic": "4",
+      "StepId": "ProgramStep.4",
+      "Title": "4"
+    },
+    {
+      "Code": 21,
+      "Mnemonic": "RCL 6",
+      "StepId": "ProgramStep.RCL6",
+      "Title": "RCL 6"
+    },
+    {
+      "Code": 22,
+      "Mnemonic": "+",
+      "StepId": "ProgramStep.CODE16",
+      "Title": "+"
+    },
+    {
+      "Code": 23,
+      "Mnemonic": "RCL 4",
+      "StepId": "ProgramStep.RCL4",
+      "Title": "RCL 4"
+    },
+    {
+      "Code": 24,
+      "Mnemonic": "E",
+      "StepId": "ProgramStep.E",
+      "Title": "E"
+    },
+    {
+      "Code": 25,
+      "Mnemonic": "x=y?",
+      "StepId": "ProgramStep.XY",
+      "Title": "x=y?"
+    },
+    {
+      "Code": 26,
+      "Mnemonic": "D",
+      "StepId": "ProgramStep.D",
+      "Title": "D"
+    },
+    {
+      "Code": 27,
+      "Mnemonic": "C",
+      "StepId": "ProgramStep.C",
+      "Title": "C"
+    },
+    {
+      "Code": 28,
+      "Mnemonic": "B",
+      "StepId": "ProgramStep.B",
+      "Title": "B"
+    },
+    {
+      "Code": 29,
+      "Mnemonic": "RCL 5",
+      "StepId": "ProgramStep.RCL5",
+      "Title": "RCL 5"
+    },
+    {
+      "Code": 30,
+      "Mnemonic": "A",
+      "StepId": "ProgramStep.A",
+      "Title": "A"
+    },
+    {
+      "Code": 31,
+      "Mnemonic": "RCL 3",
+      "StepId": "ProgramStep.RCL3",
+      "Title": "RCL 3"
+    },
+    {
+      "Code": 32,
+      "Mnemonic": "RCL 2",
+      "StepId": "ProgramStep.RCL2",
+      "Title": "RCL 2"
+    },
+    {
+      "Code": 33,
+      "Mnemonic": "RCL 1",
+      "StepId": "ProgramStep.RCL1",
+      "Title": "RCL 1"
+    },
+    {
+      "Code": 34,
+      "Mnemonic": "R/S",
+      "StepId": "ProgramStep.RS",
+      "Title": "R/S"
+    },
+    {
+      "Code": 35,
+      "Mnemonic": ".",
+      "StepId": "ProgramStep.CODE23",
+      "Title": "."
+    },
+    {
+      "Code": 36,
+      "Mnemonic": "0",
+      "StepId": "ProgramStep.0",
+      "Title": "0"
+    },
+    {
+      "Code": 37,
+      "Mnemonic": "STO 7",
+      "StepId": "ProgramStep.STO7",
+      "Title": "STO 7"
+    },
+    {
+      "Code": 38,
+      "Mnemonic": "/",
+      "StepId": "ProgramStep.CODE26",
+      "Title": "/"
+    },
+    {
+      "Code": 39,
+      "Mnemonic": "f-1",
+      "StepId": "ProgramStep.F1",
+      "Title": "f-1"
+    },
+    {
+      "Code": 40,
+      "Mnemonic": "2",
+      "StepId": "ProgramStep.2",
+      "Title": "2"
+    },
+    {
+      "Code": 41,
+      "Mnemonic": "x>y?",
+      "StepId": "ProgramStep.XY",
+      "Title": "x>y?"
+    },
+    {
+      "Code": 42,
+      "Mnemonic": "RTN",
+      "StepId": "ProgramStep.RTN",
+      "Title": "RTN"
+    },
+    {
+      "Code": 43,
+      "Mnemonic": "LBL",
+      "StepId": "ProgramStep.LBL",
+      "Title": "LBL"
+    },
+    {
+      "Code": 44,
+      "Mnemonic": "GTO",
+      "StepId": "ProgramStep.GTO",
+      "Title": "GTO"
+    },
+    {
+      "Code": 45,
+      "Mnemonic": "STO 5",
+      "StepId": "ProgramStep.STO5",
+      "Title": "STO 5"
+    },
+    {
+      "Code": 46,
+      "Mnemonic": "DSP",
+      "StepId": "ProgramStep.DSP",
+      "Title": "DSP"
+    },
+    {
+      "Code": 47,
+      "Mnemonic": "STO 3",
+      "StepId": "ProgramStep.STO3",
+      "Title": "STO 3"
+    },
+    {
+      "Code": 48,
+      "Mnemonic": "STO 2",
+      "StepId": "ProgramStep.STO2",
+      "Title": "STO 2"
+    },
+    {
+      "Code": 49,
+      "Mnemonic": "STO 1",
+      "StepId": "ProgramStep.STO1",
+      "Title": "STO 1"
+    },
+    {
+      "Code": 50,
+      "Mnemonic": "9",
+      "StepId": "ProgramStep.9",
+      "Title": "9"
+    },
+    {
+      "Code": 51,
+      "Mnemonic": "8",
+      "StepId": "ProgramStep.8",
+      "Title": "8"
+    },
+    {
+      "Code": 52,
+      "Mnemonic": "7",
+      "StepId": "ProgramStep.7",
+      "Title": "7"
+    },
+    {
+      "Code": 53,
+      "Mnemonic": "STO 8",
+      "StepId": "ProgramStep.STO8",
+      "Title": "STO 8"
+    },
+    {
+      "Code": 54,
+      "Mnemonic": "-",
+      "StepId": "ProgramStep.CODE36",
+      "Title": "-"
+    },
+    {
+      "Code": 55,
+      "Mnemonic": "x<=y?",
+      "StepId": "ProgramStep.XY",
+      "Title": "x<=y?"
+    },
+    {
+      "Code": 56,
+      "Mnemonic": "CLX",
+      "StepId": "ProgramStep.CLX",
+      "Title": "CLX"
+    },
+    {
+      "Code": 57,
+      "Mnemonic": "<57>",
+      "StepId": "ProgramStep.57",
+      "Title": "<57>"
+    },
+    {
+      "Code": 58,
+      "Mnemonic": "EEX",
+      "StepId": "ProgramStep.EEX",
+      "Title": "EEX"
+    },
+    {
+      "Code": 59,
+      "Mnemonic": "CHS",
+      "StepId": "ProgramStep.CHS",
+      "Title": "CHS"
+    },
+    {
+      "Code": 60,
+      "Mnemonic": "LSTX",
+      "StepId": "ProgramStep.LSTX",
+      "Title": "LSTX"
+    },
+    {
+      "Code": 61,
+      "Mnemonic": "PTR",
+      "StepId": "ProgramStep.PTR",
+      "Title": "PTR"
+    },
+    {
+      "Code": 62,
+      "Mnemonic": "ENTER",
+      "StepId": "ProgramStep.ENTER",
+      "Title": "ENTER"
+    },
+    {
+      "Code": 63,
+      "Mnemonic": "START",
+      "StepId": "ProgramStep.START",
+      "Title": "START"
+    }
+  ],
+  "KeyChart": [
+    {
+      "Index": 0,
+      "Char": "z",
+      "KeyCode": 6
+    },
+    {
+      "Index": 1,
+      "Char": "g",
+      "KeyCode": 4
+    },
+    {
+      "Index": 2,
+      "Char": "l",
+      "KeyCode": 3
+    },
+    {
+      "Index": 3,
+      "Char": "e",
+      "KeyCode": 2
+    },
+    {
+      "Index": 4,
+      "Char": "c",
+      "KeyCode": 0
+    },
+    {
+      "Index": 5,
+      "Char": "q",
+      "KeyCode": 46
+    },
+    {
+      "Index": 6,
+      "Char": "a",
+      "KeyCode": 44
+    },
+    {
+      "Index": 7,
+      "Char": "s",
+      "KeyCode": 43
+    },
+    {
+      "Index": 8,
+      "Char": "c",
+      "KeyCode": 42
+    },
+    {
+      "Index": 9,
+      "Char": "t",
+      "KeyCode": 40
+    },
+    {
+      "Index": 10,
+      "Char": "r",
+      "KeyCode": 14
+    },
+    {
+      "Index": 11,
+      "Char": "y",
+      "KeyCode": 12
+    },
+    {
+      "Index": 12,
+      "Char": "d",
+      "KeyCode": 11
+    },
+    {
+      "Index": 13,
+      "Char": "o",
+      "KeyCode": 10
+    },
+    {
+      "Index": 14,
+      "Char": "r",
+      "KeyCode": 8
+    },
+    {
+      "Index": 15,
+      "Char": "\r",
+      "KeyCode": 62
+    },
+    {
+      "Index": 16,
+      "Char": "\r",
+      "KeyCode": 62
+    },
+    {
+      "Index": 17,
+      "Char": "n",
+      "KeyCode": 59
+    },
+    {
+      "Index": 18,
+      "Char": "x",
+      "KeyCode": 58
+    },
+    {
+      "Index": 19,
+      "Char": "\b",
+      "KeyCode": 56
+    },
+    {
+      "Index": 20,
+      "Char": "-",
+      "KeyCode": 54
+    },
+    {
+      "Index": 21,
+      "Char": "7",
+      "KeyCode": 52
+    },
+    {
+      "Index": 22,
+      "Char": "8",
+      "KeyCode": 51
+    },
+    {
+      "Index": 23,
+      "Char": "9",
+      "KeyCode": 50
+    },
+    {
+      "Index": 24,
+      "Char": "\u0000",
+      "KeyCode": 0
+    },
+    {
+      "Index": 25,
+      "Char": "+",
+      "KeyCode": 22
+    },
+    {
+      "Index": 26,
+      "Char": "4",
+      "KeyCode": 20
+    },
+    {
+      "Index": 27,
+      "Char": "5",
+      "KeyCode": 19
+    },
+    {
+      "Index": 28,
+      "Char": "6",
+      "KeyCode": 18
+    },
+    {
+      "Index": 29,
+      "Char": "\u0000",
+      "KeyCode": 0
+    },
+    {
+      "Index": 30,
+      "Char": "*",
+      "KeyCode": 30
+    },
+    {
+      "Index": 31,
+      "Char": "1",
+      "KeyCode": 28
+    },
+    {
+      "Index": 32,
+      "Char": "2",
+      "KeyCode": 27
+    },
+    {
+      "Index": 33,
+      "Char": "3",
+      "KeyCode": 26
+    },
+    {
+      "Index": 34,
+      "Char": "\u0000",
+      "KeyCode": 0
+    },
+    {
+      "Index": 35,
+      "Char": "/",
+      "KeyCode": 38
+    },
+    {
+      "Index": 36,
+      "Char": "0",
+      "KeyCode": 36
+    },
+    {
+      "Index": 37,
+      "Char": ".",
+      "KeyCode": 35
+    },
+    {
+      "Index": 38,
+      "Char": "p",
+      "KeyCode": 34
+    },
+    {
+      "Index": 39,
+      "Char": "\u0000",
+      "KeyCode": 0
+    }
+  ]
+}

@@ -1,0 +1,1797 @@
+; TeoCalc HP-80 microcode listing (.mlist)
+; Runtime uses .bin only. This file is for viewers/debug.
+; Columns: Addr  Word  Mnem  HandlerId  Title
+; Words=1792  Bytes=3584
+;
+0000  02C9  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0001  0173  GOTO  ClassicCpu.Branch  Branch / go to
+0002  03EA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0003  03EA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0004  03EA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0005  0093  GOTO  ClassicCpu.Branch  Branch / go to
+0006  01A8  STKA  ClassicCpu.StackToA  Stack to A
+0007  0090  SELR  ClassicCpu.SelectRom  Select ROM bank
+0008  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+0009  0283  GOTO  ClassicCpu.Branch  Branch / go to
+000A  0090  SELR  ClassicCpu.SelectRom  Select ROM bank
+000B  03F7  GOTO  ClassicCpu.Branch  Branch / go to
+000C  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+000D  013F  GOTO  ClassicCpu.Branch  Branch / go to
+000E  01A8  STKA  ClassicCpu.StackToA  Stack to A
+000F  0087  GOTO  ClassicCpu.Branch  Branch / go to
+0010  0000  NOP   ClassicCpu.Nop  No operation
+0011  0000  NOP   ClassicCpu.Nop  No operation
+0012  03EA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0013  03EA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0014  03EA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0015  000B  GOTO  ClassicCpu.Branch  Branch / go to
+0016  01A8  STKA  ClassicCpu.StackToA  Stack to A
+0017  0090  SELR  ClassicCpu.SelectRom  Select ROM bank
+0018  02C4  SETS  ClassicCpu.SetStatus  Set status bit
+0019  007B  GOTO  ClassicCpu.Branch  Branch / go to
+001A  007B  GOTO  ClassicCpu.Branch  Branch / go to
+001B  0284  SETS  ClassicCpu.SetStatus  Set status bit
+001C  007B  GOTO  ClassicCpu.Branch  Branch / go to
+001D  0030  RETN  ClassicCpu.Return  Return from subroutine
+001E  01D4  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+001F  00C3  GOTO  ClassicCpu.Branch  Branch / go to
+0020  0190  SELR  ClassicCpu.SelectRom  Select ROM bank
+0021  0090  SELR  ClassicCpu.SelectRom  Select ROM bank
+0022  0090  SELR  ClassicCpu.SelectRom  Select ROM bank
+0023  0144  SETS  ClassicCpu.SetStatus  Set status bit
+0024  0090  SELR  ClassicCpu.SelectRom  Select ROM bank
+0025  0000  NOP   ClassicCpu.Nop  No operation
+0026  01A8  STKA  ClassicCpu.StackToA  Stack to A
+0027  0090  SELR  ClassicCpu.SelectRom  Select ROM bank
+0028  0310  SELR  ClassicCpu.SelectRom  Select ROM bank
+0029  0000  NOP   ClassicCpu.Nop  No operation
+002A  0210  SELR  ClassicCpu.SelectRom  Select ROM bank
+002B  0210  SELR  ClassicCpu.SelectRom  Select ROM bank
+002C  01A8  STKA  ClassicCpu.StackToA  Stack to A
+002D  0090  SELR  ClassicCpu.SelectRom  Select ROM bank
+002E  01C4  SETS  ClassicCpu.SetStatus  Set status bit
+002F  010B  GOTO  ClassicCpu.Branch  Branch / go to
+0030  01C4  SETS  ClassicCpu.SetStatus  Set status bit
+0031  013F  GOTO  ClassicCpu.Branch  Branch / go to
+0032  03EA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0033  03EA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0034  03EA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0035  004B  GOTO  ClassicCpu.Branch  Branch / go to
+0036  00FE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0037  0059  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0038  00CE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0039  0111  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+003A  03DB  GOTO  ClassicCpu.Branch  Branch / go to
+003B  0214  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+003C  0133  GOTO  ClassicCpu.Branch  Branch / go to
+003D  0137  GOTO  ClassicCpu.Branch  Branch / go to
+003E  0128  CTST  ClassicCpu.CToStack  C to stack
+003F  02E4  CLRS  ClassicCpu.ClearStatus  Clear status
+0040  02A4  CLRS  ClassicCpu.ClearStatus  Clear status
+0041  01E4  CLRS  ClassicCpu.ClearStatus  Clear status
+0042  0124  CLRS  ClassicCpu.ClearStatus  Clear status
+0043  0143  GOTO  ClassicCpu.Branch  Branch / go to
+0044  01D4  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+0045  023B  GOTO  ClassicCpu.Branch  Branch / go to
+0046  0114  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+0047  0127  GOTO  ClassicCpu.Branch  Branch / go to
+0048  023B  GOTO  ClassicCpu.Branch  Branch / go to
+0049  0128  CTST  ClassicCpu.CToStack  C to stack
+004A  0128  CTST  ClassicCpu.CToStack  C to stack
+004B  00FB  GOTO  ClassicCpu.Branch  Branch / go to
+004C  0128  CTST  ClassicCpu.CToStack  C to stack
+004D  02A8  MTOC  ClassicCpu.MToC  M to C
+004E  01E4  CLRS  ClassicCpu.ClearStatus  Clear status
+004F  0104  SETS  ClassicCpu.SetStatus  Set status bit
+0050  0224  CLRS  ClassicCpu.ClearStatus  Clear status
+0051  018E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0052  012E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0053  030C  SETP  ClassicCpu.SetP  Set P register (digit pointer)
+0054  00D6  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0055  01E2  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0056  01E2  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0057  01BA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0058  01FF  GOTO  ClassicCpu.Branch  Branch / go to
+0059  00EA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+005A  01BA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+005B  0247  GOTO  ClassicCpu.Branch  Branch / go to
+005C  0144  SETS  ClassicCpu.SetStatus  Set status bit
+005D  039A  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+005E  0187  GOTO  ClassicCpu.Branch  Branch / go to
+005F  00CE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0060  0141  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0061  00CE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0062  0172  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0063  00DA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0064  03BE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0065  0143  GOTO  ClassicCpu.Branch  Branch / go to
+0066  0124  CLRS  ClassicCpu.ClearStatus  Clear status
+0067  0264  CLRS  ClassicCpu.ClearStatus  Clear status
+0068  030C  SETP  ClassicCpu.SetP  Set P register (digit pointer)
+0069  0024  CLRS  ClassicCpu.ClearStatus  Clear status
+006A  001C  DECP  ClassicCpu.DecrementP  Decrement P
+006B  032C  TSTP  ClassicCpu.TestP  Test P register
+006C  01AB  GOTO  ClassicCpu.Branch  Branch / go to
+006D  0228  DSPF  ClassicCpu.DisplayOff  Display off
+006E  0254  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+006F  01E7  GOTO  ClassicCpu.Branch  Branch / go to
+0070  0164  CLRS  ClassicCpu.ClearStatus  Clear status
+0071  010A  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0072  00D0  KROM  ClassicCpu.KeysToRomAddress  Keys to ROM address
+0073  0244  SETS  ClassicCpu.SetStatus  Set status bit
+0074  004C  SETP  ClassicCpu.SetP  Set P register (digit pointer)
+0075  0154  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+0076  01EB  GOTO  ClassicCpu.Branch  Branch / go to
+0077  01F2  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0078  01CF  GOTO  ClassicCpu.Branch  Branch / go to
+0079  0028  DSPT  ClassicCpu.DisplayToggle  Display toggle
+007A  0014  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+007B  01CF  GOTO  ClassicCpu.Branch  Branch / go to
+007C  01A7  GOTO  ClassicCpu.Branch  Branch / go to
+007D  012A  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+007E  0297  GOTO  ClassicCpu.Branch  Branch / go to
+007F  0279  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0080  02EA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0081  03EA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0082  010A  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0083  032E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0084  020A  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0085  01F7  GOTO  ClassicCpu.Branch  Branch / go to
+0086  012A  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0087  036A  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0088  026F  GOTO  ClassicCpu.Branch  Branch / go to
+0089  00EC  TSTP  ClassicCpu.TestP  Test P register
+008A  025B  GOTO  ClassicCpu.Branch  Branch / go to
+008B  0090  SELR  ClassicCpu.SelectRom  Select ROM bank
+008C  001C  DECP  ClassicCpu.DecrementP  Decrement P
+008D  0227  GOTO  ClassicCpu.Branch  Branch / go to
+008E  01E4  CLRS  ClassicCpu.ClearStatus  Clear status
+008F  0124  CLRS  ClassicCpu.ClearStatus  Clear status
+0090  0147  GOTO  ClassicCpu.Branch  Branch / go to
+0091  018A  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0092  0279  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0093  03EA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0094  036A  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0095  0267  GOTO  ClassicCpu.Branch  Branch / go to
+0096  016A  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0097  0233  GOTO  ClassicCpu.Branch  Branch / go to
+0098  022F  GOTO  ClassicCpu.Branch  Branch / go to
+0099  02C6  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+009A  0251  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+009B  001C  DECP  ClassicCpu.DecrementP  Decrement P
+009C  0246  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+009D  021D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+009E  0090  SELR  ClassicCpu.SelectRom  Select ROM bank
+009F  0030  RETN  ClassicCpu.Return  Return from subroutine
+00A0  0090  SELR  ClassicCpu.SelectRom  Select ROM bank
+00A1  021A  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+00A2  0297  GOTO  ClassicCpu.Branch  Branch / go to
+00A3  03EA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+00A4  037A  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+00A5  00CA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+00A6  00CC  SETP  ClassicCpu.SetP  Set P register (digit pointer)
+00A7  032C  TSTP  ClassicCpu.TestP  Test P register
+00A8  03C7  GOTO  ClassicCpu.Branch  Branch / go to
+00A9  022E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+00AA  01A4  CLRS  ClassicCpu.ClearStatus  Clear status
+00AB  019D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+00AC  02F6  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+00AD  0114  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+00AE  02C3  GOTO  ClassicCpu.Branch  Branch / go to
+00AF  0128  CTST  ClassicCpu.CToStack  C to stack
+00B0  01A4  CLRS  ClassicCpu.ClearStatus  Clear status
+00B1  03A7  GOTO  ClassicCpu.Branch  Branch / go to
+00B2  03A8  CLRG  ClassicCpu.ClearRegisters  Clear registers
+00B3  0034  CLSS  ClassicCpu.ClearS  Clear S register
+00B4  0084  SETS  ClassicCpu.SetStatus  Set status bit
+00B5  0127  GOTO  ClassicCpu.Branch  Branch / go to
+00B6  03EA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+00B7  0006  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+00B8  039B  GOTO  ClassicCpu.Branch  Branch / go to
+00B9  00EC  TSTP  ClassicCpu.TestP  Test P register
+00BA  02FF  GOTO  ClassicCpu.Branch  Branch / go to
+00BB  00CE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+00BC  01FE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+00BD  01FE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+00BE  034C  SETP  ClassicCpu.SetP  Set P register (digit pointer)
+00BF  0252  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+00C0  0006  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+00C1  032F  GOTO  ClassicCpu.Branch  Branch / go to
+00C2  030C  SETP  ClassicCpu.SetP  Set P register (digit pointer)
+00C3  0262  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+00C4  032F  GOTO  ClassicCpu.Branch  Branch / go to
+00C5  02EA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+00C6  036A  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+00C7  0262  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+00C8  032F  GOTO  ClassicCpu.Branch  Branch / go to
+00C9  0106  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+00CA  031B  GOTO  ClassicCpu.Branch  Branch / go to
+00CB  012A  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+00CC  022E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+00CD  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+00CE  0164  CLRS  ClassicCpu.ClearStatus  Clear status
+00CF  0199  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+00D0  022E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+00D1  00CA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+00D2  01F6  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+00D3  000C  SETP  ClassicCpu.SetP  Set P register (digit pointer)
+00D4  0162  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+00D5  003C  INCP  ClassicCpu.IncrementP  Increment P
+00D6  0162  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+00D7  036B  GOTO  ClassicCpu.Branch  Branch / go to
+00D8  0112  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+00D9  0357  GOTO  ClassicCpu.Branch  Branch / go to
+00DA  032A  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+00DB  012E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+00DC  0154  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+00DD  0383  GOTO  ClassicCpu.Branch  Branch / go to
+00DE  0184  SETS  ClassicCpu.SetStatus  Set status bit
+00DF  032F  GOTO  ClassicCpu.Branch  Branch / go to
+00E0  0194  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+00E1  02DB  GOTO  ClassicCpu.Branch  Branch / go to
+00E2  001C  DECP  ClassicCpu.DecrementP  Decrement P
+00E3  00AC  TSTP  ClassicCpu.TestP  Test P register
+00E4  02FF  GOTO  ClassicCpu.Branch  Branch / go to
+00E5  0303  GOTO  ClassicCpu.Branch  Branch / go to
+00E6  024E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+00E7  022E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+00E8  0199  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+00E9  00CE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+00EA  002E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+00EB  034C  SETP  ClassicCpu.SetP  Set P register (digit pointer)
+00EC  00D8  LDCN  ClassicCpu.LoadConstant  Load constant digit
+00ED  0224  CLRS  ClassicCpu.ClearStatus  Clear status
+00EE  016A  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+00EF  022A  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+00F0  034F  GOTO  ClassicCpu.Branch  Branch / go to
+00F1  0262  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+00F2  02A7  GOTO  ClassicCpu.Branch  Branch / go to
+00F3  0162  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+00F4  003C  INCP  ClassicCpu.IncrementP  Increment P
+00F5  029F  GOTO  ClassicCpu.Branch  Branch / go to
+00F6  00FE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+00F7  019E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+00F8  018A  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+00F9  019F  GOTO  ClassicCpu.Branch  Branch / go to
+00FA  0000  NOP   ClassicCpu.Nop  No operation
+00FB  0000  NOP   ClassicCpu.Nop  No operation
+00FC  0000  NOP   ClassicCpu.Nop  No operation
+00FD  00A8  CXCH  ClassicCpu.ExchangeCAndM  Exchange C and M
+00FE  02A8  MTOC  ClassicCpu.MToC  M to C
+00FF  010B  GOTO  ClassicCpu.Branch  Branch / go to
+0100  0000  NOP   ClassicCpu.Nop  No operation
+0101  0000  NOP   ClassicCpu.Nop  No operation
+0102  0044  SETS  ClassicCpu.SetStatus  Set status bit
+0103  00DB  GOTO  ClassicCpu.Branch  Branch / go to
+0104  0044  SETS  ClassicCpu.SetStatus  Set status bit
+0105  0137  GOTO  ClassicCpu.Branch  Branch / go to
+0106  0264  CLRS  ClassicCpu.ClearStatus  Clear status
+0107  0110  SELR  ClassicCpu.SelectRom  Select ROM bank
+0108  0399  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0109  0137  GOTO  ClassicCpu.Branch  Branch / go to
+010A  0110  SELR  ClassicCpu.SelectRom  Select ROM bank
+010B  0204  SETS  ClassicCpu.SetStatus  Set status bit
+010C  01D4  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+010D  005B  GOTO  ClassicCpu.Branch  Branch / go to
+010E  01E4  CLRS  ClassicCpu.ClearStatus  Clear status
+010F  03F1  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0110  0137  GOTO  ClassicCpu.Branch  Branch / go to
+0111  0210  SELR  ClassicCpu.SelectRom  Select ROM bank
+0112  00D7  GOTO  ClassicCpu.Branch  Branch / go to
+0113  0044  SETS  ClassicCpu.SetStatus  Set status bit
+0114  00C4  SETS  ClassicCpu.SetStatus  Set status bit
+0115  0137  GOTO  ClassicCpu.Branch  Branch / go to
+0116  0019  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0117  0133  GOTO  ClassicCpu.Branch  Branch / go to
+0118  01E4  CLRS  ClassicCpu.ClearStatus  Clear status
+0119  01B1  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+011A  0137  GOTO  ClassicCpu.Branch  Branch / go to
+011B  01E4  CLRS  ClassicCpu.ClearStatus  Clear status
+011C  0010  SELR  ClassicCpu.SelectRom  Select ROM bank
+011D  0030  RETN  ClassicCpu.Return  Return from subroutine
+011E  0114  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+011F  00C3  GOTO  ClassicCpu.Branch  Branch / go to
+0120  006F  GOTO  ClassicCpu.Branch  Branch / go to
+0121  0000  NOP   ClassicCpu.Nop  No operation
+0122  033F  GOTO  ClassicCpu.Branch  Branch / go to
+0123  016F  GOTO  ClassicCpu.Branch  Branch / go to
+0124  0137  GOTO  ClassicCpu.Branch  Branch / go to
+0125  01D4  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+0126  006F  GOTO  ClassicCpu.Branch  Branch / go to
+0127  007B  GOTO  ClassicCpu.Branch  Branch / go to
+0128  01E4  CLRS  ClassicCpu.ClearStatus  Clear status
+0129  00FB  GOTO  ClassicCpu.Branch  Branch / go to
+012A  0128  CTST  ClassicCpu.CToStack  C to stack
+012B  01D4  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+012C  0103  GOTO  ClassicCpu.Branch  Branch / go to
+012D  00E3  GOTO  ClassicCpu.Branch  Branch / go to
+012E  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+012F  00AB  GOTO  ClassicCpu.Branch  Branch / go to
+0130  0034  CLSS  ClassicCpu.ClearS  Clear S register
+0131  00D0  KROM  ClassicCpu.KeysToRomAddress  Keys to ROM address
+0132  0000  NOP   ClassicCpu.Nop  No operation
+0133  0000  NOP   ClassicCpu.Nop  No operation
+0134  0044  SETS  ClassicCpu.SetStatus  Set status bit
+0135  00C4  SETS  ClassicCpu.SetStatus  Set status bit
+0136  0084  SETS  ClassicCpu.SetStatus  Set status bit
+0137  0137  GOTO  ClassicCpu.Branch  Branch / go to
+0138  01E4  CLRS  ClassicCpu.ClearStatus  Clear status
+0139  01AD  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+013A  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+013B  0128  CTST  ClassicCpu.CToStack  C to stack
+013C  016A  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+013D  016A  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+013E  0391  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+013F  0135  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0140  0399  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0141  016A  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0142  016A  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0143  0135  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0144  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+0145  016A  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0146  016A  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0147  02EE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0148  03FE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0149  02CE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+014A  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+014B  037F  GOTO  ClassicCpu.Branch  Branch / go to
+014C  01A8  STKA  ClassicCpu.StackToA  Stack to A
+014D  0010  SELR  ClassicCpu.SelectRom  Select ROM bank
+014E  00DE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+014F  00DA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0150  02A2  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0151  0163  GOTO  ClassicCpu.Branch  Branch / go to
+0152  0092  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0153  01EE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0154  01BE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0155  0163  GOTO  ClassicCpu.Branch  Branch / go to
+0156  0256  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0157  0296  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0158  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0159  019E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+015A  02A3  GOTO  ClassicCpu.Branch  Branch / go to
+015B  01D4  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+015C  02B7  GOTO  ClassicCpu.Branch  Branch / go to
+015D  0114  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+015E  02AB  GOTO  ClassicCpu.Branch  Branch / go to
+015F  0190  SELR  ClassicCpu.SelectRom  Select ROM bank
+0160  00CA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0161  00D4  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+0162  025F  GOTO  ClassicCpu.Branch  Branch / go to
+0163  01EA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0164  02AA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0165  02AA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0166  0094  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+0167  025F  GOTO  ClassicCpu.Branch  Branch / go to
+0168  0054  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+0169  0273  GOTO  ClassicCpu.Branch  Branch / go to
+016A  0283  GOTO  ClassicCpu.Branch  Branch / go to
+016B  00FE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+016C  012E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+016D  03FA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+016E  03FA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+016F  01FA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0170  01FA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0171  004A  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0172  01D3  GOTO  ClassicCpu.Branch  Branch / go to
+0173  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0174  0266  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0175  03DF  GOTO  ClassicCpu.Branch  Branch / go to
+0176  01EB  GOTO  ClassicCpu.Branch  Branch / go to
+0177  02C6  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0178  0266  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0179  03E3  GOTO  ClassicCpu.Branch  Branch / go to
+017A  017A  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+017B  017A  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+017C  02EA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+017D  03BE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+017E  035E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+017F  027E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0180  0213  GOTO  ClassicCpu.Branch  Branch / go to
+0181  03D6  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0182  035E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0183  0110  SELR  ClassicCpu.SelectRom  Select ROM bank
+0184  0146  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0185  021F  GOTO  ClassicCpu.Branch  Branch / go to
+0186  00B6  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0187  0186  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0188  0110  SELR  ClassicCpu.SelectRom  Select ROM bank
+0189  0000  NOP   ClassicCpu.Nop  No operation
+018A  0000  NOP   ClassicCpu.Nop  No operation
+018B  0000  NOP   ClassicCpu.Nop  No operation
+018C  01E2  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+018D  00CA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+018E  0172  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+018F  022E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0190  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0191  001C  DECP  ClassicCpu.DecrementP  Decrement P
+0192  013B  GOTO  ClassicCpu.Branch  Branch / go to
+0193  0000  NOP   ClassicCpu.Nop  No operation
+0194  0000  NOP   ClassicCpu.Nop  No operation
+0195  0000  NOP   ClassicCpu.Nop  No operation
+0196  0000  NOP   ClassicCpu.Nop  No operation
+0197  0054  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+0198  026B  GOTO  ClassicCpu.Branch  Branch / go to
+0199  01EA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+019A  0094  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+019B  027B  GOTO  ClassicCpu.Branch  Branch / go to
+019C  01EA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+019D  01EA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+019E  0010  SELR  ClassicCpu.SelectRom  Select ROM bank
+019F  0183  GOTO  ClassicCpu.Branch  Branch / go to
+01A0  0010  SELR  ClassicCpu.SelectRom  Select ROM bank
+01A1  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+01A2  01D4  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+01A3  03A7  GOTO  ClassicCpu.Branch  Branch / go to
+01A4  01E4  CLRS  ClassicCpu.ClearStatus  Clear status
+01A5  0365  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+01A6  0128  CTST  ClassicCpu.CToStack  C to stack
+01A7  0023  GOTO  ClassicCpu.Branch  Branch / go to
+01A8  01A4  CLRS  ClassicCpu.ClearStatus  Clear status
+01A9  0010  SELR  ClassicCpu.SelectRom  Select ROM bank
+01AA  00FE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+01AB  01E4  CLRS  ClassicCpu.ClearStatus  Clear status
+01AC  0104  SETS  ClassicCpu.SetStatus  Set status bit
+01AD  01A8  STKA  ClassicCpu.StackToA  Stack to A
+01AE  0224  CLRS  ClassicCpu.ClearStatus  Clear status
+01AF  0128  CTST  ClassicCpu.CToStack  C to stack
+01B0  01B1  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+01B1  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+01B2  018E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+01B3  0399  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+01B4  0114  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+01B5  02DF  GOTO  ClassicCpu.Branch  Branch / go to
+01B6  00FE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+01B7  01A8  STKA  ClassicCpu.StackToA  Stack to A
+01B8  0128  CTST  ClassicCpu.CToStack  C to stack
+01B9  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+01BA  011D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+01BB  0114  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+01BC  02FB  GOTO  ClassicCpu.Branch  Branch / go to
+01BD  017E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+01BE  01B1  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+01BF  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+01C0  01A8  STKA  ClassicCpu.StackToA  Stack to A
+01C1  01B1  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+01C2  0128  CTST  ClassicCpu.CToStack  C to stack
+01C3  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+01C4  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+01C5  0137  GOTO  ClassicCpu.Branch  Branch / go to
+01C6  011D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+01C7  01AD  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+01C8  022E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+01C9  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+01CA  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+01CB  0391  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+01CC  0204  SETS  ClassicCpu.SetStatus  Set status bit
+01CD  03F1  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+01CE  01A8  STKA  ClassicCpu.StackToA  Stack to A
+01CF  0128  CTST  ClassicCpu.CToStack  C to stack
+01D0  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+01D1  0137  GOTO  ClassicCpu.Branch  Branch / go to
+01D2  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+01D3  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+01D4  00FE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+01D5  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+01D6  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+01D7  037F  GOTO  ClassicCpu.Branch  Branch / go to
+01D8  0000  NOP   ClassicCpu.Nop  No operation
+01D9  022E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+01DA  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+01DB  01A8  STKA  ClassicCpu.StackToA  Stack to A
+01DC  022E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+01DD  0128  CTST  ClassicCpu.CToStack  C to stack
+01DE  008E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+01DF  0228  DSPF  ClassicCpu.DisplayOff  Display off
+01E0  03D3  GOTO  ClassicCpu.Branch  Branch / go to
+01E1  0114  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+01E2  0047  GOTO  ClassicCpu.Branch  Branch / go to
+01E3  0190  SELR  ClassicCpu.SelectRom  Select ROM bank
+01E4  03B6  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+01E5  039F  GOTO  ClassicCpu.Branch  Branch / go to
+01E6  0110  SELR  ClassicCpu.SelectRom  Select ROM bank
+01E7  014A  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+01E8  0110  SELR  ClassicCpu.SelectRom  Select ROM bank
+01E9  01A8  STKA  ClassicCpu.StackToA  Stack to A
+01EA  0365  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+01EB  0128  CTST  ClassicCpu.CToStack  C to stack
+01EC  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+01ED  0391  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+01EE  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+01EF  0399  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+01F0  01A8  STKA  ClassicCpu.StackToA  Stack to A
+01F1  01AD  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+01F2  0365  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+01F3  031B  GOTO  ClassicCpu.Branch  Branch / go to
+01F4  01D4  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+01F5  0077  GOTO  ClassicCpu.Branch  Branch / go to
+01F6  0387  GOTO  ClassicCpu.Branch  Branch / go to
+01F7  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+01F8  004A  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+01F9  01EB  GOTO  ClassicCpu.Branch  Branch / go to
+01FA  03EA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+01FB  01DF  GOTO  ClassicCpu.Branch  Branch / go to
+01FC  0066  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+01FD  002B  GOTO  ClassicCpu.Branch  Branch / go to
+01FE  0030  RETN  ClassicCpu.Return  Return from subroutine
+01FF  0000  NOP   ClassicCpu.Nop  No operation
+0200  0010  SELR  ClassicCpu.SelectRom  Select ROM bank
+0201  038E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0202  017E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0203  0007  GOTO  ClassicCpu.Branch  Branch / go to
+0204  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0205  0116  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0206  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0207  00F3  GOTO  ClassicCpu.Branch  Branch / go to
+0208  01A8  STKA  ClassicCpu.StackToA  Stack to A
+0209  0128  CTST  ClassicCpu.CToStack  C to stack
+020A  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+020B  02EE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+020C  0184  SETS  ClassicCpu.SetStatus  Set status bit
+020D  0346  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+020E  0003  GOTO  ClassicCpu.Branch  Branch / go to
+020F  02CE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0210  017E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0211  0003  GOTO  ClassicCpu.Branch  Branch / go to
+0212  01FE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0213  012E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0214  005B  GOTO  ClassicCpu.Branch  Branch / go to
+0215  02D2  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0216  037E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0217  0057  GOTO  ClassicCpu.Branch  Branch / go to
+0218  02FE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0219  038E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+021A  0194  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+021B  016B  GOTO  ClassicCpu.Branch  Branch / go to
+021C  0362  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+021D  004B  GOTO  ClassicCpu.Branch  Branch / go to
+021E  0332  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+021F  0112  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0220  039E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0221  0387  GOTO  ClassicCpu.Branch  Branch / go to
+0222  01CC  SETP  ClassicCpu.SetP  Set P register (digit pointer)
+0223  00F3  GOTO  ClassicCpu.Branch  Branch / go to
+0224  03EA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0225  027A  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0226  037F  GOTO  ClassicCpu.Branch  Branch / go to
+0227  0316  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0228  0093  GOTO  ClassicCpu.Branch  Branch / go to
+0229  0396  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+022A  010E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+022B  016A  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+022C  0097  GOTO  ClassicCpu.Branch  Branch / go to
+022D  02CE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+022E  00D2  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+022F  03AA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0230  01BE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0231  00D7  GOTO  ClassicCpu.Branch  Branch / go to
+0232  032E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0233  030E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0234  00EE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0235  02CE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0236  0224  CLRS  ClassicCpu.ClearStatus  Clear status
+0237  00F3  GOTO  ClassicCpu.Branch  Branch / go to
+0238  01FE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0239  030E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+023A  00E3  GOTO  ClassicCpu.Branch  Branch / go to
+023B  038E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+023C  022E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+023D  00CE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+023E  0166  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+023F  0118  LDCN  ClassicCpu.LoadConstant  Load constant digit
+0240  01E6  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0241  024E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0242  016C  TSTP  ClassicCpu.TestP  Test P register
+0243  0347  GOTO  ClassicCpu.Branch  Branch / go to
+0244  018C  SETP  ClassicCpu.SetP  Set P register (digit pointer)
+0245  02F2  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0246  034C  SETP  ClassicCpu.SetP  Set P register (digit pointer)
+0247  022E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0248  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0249  0198  LDCN  ClassicCpu.LoadConstant  Load constant digit
+024A  0187  GOTO  ClassicCpu.Branch  Branch / go to
+024B  02EC  TSTP  ClassicCpu.TestP  Test P register
+024C  029B  GOTO  ClassicCpu.Branch  Branch / go to
+024D  0198  LDCN  ClassicCpu.LoadConstant  Load constant digit
+024E  0258  LDCN  ClassicCpu.LoadConstant  Load constant digit
+024F  00D8  LDCN  ClassicCpu.LoadConstant  Load constant digit
+0250  0058  LDCN  ClassicCpu.LoadConstant  Load constant digit
+0251  0118  LDCN  ClassicCpu.LoadConstant  Load constant digit
+0252  01D8  LDCN  ClassicCpu.LoadConstant  Load constant digit
+0253  0058  LDCN  ClassicCpu.LoadConstant  Load constant digit
+0254  0218  LDCN  ClassicCpu.LoadConstant  Load constant digit
+0255  0018  LDCN  ClassicCpu.LoadConstant  Load constant digit
+0256  0158  LDCN  ClassicCpu.LoadConstant  Load constant digit
+0257  0198  LDCN  ClassicCpu.LoadConstant  Load constant digit
+0258  02CC  SETP  ClassicCpu.SetP  Set P register (digit pointer)
+0259  035F  GOTO  ClassicCpu.Branch  Branch / go to
+025A  03E2  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+025B  012E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+025C  017E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+025D  005B  GOTO  ClassicCpu.Branch  Branch / go to
+025E  02D2  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+025F  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0260  0116  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0261  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0262  037E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0263  016F  GOTO  ClassicCpu.Branch  Branch / go to
+0264  032E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0265  03E2  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0266  0227  GOTO  ClassicCpu.Branch  Branch / go to
+0267  0256  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0268  010E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0269  00E7  GOTO  ClassicCpu.Branch  Branch / go to
+026A  026C  TSTP  ClassicCpu.TestP  Test P register
+026B  01D3  GOTO  ClassicCpu.Branch  Branch / go to
+026C  01CC  SETP  ClassicCpu.SetP  Set P register (digit pointer)
+026D  00D8  LDCN  ClassicCpu.LoadConstant  Load constant digit
+026E  00D8  LDCN  ClassicCpu.LoadConstant  Load constant digit
+026F  0018  LDCN  ClassicCpu.LoadConstant  Load constant digit
+0270  0218  LDCN  ClassicCpu.LoadConstant  Load constant digit
+0271  0158  LDCN  ClassicCpu.LoadConstant  Load constant digit
+0272  024C  SETP  ClassicCpu.SetP  Set P register (digit pointer)
+0273  035F  GOTO  ClassicCpu.Branch  Branch / go to
+0274  02AC  TSTP  ClassicCpu.TestP  Test P register
+0275  012F  GOTO  ClassicCpu.Branch  Branch / go to
+0276  024C  SETP  ClassicCpu.SetP  Set P register (digit pointer)
+0277  00D8  LDCN  ClassicCpu.LoadConstant  Load constant digit
+0278  0058  LDCN  ClassicCpu.LoadConstant  Load constant digit
+0279  0018  LDCN  ClassicCpu.LoadConstant  Load constant digit
+027A  0058  LDCN  ClassicCpu.LoadConstant  Load constant digit
+027B  01D8  LDCN  ClassicCpu.LoadConstant  Load constant digit
+027C  0258  LDCN  ClassicCpu.LoadConstant  Load constant digit
+027D  0218  LDCN  ClassicCpu.LoadConstant  Load constant digit
+027E  0058  LDCN  ClassicCpu.LoadConstant  Load constant digit
+027F  028C  SETP  ClassicCpu.SetP  Set P register (digit pointer)
+0280  035F  GOTO  ClassicCpu.Branch  Branch / go to
+0281  0396  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0282  0162  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0283  0207  GOTO  ClassicCpu.Branch  Branch / go to
+0284  02CE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0285  003C  INCP  ClassicCpu.IncrementP  Increment P
+0286  036C  TSTP  ClassicCpu.TestP  Test P register
+0287  020B  GOTO  ClassicCpu.Branch  Branch / go to
+0288  01EA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0289  02FE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+028A  030C  SETP  ClassicCpu.SetP  Set P register (digit pointer)
+028B  0262  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+028C  024B  GOTO  ClassicCpu.Branch  Branch / go to
+028D  010E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+028E  016A  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+028F  026E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0290  022F  GOTO  ClassicCpu.Branch  Branch / go to
+0291  00CE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0292  03AA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0293  02BA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0294  025B  GOTO  ClassicCpu.Branch  Branch / go to
+0295  03F6  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0296  03AA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0297  027E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0298  0213  GOTO  ClassicCpu.Branch  Branch / go to
+0299  03A6  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+029A  018E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+029B  0214  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+029C  037B  GOTO  ClassicCpu.Branch  Branch / go to
+029D  0194  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+029E  029B  GOTO  ClassicCpu.Branch  Branch / go to
+029F  01A4  CLRS  ClassicCpu.ClearStatus  Clear status
+02A0  0254  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+02A1  0397  GOTO  ClassicCpu.Branch  Branch / go to
+02A2  00CE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+02A3  001C  DECP  ClassicCpu.DecrementP  Decrement P
+02A4  0158  LDCN  ClassicCpu.LoadConstant  Load constant digit
+02A5  039F  GOTO  ClassicCpu.Branch  Branch / go to
+02A6  032C  TSTP  ClassicCpu.TestP  Test P register
+02A7  035F  GOTO  ClassicCpu.Branch  Branch / go to
+02A8  00CE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+02A9  0098  LDCN  ClassicCpu.LoadConstant  Load constant digit
+02AA  00D8  LDCN  ClassicCpu.LoadConstant  Load constant digit
+02AB  0018  LDCN  ClassicCpu.LoadConstant  Load constant digit
+02AC  0098  LDCN  ClassicCpu.LoadConstant  Load constant digit
+02AD  0158  LDCN  ClassicCpu.LoadConstant  Load constant digit
+02AE  0218  LDCN  ClassicCpu.LoadConstant  Load constant digit
+02AF  0158  LDCN  ClassicCpu.LoadConstant  Load constant digit
+02B0  0018  LDCN  ClassicCpu.LoadConstant  Load constant digit
+02B1  0258  LDCN  ClassicCpu.LoadConstant  Load constant digit
+02B2  00D8  LDCN  ClassicCpu.LoadConstant  Load constant digit
+02B3  030C  SETP  ClassicCpu.SetP  Set P register (digit pointer)
+02B4  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+02B5  0194  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+02B6  0323  GOTO  ClassicCpu.Branch  Branch / go to
+02B7  014E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+02B8  001A  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+02B9  02EF  GOTO  ClassicCpu.Branch  Branch / go to
+02BA  014E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+02BB  032E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+02BC  001C  DECP  ClassicCpu.DecrementP  Decrement P
+02BD  010E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+02BE  006C  TSTP  ClassicCpu.TestP  Test P register
+02BF  02F3  GOTO  ClassicCpu.Branch  Branch / go to
+02C0  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+02C1  01BE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+02C2  0313  GOTO  ClassicCpu.Branch  Branch / go to
+02C3  00E6  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+02C4  01EA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+02C5  0028  DSPT  ClassicCpu.DisplayToggle  Display toggle
+02C6  02CC  SETP  ClassicCpu.SetP  Set P register (digit pointer)
+02C7  020B  GOTO  ClassicCpu.Branch  Branch / go to
+02C8  012E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+02C9  0186  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+02CA  02BA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+02CB  009F  GOTO  ClassicCpu.Branch  Branch / go to
+02CC  01FA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+02CD  02CE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+02CE  01EA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+02CF  0337  GOTO  ClassicCpu.Branch  Branch / go to
+02D0  00C3  GOTO  ClassicCpu.Branch  Branch / go to
+02D1  022C  TSTP  ClassicCpu.TestP  Test P register
+02D2  01AB  GOTO  ClassicCpu.Branch  Branch / go to
+02D3  014C  SETP  ClassicCpu.SetP  Set P register (digit pointer)
+02D4  00D8  LDCN  ClassicCpu.LoadConstant  Load constant digit
+02D5  00D8  LDCN  ClassicCpu.LoadConstant  Load constant digit
+02D6  020C  SETP  ClassicCpu.SetP  Set P register (digit pointer)
+02D7  022E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+02D8  0194  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+02D9  019F  GOTO  ClassicCpu.Branch  Branch / go to
+02DA  02CE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+02DB  003C  INCP  ClassicCpu.IncrementP  Increment P
+02DC  003C  INCP  ClassicCpu.IncrementP  Increment P
+02DD  000B  GOTO  ClassicCpu.Branch  Branch / go to
+02DE  0090  SELR  ClassicCpu.SelectRom  Select ROM bank
+02DF  03E6  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+02E0  00B7  GOTO  ClassicCpu.Branch  Branch / go to
+02E1  033E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+02E2  0256  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+02E3  03FE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+02E4  004F  GOTO  ClassicCpu.Branch  Branch / go to
+02E5  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+02E6  0128  CTST  ClassicCpu.CToStack  C to stack
+02E7  00CC  SETP  ClassicCpu.SetP  Set P register (digit pointer)
+02E8  01CA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+02E9  015E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+02EA  03B3  GOTO  ClassicCpu.Branch  Branch / go to
+02EB  00BE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+02EC  032E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+02ED  02EE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+02EE  013E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+02EF  032C  TSTP  ClassicCpu.TestP  Test P register
+02F0  020B  GOTO  ClassicCpu.Branch  Branch / go to
+02F1  0006  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+02F2  0003  GOTO  ClassicCpu.Branch  Branch / go to
+02F3  03B2  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+02F4  03DB  GOTO  ClassicCpu.Branch  Branch / go to
+02F5  01E2  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+02F6  0316  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+02F7  03D7  GOTO  ClassicCpu.Branch  Branch / go to
+02F8  0396  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+02F9  0116  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+02FA  001C  DECP  ClassicCpu.DecrementP  Decrement P
+02FB  002C  TSTP  ClassicCpu.TestP  Test P register
+02FC  03DB  GOTO  ClassicCpu.Branch  Branch / go to
+02FD  019E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+02FE  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+02FF  0227  GOTO  ClassicCpu.Branch  Branch / go to
+0300  0119  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0301  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0302  038D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0303  0053  GOTO  ClassicCpu.Branch  Branch / go to
+0304  0204  SETS  ClassicCpu.SetStatus  Set status bit
+0305  0090  SELR  ClassicCpu.SelectRom  Select ROM bank
+0306  0224  CLRS  ClassicCpu.ClearStatus  Clear status
+0307  0027  GOTO  ClassicCpu.Branch  Branch / go to
+0308  0204  SETS  ClassicCpu.SetStatus  Set status bit
+0309  0090  SELR  ClassicCpu.SelectRom  Select ROM bank
+030A  0395  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+030B  0119  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+030C  02D4  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+030D  00F7  GOTO  ClassicCpu.Branch  Branch / go to
+030E  01AD  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+030F  0019  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0310  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+0311  0019  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0312  0119  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0313  0167  GOTO  ClassicCpu.Branch  Branch / go to
+0314  01A8  STKA  ClassicCpu.StackToA  Stack to A
+0315  0128  CTST  ClassicCpu.CToStack  C to stack
+0316  0365  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0317  017B  GOTO  ClassicCpu.Branch  Branch / go to
+0318  02E4  CLRS  ClassicCpu.ClearStatus  Clear status
+0319  0333  GOTO  ClassicCpu.Branch  Branch / go to
+031A  0113  GOTO  ClassicCpu.Branch  Branch / go to
+031B  032B  GOTO  ClassicCpu.Branch  Branch / go to
+031C  01B7  GOTO  ClassicCpu.Branch  Branch / go to
+031D  0000  NOP   ClassicCpu.Nop  No operation
+031E  018E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+031F  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+0320  03D7  GOTO  ClassicCpu.Branch  Branch / go to
+0321  0114  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+0322  03D3  GOTO  ClassicCpu.Branch  Branch / go to
+0323  00D0  KROM  ClassicCpu.KeysToRomAddress  Keys to ROM address
+0324  0000  NOP   ClassicCpu.Nop  No operation
+0325  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+0326  00A8  CXCH  ClassicCpu.ExchangeCAndM  Exchange C and M
+0327  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+0328  0128  CTST  ClassicCpu.CToStack  C to stack
+0329  010D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+032A  01AD  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+032B  01A8  STKA  ClassicCpu.StackToA  Stack to A
+032C  0128  CTST  ClassicCpu.CToStack  C to stack
+032D  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+032E  0119  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+032F  01AD  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0330  0011  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0331  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+0332  0128  CTST  ClassicCpu.CToStack  C to stack
+0333  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+0334  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+0335  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0336  038D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0337  02A8  MTOC  ClassicCpu.MToC  M to C
+0338  01AD  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0339  02A4  CLRS  ClassicCpu.ClearStatus  Clear status
+033A  02E4  CLRS  ClassicCpu.ClearStatus  Clear status
+033B  0137  GOTO  ClassicCpu.Branch  Branch / go to
+033C  0000  NOP   ClassicCpu.Nop  No operation
+033D  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+033E  01A9  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+033F  032E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0340  038D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0341  003F  GOTO  ClassicCpu.Branch  Branch / go to
+0342  0000  NOP   ClassicCpu.Nop  No operation
+0343  0090  SELR  ClassicCpu.SelectRom  Select ROM bank
+0344  02E4  CLRS  ClassicCpu.ClearStatus  Clear status
+0345  0123  GOTO  ClassicCpu.Branch  Branch / go to
+0346  0090  SELR  ClassicCpu.SelectRom  Select ROM bank
+0347  02C4  SETS  ClassicCpu.SetStatus  Set status bit
+0348  0345  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0349  010D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+034A  01AD  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+034B  0361  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+034C  013B  GOTO  ClassicCpu.Branch  Branch / go to
+034D  0010  SELR  ClassicCpu.SelectRom  Select ROM bank
+034E  0011  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+034F  0119  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0350  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0351  0294  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+0352  0173  GOTO  ClassicCpu.Branch  Branch / go to
+0353  01A9  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0354  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+0355  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+0356  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+0357  02D4  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+0358  016B  GOTO  ClassicCpu.Branch  Branch / go to
+0359  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+035A  038D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+035B  01A8  STKA  ClassicCpu.StackToA  Stack to A
+035C  01A8  STKA  ClassicCpu.StackToA  Stack to A
+035D  01A8  STKA  ClassicCpu.StackToA  Stack to A
+035E  0395  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+035F  00E7  GOTO  ClassicCpu.Branch  Branch / go to
+0360  0294  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+0361  0097  GOTO  ClassicCpu.Branch  Branch / go to
+0362  0124  CLRS  ClassicCpu.ClearStatus  Clear status
+0363  0210  SELR  ClassicCpu.SelectRom  Select ROM bank
+0364  01EA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0365  038D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0366  0119  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0367  01AD  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0368  01A8  STKA  ClassicCpu.StackToA  Stack to A
+0369  01DF  GOTO  ClassicCpu.Branch  Branch / go to
+036A  0090  SELR  ClassicCpu.SelectRom  Select ROM bank
+036B  0090  SELR  ClassicCpu.SelectRom  Select ROM bank
+036C  0090  SELR  ClassicCpu.SelectRom  Select ROM bank
+036D  02D4  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+036E  0383  GOTO  ClassicCpu.Branch  Branch / go to
+036F  02E4  CLRS  ClassicCpu.ClearStatus  Clear status
+0370  0294  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+0371  02EF  GOTO  ClassicCpu.Branch  Branch / go to
+0372  0345  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0373  00FE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0374  0128  CTST  ClassicCpu.CToStack  C to stack
+0375  01A8  STKA  ClassicCpu.StackToA  Stack to A
+0376  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+0377  038D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0378  00A8  CXCH  ClassicCpu.ExchangeCAndM  Exchange C and M
+0379  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+037A  0128  CTST  ClassicCpu.CToStack  C to stack
+037B  0119  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+037C  01AD  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+037D  032E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+037E  0395  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+037F  00A8  CXCH  ClassicCpu.ExchangeCAndM  Exchange C and M
+0380  01A8  STKA  ClassicCpu.StackToA  Stack to A
+0381  0128  CTST  ClassicCpu.CToStack  C to stack
+0382  0345  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0383  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+0384  01A9  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0385  01AD  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0386  00A8  CXCH  ClassicCpu.ExchangeCAndM  Exchange C and M
+0387  038D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0388  00A8  CXCH  ClassicCpu.ExchangeCAndM  Exchange C and M
+0389  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+038A  00A8  CXCH  ClassicCpu.ExchangeCAndM  Exchange C and M
+038B  01A8  STKA  ClassicCpu.StackToA  Stack to A
+038C  0119  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+038D  01AD  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+038E  0128  CTST  ClassicCpu.CToStack  C to stack
+038F  0128  CTST  ClassicCpu.CToStack  C to stack
+0390  008E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0391  00A8  CXCH  ClassicCpu.ExchangeCAndM  Exchange C and M
+0392  0011  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0393  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+0394  0128  CTST  ClassicCpu.CToStack  C to stack
+0395  0395  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0396  008E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0397  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+0398  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+0399  038D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+039A  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+039B  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+039C  0119  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+039D  01A9  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+039E  02A8  MTOC  ClassicCpu.MToC  M to C
+039F  038D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+03A0  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+03A1  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+03A2  01A9  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+03A3  01A8  STKA  ClassicCpu.StackToA  Stack to A
+03A4  0128  CTST  ClassicCpu.CToStack  C to stack
+03A5  022E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+03A6  01AD  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+03A7  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+03A8  022E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+03A9  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+03AA  022E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+03AB  038D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+03AC  02A8  MTOC  ClassicCpu.MToC  M to C
+03AD  0395  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+03AE  00A8  CXCH  ClassicCpu.ExchangeCAndM  Exchange C and M
+03AF  01AD  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+03B0  00A8  CXCH  ClassicCpu.ExchangeCAndM  Exchange C and M
+03B1  018E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+03B2  03B1  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+03B3  027A  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+03B4  034B  GOTO  ClassicCpu.Branch  Branch / go to
+03B5  0227  GOTO  ClassicCpu.Branch  Branch / go to
+03B6  0395  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+03B7  0365  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+03B8  01EA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+03B9  02C4  SETS  ClassicCpu.SetStatus  Set status bit
+03BA  0193  GOTO  ClassicCpu.Branch  Branch / go to
+03BB  01A8  STKA  ClassicCpu.StackToA  Stack to A
+03BC  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+03BD  038D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+03BE  01A8  STKA  ClassicCpu.StackToA  Stack to A
+03BF  0128  CTST  ClassicCpu.CToStack  C to stack
+03C0  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+03C1  0119  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+03C2  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+03C3  038D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+03C4  0011  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+03C5  0119  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+03C6  01A9  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+03C7  01EA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+03C8  01EA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+03C9  00E5  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+03CA  02D4  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+03CB  011F  GOTO  ClassicCpu.Branch  Branch / go to
+03CC  0294  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+03CD  0127  GOTO  ClassicCpu.Branch  Branch / go to
+03CE  00FE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+03CF  0125  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+03D0  0000  NOP   ClassicCpu.Nop  No operation
+03D1  0090  SELR  ClassicCpu.SelectRom  Select ROM bank
+03D2  02D4  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+03D3  00E7  GOTO  ClassicCpu.Branch  Branch / go to
+03D4  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+03D5  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+03D6  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+03D7  0003  GOTO  ClassicCpu.Branch  Branch / go to
+03D8  0090  SELR  ClassicCpu.SelectRom  Select ROM bank
+03D9  00CE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+03DA  01E2  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+03DB  01FE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+03DC  02B2  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+03DD  0256  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+03DE  01EA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+03DF  0030  RETN  ClassicCpu.Return  Return from subroutine
+03E0  0294  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+03E1  039B  GOTO  ClassicCpu.Branch  Branch / go to
+03E2  01D3  GOTO  ClassicCpu.Branch  Branch / go to
+03E3  0090  SELR  ClassicCpu.SelectRom  Select ROM bank
+03E4  0030  RETN  ClassicCpu.Return  Return from subroutine
+03E5  0090  SELR  ClassicCpu.SelectRom  Select ROM bank
+03E6  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+03E7  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+03E8  0128  CTST  ClassicCpu.CToStack  C to stack
+03E9  0128  CTST  ClassicCpu.CToStack  C to stack
+03EA  0128  CTST  ClassicCpu.CToStack  C to stack
+03EB  02DB  GOTO  ClassicCpu.Branch  Branch / go to
+03EC  02A8  MTOC  ClassicCpu.MToC  M to C
+03ED  01EA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+03EE  01EA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+03EF  03EA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+03F0  03EA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+03F1  03EA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+03F2  03EA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+03F3  0030  RETN  ClassicCpu.Return  Return from subroutine
+03F4  0210  SELR  ClassicCpu.SelectRom  Select ROM bank
+03F5  038D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+03F6  010D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+03F7  01AD  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+03F8  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+03F9  01A8  STKA  ClassicCpu.StackToA  Stack to A
+03FA  01A8  STKA  ClassicCpu.StackToA  Stack to A
+03FB  022E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+03FC  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+03FD  0294  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+03FE  003F  GOTO  ClassicCpu.Branch  Branch / go to
+03FF  002B  GOTO  ClassicCpu.Branch  Branch / go to
+0400  0010  SELR  ClassicCpu.SelectRom  Select ROM bank
+0401  0000  NOP   ClassicCpu.Nop  No operation
+0402  0000  NOP   ClassicCpu.Nop  No operation
+0403  0190  SELR  ClassicCpu.SelectRom  Select ROM bank
+0404  0030  RETN  ClassicCpu.Return  Return from subroutine
+0405  0039  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0406  01C4  SETS  ClassicCpu.SetStatus  Set status bit
+0407  0124  CLRS  ClassicCpu.ClearStatus  Clear status
+0408  0119  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0409  01AD  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+040A  0087  GOTO  ClassicCpu.Branch  Branch / go to
+040B  01A8  STKA  ClassicCpu.StackToA  Stack to A
+040C  0128  CTST  ClassicCpu.CToStack  C to stack
+040D  0030  RETN  ClassicCpu.Return  Return from subroutine
+040E  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+040F  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+0410  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+0411  0030  RETN  ClassicCpu.Return  Return from subroutine
+0412  0154  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+0413  0013  GOTO  ClassicCpu.Branch  Branch / go to
+0414  0290  SELR  ClassicCpu.SelectRom  Select ROM bank
+0415  01D4  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+0416  0017  GOTO  ClassicCpu.Branch  Branch / go to
+0417  007F  GOTO  ClassicCpu.Branch  Branch / go to
+0418  0003  GOTO  ClassicCpu.Branch  Branch / go to
+0419  0000  NOP   ClassicCpu.Nop  No operation
+041A  0290  SELR  ClassicCpu.SelectRom  Select ROM bank
+041B  03DB  GOTO  ClassicCpu.Branch  Branch / go to
+041C  0144  SETS  ClassicCpu.SetStatus  Set status bit
+041D  0290  SELR  ClassicCpu.SelectRom  Select ROM bank
+041E  0003  GOTO  ClassicCpu.Branch  Branch / go to
+041F  0114  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+0420  039F  GOTO  ClassicCpu.Branch  Branch / go to
+0421  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+0422  0124  CLRS  ClassicCpu.ClearStatus  Clear status
+0423  01A8  STKA  ClassicCpu.StackToA  Stack to A
+0424  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+0425  018E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0426  003D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0427  01A9  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0428  002D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0429  0119  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+042A  016B  GOTO  ClassicCpu.Branch  Branch / go to
+042B  0057  GOTO  ClassicCpu.Branch  Branch / go to
+042C  01D4  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+042D  00CB  GOTO  ClassicCpu.Branch  Branch / go to
+042E  0114  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+042F  01B7  GOTO  ClassicCpu.Branch  Branch / go to
+0430  0124  CLRS  ClassicCpu.ClearStatus  Clear status
+0431  0267  GOTO  ClassicCpu.Branch  Branch / go to
+0432  01C4  SETS  ClassicCpu.SetStatus  Set status bit
+0433  0114  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+0434  011F  GOTO  ClassicCpu.Branch  Branch / go to
+0435  0124  CLRS  ClassicCpu.ClearStatus  Clear status
+0436  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+0437  0257  GOTO  ClassicCpu.Branch  Branch / go to
+0438  0190  SELR  ClassicCpu.SelectRom  Select ROM bank
+0439  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+043A  00CE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+043B  00D8  LDCN  ClassicCpu.LoadConstant  Load constant digit
+043C  0198  LDCN  ClassicCpu.LoadConstant  Load constant digit
+043D  01EA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+043E  01EA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+043F  0030  RETN  ClassicCpu.Return  Return from subroutine
+0440  01A9  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0441  002D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0442  0290  SELR  ClassicCpu.SelectRom  Select ROM bank
+0443  0090  SELR  ClassicCpu.SelectRom  Select ROM bank
+0444  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+0445  00E3  GOTO  ClassicCpu.Branch  Branch / go to
+0446  0090  SELR  ClassicCpu.SelectRom  Select ROM bank
+0447  01C4  SETS  ClassicCpu.SetStatus  Set status bit
+0448  002D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0449  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+044A  0119  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+044B  01AD  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+044C  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+044D  0128  CTST  ClassicCpu.CToStack  C to stack
+044E  0395  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+044F  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+0450  022E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0451  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+0452  032E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0453  01AD  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0454  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+0455  01A8  STKA  ClassicCpu.StackToA  Stack to A
+0456  01AD  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0457  0128  CTST  ClassicCpu.CToStack  C to stack
+0458  003D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0459  00E3  GOTO  ClassicCpu.Branch  Branch / go to
+045A  01AD  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+045B  02A8  MTOC  ClassicCpu.MToC  M to C
+045C  0395  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+045D  01AD  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+045E  002D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+045F  008E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0460  0395  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0461  002D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0462  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0463  00E3  GOTO  ClassicCpu.Branch  Branch / go to
+0464  00A8  CXCH  ClassicCpu.ExchangeCAndM  Exchange C and M
+0465  010D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0466  02A8  MTOC  ClassicCpu.MToC  M to C
+0467  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0468  00A8  CXCH  ClassicCpu.ExchangeCAndM  Exchange C and M
+0469  028B  GOTO  ClassicCpu.Branch  Branch / go to
+046A  0090  SELR  ClassicCpu.SelectRom  Select ROM bank
+046B  0090  SELR  ClassicCpu.SelectRom  Select ROM bank
+046C  0090  SELR  ClassicCpu.SelectRom  Select ROM bank
+046D  002D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+046E  0128  CTST  ClassicCpu.CToStack  C to stack
+046F  038D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0470  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+0471  0119  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0472  01AD  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0473  008E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0474  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+0475  0395  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0476  01A8  STKA  ClassicCpu.StackToA  Stack to A
+0477  038D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0478  01AD  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0479  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+047A  0128  CTST  ClassicCpu.CToStack  C to stack
+047B  01A9  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+047C  01AD  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+047D  032E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+047E  01AD  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+047F  0039  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0480  0119  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0481  01A9  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0482  01A8  STKA  ClassicCpu.StackToA  Stack to A
+0483  038D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0484  01AD  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0485  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+0486  032E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0487  01A9  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0488  01A8  STKA  ClassicCpu.StackToA  Stack to A
+0489  002D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+048A  008E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+048B  0395  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+048C  01A8  STKA  ClassicCpu.StackToA  Stack to A
+048D  01AD  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+048E  00FE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+048F  00A8  CXCH  ClassicCpu.ExchangeCAndM  Exchange C and M
+0490  00CE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0491  0128  CTST  ClassicCpu.CToStack  C to stack
+0492  02A8  MTOC  ClassicCpu.MToC  M to C
+0493  0128  CTST  ClassicCpu.CToStack  C to stack
+0494  0113  GOTO  ClassicCpu.Branch  Branch / go to
+0495  0119  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0496  01AD  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0497  0128  CTST  ClassicCpu.CToStack  C to stack
+0498  0128  CTST  ClassicCpu.CToStack  C to stack
+0499  01A8  STKA  ClassicCpu.StackToA  Stack to A
+049A  01A8  STKA  ClassicCpu.StackToA  Stack to A
+049B  018E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+049C  003D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+049D  0395  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+049E  02A8  MTOC  ClassicCpu.MToC  M to C
+049F  01AD  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+04A0  002D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+04A1  0113  GOTO  ClassicCpu.Branch  Branch / go to
+04A2  02A8  MTOC  ClassicCpu.MToC  M to C
+04A3  038D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+04A4  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+04A5  01A8  STKA  ClassicCpu.StackToA  Stack to A
+04A6  01A9  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+04A7  002D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+04A8  008E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+04A9  01A9  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+04AA  00A8  CXCH  ClassicCpu.ExchangeCAndM  Exchange C and M
+04AB  0119  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+04AC  01AD  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+04AD  0128  CTST  ClassicCpu.CToStack  C to stack
+04AE  00A8  CXCH  ClassicCpu.ExchangeCAndM  Exchange C and M
+04AF  000D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+04B0  00A8  CXCH  ClassicCpu.ExchangeCAndM  Exchange C and M
+04B1  0119  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+04B2  01A9  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+04B3  002D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+04B4  0395  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+04B5  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+04B6  0119  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+04B7  01AD  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+04B8  002D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+04B9  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+04BA  000D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+04BB  01A8  STKA  ClassicCpu.StackToA  Stack to A
+04BC  00A8  CXCH  ClassicCpu.ExchangeCAndM  Exchange C and M
+04BD  0119  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+04BE  01A9  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+04BF  02A8  MTOC  ClassicCpu.MToC  M to C
+04C0  0395  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+04C1  00A8  CXCH  ClassicCpu.ExchangeCAndM  Exchange C and M
+04C2  0119  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+04C3  01A9  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+04C4  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+04C5  00FE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+04C6  0128  CTST  ClassicCpu.CToStack  C to stack
+04C7  0395  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+04C8  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+04C9  01A8  STKA  ClassicCpu.StackToA  Stack to A
+04CA  01A8  STKA  ClassicCpu.StackToA  Stack to A
+04CB  00A8  CXCH  ClassicCpu.ExchangeCAndM  Exchange C and M
+04CC  01A9  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+04CD  02A8  MTOC  ClassicCpu.MToC  M to C
+04CE  0395  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+04CF  00E3  GOTO  ClassicCpu.Branch  Branch / go to
+04D0  0395  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+04D1  00A8  CXCH  ClassicCpu.ExchangeCAndM  Exchange C and M
+04D2  01A8  STKA  ClassicCpu.StackToA  Stack to A
+04D3  002D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+04D4  00E5  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+04D5  030C  SETP  ClassicCpu.SetP  Set P register (digit pointer)
+04D6  038D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+04D7  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+04D8  00E5  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+04D9  0158  LDCN  ClassicCpu.LoadConstant  Load constant digit
+04DA  030C  SETP  ClassicCpu.SetP  Set P register (digit pointer)
+04DB  038D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+04DC  002D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+04DD  01A9  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+04DE  003D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+04DF  01A8  STKA  ClassicCpu.StackToA  Stack to A
+04E0  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+04E1  0128  CTST  ClassicCpu.CToStack  C to stack
+04E2  0103  GOTO  ClassicCpu.Branch  Branch / go to
+04E3  0090  SELR  ClassicCpu.SelectRom  Select ROM bank
+04E4  0000  NOP   ClassicCpu.Nop  No operation
+04E5  0090  SELR  ClassicCpu.SelectRom  Select ROM bank
+04E6  0090  SELR  ClassicCpu.SelectRom  Select ROM bank
+04E7  0124  CLRS  ClassicCpu.ClearStatus  Clear status
+04E8  00A8  CXCH  ClassicCpu.ExchangeCAndM  Exchange C and M
+04E9  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+04EA  0128  CTST  ClassicCpu.CToStack  C to stack
+04EB  0128  CTST  ClassicCpu.CToStack  C to stack
+04EC  0119  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+04ED  01AD  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+04EE  022E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+04EF  0395  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+04F0  00A8  CXCH  ClassicCpu.ExchangeCAndM  Exchange C and M
+04F1  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+04F2  038D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+04F3  00A8  CXCH  ClassicCpu.ExchangeCAndM  Exchange C and M
+04F4  008B  GOTO  ClassicCpu.Branch  Branch / go to
+04F5  00D0  KROM  ClassicCpu.KeysToRomAddress  Keys to ROM address
+04F6  0124  CLRS  ClassicCpu.ClearStatus  Clear status
+04F7  00A8  CXCH  ClassicCpu.ExchangeCAndM  Exchange C and M
+04F8  010D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+04F9  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+04FA  0128  CTST  ClassicCpu.CToStack  C to stack
+04FB  038D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+04FC  01A8  STKA  ClassicCpu.StackToA  Stack to A
+04FD  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+04FE  00A8  CXCH  ClassicCpu.ExchangeCAndM  Exchange C and M
+04FF  0343  GOTO  ClassicCpu.Branch  Branch / go to
+0500  0000  NOP   ClassicCpu.Nop  No operation
+0501  0000  NOP   ClassicCpu.Nop  No operation
+0502  0210  SELR  ClassicCpu.SelectRom  Select ROM bank
+0503  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+0504  0128  CTST  ClassicCpu.CToStack  C to stack
+0505  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0506  0128  CTST  ClassicCpu.CToStack  C to stack
+0507  00CE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0508  0058  LDCN  ClassicCpu.LoadConstant  Load constant digit
+0509  0218  LDCN  ClassicCpu.LoadConstant  Load constant digit
+050A  0098  LDCN  ClassicCpu.LoadConstant  Load constant digit
+050B  0158  LDCN  ClassicCpu.LoadConstant  Load constant digit
+050C  0018  LDCN  ClassicCpu.LoadConstant  Load constant digit
+050D  01EA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+050E  01EA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+050F  030C  SETP  ClassicCpu.SetP  Set P register (digit pointer)
+0510  0030  RETN  ClassicCpu.Return  Return from subroutine
+0511  00CE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0512  0058  LDCN  ClassicCpu.LoadConstant  Load constant digit
+0513  0218  LDCN  ClassicCpu.LoadConstant  Load constant digit
+0514  0037  GOTO  ClassicCpu.Branch  Branch / go to
+0515  0294  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+0516  0063  GOTO  ClassicCpu.Branch  Branch / go to
+0517  0030  RETN  ClassicCpu.Return  Return from subroutine
+0518  0310  SELR  ClassicCpu.SelectRom  Select ROM bank
+0519  0000  NOP   ClassicCpu.Nop  No operation
+051A  0000  NOP   ClassicCpu.Nop  No operation
+051B  0144  SETS  ClassicCpu.SetStatus  Set status bit
+051C  0115  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+051D  01B7  GOTO  ClassicCpu.Branch  Branch / go to
+051E  00F9  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+051F  02C4  SETS  ClassicCpu.SetStatus  Set status bit
+0520  012E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0521  018E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0522  01B1  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0523  032E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0524  038D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0525  00A8  CXCH  ClassicCpu.ExchangeCAndM  Exchange C and M
+0526  0109  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0527  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0528  038D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0529  000D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+052A  038D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+052B  007A  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+052C  0173  GOTO  ClassicCpu.Branch  Branch / go to
+052D  00E9  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+052E  02A8  MTOC  ClassicCpu.MToC  M to C
+052F  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+0530  02A8  MTOC  ClassicCpu.MToC  M to C
+0531  0115  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0532  01AD  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0533  00F9  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0534  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0535  02C7  GOTO  ClassicCpu.Branch  Branch / go to
+0536  01A8  STKA  ClassicCpu.StackToA  Stack to A
+0537  0164  CLRS  ClassicCpu.ClearStatus  Clear status
+0538  0190  SELR  ClassicCpu.SelectRom  Select ROM bank
+0539  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+053A  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+053B  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+053C  0030  RETN  ClassicCpu.Return  Return from subroutine
+053D  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+053E  01A8  STKA  ClassicCpu.StackToA  Stack to A
+053F  0128  CTST  ClassicCpu.CToStack  C to stack
+0540  0030  RETN  ClassicCpu.Return  Return from subroutine
+0541  0000  NOP   ClassicCpu.Nop  No operation
+0542  0210  SELR  ClassicCpu.SelectRom  Select ROM bank
+0543  0144  SETS  ClassicCpu.SetStatus  Set status bit
+0544  011B  GOTO  ClassicCpu.Branch  Branch / go to
+0545  0210  SELR  ClassicCpu.SelectRom  Select ROM bank
+0546  02A8  MTOC  ClassicCpu.MToC  M to C
+0547  0395  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0548  0109  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0549  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+054A  038D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+054B  00F5  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+054C  02A8  MTOC  ClassicCpu.MToC  M to C
+054D  0395  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+054E  0109  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+054F  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0550  038D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0551  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+0552  02D4  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+0553  00DB  GOTO  ClassicCpu.Branch  Branch / go to
+0554  00DF  GOTO  ClassicCpu.Branch  Branch / go to
+0555  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+0556  018E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0557  027A  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0558  0043  GOTO  ClassicCpu.Branch  Branch / go to
+0559  036A  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+055A  0106  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+055B  015F  GOTO  ClassicCpu.Branch  Branch / go to
+055C  01A8  STKA  ClassicCpu.StackToA  Stack to A
+055D  02A8  MTOC  ClassicCpu.MToC  M to C
+055E  01AD  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+055F  00F9  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0560  0045  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0561  038D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0562  0115  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0563  01A9  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0564  022E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0565  00A8  CXCH  ClassicCpu.ExchangeCAndM  Exchange C and M
+0566  00FE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0567  0395  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0568  0115  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0569  0367  GOTO  ClassicCpu.Branch  Branch / go to
+056A  0090  SELR  ClassicCpu.SelectRom  Select ROM bank
+056B  0090  SELR  ClassicCpu.SelectRom  Select ROM bank
+056C  0090  SELR  ClassicCpu.SelectRom  Select ROM bank
+056D  02AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+056E  038D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+056F  00A8  CXCH  ClassicCpu.ExchangeCAndM  Exchange C and M
+0570  0109  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0571  000D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0572  038D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0573  007A  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0574  026B  GOTO  ClassicCpu.Branch  Branch / go to
+0575  00F5  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0576  0115  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0577  02AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0578  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0579  01AD  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+057A  008E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+057B  038D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+057C  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+057D  01A8  STKA  ClassicCpu.StackToA  Stack to A
+057E  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+057F  00FE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0580  0009  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0581  0155  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0582  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0583  0115  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0584  01AD  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0585  0009  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0586  00E5  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0587  00F9  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0588  01A9  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0589  01AD  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+058A  02A8  MTOC  ClassicCpu.MToC  M to C
+058B  0395  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+058C  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+058D  0035  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+058E  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+058F  018E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0590  02A8  MTOC  ClassicCpu.MToC  M to C
+0591  0395  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0592  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+0593  01A8  STKA  ClassicCpu.StackToA  Stack to A
+0594  038D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0595  01A8  STKA  ClassicCpu.StackToA  Stack to A
+0596  01AD  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0597  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+0598  01A9  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0599  00DF  GOTO  ClassicCpu.Branch  Branch / go to
+059A  00F5  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+059B  0045  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+059C  038D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+059D  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+059E  0395  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+059F  0115  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+05A0  02AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+05A1  01AD  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+05A2  00A8  CXCH  ClassicCpu.ExchangeCAndM  Exchange C and M
+05A3  0115  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+05A4  0035  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+05A5  01AD  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+05A6  008E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+05A7  00A8  CXCH  ClassicCpu.ExchangeCAndM  Exchange C and M
+05A8  038D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+05A9  01AD  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+05AA  00E5  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+05AB  0115  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+05AC  01A9  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+05AD  00A8  CXCH  ClassicCpu.ExchangeCAndM  Exchange C and M
+05AE  0395  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+05AF  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+05B0  03FB  GOTO  ClassicCpu.Branch  Branch / go to
+05B1  0009  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+05B2  0115  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+05B3  01A9  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+05B4  0361  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+05B5  00E5  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+05B6  01A9  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+05B7  0361  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+05B8  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+05B9  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+05BA  038D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+05BB  02A8  MTOC  ClassicCpu.MToC  M to C
+05BC  0395  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+05BD  00F9  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+05BE  01AD  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+05BF  01A8  STKA  ClassicCpu.StackToA  Stack to A
+05C0  00E9  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+05C1  008E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+05C2  00F5  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+05C3  02A8  MTOC  ClassicCpu.MToC  M to C
+05C4  01AD  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+05C5  00A8  CXCH  ClassicCpu.ExchangeCAndM  Exchange C and M
+05C6  008E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+05C7  0035  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+05C8  0035  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+05C9  0035  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+05CA  01A6  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+05CB  033B  GOTO  ClassicCpu.Branch  Branch / go to
+05CC  01BA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+05CD  00C3  GOTO  ClassicCpu.Branch  Branch / go to
+05CE  02D4  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+05CF  03EF  GOTO  ClassicCpu.Branch  Branch / go to
+05D0  02E4  CLRS  ClassicCpu.ClearStatus  Clear status
+05D1  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+05D2  0128  CTST  ClassicCpu.CToStack  C to stack
+05D3  0155  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+05D4  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+05D5  0115  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+05D6  01A9  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+05D7  039B  GOTO  ClassicCpu.Branch  Branch / go to
+05D8  0090  SELR  ClassicCpu.SelectRom  Select ROM bank
+05D9  01AD  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+05DA  01A8  STKA  ClassicCpu.StackToA  Stack to A
+05DB  038D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+05DC  0115  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+05DD  01A9  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+05DE  02A8  MTOC  ClassicCpu.MToC  M to C
+05DF  038D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+05E0  03F3  GOTO  ClassicCpu.Branch  Branch / go to
+05E1  0000  NOP   ClassicCpu.Nop  No operation
+05E2  0000  NOP   ClassicCpu.Nop  No operation
+05E3  0090  SELR  ClassicCpu.SelectRom  Select ROM bank
+05E4  0000  NOP   ClassicCpu.Nop  No operation
+05E5  0090  SELR  ClassicCpu.SelectRom  Select ROM bank
+05E6  008E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+05E7  0395  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+05E8  02A8  MTOC  ClassicCpu.MToC  M to C
+05E9  0395  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+05EA  00E9  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+05EB  018E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+05EC  00E9  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+05ED  0395  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+05EE  0115  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+05EF  02AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+05F0  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+05F1  01AD  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+05F2  008E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+05F3  038D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+05F4  00F9  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+05F5  0395  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+05F6  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+05F7  01A8  STKA  ClassicCpu.StackToA  Stack to A
+05F8  0395  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+05F9  0128  CTST  ClassicCpu.CToStack  C to stack
+05FA  00BF  GOTO  ClassicCpu.Branch  Branch / go to
+05FB  02A8  MTOC  ClassicCpu.MToC  M to C
+05FC  0035  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+05FD  018E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+05FE  01AD  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+05FF  00DF  GOTO  ClassicCpu.Branch  Branch / go to
+0600  0010  SELR  ClassicCpu.SelectRom  Select ROM bank
+0601  0104  SETS  ClassicCpu.SetStatus  Set status bit
+0602  03B3  GOTO  ClassicCpu.Branch  Branch / go to
+0603  026C  TSTP  ClassicCpu.TestP  Test P register
+0604  0233  GOTO  ClassicCpu.Branch  Branch / go to
+0605  0030  RETN  ClassicCpu.Return  Return from subroutine
+0606  032E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0607  00AC  TSTP  ClassicCpu.TestP  Test P register
+0608  0227  GOTO  ClassicCpu.Branch  Branch / go to
+0609  03E6  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+060A  0166  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+060B  01AA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+060C  003F  GOTO  ClassicCpu.Branch  Branch / go to
+060D  03E6  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+060E  0166  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+060F  0030  RETN  ClassicCpu.Return  Return from subroutine
+0610  00D8  LDCN  ClassicCpu.LoadConstant  Load constant digit
+0611  0198  LDCN  ClassicCpu.LoadConstant  Load constant digit
+0612  0158  LDCN  ClassicCpu.LoadConstant  Load constant digit
+0613  0114  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+0614  005F  GOTO  ClassicCpu.Branch  Branch / go to
+0615  03EA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0616  0030  RETN  ClassicCpu.Return  Return from subroutine
+0617  0098  LDCN  ClassicCpu.LoadConstant  Load constant digit
+0618  0158  LDCN  ClassicCpu.LoadConstant  Load constant digit
+0619  0030  RETN  ClassicCpu.Return  Return from subroutine
+061A  0000  NOP   ClassicCpu.Nop  No operation
+061B  0000  NOP   ClassicCpu.Nop  No operation
+061C  0019  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+061D  032E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+061E  01C6  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+061F  001C  DECP  ClassicCpu.DecrementP  Decrement P
+0620  002C  TSTP  ClassicCpu.TestP  Test P register
+0621  0073  GOTO  ClassicCpu.Branch  Branch / go to
+0622  00CA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0623  018E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0624  01D4  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+0625  024B  GOTO  ClassicCpu.Branch  Branch / go to
+0626  01A8  STKA  ClassicCpu.StackToA  Stack to A
+0627  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0628  0273  GOTO  ClassicCpu.Branch  Branch / go to
+0629  01D4  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+062A  00B7  GOTO  ClassicCpu.Branch  Branch / go to
+062B  0114  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+062C  00C3  GOTO  ClassicCpu.Branch  Branch / go to
+062D  01E4  CLRS  ClassicCpu.ClearStatus  Clear status
+062E  0128  CTST  ClassicCpu.CToStack  C to stack
+062F  0128  CTST  ClassicCpu.CToStack  C to stack
+0630  01A8  STKA  ClassicCpu.StackToA  Stack to A
+0631  01D4  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+0632  00D3  GOTO  ClassicCpu.Branch  Branch / go to
+0633  0128  CTST  ClassicCpu.CToStack  C to stack
+0634  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0635  03AF  GOTO  ClassicCpu.Branch  Branch / go to
+0636  01AC  TSTP  ClassicCpu.TestP  Test P register
+0637  000F  GOTO  ClassicCpu.Branch  Branch / go to
+0638  0030  RETN  ClassicCpu.Return  Return from subroutine
+0639  0000  NOP   ClassicCpu.Nop  No operation
+063A  0156  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+063B  00F7  GOTO  ClassicCpu.Branch  Branch / go to
+063C  00B6  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+063D  022E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+063E  01A8  STKA  ClassicCpu.StackToA  Stack to A
+063F  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+0640  00FE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0641  01A5  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0642  02FE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0643  00CE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0644  014C  SETP  ClassicCpu.SetP  Set P register (digit pointer)
+0645  0058  LDCN  ClassicCpu.LoadConstant  Load constant digit
+0646  0218  LDCN  ClassicCpu.LoadConstant  Load constant digit
+0647  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0648  0216  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0649  0197  GOTO  ClassicCpu.Branch  Branch / go to
+064A  0128  CTST  ClassicCpu.CToStack  C to stack
+064B  008E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+064C  01A1  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+064D  0164  CLRS  ClassicCpu.ClearStatus  Clear status
+064E  01E4  CLRS  ClassicCpu.ClearStatus  Clear status
+064F  0010  SELR  ClassicCpu.SelectRom  Select ROM bank
+0650  003C  INCP  ClassicCpu.IncrementP  Increment P
+0651  016A  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0652  0217  GOTO  ClassicCpu.Branch  Branch / go to
+0653  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0654  0006  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0655  0003  GOTO  ClassicCpu.Branch  Branch / go to
+0656  0019  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0657  01C6  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0658  032E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0659  0114  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+065A  0173  GOTO  ClassicCpu.Branch  Branch / go to
+065B  007F  GOTO  ClassicCpu.Branch  Branch / go to
+065C  0206  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+065D  007F  GOTO  ClassicCpu.Branch  Branch / go to
+065E  0003  GOTO  ClassicCpu.Branch  Branch / go to
+065F  02EE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0660  0232  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0661  0041  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0662  020C  SETP  ClassicCpu.SetP  Set P register (digit pointer)
+0663  0232  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0664  01C3  GOTO  ClassicCpu.Branch  Branch / go to
+0665  008E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0666  01A1  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+0667  012B  GOTO  ClassicCpu.Branch  Branch / go to
+0668  02EE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0669  0144  SETS  ClassicCpu.SetStatus  Set status bit
+066A  01C4  SETS  ClassicCpu.SetStatus  Set status bit
+066B  030C  SETP  ClassicCpu.SetP  Set P register (digit pointer)
+066C  0090  SELR  ClassicCpu.SelectRom  Select ROM bank
+066D  038E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+066E  0162  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+066F  01B7  GOTO  ClassicCpu.Branch  Branch / go to
+0670  028E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0671  001C  DECP  ClassicCpu.DecrementP  Decrement P
+0672  00EC  TSTP  ClassicCpu.TestP  Test P register
+0673  01BB  GOTO  ClassicCpu.Branch  Branch / go to
+0674  036E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0675  01DF  GOTO  ClassicCpu.Branch  Branch / go to
+0676  03EE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0677  03EA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0678  003C  INCP  ClassicCpu.IncrementP  Increment P
+0679  024E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+067A  026C  TSTP  ClassicCpu.TestP  Test P register
+067B  01E3  GOTO  ClassicCpu.Branch  Branch / go to
+067C  00D8  LDCN  ClassicCpu.LoadConstant  Load constant digit
+067D  010C  SETP  ClassicCpu.SetP  Set P register (digit pointer)
+067E  0232  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+067F  024E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0680  001C  DECP  ClassicCpu.DecrementP  Decrement P
+0681  03EC  TSTP  ClassicCpu.TestP  Test P register
+0682  01FF  GOTO  ClassicCpu.Branch  Branch / go to
+0683  01AA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0684  0003  GOTO  ClassicCpu.Branch  Branch / go to
+0685  032C  TSTP  ClassicCpu.TestP  Test P register
+0686  0143  GOTO  ClassicCpu.Branch  Branch / go to
+0687  0003  GOTO  ClassicCpu.Branch  Branch / go to
+0688  0000  NOP   ClassicCpu.Nop  No operation
+0689  012C  TSTP  ClassicCpu.TestP  Test P register
+068A  00DB  GOTO  ClassicCpu.Branch  Branch / go to
+068B  0030  RETN  ClassicCpu.Return  Return from subroutine
+068C  02EC  TSTP  ClassicCpu.TestP  Test P register
+068D  023F  GOTO  ClassicCpu.Branch  Branch / go to
+068E  0030  RETN  ClassicCpu.Return  Return from subroutine
+068F  0366  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0690  01E6  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0691  0030  RETN  ClassicCpu.Return  Return from subroutine
+0692  0162  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+0693  0328  DROT  ClassicCpu.DownRotate  Down rotate stack
+0694  0254  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+0695  03A7  GOTO  ClassicCpu.Branch  Branch / go to
+0696  0114  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+0697  0007  GOTO  ClassicCpu.Branch  Branch / go to
+0698  0264  CLRS  ClassicCpu.ClearStatus  Clear status
+0699  03B3  GOTO  ClassicCpu.Branch  Branch / go to
+069A  000C  SETP  ClassicCpu.SetP  Set P register (digit pointer)
+069B  0246  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+069C  01E2  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+069D  026B  GOTO  ClassicCpu.Branch  Branch / go to
+069E  006A  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+069F  0003  GOTO  ClassicCpu.Branch  Branch / go to
+06A0  01BE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+06A1  028F  GOTO  ClassicCpu.Branch  Branch / go to
+06A2  00A6  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+06A3  03D6  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+06A4  01CC  SETP  ClassicCpu.SetP  Set P register (digit pointer)
+06A5  00CE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+06A6  01D8  LDCN  ClassicCpu.LoadConstant  Load constant digit
+06A7  00D8  LDCN  ClassicCpu.LoadConstant  Load constant digit
+06A8  0018  LDCN  ClassicCpu.LoadConstant  Load constant digit
+06A9  0158  LDCN  ClassicCpu.LoadConstant  Load constant digit
+06AA  0056  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+06AB  0003  GOTO  ClassicCpu.Branch  Branch / go to
+06AC  020C  SETP  ClassicCpu.SetP  Set P register (digit pointer)
+06AD  0041  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+06AE  002E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+06AF  022E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+06B0  0266  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+06B1  02CF  GOTO  ClassicCpu.Branch  Branch / go to
+06B2  0003  GOTO  ClassicCpu.Branch  Branch / go to
+06B3  03E6  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+06B4  028E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+06B5  001C  DECP  ClassicCpu.DecrementP  Decrement P
+06B6  02E3  GOTO  ClassicCpu.Branch  Branch / go to
+06B7  01E2  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+06B8  030E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+06B9  02DF  GOTO  ClassicCpu.Branch  Branch / go to
+06BA  038E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+06BB  002C  TSTP  ClassicCpu.TestP  Test P register
+06BC  02D3  GOTO  ClassicCpu.Branch  Branch / go to
+06BD  0266  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+06BE  0307  GOTO  ClassicCpu.Branch  Branch / go to
+06BF  038E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+06C0  016A  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+06C1  006A  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+06C2  0313  GOTO  ClassicCpu.Branch  Branch / go to
+06C3  036E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+06C4  010C  SETP  ClassicCpu.SetP  Set P register (digit pointer)
+06C5  00D8  LDCN  ClassicCpu.LoadConstant  Load constant digit
+06C6  000C  SETP  ClassicCpu.SetP  Set P register (digit pointer)
+06C7  022E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+06C8  00CE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+06C9  03AA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+06CA  003C  INCP  ClassicCpu.IncrementP  Increment P
+06CB  03EA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+06CC  00C6  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+06CD  001D  JSB   ClassicCpu.SubroutineJump  Jump to subroutine
+06CE  0306  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+06CF  0347  GOTO  ClassicCpu.Branch  Branch / go to
+06D0  034F  GOTO  ClassicCpu.Branch  Branch / go to
+06D1  0266  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+06D2  032B  GOTO  ClassicCpu.Branch  Branch / go to
+06D3  0386  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+06D4  03C6  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+06D5  0106  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+06D6  03E6  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+06D7  032A  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+06D8  00CE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+06D9  017A  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+06DA  03CE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+06DB  032E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+06DC  034C  SETP  ClassicCpu.SetP  Set P register (digit pointer)
+06DD  001C  DECP  ClassicCpu.DecrementP  Decrement P
+06DE  010E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+06DF  01EC  TSTP  ClassicCpu.TestP  Test P register
+06E0  0377  GOTO  ClassicCpu.Branch  Branch / go to
+06E1  038E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+06E2  003C  INCP  ClassicCpu.IncrementP  Increment P
+06E3  010E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+06E4  032C  TSTP  ClassicCpu.TestP  Test P register
+06E5  038B  GOTO  ClassicCpu.Branch  Branch / go to
+06E6  03EA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+06E7  03AE  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+06E8  0133  GOTO  ClassicCpu.Branch  Branch / go to
+06E9  0114  TSZ0  ClassicCpu.TestStatusZero  Test status equals zero
+06EA  00EB  GOTO  ClassicCpu.Branch  Branch / go to
+06EB  0124  CLRS  ClassicCpu.ClearStatus  Clear status
+06EC  016A  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+06ED  03C3  GOTO  ClassicCpu.Branch  Branch / go to
+06EE  0246  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+06EF  00CA  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+06F0  006A  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+06F1  0003  GOTO  ClassicCpu.Branch  Branch / go to
+06F2  002E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+06F3  018E  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+06F4  020C  SETP  ClassicCpu.SetP  Set P register (digit pointer)
+06F5  00D2  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+06F6  0098  LDCN  ClassicCpu.LoadConstant  Load constant digit
+06F7  0058  LDCN  ClassicCpu.LoadConstant  Load constant digit
+06F8  020C  SETP  ClassicCpu.SetP  Set P register (digit pointer)
+06F9  0052  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+06FA  0003  GOTO  ClassicCpu.Branch  Branch / go to
+06FB  0058  LDCN  ClassicCpu.LoadConstant  Load constant digit
+06FC  0258  LDCN  ClassicCpu.LoadConstant  Load constant digit
+06FD  020C  SETP  ClassicCpu.SetP  Set P register (digit pointer)
+06FE  0152  ARTH  ClassicCpu.Arithmetic  Arithmetic and register operations (sub-decode)
+06FF  017F  GOTO  ClassicCpu.Branch  Branch / go to

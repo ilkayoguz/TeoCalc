@@ -1,0 +1,26 @@
+{
+  "Format": "TeoCalc.Model",
+  "SchemaVersion": 1,
+  "Model": "HP-80",
+  "DisplayName": "HP-80",
+  "Inherits": "Classic",
+  "Family": "Classic",
+  "FamilyConfig": "../Classic/Family.json",
+  "Hardware": {
+    "ButtonCount": 35,
+    "RamBytes": 448,
+    "RegisterDigits": 14,
+    "ProgramRamBase": 0,
+    "RomWordCount": 1792
+  },
+  "Program": {
+    "MaxSteps": 49,
+    "Vocabulary": "Program/program.vocabulary.json"
+  },
+  "Firmware": {
+    "RomBinary": "Firmware/hp80.microcode.bin",
+    "RomListing": "Firmware/hp80.microcode.mlist",
+    "RomMap": "Firmware/hp80.microcode.map.json",
+    "HandlerCatalog": "../Classic/microcode.handlers.json"
+  }
+}

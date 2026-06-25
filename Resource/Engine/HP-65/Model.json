@@ -1,0 +1,26 @@
+{
+  "Format": "TeoCalc.Model",
+  "SchemaVersion": 1,
+  "Model": "HP-65",
+  "DisplayName": "HP-65",
+  "Inherits": "Classic",
+  "Family": "Classic",
+  "FamilyConfig": "../Classic/Family.json",
+  "Hardware": {
+    "ButtonCount": 35,
+    "RamBytes": 448,
+    "RegisterDigits": 14,
+    "ProgramRamBase": 112,
+    "RomWordCount": 3072
+  },
+  "Program": {
+    "MaxSteps": 100,
+    "Vocabulary": "Program/program.vocabulary.json"
+  },
+  "Firmware": {
+    "RomBinary": "Firmware/hp65.microcode.bin",
+    "RomListing": "Firmware/hp65.microcode.mlist",
+    "RomMap": "Firmware/hp65.microcode.map.json",
+    "HandlerCatalog": "../Classic/microcode.handlers.json"
+  }
+}

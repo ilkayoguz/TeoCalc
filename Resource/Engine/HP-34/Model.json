@@ -1,0 +1,22 @@
+{
+  "Format": "TeoCalc.Model",
+  "SchemaVersion": 1,
+  "Model": "HP-34",
+  "DisplayName": "HP-34",
+  "Inherits": "Spice",
+  "Family": "Spice",
+  "FamilyConfig": "../Spice/Family.json",
+  "Hardware": {
+    "ButtonCount": 40,
+    "RamBytes": 448,
+    "RegisterDigits": 14,
+    "ProgramRamBase": 0,
+    "RomWordCount": 8192
+  },
+  "Firmware": {
+    "RomBinary": "Firmware/hp34.microcode.bin",
+    "RomListing": "Firmware/hp34.microcode.mlist",
+    "RomMap": "Firmware/hp34.microcode.map.json",
+    "HandlerCatalog": "../Spice/microcode.handlers.study.json"
+  }
+}

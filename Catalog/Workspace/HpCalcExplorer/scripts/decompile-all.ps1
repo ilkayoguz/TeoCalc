@@ -8,7 +8,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 $workspaceRoot = Split-Path $PSScriptRoot -Parent
-$panamatikRoot = if ($SourceRoot) { $SourceRoot } else { Join-Path $workspaceRoot "Reference/Panamatik" }
+$panamatikRoot = if ($SourceRoot) { $SourceRoot } else { Join-Path $workspaceRoot "Reference/Panamatik New" }
 $outRoot = if ($OutputRoot) { $OutputRoot } else { Join-Path $workspaceRoot "Reference/Decompiled/Panamatik" }
 
 if (-not (Get-Command $IlSpyCmd -ErrorAction SilentlyContinue)) {

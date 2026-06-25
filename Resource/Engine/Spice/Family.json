@@ -1,0 +1,17 @@
+{
+  "Format": "TeoCalc.CpuFamily",
+  "SchemaVersion": 1,
+  "Family": "Spice",
+  "DisplayName": "HP Spice microprocessor family",
+  "HardwareDefaults": {
+    "RamBytes": 448,
+    "RegisterDigits": 14,
+    "RomWordCount": 4096
+  },
+  "Execution": {
+    "Fetch": "study pending",
+    "Dispatch": "Spice dispatch table (Panamatik study)",
+    "Reference": "Panamatik HP31/32/33/34/37/38 decompile"
+  },
+  "HandlerCatalog": "microcode.handlers.study.json"
+}

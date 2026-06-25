@@ -1,0 +1,22 @@
+{
+  "Format": "TeoCalc.Model",
+  "SchemaVersion": 1,
+  "Model": "HP-38",
+  "DisplayName": "HP-38",
+  "Inherits": "Spice",
+  "Family": "Spice",
+  "FamilyConfig": "../Spice/Family.json",
+  "Hardware": {
+    "ButtonCount": 40,
+    "RamBytes": 448,
+    "RegisterDigits": 14,
+    "ProgramRamBase": 0,
+    "RomWordCount": 8192
+  },
+  "Firmware": {
+    "RomBinary": "Firmware/hp38.microcode.bin",
+    "RomListing": "Firmware/hp38.microcode.mlist",
+    "RomMap": "Firmware/hp38.microcode.map.json",
+    "HandlerCatalog": "../Spice/microcode.handlers.study.json"
+  }
+}
