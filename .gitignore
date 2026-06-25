@@ -32,8 +32,11 @@ Data/
 # Reference material kept locally, not tracked
 _etc/
 
-# HP Calc Explorer — third-party emulator exes and ilspycmd output
-Catalog/Workspace/HpCalcExplorer/Reference/Exe/**
-!Catalog/Workspace/HpCalcExplorer/Reference/Exe/.gitkeep
+# HP Calc Explorer — Panamatik reference bundles and ilspycmd output
+Catalog/Workspace/HpCalcExplorer/Reference/Panamatik/**
+!Catalog/Workspace/HpCalcExplorer/Reference/Panamatik/.gitkeep
 Catalog/Workspace/HpCalcExplorer/Reference/Decompiled/**
 !Catalog/Workspace/HpCalcExplorer/Reference/Decompiled/.gitkeep
+# legacy flat layout (unused)
+Catalog/Workspace/HpCalcExplorer/Reference/Exe/**
+!Catalog/Workspace/HpCalcExplorer/Reference/Exe/.gitkeep

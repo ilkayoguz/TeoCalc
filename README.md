@@ -18,7 +18,7 @@ HP vintage calculator explorer — a sibling project to [TeoCave](../TeoCave), s
 
 ## Workspace
 
-Reference emulator binaries and ilspycmd output live under `Catalog/Workspace/HpCalcExplorer/` (local only, gitignored).
+Reference emulator binaries live under `Catalog/Workspace/HpCalcExplorer/Reference/Panamatik/` (one folder per model, local only, gitignored).
 
 ```powershell
 dotnet tool install -g ilspycmd --version 10.1.0.8386
