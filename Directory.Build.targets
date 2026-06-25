@@ -1,0 +1,5 @@
+<Project>
+  <PropertyGroup>
+    <TeoCalcRepositoryRoot>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)'))</TeoCalcRepositoryRoot>
+  </PropertyGroup>
+</Project>

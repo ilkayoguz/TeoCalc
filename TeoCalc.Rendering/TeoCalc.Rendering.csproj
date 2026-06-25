@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\TeoCave\TeoTheme\TeoTheme.csproj" />
+    <ProjectReference Include="..\..\TeoCave\TeoTheme.Windows\TeoTheme.Windows.csproj" />
+    <ProjectReference Include="..\TeoCalc.Game\TeoCalc.Game.csproj" />
+    <ProjectReference Include="..\TeoCalc.Core\TeoCalc.Core.csproj" />
+    <ProjectReference Include="..\TeoCalc.Formats\TeoCalc.Formats.csproj" />
+    <ProjectReference Include="..\TeoCalc.Storage\TeoCalc.Storage.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <Version>0.1.0</Version>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <SupportedOSPlatform>windows</SupportedOSPlatform>
+    <SupportedOSPlatformVersion>6.1</SupportedOSPlatformVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="TeoCalc.Core.Tests" />
+    <InternalsVisibleTo Include="TeoCalc.Tools" />
+  </ItemGroup>
+
+</Project>

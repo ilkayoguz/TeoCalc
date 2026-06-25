@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\TeoCalc.Core\TeoCalc.Core.csproj" />
+    <ProjectReference Include="..\TeoCalc.Formats\TeoCalc.Formats.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>TeoCalc.Game</RootNamespace>
+    <AssemblyName>TeoCalc.Game</AssemblyName>
+  </PropertyGroup>
+
+</Project>

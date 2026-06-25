@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <RootNamespace>TeoCalc.Tools</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TeoCalc.Core\TeoCalc.Core.csproj" />
+    <ProjectReference Include="..\TeoCalc.Formats\TeoCalc.Formats.csproj" />
+    <ProjectReference Include="..\TeoCalc.Rendering\TeoCalc.Rendering.csproj" />
+  </ItemGroup>
+
+</Project>

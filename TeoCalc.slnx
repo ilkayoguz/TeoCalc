@@ -1,0 +1,29 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".gitignore" />
+    <File Path="Directory.Build.props" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/Solution Items/Catalog/Workspace/HpCalcExplorer/">
+    <File Path="Catalog/Workspace/HpCalcExplorer/Readme.md" />
+    <File Path="Catalog/Workspace/HpCalcExplorer/scripts/decompile-all.ps1" />
+  </Folder>
+  <Folder Name="/Solution Items/Resource/Config/">
+    <File Path="Resource/Config/Readme.md" />
+  </Folder>
+  <Folder Name="/Modules/">
+    <Project Path="TeoCalc.Core/TeoCalc.Core.csproj" />
+    <Project Path="TeoCalc.Formats/TeoCalc.Formats.csproj" />
+    <Project Path="TeoCalc.Storage/TeoCalc.Storage.csproj" />
+    <Project Path="TeoCalc.Game/TeoCalc.Game.csproj" />
+    <Project Path="TeoCalc.Rendering/TeoCalc.Rendering.csproj" />
+  </Folder>
+  <Folder Name="/Tools/">
+    <Project Path="TeoCalc.Tools/TeoCalc.Tools.csproj" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="TeoCalc.Core.Tests/TeoCalc.Core.Tests.csproj" />
+  </Folder>
+  <Project Path="TeoCalc/TeoCalc.csproj" />
+</Solution>

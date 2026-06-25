@@ -1,0 +1,39 @@
+# Build output
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+artifacts/
+
+# Visual Studio / Rider / VS Code
+.vs/
+.idea/
+*.user
+*.suo
+
+# NuGet
+*.nupkg
+*.snupkg
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Test artifacts
+**/TestResults/
+**/__pycache__/
+
+# ImGui local layout (per machine)
+imgui.ini
+
+# Writable runtime state next to the executable
+Data/
+
+# Reference material kept locally, not tracked
+_etc/
+
+# HP Calc Explorer — third-party emulator exes and ilspycmd output
+Catalog/Workspace/HpCalcExplorer/Reference/Exe/**
+!Catalog/Workspace/HpCalcExplorer/Reference/Exe/.gitkeep
+Catalog/Workspace/HpCalcExplorer/Reference/Decompiled/**
+!Catalog/Workspace/HpCalcExplorer/Reference/Decompiled/.gitkeep
