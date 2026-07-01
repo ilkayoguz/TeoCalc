@@ -30,6 +30,7 @@ public static class CalcExplorerApp
       gl = window.CreateOpenGL();
       input = window.CreateInput();
       controller = new ImGuiController(gl, window, input);
+      Hp65FaceplateArt.TryInitialize(gl);
     };
 
     window.Update += _ =>
@@ -57,6 +58,7 @@ public static class CalcExplorerApp
     };
 
     window.Run();
+    Hp65FaceplateArt.Dispose();
     controller?.Dispose();
     input?.Dispose();
     gl?.Dispose();

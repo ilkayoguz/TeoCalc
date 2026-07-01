@@ -1,0 +1,20 @@
+{
+  "source": "C:/Users/ilkay/Desktop/HP-65/05.png",
+  "nativeSize": [836, 1542],
+  "viewBox": [470, 870],
+  "scale": [0.5622, 0.5642],
+  "regions": {
+    "outer-frame": { "x": 6, "y": 6, "w": 457, "h": 853 },
+    "faceplate": { "x": 46, "y": 76, "w": 371, "h": 781 },
+    "display-window": { "x": 59, "y": 54, "w": 354, "h": 80 },
+    "card-slot-band": { "x": 58, "y": 156, "w": 355, "h": 19 },
+    "key-grid": { "x": 70, "y": 273, "w": 329, "h": 524 }
+  },
+  "notes": {
+    "outer-frame": "Lime green body chrome in 05.png",
+    "faceplate": "Gray inner panel; use as interior mask reference",
+    "display-window": "Light blue band; aligns with KML DISPLAY ~68,54",
+    "card-slot-band": "Dark blue strip below display",
+    "key-grid": "Red key placeholders; wider than Panamatik KML BUTTONS rect"
+  }
+}

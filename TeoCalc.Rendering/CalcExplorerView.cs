@@ -15,29 +15,48 @@ public static class CalcExplorerView
       ImGuiWindowFlags.NoDecoration | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoBringToFrontOnFocus);
 
     DrawToolbar(session);
-    if (session.SupportsCpu)
-    {
-      CalcFaceplateView.Draw(session);
-      ImGui.Separator();
-    }
+    ImGui.Separator();
 
-    if (ImGui.BeginTable("split", 2, ImGuiTableFlags.Resizable | ImGuiTableFlags.BordersInnerV))
+    if (ImGui.BeginTable("main", 3, ImGuiTableFlags.Resizable | ImGuiTableFlags.BordersInnerV))
     {
-      ImGui.TableSetupColumn("Microcode", ImGuiTableColumnFlags.WidthStretch, 0.62f);
-      ImGui.TableSetupColumn("Program", ImGuiTableColumnFlags.WidthStretch, 0.38f);
+      ImGui.TableSetupColumn("Calculator", ImGuiTableColumnFlags.WidthStretch, 0.36f);
+      ImGui.TableSetupColumn("Microcode", ImGuiTableColumnFlags.WidthStretch, 0.40f);
+      ImGui.TableSetupColumn("Program", ImGuiTableColumnFlags.WidthStretch, 0.24f);
       ImGui.TableHeadersRow();
       ImGui.TableNextRow();
 
       ImGui.TableSetColumnIndex(0);
-      DrawMicrocodePanel(session);
+      DrawCalculatorPanel(session);
 
       ImGui.TableSetColumnIndex(1);
+      DrawMicrocodePanel(session);
+
+      ImGui.TableSetColumnIndex(2);
       DrawProgramPanel(session);
 
       ImGui.EndTable();
     }
 
     ImGui.End();
+  }
+
+  private static void DrawCalculatorPanel(CalcExplorerSession session)
+  {
+    ImGui.TextUnformatted(session.Model.DisplayName);
+    ImGui.BeginChild("calculator", new System.Numerics.Vector2(0, 0), ImGuiChildFlags.Border);
+
+    if (session.SupportsCpu)
+    {
+      CalcFaceplateView.Draw(session);
+    }
+    else
+    {
+      ImGui.TextDisabled($"{session.Model.Family} — ROM study (CPU pending)");
+      ImGui.Separator();
+      ImGui.TextDisabled("Microcode map is available in the center panel.");
+    }
+
+    ImGui.EndChild();
   }
 
   private static void DrawToolbar(CalcExplorerSession session)
@@ -82,9 +101,6 @@ public static class CalcExplorerView
         session.ProgramMode = programMode;
       }
 
-      ImGui.SameLine();
-      string display = ClassicDisplayFormatter.FormatXRegister(session.Cpu!, session.ProgramMode);
-      ImGui.Text($"X: {display}");
       ImGui.SameLine();
       ImGui.TextDisabled(
         $"PC={session.Cpu!.State.ProgramCounter:X4}  ROM={session.Cpu.State.Rom}  steps={session.Cpu.StepCount}");

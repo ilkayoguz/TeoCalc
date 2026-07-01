@@ -1,0 +1,62 @@
+{
+
+  "Format": "TeoCalc.KeyFaceplate",
+
+  "SchemaVersion": 1,
+
+  "Model": "HP-65",
+
+  "Source": "HP-65 Owners Handbook / hp65_470.png faceplate",
+
+  "Keys": {
+
+    "5": { "Blue": "x\u2260y" },
+
+    "6": { "Blue": "x\u2264y" },
+
+    "7": { "Blue": "x=y" },
+
+    "8": { "Blue": "x>y" },
+
+    "15": { "Gold": "PREFIX" },
+
+    "17": { "Gold": "CLEAR STK", "Blue": "DEG" },
+
+    "18": { "Gold": "REG", "Blue": "RAD" },
+
+    "19": { "Gold": "PRGM", "Blue": "GRD" },
+
+    "20": { "Gold": "SF 1" },
+
+    "21": { "Gold": "LN", "Blue": "x!/y" },
+
+    "22": { "Gold": "LOG", "Blue": "R\u2191" },
+
+    "23": { "Gold": "\u221ax", "Blue": "R\u2193" },
+
+    "25": { "Gold": "TF 1" },
+
+    "26": { "Gold": "SIN", "Blue": "1/x" },
+
+    "27": { "Gold": "COS", "Blue": "y^x" },
+
+    "28": { "Gold": "TAN", "Blue": "ABS" },
+
+    "30": { "Gold": "SF 2" },
+
+    "31": { "Gold": "R\u2192P", "Blue": "NOP" },
+
+    "32": { "Gold": "D.MS+", "Blue": "D.MS-" },
+
+    "33": { "Gold": "\u2192D.MS", "Blue": "n!" },
+
+    "35": { "Gold": "TF 2" },
+
+    "36": { "Gold": "\u2192OCT", "Blue": "LST X" },
+
+    "37": { "Gold": "INT", "Blue": "DSZ" }
+
+  }
+
+}
+
