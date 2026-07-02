@@ -123,6 +123,17 @@ def _rect(bid: str, y0: int, y1: int, color: str) -> str:
     return f'<rect id="{rid}" x="{FX}" y="{y0}" width="{FW}" height="{y1 - y0 + 1}" fill="{color}"/>'
 
 
+def _card_slot_panel_rect(bands: list[tuple[str, int, int, str]]) -> str | None:
+    switch = next((b for b in bands if b[0] == "switch-track"), None)
+    below = next((b for b in bands if b[0] == "face-below-switch"), None)
+    if switch is None:
+        return None
+    y0 = switch[1]
+    y1 = below[2] if below is not None else switch[2]
+    color = switch[3]
+    return f'<rect id="card-slot-panel" x="{FX}" y="{y0}" width="{FW}" height="{y1 - y0 + 1}" fill="{color}"/>'
+
+
 def _ring_d(ox0: int, oy0: int, ox1: int, oy1: int, ix0: int, iy0: int, ix1: int, iy1: int) -> str:
     return (
         f"M{ox0},{oy0}H{ox1}V{oy1}H{ox0}Z"
@@ -168,6 +179,18 @@ def build(d03_path: Path = D03, out_svg: Path = OUT_SVG, out_layout: Path = OUT_
     keys = _extract_key_wells(im)
     bands = _scan_bands(im)
     rects = {bid: _rect(bid, y0, y1, color) for bid, y0, y1, color in bands}
+    card_slot_panel = _card_slot_panel_rect(bands)
+    control_strip_ids = (
+        "white-rule-top",
+        "face-above-switch",
+        "dark-rule-above-switch",
+        "dark-rule-above-keypad",
+    )
+    control_strip = "".join(rects[i] for i in control_strip_ids)
+    if card_slot_panel is not None:
+        control_strip += card_slot_panel
+    else:
+        control_strip += "".join(rects[i] for i in ("switch-track", "face-below-switch") if i in rects)
     brand_group = f'<g id="brand-plate">{rects["brand-plate"]}</g>'
 
     svg = f"""<?xml version="1.0" encoding="UTF-8"?>
@@ -179,7 +202,7 @@ def build(d03_path: Path = D03, out_svg: Path = OUT_SVG, out_layout: Path = OUT_
 </g>
 <g id="faceplate-surface">
 <g id="display-bezel">{"".join(rects[i] for i in DISPLAY_IDS)}</g>
-<g id="control-strip">{"".join(rects[i] for i in CONTROL_IDS)}</g>
+<g id="control-strip">{control_strip}</g>
 <g id="keypad-panel">{rects["keypad-panel"]}</g>
 {brand_group}
 </g>

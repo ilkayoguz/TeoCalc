@@ -150,13 +150,13 @@ public static class BodyFaceplateLayout
       _display = new RectF(23f, lcd.Y, 361f, lcd.H);
     }
 
-    if (BodySvgRects.TryGetRect("switch-track", out RectF switchPanel))
-    {
-      _switchTrack = switchPanel;
-    }
-    else if (doc.SwitchTrack is not null)
+    if (doc.SwitchTrack is not null)
     {
       _switchTrack = new RectF(doc.SwitchTrack.X, doc.SwitchTrack.Y, doc.SwitchTrack.W, doc.SwitchTrack.H);
+    }
+    else if (BodySvgRects.TryGetRect("switch-track", out RectF switchPanel))
+    {
+      _switchTrack = switchPanel;
     }
     else
     {

@@ -11,7 +11,7 @@ public static class Hp65FaceplateSvgAssets
   private static readonly SvgRasterCache Cache = new();
 
   /// <summary>Bump when Body.svg panel colors change (invalidates raster cache).</summary>
-  private const int BodySvgRevision = 2;
+  private const int BodySvgRevision = 3;
 
   private static string AssetsRoot => TeoCalcPaths.ResourcePath("Engine/HP-65/Assets");
 

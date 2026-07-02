@@ -7,7 +7,7 @@
 </g>
 <g id="faceplate-surface">
 <g id="display-bezel"><rect id="burgundy-cap-top" x="23" y="24" width="361" height="4" fill="#443138"/><rect id="lcd-window" x="23" y="28" width="361" height="65" fill="#000000"/><rect id="burgundy-cap-bottom" x="23" y="93" width="361" height="24" fill="#443138"/></g>
-<g id="control-strip"><rect id="white-rule-top" x="23" y="117" width="361" height="4" fill="#B8C0CD"/><rect id="face-above-switch" x="23" y="121" width="361" height="29" fill="#4B5053"/><rect id="dark-rule-above-switch" x="23" y="150" width="361" height="4" fill="#1C2025"/><rect id="switch-track" x="23" y="154" width="361" height="41" fill="#4C4E50"/><rect id="face-below-switch" x="23" y="195" width="361" height="23" fill="#4C4E50"/><rect id="dark-rule-above-keypad" x="23" y="218" width="361" height="4" fill="#1C2025"/></g>
+<g id="control-strip"><rect id="white-rule-top" x="23" y="117" width="361" height="4" fill="#B8C0CD"/><rect id="face-above-switch" x="23" y="121" width="361" height="29" fill="#4B5053"/><rect id="dark-rule-above-switch" x="23" y="150" width="361" height="4" fill="#1C2025"/><rect id="card-slot-panel" x="23" y="154" width="361" height="64" fill="#4C4E50"/><rect id="dark-rule-above-keypad" x="23" y="218" width="361" height="4" fill="#1C2025"/></g>
 <g id="keypad-panel"><rect id="keypad-panel" x="23" y="222" width="361" height="587" fill="#4B5053"/></g>
 <g id="brand-plate"><rect id="brand-plate-fill" x="23" y="809" width="361" height="28" fill="#3C3E41"/></g>
 </g>
