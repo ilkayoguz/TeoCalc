@@ -43,6 +43,8 @@ public static class CalcExplorerView
   private static void DrawCalculatorPanel(CalcExplorerSession session)
   {
     ImGui.TextUnformatted(session.Model.DisplayName);
+    ImGui.PushStyleColor(ImGuiCol.ChildBg, 0);
+    ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, System.Numerics.Vector2.Zero);
     ImGui.BeginChild("calculator", new System.Numerics.Vector2(0, 0), ImGuiChildFlags.Border);
 
     if (session.SupportsCpu)
@@ -57,6 +59,8 @@ public static class CalcExplorerView
     }
 
     ImGui.EndChild();
+    ImGui.PopStyleVar();
+    ImGui.PopStyleColor();
   }
 
   private static void DrawToolbar(CalcExplorerSession session)

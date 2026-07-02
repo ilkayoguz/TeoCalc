@@ -14,14 +14,17 @@ public static class CalcFaceplateView
       return;
     }
 
+    ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, System.Numerics.Vector2.Zero);
+    ImGui.PushStyleVar(ImGuiStyleVar.ItemSpacing, System.Numerics.Vector2.Zero);
+
     System.Numerics.Vector2 available = ImGui.GetContentRegionAvail();
     CalcChassisMetrics metrics = CalcChassisGeometry.Fit(available);
     IReadOnlyList<FaceplateCell> cells = CalcFaceplateLayout.GetPhysicalCells(session.Model.Family, session.Model.Model);
 
-    ImGui.BeginChild("calc_body", new System.Numerics.Vector2(metrics.Width, metrics.Height), ImGuiChildFlags.None);
-
-    System.Numerics.Vector2 origin = ImGui.GetCursorScreenPos();
+    System.Numerics.Vector2 origin = ImGui.GetWindowPos() + ImGui.GetWindowContentRegionMin();
     ImDrawListPtr draw = ImGui.GetWindowDrawList();
+
+    ImGui.Dummy(new System.Numerics.Vector2(metrics.Width, metrics.Height));
 
     CalcChassisRenderer.DrawShell(draw, origin, metrics);
     RectF display = metrics.DisplayRect(origin);
@@ -29,9 +32,9 @@ public static class CalcFaceplateView
 
     bool powerOn = (session.Cpu.State.Flags & ClassicCpuFlags.DisplayOn) != 0;
     CalcChassisRenderer.DrawSliderSwitches(draw, origin, metrics, powerOn, session.ProgramMode);
+    CalcEnterRowLabels.Draw(draw, origin, metrics);
 
-    RectF keypad = metrics.KeypadRect(origin);
-
+    bool anyKeyHovered = false;
     foreach (FaceplateCell cell in cells)
     {
       if (cell.KeyChartIndex >= session.Vocabulary.KeyChart.Count)
@@ -55,18 +58,24 @@ public static class CalcFaceplateView
         continue;
       }
 
-      System.Numerics.Vector2 cellMin = metrics.CellOrigin(keypad, cell);
-      System.Numerics.Vector2 cellSize = metrics.CellSize(cell);
-      System.Numerics.Vector2 cellMax = cellMin + cellSize;
+      RectF keyRect = metrics.KeyRect(origin, cell.KeyChartIndex);
+      if (keyRect.Width <= 0f || keyRect.Height <= 0f)
+      {
+        continue;
+      }
+
+      System.Numerics.Vector2 cellMin = keyRect.Min;
+      System.Numerics.Vector2 cellMax = keyRect.Max;
+      System.Numerics.Vector2 cellSize = keyRect.Size;
       CalcButtonKind kind = CalcFaceplateLayout.ButtonKindForKey(key, cell);
 
-      if (!string.IsNullOrEmpty(visual.GoldShift))
+      if (!string.IsNullOrEmpty(visual.GoldShift) && !CalcEnterRowLabels.IsEnterRowKey(cell.KeyChartIndex))
       {
-        DrawGoldBodyLabel(draw, visual.GoldShift, cellMin, cellSize, metrics);
+        DrawGoldBodyLabel(draw, visual.GoldShift, cellMin, cellSize.X, metrics.GoldBandForKey(cell.KeyChartIndex), metrics);
       }
 
       CalcButtonStyle style = CalcButton.StyleForKeyIndex(cell.KeyChartIndex);
-      bool leftAlign = cell.ColSpan >= 2;
+      bool leftAlign = kind != CalcButtonKind.EnterWide && cell.ColSpan >= 2;
       if (CalcButton.Draw(
             draw,
             $"##hpkey{cell.KeyChartIndex}",
@@ -85,27 +94,37 @@ public static class CalcFaceplateView
 
       if (ImGui.IsItemHovered())
       {
+        anyKeyHovered = true;
         ImGui.SetTooltip($"{visual.Primary}  (code {key.KeyCode})");
       }
     }
 
-    Hp65FaceplateArt.DrawFrameOverlay(draw, origin, metrics);
+    bool anySwitchHovered = CalcChassisRenderer.HandleSwitchPointers(origin, metrics, session);
 
-    ImGui.Dummy(new System.Numerics.Vector2(metrics.Width, metrics.Height));
-    ImGui.EndChild();
+    CalcFaceplatePointer.ApplyHandCursorIfHovering(
+      origin,
+      metrics,
+      cells,
+      session.Vocabulary.KeyChart,
+      anyKeyHovered,
+      anySwitchHovered);
+
+    ImGui.PopStyleVar(2);
   }
 
   private static void DrawGoldBodyLabel(
     ImDrawListPtr draw,
     string text,
     System.Numerics.Vector2 cellMin,
-    System.Numerics.Vector2 cellSize,
+    float cellWidth,
+    float goldBand,
     CalcChassisMetrics metrics)
   {
-    float fontSize = ImGui.GetFontSize() * 0.62f * metrics.Scale;
-    System.Numerics.Vector2 size = ImGui.GetFont().CalcTextSizeA(fontSize, float.MaxValue, 0f, text);
-    float y = cellMin.Y - metrics.GoldBand * 0.72f;
-    float x = cellMin.X + (cellSize.X - size.X) * 0.5f;
-    draw.AddText(ImGui.GetFont(), fontSize, new System.Numerics.Vector2(x, y), CalcChassisPalette.GoldLabel, text);
+    float fontSize = CalcFaceplateTypography.GoldShift(metrics.Scale);
+    HpClassicFaceplateGlyphs.LabelSize size = HpClassicFaceplateGlyphs.MeasureBodyLabel(text, fontSize);
+    float bandCenterY = cellMin.Y - goldBand * 0.24f;
+    float y = bandCenterY - size.Height * 0.5f;
+    float x = cellMin.X + (cellWidth - size.Width) * 0.5f;
+    HpClassicFaceplateGlyphs.DrawBodyLabel(draw, new System.Numerics.Vector2(x, y), text, fontSize, CalcKeyLabelPalette.GoldOnBody, metrics.Scale);
   }
 }

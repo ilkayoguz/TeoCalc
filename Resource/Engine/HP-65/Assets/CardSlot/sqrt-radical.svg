@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- License: PD. Made by Mary Akveo: https://maryakveo.com/ - adapted for HP-65 card slot -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 1 35.5 22">
+  <path fill="none" stroke="#FFFFFF" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+    d="M3,12H4.31a1,1,0,0,1,.93.65L8,20L10.85,4.82a1,1,0,0,1,1-.82H30.5a1,1,0,0,1,1,.82L32.49,7.22"/>
+</svg>

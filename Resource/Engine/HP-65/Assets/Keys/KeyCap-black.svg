@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 38" width="48" height="38" id="hp-key-cap">
+  <g id="key-cap">
+    <path id="key-face" fill="#2C2F31" stroke="#2C2F31" stroke-width="1.3" stroke-linejoin="round" d="M3.35,1.35H44.65A2.2275,2.2275,0,0,1,46.65,3.35V26H1.35V3.35A2.2275,2.2275,0,0,1,3.35,1.35Z"/>
+    <path id="key-skirt" fill="#141618" stroke="#141618" stroke-width="1.3" stroke-linejoin="round" d="M1.35,26H46.65V34Q46.65,36,44,36H4Q1.35,36,1.35,34Z"/>
+    <path id="key-lip" fill="none" stroke="#24282C" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round" d="M4.6,36C5.0,33.8,4.7,28.5,5.3,28.5C17.76666666666667,28.5,30.233333333333334,28.5,42.7,28.5C43.300000000000004,28.5,43.0,33.8,43.4,36"/>
+    <path id="key-highlight" fill="none" stroke="#4A5056" stroke-width="1.1" stroke-linecap="round" d="M6.0,4.5H42.0"/>
+  </g>
+</svg>

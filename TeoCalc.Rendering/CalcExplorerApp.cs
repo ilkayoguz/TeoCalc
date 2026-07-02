@@ -29,8 +29,8 @@ public static class CalcExplorerApp
     {
       gl = window.CreateOpenGL();
       input = window.CreateInput();
-      controller = new ImGuiController(gl, window, input);
-      Hp65FaceplateArt.TryInitialize(gl);
+      controller = new ImGuiController(gl, window, input, onConfigureIO: CalcFaceplateFonts.Configure);
+      Hp65FaceplateSvgAssets.TryInitialize(gl);
     };
 
     window.Update += _ =>
@@ -50,6 +50,7 @@ public static class CalcExplorerApp
       controller.MakeCurrent();
       CalcExplorerView.Draw(session);
       controller.Render();
+      CalcFaceplatePointer.ApplyPendingCursor(input);
     };
 
     window.FramebufferResize += size =>
@@ -58,7 +59,7 @@ public static class CalcExplorerApp
     };
 
     window.Run();
-    Hp65FaceplateArt.Dispose();
+    Hp65FaceplateSvgAssets.Dispose();
     controller?.Dispose();
     input?.Dispose();
     gl?.Dispose();

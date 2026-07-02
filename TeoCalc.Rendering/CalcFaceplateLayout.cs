@@ -17,18 +17,34 @@ public readonly record struct FaceplateCell(
   int ColSpan = 1,
   FaceplateLabelStyle LabelStyle = FaceplateLabelStyle.Normal);
 
-/// <summary>HP Classic faceplate layout (HP-65 hp65_470.png reference).</summary>
+/// <summary>HP Classic faceplate cell map; geometry from Body.svg layout JSON.</summary>
 public static class CalcFaceplateLayout
 {
   public const int Rows = 8;
 
   public const int Columns = 5;
 
-  public static readonly string[] CardSlotLabels = ["1/x", "\u221ax", "y^x", "R\u2193", "x\u2194y"];
+  public static readonly string[] CardSlotLabels = ["1/x", "\u221ax", "R\u2191", "R\u2193", "x\u2194y"];
 
-  public static readonly Vector2 OnOffSwitchNorm = new(155f / CalcChassisGeometry.ReferenceWidth, 175f / CalcChassisGeometry.ReferenceHeight);
+  public static Vector2 OnOffSwitchNorm
+  {
+    get
+    {
+      BodyFaceplateLayout.EnsureLoaded();
+      Vector2 center = BodyFaceplateLayout.OnOffSwitchCenter;
+      return new(center.X / BodyFaceplateLayout.ReferenceWidth, center.Y / BodyFaceplateLayout.ReferenceHeight);
+    }
+  }
 
-  public static readonly Vector2 PrgmRunSwitchNorm = new(320f / CalcChassisGeometry.ReferenceWidth, 175f / CalcChassisGeometry.ReferenceHeight);
+  public static Vector2 PrgmRunSwitchNorm
+  {
+    get
+    {
+      BodyFaceplateLayout.EnsureLoaded();
+      Vector2 center = BodyFaceplateLayout.PrgmRunSwitchCenter;
+      return new(center.X / BodyFaceplateLayout.ReferenceWidth, center.Y / BodyFaceplateLayout.ReferenceHeight);
+    }
+  }
 
   private static readonly FaceplateCell[] ClassicPhysicalCells =
   [
@@ -114,7 +130,7 @@ public static class CalcFaceplateLayout
       "\r" => "ENTER",
       "n" => "CHS",
       "x" => "EEX",
-      "\b" => "CLx",
+      "\b" => "CLX",
       "*" => "\u00d7",
       "/" => "\u00f7",
       " " => "R/S",
@@ -126,16 +142,21 @@ public static class CalcFaceplateLayout
 
   public static Vector2 PanelSize(IReadOnlyList<FaceplateCell> cells, CalcChassisMetrics metrics)
   {
-    int maxRow = 0;
-    int maxColumn = 0;
+    BodyFaceplateLayout.EnsureLoaded();
+    float maxX = 0f;
+    float maxY = 0f;
+    RectF band = BodyFaceplateLayout.CardSlotBand;
     foreach (FaceplateCell cell in cells)
     {
-      maxRow = Math.Max(maxRow, cell.Row + cell.RowSpan);
-      maxColumn = Math.Max(maxColumn, cell.Column + cell.ColSpan);
+      if (!BodyFaceplateLayout.TryGetKeyRect(cell.KeyChartIndex, out RectF rect))
+      {
+        continue;
+      }
+
+      maxX = Math.Max(maxX, rect.X + rect.Width);
+      maxY = Math.Max(maxY, rect.Y + rect.Height);
     }
 
-    return new Vector2(
-      maxColumn * metrics.KeyWidth + Math.Max(0, maxColumn - 1) * metrics.KeyGapH,
-      metrics.CardSlotBand + metrics.GoldBand + maxRow * metrics.RowPitch);
+    return new Vector2(maxX - band.X, maxY - band.Y + band.Height);
   }
 }

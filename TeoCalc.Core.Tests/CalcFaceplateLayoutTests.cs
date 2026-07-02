@@ -59,18 +59,44 @@ public sealed class CalcFaceplateLayoutTests
   }
 
   [TestMethod]
-  public void ChassisGeometry_MatchesHp65ReferenceRatios()
+  public void ChassisGeometry_MatchesBodyLayout()
   {
+    BodyFaceplateLayout.EnsureLoaded();
     CalcChassisMetrics metrics = new(1f);
-    Assert.AreEqual(47f, metrics.KeyWidth);
-    Assert.AreEqual(57f, metrics.KeyHeight);
-    Assert.AreEqual(10f, metrics.KeyGapH);
-    Assert.AreEqual(8f, metrics.KeyGapV);
-    Assert.AreEqual(12f, metrics.CardSlotBand);
 
-    Vector2 enterSize = metrics.CellSize(new FaceplateCell(15, 3, 0, ColSpan: 2));
-    Assert.AreEqual(47f * 2f + 10f, enterSize.X);
-    Assert.AreEqual(57f, enterSize.Y);
+    Assert.AreEqual(409f, metrics.Width);
+    Assert.AreEqual(861f, metrics.Height);
+    Assert.AreEqual(28f, metrics.FooterHeight);
+
+    RectF key0 = metrics.KeyRect(Vector2.Zero, 0);
+    Assert.AreEqual(38f, key0.X);
+    Assert.AreEqual(237f, key0.Y);
+    Assert.AreEqual(48f, key0.Width);
+    Assert.AreEqual(38f, key0.Height);
+
+    RectF enter = metrics.KeyRect(Vector2.Zero, 15);
+    Assert.AreEqual(38f, enter.X);
+    Assert.AreEqual(459f, enter.Y);
+    Assert.AreEqual(118f, enter.Width);
+    Assert.AreEqual(38f, enter.Height);
+
+    RectF band = metrics.CardSlotBandRect(Vector2.Zero);
+    Assert.AreEqual(195f, band.Y);
+    Assert.AreEqual(23f, band.Height);
+
+    Assert.IsTrue(metrics.TryGetCardSlotColumn(Vector2.Zero, 0, out RectF slot0));
+    Assert.AreEqual(38f, slot0.X);
+    Assert.AreEqual(48f, slot0.Width);
+  }
+
+  [TestMethod]
+  public void BodyLayout_KeyCount_MatchesClassicCells()
+  {
+    BodyFaceplateLayout.EnsureLoaded();
+    IReadOnlyList<FaceplateCell> cells = CalcFaceplateLayout.GetPhysicalCells("Classic");
+
+    Assert.AreEqual(35, BodyFaceplateLayout.KeyCount);
+    Assert.AreEqual(35, cells.Count);
   }
 
   [TestMethod]
@@ -102,7 +128,38 @@ public sealed class CalcFaceplateLayoutTests
   {
     Assert.AreEqual(5, CalcFaceplateLayout.CardSlotLabels.Length);
     CollectionAssert.AreEqual(
-      new[] { "1/x", "\u221ax", "y^x", "R\u2193", "x\u2194y" },
+      new[] { "1/x", "\u221ax", "R\u2191", "R\u2193", "x\u2194y" },
       CalcFaceplateLayout.CardSlotLabels);
+  }
+
+  [TestMethod]
+  public void FaceplateFonts_Exist()
+  {
+    string root = TeoCalcPaths.ResourcePath("Font");
+    Assert.IsTrue(File.Exists(Path.Combine(root, "LiberationSans-Bold.ttf")));
+    Assert.IsTrue(
+      File.Exists(Path.Combine(root, "STIXTwoText-BoldItalic.ttf"))
+      || File.Exists(Path.Combine(root, "LiberationSerif-BoldItalic.ttf")));
+  }
+
+  [TestMethod]
+  public void CardSlotLabelSvgAssets_Exist()
+  {
+    string root = Path.Combine(TeoCalcPaths.ResourcePath("Engine/HP-65/Assets"), "CardSlot");
+    string[] expected =
+    [
+      "label-1-over-x.svg",
+      "label-sqrt-x.svg",
+      "label-y-pow-x.svg",
+      "label-r-down.svg",
+      "label-x-exchange-y.svg",
+      "exchange-arrow-up.svg",
+      "sqrt-radical.svg",
+    ];
+
+    foreach (string file in expected)
+    {
+      Assert.IsTrue(File.Exists(Path.Combine(root, file)), $"Missing card slot label asset: {file}");
+    }
   }
 }

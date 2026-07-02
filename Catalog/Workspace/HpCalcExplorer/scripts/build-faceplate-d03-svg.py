@@ -105,13 +105,15 @@ def _scan_bands(im: np.ndarray) -> list[tuple[str, int, int, str]]:
                 if cap["face"] == 2
                 else "keypad-panel"
             )
+            color = COL["switch"] if bid == "face-below-switch" else COL[tag]
         elif tag == "switch":
             bid = "switch-track"
         elif tag == "footer":
             bid = "brand-plate"
         else:
             continue
-        color = COL["black"] if bid == "lcd-window" else COL[tag]
+        if bid != "face-below-switch":
+            color = COL["black"] if bid == "lcd-window" else COL[tag]
         out.append((bid, y0, y1, color))
     return out
 
