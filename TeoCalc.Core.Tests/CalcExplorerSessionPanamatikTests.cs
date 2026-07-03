@@ -72,4 +72,47 @@ public sealed class CalcExplorerSessionPanamatikTests
     Assert.IsFalse(session.Cpu!.State.KeyBuffer == 0 && session.DisplayText.Contains('7'),
       "Digit entry display pending firmware key-dispatch path.");
   }
+
+  [TestMethod]
+  public void PressKey_WithChartIndex_RaisesKeyProcessedEvent()
+  {
+    CalcExplorerSession session = CreateSession();
+    session.PowerOnResume();
+
+    ProgramVocabulary vocabulary = ProgramVocabulary.Load(
+      TeoCalcPaths.ResourcePath("Engine/HP-65/Program/program.vocabulary.json"));
+    ClassicProgramInput.TryResolveKeyCode(vocabulary, '7', out byte keyCode);
+
+    FirmwareKeyProcessedEventArgs? processed = null;
+    session.KeyProcessed += (_, args) => processed = args;
+
+    session.PressKey(21, keyCode);
+
+    Assert.IsNotNull(processed);
+    Assert.AreEqual(21, processed.Key.KeyChartIndex);
+    Assert.AreEqual(keyCode, processed.Key.KeyCode);
+  }
+
+  [TestMethod]
+  public void PressAndReleaseKey_RaisesKeyLifecycleEvents()
+  {
+    CalcExplorerSession session = CreateSession();
+    session.PowerOnResume();
+
+    ProgramVocabulary vocabulary = ProgramVocabulary.Load(
+      TeoCalcPaths.ResourcePath("Engine/HP-65/Program/program.vocabulary.json"));
+    ClassicProgramInput.TryResolveKeyCode(vocabulary, '7', out byte keyCode);
+
+    List<FirmwareKeyStateChangedEventArgs> states = [];
+    session.KeyStateChanged += (_, args) => states.Add(args);
+
+    session.PressKey(21, keyCode);
+    session.ReleaseMouseKey();
+
+    Assert.AreEqual(2, states.Count);
+    Assert.IsTrue(states[0].Held);
+    Assert.AreEqual(21, states[0].Key?.KeyChartIndex);
+    Assert.IsFalse(states[1].Held);
+    Assert.AreEqual(21, states[1].Key?.KeyChartIndex);
+  }
 }

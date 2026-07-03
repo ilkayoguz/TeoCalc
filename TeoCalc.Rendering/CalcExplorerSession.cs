@@ -14,21 +14,11 @@ public sealed class CalcExplorerSession
     "HP-31", "HP-32", "HP-33", "HP-34", "HP-37", "HP-38",
   ];
 
-  public const int KeyRunSteps = 200;
-
-  private const float RunTickSeconds = 0.01f;
-
-  private float _runAccumulator;
-
-  private string _displayText = string.Empty;
-
-  private bool _displayBlankPulse;
+  private readonly FirmwareGateway _firmware = new();
 
   private bool _mouseKeyHeld;
 
   private bool _keyboardKeyHeld;
-
-  private int _keyHoldBatchesRemaining;
 
   public CalcExplorerSession(string engineRoot)
   {
@@ -50,7 +40,7 @@ public sealed class CalcExplorerSession
 
   public TeoCalcModelDefinition Model { get; private set; } = null!;
 
-  public ClassicCpu? Cpu { get; private set; }
+  public ClassicCpu? Cpu => _firmware.Cpu;
 
   public ProgramVocabulary? Vocabulary { get; private set; }
 
@@ -66,54 +56,73 @@ public sealed class CalcExplorerSession
 
   public int SelectedAddress { get; set; }
 
-  public bool ProgramMode { get; set; }
+  public bool ProgramMode
+  {
+    get => _firmware.ProgramMode;
+    set => _firmware.SetProgramMode(value);
+  }
 
-  public bool PowerOn { get; set; }
+  public bool PowerOn
+  {
+    get => _firmware.PowerOn;
+    set => _firmware.PowerOn = value;
+  }
 
-  public string DisplayText => _displayText;
+  public string DisplayText => _firmware.DisplayText;
 
-  public ShiftPreviewMode ShiftPreview { get; private set; }
+  public ShiftPreviewController ShiftPreview { get; } = new();
 
   public bool IsKeyHeld => _mouseKeyHeld || _keyboardKeyHeld;
 
+  public event EventHandler<FirmwareDisplayChangedEventArgs>? DisplayChanged
+  {
+    add => _firmware.DisplayChanged += value;
+    remove => _firmware.DisplayChanged -= value;
+  }
+
+  public event EventHandler<FirmwareKeyProcessedEventArgs>? KeyProcessed
+  {
+    add => _firmware.KeyProcessed += value;
+    remove => _firmware.KeyProcessed -= value;
+  }
+
+  public event EventHandler<FirmwareKeyStateChangedEventArgs>? KeyStateChanged
+  {
+    add => _firmware.KeyStateChanged += value;
+    remove => _firmware.KeyStateChanged -= value;
+  }
+
   public void PowerOnResume()
   {
-    PowerOn = true;
-    RunInstructionBatch(KeyRunSteps);
+    _firmware.PowerOnResume();
   }
 
   public void PowerOff()
   {
-    if (Cpu is null)
-    {
-      PowerOn = false;
-      return;
-    }
-
-    Cpu.Reset();
+    _firmware.PowerOff();
     SelectedAddress = 0;
-    PowerOn = false;
     _mouseKeyHeld = false;
     _keyboardKeyHeld = false;
-    _keyHoldBatchesRemaining = 0;
-    _displayText = string.Empty;
-    _displayBlankPulse = false;
-    ShiftPreview = ShiftPreviewMode.None;
+    ShiftPreview.Reset();
   }
 
-  public bool IsDisplayVisible() =>
-    PowerOn && !_displayBlankPulse && _displayText.Length > 0;
+  public bool IsDisplayVisible() => _firmware.IsDisplayVisible();
 
-  public void EndDisplayFrame()
+  public void EndDisplayFrame() => _firmware.EndDisplayFrame();
+
+  public void SetKeyboardKeyHeld(bool held)
   {
-    _displayBlankPulse = false;
+    _keyboardKeyHeld = held;
+    _firmware.SetKeyLineHeld(IsKeyHeld);
   }
 
-  public void SetKeyboardKeyHeld(bool held) => _keyboardKeyHeld = held;
+  public void ReleaseMouseKey()
+  {
+    _mouseKeyHeld = false;
+    _firmware.SetKeyLineHeld(IsKeyHeld);
+  }
 
-  public void ReleaseMouseKey() => _mouseKeyHeld = false;
-
-  public void ClearShiftPreview() => ShiftPreview = ShiftPreviewMode.None;
+  public void ClearShiftPreview() => ShiftPreview.Clear();
 
   public void ToggleProgramMode()
   {
@@ -122,8 +131,7 @@ public sealed class CalcExplorerSession
       return;
     }
 
-    ProgramMode = !ProgramMode;
-    RunInstructionBatch(KeyRunSteps);
+    _firmware.ToggleProgramMode();
   }
 
   public void ToggleProgramModeTo(bool programMode)
@@ -133,8 +141,7 @@ public sealed class CalcExplorerSession
       return;
     }
 
-    ProgramMode = programMode;
-    RunInstructionBatch(KeyRunSteps);
+    _firmware.SetProgramMode(programMode);
   }
 
   public void LoadModel(int index)
@@ -144,9 +151,10 @@ public sealed class CalcExplorerSession
     string modelPath = Path.Combine(EngineRoot, modelId, "Model.json");
     Model = TeoCalcModelDefinition.Load(modelPath);
 
-    Cpu = string.Equals(Model.Family, "Classic", StringComparison.OrdinalIgnoreCase)
+    ClassicCpu? cpu = string.Equals(Model.Family, "Classic", StringComparison.OrdinalIgnoreCase)
       ? ClassicCpuFactory.Create(Model, EngineRoot)
       : null;
+    _firmware.AttachCpu(cpu);
 
     Vocabulary = null;
     if (Model.Program?.Vocabulary is { Length: > 0 } vocabularyPath)
@@ -167,29 +175,14 @@ public sealed class CalcExplorerSession
 
     SelectedAddress = Cpu?.State.FetchAddress ?? 0;
     MicrocodeScroll = Math.Max(0, SelectedAddress - 8);
-    _runAccumulator = 0f;
-    PowerOn = false;
-    _displayText = string.Empty;
-    _displayBlankPulse = false;
     _mouseKeyHeld = false;
     _keyboardKeyHeld = false;
-    _keyHoldBatchesRemaining = 0;
-    ShiftPreview = ShiftPreviewMode.None;
+    ShiftPreview.Reset();
   }
 
   public void Tick(float deltaSeconds)
   {
-    if (Cpu is null || !PowerOn)
-    {
-      return;
-    }
-
-    _runAccumulator += deltaSeconds;
-    while (_runAccumulator >= RunTickSeconds)
-    {
-      RunInstructionBatch(KeyRunSteps);
-      _runAccumulator -= RunTickSeconds;
-    }
+    _firmware.Tick(deltaSeconds);
   }
 
   public void StepCpu()
@@ -199,7 +192,7 @@ public sealed class CalcExplorerSession
       return;
     }
 
-    Cpu.Step();
+    _firmware.Step();
     SelectedAddress = Math.Max(0, Cpu.State.ProgramCounter - 1);
   }
 
@@ -208,92 +201,22 @@ public sealed class CalcExplorerSession
   /// <summary>Panamatik <c>press_key</c> — display blank, buffer key, <c>Run()</c>.</summary>
   public void PressKey(int keyChartIndex, byte keyCode)
   {
-    UpdateShiftPreview(keyChartIndex);
-    PressKey(keyCode);
+    ShiftPreview.HandleKeyPress(keyChartIndex);
+    PressKey(new FirmwareKeyCommand(keyChartIndex, keyCode));
   }
 
-  public void PressKey(byte keyCode)
+  public void PressKey(byte keyCode) =>
+    PressKey(new FirmwareKeyCommand(-1, keyCode));
+
+  public void PressKey(FirmwareKeyCommand key)
   {
     if (Cpu is null || !PowerOn)
     {
       return;
     }
 
-    Cpu.State.Flags &= ~ClassicCpuFlags.DisplayOn;
-    _displayBlankPulse = true;
-    _displayText = string.Empty;
-    Cpu.PressKey(keyCode);
     _mouseKeyHeld = true;
-    _keyHoldBatchesRemaining = Math.Max(_keyHoldBatchesRemaining, 12);
-    RunInstructionBatch(KeyRunSteps);
-  }
-
-  private void UpdateShiftPreview(int keyChartIndex)
-  {
-    ShiftPreviewMode requested = keyChartIndex switch
-    {
-      10 => ShiftPreviewMode.Gold,
-      11 => ShiftPreviewMode.GoldInverse,
-      14 => ShiftPreviewMode.Blue,
-      _ => ShiftPreviewMode.None,
-    };
-
-    ShiftPreview = requested == ShiftPreview ? ShiftPreviewMode.None : requested;
-  }
-
-  private void RunInstructionBatch(int steps)
-  {
-    if (Cpu is null)
-    {
-      return;
-    }
-
-    bool keyHeld = IsKeyHeld || _keyHoldBatchesRemaining > 0;
-    for (int step = 0; step < steps; step++)
-    {
-      Cpu.Step();
-      if (keyHeld)
-      {
-        Cpu.State.Status |= 1;
-      }
-
-      if (ProgramMode)
-      {
-        Cpu.State.Status |= 8;
-      }
-    }
-    if (_keyHoldBatchesRemaining > 0)
-    {
-      _keyHoldBatchesRemaining--;
-    }
-
-    RefreshDisplayFromCpu();
-  }
-
-  private void RefreshDisplayFromCpu()
-  {
-    if (Cpu is null || !PowerOn)
-    {
-      _displayText = string.Empty;
-      return;
-    }
-
-    string? text = ClassicFirmwareDisplay.TryBuildLedText(
-      Cpu.State,
-      ProgramMode,
-      Cpu.Program.EndState);
-
-    if (text is not null)
-    {
-      _displayText = text;
-      _displayBlankPulse = false;
-      return;
-    }
-
-    if (_displayBlankPulse)
-    {
-      _displayText = string.Empty;
-    }
+    _firmware.KeyDown(key);
   }
 
   private static MicrocodeCrossRefCatalog? LoadCrossRefIfPresent(string path)

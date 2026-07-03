@@ -55,7 +55,8 @@ public static class CalcFaceplateView
       CalcChassisRenderer.HandleSwitchPointers(origin, metrics, session, powerOn);
     bool anySwitchHovered = switchPointer.Hovered;
     bool switchClickHandled = switchPointer.ClickHandled;
-    CalcEnterRowLabels.Draw(draw, origin, metrics, session.ShiftPreview);
+    ShiftPreviewMode shiftPreview = session.ShiftPreview.Mode;
+    CalcEnterRowLabels.Draw(draw, origin, metrics, shiftPreview);
 
     bool anyKeyHovered = false;
     foreach (FaceplateCell cell in cells)
@@ -82,7 +83,7 @@ public static class CalcFaceplateView
       }
 
       CalcButtonStyle style = CalcButton.StyleForKeyIndex(cell.KeyChartIndex);
-      PreviewVisual preview = ApplyShiftPreview(visual, session.ShiftPreview, style);
+      PreviewVisual preview = ApplyShiftPreview(visual, shiftPreview, style);
       if (string.IsNullOrEmpty(visual.Primary))
       {
         continue;
@@ -101,7 +102,7 @@ public static class CalcFaceplateView
 
       if (!string.IsNullOrEmpty(preview.GoldOnBody)
         && (!CalcEnterRowLabels.IsEnterRowKey(cell.KeyChartIndex)
-          || session.ShiftPreview is ShiftPreviewMode.Gold or ShiftPreviewMode.GoldInverse))
+          || shiftPreview is ShiftPreviewMode.Gold or ShiftPreviewMode.GoldInverse))
       {
         DrawGoldBodyLabel(draw, preview.GoldOnBody, cellMin, cellMax, metrics, preview.GoldBodyInk);
       }
@@ -128,7 +129,7 @@ public static class CalcFaceplateView
         session.PressKey(cell.KeyChartIndex, (byte)key.KeyCode);
       }
 
-      DrawShiftPreviewIndicator(draw, keyRect, cell.KeyChartIndex, session.ShiftPreview, metrics.Scale);
+      DrawShiftPreviewIndicator(draw, keyRect, cell.KeyChartIndex, shiftPreview, metrics.Scale);
 
       if (ImGui.IsItemHovered() && calcInputActive && powerOn)
       {

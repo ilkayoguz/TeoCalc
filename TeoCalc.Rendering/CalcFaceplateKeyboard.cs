@@ -85,7 +85,7 @@ public static class CalcFaceplateKeyboard
       return;
     }
 
-    if (session.ShiftPreview != ShiftPreviewMode.None && ImGui.IsKeyPressed(ImGuiKey.Escape, repeat: false))
+    if (session.ShiftPreview.Mode != ShiftPreviewMode.None && ImGui.IsKeyPressed(ImGuiKey.Escape, repeat: false))
     {
       session.ClearShiftPreview();
       session.SetKeyboardKeyHeld(false);
