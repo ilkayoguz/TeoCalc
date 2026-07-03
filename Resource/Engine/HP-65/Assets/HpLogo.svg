@@ -10,7 +10,7 @@
 <clipPath id="clip-right-panel"><rect x="428.00" width="428.00" height="530"/></clipPath>
 <clipPath id="clip-disc"><path d="M428.00,-0.00A264.50,264.50 0 1 0 428.00,529.00A264.50,264.50 0 1 0 428.00,-0.00Z"/></clipPath>
 </defs>
-<path id="frame" fill="#FFFFFF" fill-rule="evenodd" d="M61,0H826A61,61 0 0 1 887,61V500A61,61 0 0 1 826,561H61A61,61 0 0 1 0,500V61A61,61 0 0 1 61,0ZM61,16H826A45,45 0 0 1 871,61V500A45,45 0 0 1 826,545H61A45,45 0 0 1 16,500V61A45,45 0 0 1 61,16Z"/>
+<path id="frame" fill="#4B5053" fill-rule="evenodd" d="M61,0H826A61,61 0 0 1 887,61V500A61,61 0 0 1 826,561H61A61,61 0 0 1 0,500V61A61,61 0 0 1 61,0ZM61,16H826A45,45 0 0 1 871,61V500A45,45 0 0 1 826,545H61A45,45 0 0 1 16,500V61A45,45 0 0 1 61,16Z"/>
 <g id="logo-art" transform="translate(16,16)">
 <path id="circle" fill="#FFFFFF" d="M428.00,-0.00A264.50,264.50 0 1 0 428.00,529.00A264.50,264.50 0 1 0 428.00,-0.00Z"/>
 <use id="left-panel" href="#wing" fill="#4B5053" clip-path="url(#clip-left-panel)"/>

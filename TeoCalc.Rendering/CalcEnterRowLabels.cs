@@ -8,6 +8,16 @@ public static class CalcEnterRowLabels
 {
   public static bool IsEnterRowKey(int keyChartIndex) => keyChartIndex is 15 or 17 or 18 or 19;
 
+  /// <summary>Gap from key well top to gold shift label center (matches ENTER row).</summary>
+  public static float ShiftLabelGapAboveKey(CalcChassisMetrics metrics) => metrics.Scale * 9f;
+
+  /// <summary>Vertical center for PREFIX / STK / REG / PRGM.</summary>
+  public static float ShiftLabelRowCenterY(Vector2 origin, CalcChassisMetrics metrics)
+  {
+    RectF enterRect = metrics.KeyRect(origin, 15);
+    return enterRect.Y - ShiftLabelGapAboveKey(metrics);
+  }
+
   public static void Draw(ImDrawListPtr draw, Vector2 origin, CalcChassisMetrics metrics)
   {
     RectF enterRect = metrics.KeyRect(origin, 15);
@@ -21,23 +31,26 @@ public static class CalcEnterRowLabels
 
     float rowBand = metrics.GoldBandForKey(17);
     float subFont = CalcFaceplateTypography.GoldShiftSmall(metrics.Scale);
-    float labelRowY = enterRect.Y - rowBand * 0.08f;
+    float labelRowY = ShiftLabelRowCenterY(origin, metrics);
     float gap = subFont * 0.55f + metrics.Scale * 2.5f;
-    float clearRowY = labelRowY - gap - metrics.Scale * 1.8f;
+    float clearRowY = labelRowY - gap - metrics.Scale * 2f;
 
     DrawClearRule(draw, enterRect, chsRect, clxRect, clearRowY, subFont, metrics.Scale);
-    DrawGoldTextCentered(draw, "PREFIX", enterRect, subFont, labelRowY);
-    DrawGoldTextCentered(draw, "STK", chsRect, subFont, labelRowY);
-    DrawGoldTextCentered(draw, "REG", eexRect, subFont, labelRowY);
-    DrawGoldTextCentered(draw, "PRGM", clxRect, subFont, labelRowY);
+    DrawGoldTextCentered(draw, "PREFIX", enterRect, subFont, labelRowY, metrics.Scale);
+    DrawGoldTextCentered(draw, "STK", chsRect, subFont, labelRowY, metrics.Scale);
+    DrawGoldTextCentered(draw, "REG", eexRect, subFont, labelRowY, metrics.Scale);
+    DrawGoldTextCentered(draw, "PRGM", clxRect, subFont, labelRowY, metrics.Scale);
   }
 
-  private static void DrawGoldTextCentered(ImDrawListPtr draw, string text, RectF anchor, float fontSize, float centerY)
+  private static void DrawGoldTextCentered(ImDrawListPtr draw, string text, RectF anchor, float fontSize, float centerY, float scale)
   {
-    Vector2 size = MeasureArial(text, fontSize);
-    float x = anchor.X + (anchor.Width - size.X) * 0.5f;
-    float y = centerY - size.Y * 0.5f;
-    DrawArialTop(draw, text, x, y, fontSize, CalcKeyLabelPalette.GoldOnBody);
+    float centerX = anchor.X + anchor.Width * 0.5f;
+    Vector2 topLeft = CalcFaceplateFonts.ArialBoldTopLeftForBandCenter(
+      new Vector2(centerX, centerY),
+      text,
+      fontSize,
+      verticalBiasRatio: 0f);
+    HpClassicFaceplateGlyphs.DrawBodyLabel(draw, topLeft, text, fontSize, CalcKeyLabelPalette.GoldOnBody, scale);
   }
 
   private static void DrawClearRule(

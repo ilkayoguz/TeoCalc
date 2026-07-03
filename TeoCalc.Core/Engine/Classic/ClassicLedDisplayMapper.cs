@@ -37,6 +37,30 @@ public static class ClassicLedDisplayMapper
     return slots;
   }
 
+  /// <summary>Text for Panamatik <c>LEDcharset_class.TTF</c> (decimal point = <c>;</c>).</summary>
+  public static string ToFontText(IReadOnlyList<ClassicLedDisplaySlot> slots)
+  {
+    if (slots.Count == 0)
+    {
+      return string.Empty;
+    }
+
+    char[] chars = new char[slots.Count];
+    for (int i = 0; i < slots.Count; i++)
+    {
+      chars[i] = slots[i].Kind switch
+      {
+        ClassicLedSlotKind.Blank => ' ',
+        ClassicLedSlotKind.Minus => '-',
+        ClassicLedSlotKind.DecimalPoint => ';',
+        ClassicLedSlotKind.Digit => (char)('0' + slots[i].Digit),
+        _ => ' ',
+      };
+    }
+
+    return new string(chars);
+  }
+
   public static ClassicLedDisplaySlot[] Map(ClassicCpu cpu, bool programMode = false) =>
     Map(
       cpu.State.Registers,

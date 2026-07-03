@@ -23,7 +23,10 @@ public static class CalcChassisPalette
 
   public static uint DisplayDigitGlow => Rgba(120, 12, 0, 90);
 
-  public static uint SliderTrack => Rgba(16, 14, 12);
+  // Body.svg inner frame / switch recess (#61645A).
+  public static uint BodyFrame => Rgba(97, 100, 90);
+
+  public static uint SliderTrack => BodyFrame;
 
   public static uint Footer => Rgba(176, 174, 168);
 
@@ -35,10 +38,13 @@ public static class CalcChassisPalette
 
   public static uint BlueLabel => Rgba(168, 210, 248);
 
+  /// <summary>Dark blue skirt ink on white/grey caps (readable on KeyGreySkirt).</summary>
+  public static uint SkirtBlueDark => Rgba(0, 96, 168);
+
   public static uint SkirtLabelBand => Rgba(58, 86, 112);
 
-  /// <summary>Darker grey band behind blue skirt labels on grey keys only.</summary>
-  public static uint GreySkirtLabelBand => Rgba(88, 84, 78);
+  /// <summary>Behind blue skirt labels on grey keys — matches cap skirt, not extra-dark band.</summary>
+  public static uint GreySkirtLabelBand => KeyGreySkirt;
 
   public static uint GoldRule => Rgba(200, 158, 48, 120);
 
@@ -46,52 +52,64 @@ public static class CalcChassisPalette
 
   public static uint CardSlotLabel => Rgba(236, 234, 228);
 
-  public static uint SwitchTrack => Rgba(10, 9, 8);
+  public static uint SwitchTrack => BodyFrame;
 
-  public static uint SwitchKnob => Rgba(34, 32, 30);
+  public static uint SwitchKnob => Rgba(0, 0, 0);
 
   public static uint SwitchLabel => Rgba(245, 243, 238);
 
   public static uint KeyHighlight => Rgba(255, 255, 255, 42);
 
-  public static uint KeyBlackTop => Rgba(42, 40, 38);
+  /// <summary>KeyCap-black.svg highlight stroke.</summary>
+  public static uint KeyBlackTop => Rgba(74, 80, 86);
 
-  public static uint KeyBlackFace => Rgba(28, 26, 24);
+  /// <summary>KeyCap-black.svg face fill.</summary>
+  public static uint KeyBlackFace => Rgba(44, 47, 49);
 
-  public static uint KeyBlackSkirt => Rgba(14, 13, 12);
+  /// <summary>KeyCap-black.svg skirt fill.</summary>
+  public static uint KeyBlackSkirt => Rgba(20, 22, 24);
 
   public static uint KeyGreyTop => Rgba(204, 200, 188);
 
+  /// <summary>KeyCap-grey.svg face fill.</summary>
   public static uint KeyGreyFace => Rgba(184, 180, 170);
 
-  /// <summary>Grey key-cap face (Keys/KeyCap-grey.svg) — same tone as <see cref="KeyGreyFace"/>.</summary>
   public static uint KeyCapGreyFace => KeyGreyFace;
 
-  /// <summary>Grey key-cap top glint — lighter warm grey, same as <see cref="KeyGreyTop"/>.</summary>
   public static uint KeyCapGreyHighlight => KeyGreyTop;
 
-  public static uint KeyGreySkirt => Rgba(112, 108, 100);
+  /// <summary>KeyCap-grey.svg skirt fill.</summary>
+  public static uint KeyGreySkirt => Rgba(162, 158, 146);
 
-  public static uint KeyOrangeTop => Rgba(232, 176, 64);
+  public static uint KeyWhiteTop => Rgba(252, 250, 246);
 
-  /// <summary>Gold key-cap face (Keys/KeyCap.svg) — same tone as <see cref="KeyOrangeTop"/>.</summary>
-  public static uint KeyCapGoldFace => KeyOrangeTop;
+  public static uint KeyWhiteFace => Rgba(244, 242, 236);
 
-  public static uint KeyOrangeFace => Rgba(210, 148, 44);
+  /// <summary>Key2.svg body tone behind white face.</summary>
+  public static uint KeyWhiteSkirt => Rgba(176, 172, 164);
 
-  public static uint KeyOrangeSkirt => Rgba(148, 96, 28);
+  /// <summary>KeyCap.svg highlight stroke.</summary>
+  public static uint KeyOrangeTop => Rgba(247, 216, 118);
 
-  public static uint KeyBlueTop => Rgba(148, 188, 214);
+  public static uint KeyCapGoldFace => Rgba(232, 176, 64);
 
-  public static uint KeyBlueFace => Rgba(118, 162, 196);
+  /// <summary>KeyCap.svg face fill.</summary>
+  public static uint KeyOrangeFace => Rgba(232, 176, 64);
 
-  /// <summary>Blue key-cap face — B01 g-key dominant sky blue (brighter than <see cref="KeyBlueFace"/>).</summary>
-  public static uint KeyCapBlueFace => Rgba(126, 191, 231);
+  /// <summary>KeyCap.svg skirt / body fill.</summary>
+  public static uint KeyOrangeSkirt => Rgba(161, 111, 34);
 
-  /// <summary>Blue key-cap top glint — lighter saturated sky blue above <see cref="KeyCapBlueFace"/>.</summary>
-  public static uint KeyCapBlueHighlight => Rgba(148, 215, 248);
+  /// <summary>KeyCap-blue.svg highlight stroke.</summary>
+  public static uint KeyBlueTop => Rgba(148, 215, 248);
 
-  public static uint KeyBlueSkirt => Rgba(72, 108, 138);
+  public static uint KeyBlueFace => Rgba(126, 191, 231);
+
+  public static uint KeyCapBlueFace => KeyBlueFace;
+
+  public static uint KeyCapBlueHighlight => KeyBlueTop;
+
+  /// <summary>KeyCap-blue.svg skirt fill.</summary>
+  public static uint KeyBlueSkirt => Rgba(98, 157, 199);
 
   public static uint KeyText => Rgba(244, 244, 248);
 

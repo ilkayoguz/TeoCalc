@@ -7,7 +7,6 @@ public static class ClassicProgramInput
   public static void PressKey(ClassicCpuState state, byte keyCode)
   {
     state.KeyBuffer = keyCode;
-    state.Flags &= ~ClassicCpuFlags.DisplayOn;
   }
 
   public static bool TryResolveKeyCode(ProgramVocabulary vocabulary, char character, out byte keyCode)

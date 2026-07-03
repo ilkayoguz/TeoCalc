@@ -147,7 +147,7 @@ public static class BodyFaceplateLayout
     LayoutBand? lcd = doc.Bands?.FirstOrDefault(b => b.Id == "lcd-window");
     if (lcd is not null)
     {
-      _display = new RectF(23f, lcd.Y, 361f, lcd.H);
+      _display = new RectF(20f, lcd.Y, 369f, lcd.H);
     }
 
     if (doc.SwitchTrack is not null)

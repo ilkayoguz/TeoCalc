@@ -14,6 +14,7 @@ public static class CalcExplorerView
       "TeoCalc Explorer",
       ImGuiWindowFlags.NoDecoration | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoBringToFrontOnFocus);
 
+    CalcExplorerGlobalKeyboard.Update(session);
     DrawToolbar(session);
     ImGui.Separator();
 
@@ -46,6 +47,10 @@ public static class CalcExplorerView
     ImGui.PushStyleColor(ImGuiCol.ChildBg, 0);
     ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, System.Numerics.Vector2.Zero);
     ImGui.BeginChild("calculator", new System.Numerics.Vector2(0, 0), ImGuiChildFlags.Border);
+    if (ImGui.IsWindowHovered() && ImGui.IsMouseClicked(ImGuiMouseButton.Left))
+    {
+      ImGui.SetWindowFocus();
+    }
 
     if (session.SupportsCpu)
     {

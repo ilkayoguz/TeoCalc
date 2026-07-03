@@ -96,9 +96,19 @@ public static class CalcChassisRenderer
     RectF display,
     ClassicCpu cpu,
     bool programMode,
-    float scale)
+    float scale,
+    bool displayLit,
+    string? ledText = null)
   {
-    DrawSegmentedDisplay(draw, display, cpu.State.Registers, (cpu.State.Flags & ClassicCpuFlags.DisplayOn) != 0, programMode, cpu.Program.EndState, scale);
+    DrawSegmentedDisplay(
+      draw,
+      display,
+      cpu.State.Registers,
+      displayLit,
+      programMode,
+      cpu.Program.EndState,
+      scale,
+      ledText);
   }
 
   public static void DrawSegmentedDisplay(
@@ -111,6 +121,17 @@ public static class CalcChassisRenderer
     float scale) =>
     ClassicLedDisplayRenderer.Draw(draw, display, registers, displayOn, programMode, programEndState, scale);
 
+  public static void DrawSegmentedDisplay(
+    ImDrawListPtr draw,
+    RectF display,
+    ClassicRegisterFile registers,
+    bool displayOn,
+    bool programMode,
+    byte programEndState,
+    float scale,
+    string? ledText) =>
+    ClassicLedDisplayRenderer.Draw(draw, display, registers, displayOn, programMode, programEndState, scale, ledText);
+
   /// <summary>Card-slot function labels only — no chrome; Body.svg owns panel color.</summary>
   public static void DrawCardSlotLabels(ImDrawListPtr draw, Vector2 origin, CalcChassisMetrics metrics) =>
     DrawCardSlots(draw, origin, metrics, paintChrome: false);
@@ -118,9 +139,9 @@ public static class CalcChassisRenderer
   public static void DrawCardSlots(ImDrawListPtr draw, Vector2 origin, CalcChassisMetrics metrics, bool paintChrome)
   {
     RectF band = metrics.CardSlotBandRect(origin);
-    float bandInsetY = metrics.Scale * 1.1f;
-    float maxFont = (band.Height - bandInsetY * 2f) / 1.15f;
-    float fontSize = MathF.Min(CalcFaceplateTypography.CardSlot(metrics.Scale), maxFont);
+    float bandInsetY = metrics.Scale * 0.8f;
+    float baseFont = (band.Height - bandInsetY * 2f) / 1.15f;
+    float fontSize = baseFont * 2f * 0.7f;
     float slotHeight = band.Height * 0.38f;
     float slotY = band.Y + band.Height * 0.52f;
 
@@ -132,14 +153,13 @@ public static class CalcChassisRenderer
         HpClassicFaceplateGlyphs.MeasureCardSlotLabel(column, fontSize).Height);
     }
 
-    float labelCenterY = band.Y + band.Height * 0.52f;
-    float minCenterY = band.Y + bandInsetY + maxLabelHeight * 0.5f;
-    float maxCenterY = band.Max.Y - bandInsetY - maxLabelHeight * 0.5f;
-    labelCenterY = Math.Clamp(labelCenterY, minCenterY, maxCenterY);
+    float labelCenterY = band.Y + band.Height * 0.20f;
 
     if (!paintChrome)
     {
-      draw.PushClipRect(band.Min, band.Max, true);
+      Vector2 clipMin = new(band.X, band.Y - band.Height * 0.35f);
+      Vector2 clipMax = new(band.Max.X, band.Max.Y + band.Height * 0.15f);
+      draw.PushClipRect(clipMin, clipMax, true);
     }
 
     for (int column = 0; column < CalcFaceplateLayout.Columns; column++)
@@ -161,11 +181,20 @@ public static class CalcChassisRenderer
           metrics.Scale);
       }
 
-      float centerX = cellX + cellWidth * 0.5f;
+      float slotInsetX = metrics.Scale * 1.5f;
+      float slotLeft = cellX + slotInsetX;
+      float slotRight = cellX + cellWidth - slotInsetX;
+      float centerX = (slotLeft + slotRight) * 0.5f;
+      float centerY = labelCenterY;
+      Vector2 drawCenter = HpClassicFaceplateGlyphs.CardSlotLabelDrawCenter(
+        column,
+        new Vector2(centerX, centerY),
+        fontSize,
+        metrics.Scale);
       HpClassicFaceplateGlyphs.DrawCardSlotLabel(
         draw,
         column,
-        new Vector2(centerX, labelCenterY),
+        drawCenter,
         fontSize,
         CalcChassisPalette.CardSlotLabel,
         metrics.Scale);
@@ -206,7 +235,13 @@ public static class CalcChassisRenderer
       "RUN");
   }
 
-  public static bool HandleSwitchPointers(Vector2 origin, CalcChassisMetrics metrics, CalcExplorerSession session)
+  public readonly record struct SwitchPointerState(bool Hovered, bool ClickHandled);
+
+  public static SwitchPointerState HandleSwitchPointers(
+    Vector2 origin,
+    CalcChassisMetrics metrics,
+    CalcExplorerSession session,
+    bool powerOn)
   {
     RectF panel = metrics.SwitchTrackRect(origin);
     float lift = BodyFaceplateLayout.SwitchRowLift * metrics.Scale;
@@ -214,30 +249,48 @@ public static class CalcChassisRenderer
     float onOffX = panel.X + panel.Width * 0.249f;
     float prgmX = panel.X + panel.Width * 0.751f;
     float scale = metrics.Scale;
+    Vector2 mouse = ImGui.GetIO().MousePos;
+    bool clicked = ImGui.IsMouseClicked(ImGuiMouseButton.Left);
 
     bool anyHovered = false;
-    anyHovered |= TryClickSwitchPointer(
+    bool clickHandled = false;
+    anyHovered |= PollSwitchPointer(
+      mouse,
+      clicked,
+      panel,
       new Vector2(onOffX, rowY),
       scale,
-      "##hpSwitchOnOff",
-      () =>
+      powerOn ? 1f : 0f,
+      leftHalf =>
       {
-        if (session.Cpu is not null)
+        if (leftHalf)
         {
-          session.Cpu.State.Flags ^= ClassicCpuFlags.DisplayOn;
+          session.PowerOff();
         }
-      });
+        else
+        {
+          session.PowerOnResume();
+        }
+      },
+      ref clickHandled);
 
-    anyHovered |= TryClickSwitchPointer(
-      new Vector2(prgmX, rowY),
-      scale,
-      "##hpSwitchPrgm",
-      () => session.ProgramMode = !session.ProgramMode);
+    if (powerOn)
+    {
+      anyHovered |= PollSwitchPointer(
+        mouse,
+        clicked,
+        panel,
+        new Vector2(prgmX, rowY),
+        scale,
+        session.ProgramMode ? 0f : 1f,
+        leftHalf => session.ToggleProgramModeTo(leftHalf),
+        ref clickHandled);
+    }
 
-    return anyHovered;
+    return new SwitchPointerState(anyHovered, clickHandled);
   }
 
-  public static bool IsMouseOverSwitch(Vector2 mouse, Vector2 origin, CalcChassisMetrics metrics)
+  public static bool IsMouseOverSwitch(Vector2 mouse, Vector2 origin, CalcChassisMetrics metrics, bool powerOn, bool programMode)
   {
     RectF panel = metrics.SwitchTrackRect(origin);
     float lift = BodyFaceplateLayout.SwitchRowLift * metrics.Scale;
@@ -246,39 +299,84 @@ public static class CalcChassisRenderer
     float prgmX = panel.X + panel.Width * 0.751f;
     float scale = metrics.Scale;
 
-    return ContainsSwitchHit(mouse, new Vector2(onOffX, rowY), scale)
-      || ContainsSwitchHit(mouse, new Vector2(prgmX, rowY), scale);
-  }
-
-  private static bool TryClickSwitchPointer(Vector2 knobCenter, float scale, string id, Action onClick)
-  {
-    float trackWidth = 58f * scale;
-    float trackHeight = 8f * scale;
-    float knobHeight = 14f * scale;
-    float hitHeight = MathF.Max(knobHeight, trackHeight) + scale * 6f;
-    float hitWidth = trackWidth + scale * 8f;
-    Vector2 hitMin = new(knobCenter.X - hitWidth * 0.5f, knobCenter.Y - hitHeight * 0.5f);
-    ImGui.SetCursorScreenPos(hitMin);
-    bool clicked = ImGui.InvisibleButton(id, new Vector2(hitWidth, hitHeight));
-    if (clicked)
+    if (ContainsSwitchHit(mouse, panel, new Vector2(onOffX, rowY), scale, powerOn ? 1f : 0f))
     {
-      onClick();
+      return true;
     }
 
-    return ImGui.IsItemHovered();
+    return powerOn && ContainsSwitchHit(mouse, panel, new Vector2(prgmX, rowY), scale, programMode ? 0f : 1f);
   }
 
-  private static bool ContainsSwitchHit(Vector2 mouse, Vector2 knobCenter, float scale)
+  private static (Vector2 Min, Vector2 Max) SwitchTrackBounds(Vector2 knobCenter, float scale)
   {
     float trackWidth = 58f * scale;
     float trackHeight = 8f * scale;
-    float knobHeight = 14f * scale;
-    float hitHeight = MathF.Max(knobHeight, trackHeight) + scale * 6f;
-    float hitWidth = trackWidth + scale * 8f;
-    Vector2 hitMin = new(knobCenter.X - hitWidth * 0.5f, knobCenter.Y - hitHeight * 0.5f);
-    Vector2 hitMax = hitMin + new Vector2(hitWidth, hitHeight);
-    return mouse.X >= hitMin.X && mouse.X <= hitMax.X && mouse.Y >= hitMin.Y && mouse.Y <= hitMax.Y;
+    float left = knobCenter.X - trackWidth * 0.5f;
+    float top = knobCenter.Y - trackHeight * 0.5f - scale * 3f;
+    float bottom = knobCenter.Y + trackHeight * 0.5f + scale * 3f;
+    return (new Vector2(left, top), new Vector2(left + trackWidth, bottom));
   }
+
+  private static (Vector2 Min, Vector2 Max) SwitchKnobSlideBounds(Vector2 knobCenter, float scale, float position)
+  {
+    float trackWidth = 58f * scale;
+    float knobWidth = 22f * scale;
+    float knobHeight = 14f * scale;
+    float trackLeft = knobCenter.X - trackWidth * 0.5f;
+    float knobLeft = trackLeft + position * (trackWidth - knobWidth);
+    float top = knobCenter.Y - knobHeight * 0.5f - scale * 4f;
+    float bottom = knobCenter.Y + knobHeight * 0.5f + scale * 4f;
+    return (new Vector2(knobLeft - scale * 3f, top), new Vector2(knobLeft + knobWidth + scale * 3f, bottom));
+  }
+
+  private static (Vector2 Min, Vector2 Max) SwitchHoleHitBounds(RectF switchPanel, Vector2 knobCenter, float scale)
+  {
+    float halfW = switchPanel.Width * 0.24f;
+    return (
+      new Vector2(knobCenter.X - halfW, switchPanel.Y),
+      new Vector2(knobCenter.X + halfW, switchPanel.Max.Y));
+  }
+
+  private static bool ContainsSwitchHit(Vector2 mouse, RectF switchPanel, Vector2 knobCenter, float scale, float knobPosition)
+  {
+    (Vector2 knobMin, Vector2 knobMax) = SwitchKnobSlideBounds(knobCenter, scale, knobPosition);
+    (Vector2 trackMin, Vector2 trackMax) = SwitchTrackBounds(knobCenter, scale);
+    (Vector2 holeMin, Vector2 holeMax) = SwitchHoleHitBounds(switchPanel, knobCenter, scale);
+    return PointInRect(mouse, knobMin, knobMax)
+      || PointInRect(mouse, trackMin, trackMax)
+      || PointInRect(mouse, holeMin, holeMax);
+  }
+
+  private static bool PollSwitchPointer(
+    Vector2 mouse,
+    bool clicked,
+    RectF switchPanel,
+    Vector2 knobCenter,
+    float scale,
+    float knobPosition,
+    Action<bool> onClickHalf,
+    ref bool clickHandled)
+  {
+    if (!ContainsSwitchHit(mouse, switchPanel, knobCenter, scale, knobPosition))
+    {
+      return false;
+    }
+
+    if (clicked)
+    {
+      (Vector2 knobMin, Vector2 knobMax) = SwitchKnobSlideBounds(knobCenter, scale, knobPosition);
+      bool onKnob = PointInRect(mouse, knobMin, knobMax);
+      // Clicking the sliding knob should flip state; only the empty track half uses L/R split.
+      bool leftHalf = onKnob ? knobPosition >= 0.5f : mouse.X < knobCenter.X;
+      onClickHalf(leftHalf);
+      clickHandled = true;
+    }
+
+    return true;
+  }
+
+  private static bool PointInRect(Vector2 point, Vector2 min, Vector2 max) =>
+    point.X >= min.X && point.X <= max.X && point.Y >= min.Y && point.Y <= max.Y;
 
   private static void DrawDisplayBezel(ImDrawListPtr draw, RectF display, float scale)
   {

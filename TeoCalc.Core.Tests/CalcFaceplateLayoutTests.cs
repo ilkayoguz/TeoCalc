@@ -77,7 +77,7 @@ public sealed class CalcFaceplateLayoutTests
     RectF enter = metrics.KeyRect(Vector2.Zero, 15);
     Assert.AreEqual(38f, enter.X);
     Assert.AreEqual(459f, enter.Y);
-    Assert.AreEqual(118f, enter.Width);
+    Assert.AreEqual(120f, enter.Width);
     Assert.AreEqual(38f, enter.Height);
 
     RectF band = metrics.CardSlotBandRect(Vector2.Zero);
@@ -128,7 +128,7 @@ public sealed class CalcFaceplateLayoutTests
   {
     Assert.AreEqual(5, CalcFaceplateLayout.CardSlotLabels.Length);
     CollectionAssert.AreEqual(
-      new[] { "1/x", "\u221ax", "R\u2191", "R\u2193", "x\u2194y" },
+      new[] { "1/x", "\u221ax", "y^x", "R\u2193", "x\u2194y" },
       CalcFaceplateLayout.CardSlotLabels);
   }
 

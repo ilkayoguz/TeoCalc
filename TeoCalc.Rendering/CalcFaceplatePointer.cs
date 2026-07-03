@@ -17,7 +17,9 @@ public static class CalcFaceplatePointer
     IReadOnlyList<FaceplateCell> cells,
     IReadOnlyList<ProgramKeyEntry> keyChart,
     bool anyKeyHoveredFromImGui,
-    bool anySwitchHoveredFromImGui)
+    bool anySwitchHoveredFromImGui,
+    bool powerOn,
+    bool programMode)
   {
     _wantHand = false;
 
@@ -31,14 +33,14 @@ public static class CalcFaceplatePointer
 
     Vector2 mouse = ImGui.GetIO().MousePos;
 
-    if (anySwitchHoveredFromImGui || CalcChassisRenderer.IsMouseOverSwitch(mouse, origin, metrics))
+    if (anySwitchHoveredFromImGui || CalcChassisRenderer.IsMouseOverSwitch(mouse, origin, metrics, powerOn, programMode))
     {
       _wantHand = true;
       ImGui.SetMouseCursor(ImGuiMouseCursor.Hand);
       return;
     }
 
-    if (anyKeyHoveredFromImGui || IsMouseOverAnyKey(mouse, origin, metrics, cells, keyChart))
+    if (anyKeyHoveredFromImGui || (powerOn && IsMouseOverAnyKey(mouse, origin, metrics, cells, keyChart)))
     {
       _wantHand = true;
       ImGui.SetMouseCursor(ImGuiMouseCursor.Hand);

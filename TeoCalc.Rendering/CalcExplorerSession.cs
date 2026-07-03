@@ -4,6 +4,7 @@ using TeoCalc.Core.Engine.Classic;
 
 namespace TeoCalc.Rendering;
 
+/// <summary>Panamatik <c>HPClassic</c> timer, <c>press_key</c>, and <c>ShowDisplay</c> orchestration.</summary>
 public sealed class CalcExplorerSession
 {
   private static readonly string[] ExplorerModels =
@@ -14,6 +15,20 @@ public sealed class CalcExplorerSession
   ];
 
   public const int KeyRunSteps = 200;
+
+  private const float RunTickSeconds = 0.01f;
+
+  private float _runAccumulator;
+
+  private string _displayText = string.Empty;
+
+  private bool _displayBlankPulse;
+
+  private bool _mouseKeyHeld;
+
+  private bool _keyboardKeyHeld;
+
+  private int _keyHoldBatchesRemaining;
 
   public CalcExplorerSession(string engineRoot)
   {
@@ -53,6 +68,70 @@ public sealed class CalcExplorerSession
 
   public bool ProgramMode { get; set; }
 
+  public bool PowerOn { get; set; }
+
+  public string DisplayText => _displayText;
+
+  public bool IsKeyHeld => _mouseKeyHeld || _keyboardKeyHeld;
+
+  public void PowerOnResume()
+  {
+    PowerOn = true;
+    RunInstructionBatch(KeyRunSteps);
+  }
+
+  public void PowerOff()
+  {
+    if (Cpu is null)
+    {
+      PowerOn = false;
+      return;
+    }
+
+    Cpu.Reset();
+    SelectedAddress = 0;
+    PowerOn = false;
+    _mouseKeyHeld = false;
+    _keyboardKeyHeld = false;
+    _keyHoldBatchesRemaining = 0;
+    _displayText = string.Empty;
+    _displayBlankPulse = false;
+  }
+
+  public bool IsDisplayVisible() =>
+    PowerOn && !_displayBlankPulse && _displayText.Length > 0;
+
+  public void EndDisplayFrame()
+  {
+    _displayBlankPulse = false;
+  }
+
+  public void SetKeyboardKeyHeld(bool held) => _keyboardKeyHeld = held;
+
+  public void ReleaseMouseKey() => _mouseKeyHeld = false;
+
+  public void ToggleProgramMode()
+  {
+    if (!PowerOn)
+    {
+      return;
+    }
+
+    ProgramMode = !ProgramMode;
+    RunInstructionBatch(KeyRunSteps);
+  }
+
+  public void ToggleProgramModeTo(bool programMode)
+  {
+    if (!PowerOn || ProgramMode == programMode)
+    {
+      return;
+    }
+
+    ProgramMode = programMode;
+    RunInstructionBatch(KeyRunSteps);
+  }
+
   public void LoadModel(int index)
   {
     ModelIndex = Math.Clamp(index, 0, ExplorerModels.Length - 1);
@@ -83,6 +162,28 @@ public sealed class CalcExplorerSession
 
     SelectedAddress = Cpu?.State.FetchAddress ?? 0;
     MicrocodeScroll = Math.Max(0, SelectedAddress - 8);
+    _runAccumulator = 0f;
+    PowerOn = false;
+    _displayText = string.Empty;
+    _displayBlankPulse = false;
+    _mouseKeyHeld = false;
+    _keyboardKeyHeld = false;
+    _keyHoldBatchesRemaining = 0;
+  }
+
+  public void Tick(float deltaSeconds)
+  {
+    if (Cpu is null || !PowerOn)
+    {
+      return;
+    }
+
+    _runAccumulator += deltaSeconds;
+    while (_runAccumulator >= RunTickSeconds)
+    {
+      RunInstructionBatch(KeyRunSteps);
+      _runAccumulator -= RunTickSeconds;
+    }
   }
 
   public void StepCpu()
@@ -92,45 +193,82 @@ public sealed class CalcExplorerSession
       return;
     }
 
-    if (Cpu.StepCount == 0 && Cpu.State.ProgramCounter == 0)
-    {
-      Cpu.State.Flags |= ClassicCpuFlags.DisplayOn;
-    }
-
     Cpu.Step();
     SelectedAddress = Math.Max(0, Cpu.State.ProgramCounter - 1);
   }
 
-  public void ResetCpu()
+  public void ResetCpu() => PowerOff();
+
+  /// <summary>Panamatik <c>press_key</c> — display blank, buffer key, <c>Run()</c>.</summary>
+  public void PressKey(byte keyCode)
   {
-    if (Cpu is null)
+    if (Cpu is null || !PowerOn)
     {
       return;
     }
 
-    Cpu.Reset();
-    SelectedAddress = 0;
+    Cpu.State.Flags &= ~ClassicCpuFlags.DisplayOn;
+    _displayBlankPulse = true;
+    _displayText = string.Empty;
+    Cpu.PressKey(keyCode);
+    _mouseKeyHeld = true;
+    _keyHoldBatchesRemaining = Math.Max(_keyHoldBatchesRemaining, 12);
+    RunInstructionBatch(KeyRunSteps);
   }
 
-  public void PressKeyAndRun(byte keyCode, int steps = KeyRunSteps)
+  private void RunInstructionBatch(int steps)
   {
     if (Cpu is null)
     {
       return;
     }
 
-    if (Cpu.StepCount == 0 && Cpu.State.ProgramCounter == 0)
-    {
-      Cpu.State.Flags |= ClassicCpuFlags.DisplayOn;
-    }
-
-    Cpu.PressKey(keyCode);
+    bool keyHeld = IsKeyHeld || _keyHoldBatchesRemaining > 0;
     for (int step = 0; step < steps; step++)
     {
       Cpu.Step();
+      if (keyHeld)
+      {
+        Cpu.State.Status |= 1;
+      }
+
+      if (ProgramMode)
+      {
+        Cpu.State.Status |= 8;
+      }
+    }
+    if (_keyHoldBatchesRemaining > 0)
+    {
+      _keyHoldBatchesRemaining--;
     }
 
-    SelectedAddress = Math.Max(0, Cpu.State.ProgramCounter - 1);
+    RefreshDisplayFromCpu();
+  }
+
+  private void RefreshDisplayFromCpu()
+  {
+    if (Cpu is null || !PowerOn)
+    {
+      _displayText = string.Empty;
+      return;
+    }
+
+    string? text = ClassicFirmwareDisplay.TryBuildLedText(
+      Cpu.State,
+      ProgramMode,
+      Cpu.Program.EndState);
+
+    if (text is not null)
+    {
+      _displayText = text;
+      _displayBlankPulse = false;
+      return;
+    }
+
+    if (_displayBlankPulse)
+    {
+      _displayText = string.Empty;
+    }
   }
 
   private static MicrocodeCrossRefCatalog? LoadCrossRefIfPresent(string path)

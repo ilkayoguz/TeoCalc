@@ -13,6 +13,7 @@
     <Nullable>enable</Nullable>
     <SupportedOSPlatform>windows</SupportedOSPlatform>
     <SupportedOSPlatformVersion>6.1</SupportedOSPlatformVersion>
+    <ApplicationIcon>App.ico</ApplicationIcon>
   </PropertyGroup>
 
 </Project>

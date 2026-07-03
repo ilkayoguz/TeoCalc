@@ -7,7 +7,7 @@ namespace TeoCalc.Rendering;
 public static class CalcFaceplateTypography
 {
   public static float CardSlot(float scale) =>
-    Ref(15.5f, scale, 1.55f);
+    Ref(31f, scale, 2.9f);
 
   public static float GoldShift(float scale) =>
     Ref(9.5f, scale, 1.05f);
@@ -18,14 +18,23 @@ public static class CalcFaceplateTypography
   public static float KeyPrimary(float scale) =>
     Ref(14.5f, scale, 1.34f);
 
+  public static float KeyDigit(float scale) =>
+    Ref(16.5f, scale, 1.48f);
+
+  public static float KeyLetter(float scale) =>
+    Ref(16f, scale, 1.44f);
+
+  public static float KeyOperator(float scale) =>
+    Ref(18.5f, scale, 1.62f);
+
   public static float EnterPrimary(float scale) =>
     Ref(15f, scale, 1.38f);
 
   public static float BlueSkirt(float scale) =>
-    Ref(9.5f, scale, 0.98f);
+    Ref(29f, scale, 1.8f);
 
   public static float SwitchLabel(float scale) =>
-    13f * scale;
+    16.5f * scale;
 
   public static float BrandPlate(float plateHeight) =>
     MathF.Max(plateHeight * 0.5f, 11f);

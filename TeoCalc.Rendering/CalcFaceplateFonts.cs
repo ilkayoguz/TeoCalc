@@ -13,15 +13,21 @@ public static class CalcFaceplateFonts
 {
   private const float FaceplateLoadPx = 18f;
 
+  /// <summary>Baked size for <c>LEDcharset_class.TTF</c> (Panamatik HP Classic LED Set).</summary>
+  public const float LedDisplayLoadPx = 48f;
+
   private static ImFontPtr _sansBold;
   private static ImFontPtr _mathItalic;
   private static ImFontPtr _arial;
   private static ImFontPtr _arialBold;
+  private static ImFontPtr _ledDisplay;
   private static bool _sansReady;
   private static bool _mathReady;
   private static bool _arialReady;
   private static bool _arialBoldReady;
+  private static bool _ledReady;
   private static GCHandle _glyphRangeHandle;
+  private static GCHandle _ledGlyphRangeHandle;
 
   private static nint FaceplateGlyphRanges
   {
@@ -37,6 +43,21 @@ public static class CalcFaceplateFonts
     }
   }
 
+  private static nint LedDisplayGlyphRanges
+  {
+    get
+    {
+      if (!_ledGlyphRangeHandle.IsAllocated)
+      {
+        // Space, '-', '0'..'9', ';' (LED decimal). Avoid PUA range — crashes ImGui atlas build.
+        ushort[] ranges = [0x0020, 0x003B, 0];
+        _ledGlyphRangeHandle = GCHandle.Alloc(ranges, GCHandleType.Pinned);
+      }
+
+      return _ledGlyphRangeHandle.AddrOfPinnedObject();
+    }
+  }
+
   public static bool IsReady => _sansReady;
 
   public static bool IsMathReady => _mathReady;
@@ -44,6 +65,8 @@ public static class CalcFaceplateFonts
   public static bool IsArialReady => _arialReady;
 
   public static bool IsArialBoldReady => _arialBoldReady;
+
+  public static bool IsLedDisplayReady => _ledReady;
 
   public const string PiGlyph = "\u03c0";
 
@@ -71,6 +94,8 @@ public static class CalcFaceplateFonts
 
   public static ImFontPtr ArialBold => _arialBoldReady ? _arialBold : Arial;
 
+  public static ImFontPtr LedDisplay => _ledReady ? _ledDisplay : ImGui.GetFont();
+
   /// <summary>Silk ImGuiController onConfigureIO hook. Keeps default font first.</summary>
   public static void Configure()
   {
@@ -83,6 +108,7 @@ public static class CalcFaceplateFonts
     _mathReady = false;
     _arialReady = false;
     _arialBoldReady = false;
+    _ledReady = false;
 
     string? sansPath = ResolveFont("LiberationSans-Bold.ttf");
     string? mathPath = ResolveFont("STIXTwoText-BoldItalic.ttf")
@@ -123,6 +149,16 @@ public static class CalcFaceplateFonts
       unsafe
       {
         _arialBoldReady = _arialBold.NativePtr != null;
+      }
+    }
+
+    string? ledPath = ResolveFont("LEDcharset_class.TTF");
+    if (ledPath is not null)
+    {
+      _ledDisplay = io.Fonts.AddFontFromFileTTF(ledPath, LedDisplayLoadPx, null, LedDisplayGlyphRanges);
+      unsafe
+      {
+        _ledReady = _ledDisplay.NativePtr != null;
       }
     }
   }
@@ -190,6 +226,102 @@ public static class CalcFaceplateFonts
   {
     draw.AddText(ArialBold, size, new Vector2(x, topY), color, text);
     return MeasureArialBold(text, size).X;
+  }
+
+  /// <summary>Tight painted bounds for a string relative to the ImGui <see cref="DrawArialBoldTop"/> origin.</summary>
+  public readonly record struct FontInkBounds(float Width, float Left, float Top, float Height)
+  {
+    public float InkMidX => Left + Width * 0.5f;
+
+    public float InkMidY => Top + Height * 0.5f;
+  }
+
+  public static FontInkBounds MeasureArialBoldInk(string text, float size) =>
+    MeasureInkBounds(ArialBold, size, IsArialBoldReady || _arialReady, text);
+
+  public static Vector2 ArialBoldTopLeftForBandCenter(Vector2 bandCenter, string text, float size) =>
+    ArialBoldTopLeftForBandCenter(bandCenter, text, size, verticalBiasRatio: 0f);
+
+  public static Vector2 ArialBoldTopLeftForBandCenter(Vector2 bandCenter, string text, float size, float verticalBiasRatio)
+  {
+    FontInkBounds ink = MeasureArialBoldInk(text, size);
+    if (ink.Height > 0.01f)
+    {
+      return new(
+        bandCenter.X - ink.InkMidX,
+        bandCenter.Y - ink.InkMidY + size * verticalBiasRatio);
+    }
+
+    Vector2 box = MeasureArialBold(text, size);
+    return new(bandCenter.X - box.X * 0.5f, bandCenter.Y - box.Y * 0.5f + size * verticalBiasRatio);
+  }
+
+  public static Vector2 ArialBoldTopLeftForBand(Vector2 bandMin, Vector2 bandMax, string text, float size, float verticalBiasRatio)
+  {
+    Vector2 center = (bandMin + bandMax) * 0.5f;
+    return ArialBoldTopLeftForBandCenter(center, text, size, verticalBiasRatio);
+  }
+
+  private static FontInkBounds MeasureInkBounds(ImFontPtr font, float size, bool ready, string text)
+  {
+    if (string.IsNullOrEmpty(text))
+    {
+      return default;
+    }
+
+    if (!ready)
+    {
+      Vector2 box = ImGui.GetFont().CalcTextSizeA(size, float.MaxValue, 0f, text);
+      return new FontInkBounds(box.X, 0f, 0f, box.Y);
+    }
+
+    unsafe
+    {
+      ImFont* native = (ImFont*)font.NativePtr;
+      if (native == null)
+      {
+        Vector2 box = font.CalcTextSizeA(size, float.MaxValue, 0f, text);
+        return new FontInkBounds(box.X, 0f, 0f, box.Y);
+      }
+
+      float scale = size / native->FontSize;
+      float minY = float.MaxValue;
+      float maxY = float.MinValue;
+      float minX = float.MaxValue;
+      float maxX = float.MinValue;
+      float penX = 0f;
+      foreach (char c in text)
+      {
+        ImFontGlyph* glyph = ImGuiNative.ImFont_FindGlyph(native, c);
+        if (glyph == null)
+        {
+          glyph = ImGuiNative.ImFont_FindGlyphNoFallback(native, c);
+        }
+
+        if (glyph == null)
+        {
+          continue;
+        }
+
+        float x0 = penX + glyph->X0 * scale;
+        float x1 = penX + glyph->X1 * scale;
+        float y0 = glyph->Y0 * scale;
+        float y1 = glyph->Y1 * scale;
+        minX = MathF.Min(minX, x0);
+        maxX = MathF.Max(maxX, x1);
+        minY = MathF.Min(minY, y0);
+        maxY = MathF.Max(maxY, y1);
+        penX += glyph->AdvanceX * scale;
+      }
+
+      if (minY > maxY || minX > maxX)
+      {
+        Vector2 box = font.CalcTextSizeA(size, float.MaxValue, 0f, text);
+        return new FontInkBounds(box.X, 0f, 0f, box.Y);
+      }
+
+      return new FontInkBounds(maxX - minX, minX, minY, maxY - minY);
+    }
   }
 
   /// <summary>Draws text with extra letter-spacing so glyphs span <paramref name="leftX"/>..<paramref name="rightX"/>.</summary>

@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Numerics;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Text.RegularExpressions;
 using ImGuiNET;
 using Silk.NET.OpenGL;
@@ -71,6 +72,35 @@ internal sealed class SvgRasterCache : IDisposable
     return true;
   }
 
+  public bool TryDrawContent(
+    ImDrawListPtr draw,
+    Vector2 min,
+    Vector2 max,
+    string cacheKey,
+    string svgContent,
+    DateTime sourceStamp,
+    int rasterWidth,
+    int rasterHeight,
+    Vector2? uv0 = null,
+    Vector2? uv1 = null,
+    int revision = 0)
+  {
+    if (_gl is null || string.IsNullOrEmpty(svgContent))
+    {
+      return false;
+    }
+
+    Slot? slot = EnsureContentSlot(cacheKey, svgContent, sourceStamp, rasterWidth, rasterHeight, revision);
+    if (slot is null || !TryRasterize(slot, svgContent, 0f, out byte[] rgba))
+    {
+      return false;
+    }
+
+    Upload(slot, rgba);
+    DrawImage(draw, min, max, slot.Texture, 1f, uv0 ?? Vector2.Zero, uv1 ?? Vector2.One);
+    return true;
+  }
+
   public void Dispose()
   {
     if (_gl is not null)
@@ -129,6 +159,54 @@ internal sealed class SvgRasterCache : IDisposable
     return slot;
   }
 
+  private Slot? EnsureContentSlot(
+    string cacheKey,
+    string svgContent,
+    DateTime sourceStamp,
+    int rasterWidth,
+    int rasterHeight,
+    int revision = 0)
+  {
+    if (_gl is null)
+    {
+      return null;
+    }
+
+    string key = $"{cacheKey}|{rasterWidth}x{rasterHeight}|v{revision}";
+    if (_slots.TryGetValue(key, out Slot? existing) && existing.SourceStamp == sourceStamp && existing.SvgContent == svgContent)
+    {
+      return existing;
+    }
+
+    if (existing is not null)
+    {
+      _gl.DeleteTexture(existing.Texture);
+      existing.Svg.Dispose();
+      _slots.Remove(key);
+    }
+
+    SKSvg svg = new();
+    try
+    {
+      using MemoryStream stream = new(Encoding.UTF8.GetBytes(svgContent));
+      if (svg.Load(stream) is null)
+      {
+        svg.Dispose();
+        return null;
+      }
+    }
+    catch
+    {
+      svg.Dispose();
+      return null;
+    }
+
+    uint texture = _gl.GenTexture();
+    Slot slot = new(svg, texture, sourceStamp, rasterWidth, rasterHeight, svgContent);
+    _slots[key] = slot;
+    return slot;
+  }
+
   private static void ConfigureTexture(uint texture)
   {
     // Bound by caller via Upload.
@@ -168,7 +246,10 @@ internal sealed class SvgRasterCache : IDisposable
     @"viewBox\s*=\s*""\s*([-\d.]+)\s+([-\d.]+)\s+([-\d.]+)\s+([-\d.]+)\s*""",
     RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
 
-  private static bool TryRasterize(Slot slot, string path, float rotateDegrees, out byte[] rgba)
+  private static bool TryRasterize(Slot slot, string pathOrContent, float rotateDegrees, out byte[] rgba) =>
+    TryRasterize(slot, pathOrContent, slot.SvgContent is not null, rotateDegrees, out rgba);
+
+  private static bool TryRasterize(Slot slot, string pathOrContent, bool isInlineContent, float rotateDegrees, out byte[] rgba)
   {
     rgba = [];
     if (slot.Svg.Picture is null)
@@ -177,7 +258,9 @@ internal sealed class SvgRasterCache : IDisposable
     }
 
     SKPicture picture = slot.Svg.Picture;
-    SKRect viewBox = ResolveViewBox(path, picture.CullRect);
+    SKRect viewBox = isInlineContent
+      ? ResolveViewBoxFromText(pathOrContent, picture.CullRect)
+      : ResolveViewBox(pathOrContent, picture.CullRect);
     if (viewBox.Width <= 0f || viewBox.Height <= 0f)
     {
       return false;
@@ -204,14 +287,9 @@ internal sealed class SvgRasterCache : IDisposable
     return true;
   }
 
-  private static SKRect ResolveViewBox(string path, SKRect cullRect)
+  private static SKRect ResolveViewBoxFromText(string svgText, SKRect cullRect)
   {
-    if (!File.Exists(path))
-    {
-      return cullRect;
-    }
-
-    Match match = ViewBoxRegex.Match(File.ReadAllText(path));
+    Match match = ViewBoxRegex.Match(svgText);
     if (!match.Success)
     {
       return cullRect;
@@ -222,6 +300,16 @@ internal sealed class SvgRasterCache : IDisposable
     float width = float.Parse(match.Groups[3].Value, CultureInfo.InvariantCulture);
     float height = float.Parse(match.Groups[4].Value, CultureInfo.InvariantCulture);
     return new SKRect(x, y, x + width, y + height);
+  }
+
+  private static SKRect ResolveViewBox(string path, SKRect cullRect)
+  {
+    if (!File.Exists(path))
+    {
+      return cullRect;
+    }
+
+    return ResolveViewBoxFromText(File.ReadAllText(path), cullRect);
   }
 
   private static void DrawImage(
@@ -250,7 +338,13 @@ internal sealed class SvgRasterCache : IDisposable
     draw.AddImage((nint)texture, min, max, uv0, uv1, tint);
   }
 
-  private sealed class Slot(SKSvg svg, uint texture, DateTime sourceStamp, int rasterWidth, int rasterHeight)
+  private sealed class Slot(
+    SKSvg svg,
+    uint texture,
+    DateTime sourceStamp,
+    int rasterWidth,
+    int rasterHeight,
+    string? svgContent = null)
   {
     public SKSvg Svg { get; } = svg;
 
@@ -261,5 +355,7 @@ internal sealed class SvgRasterCache : IDisposable
     public int RasterWidth { get; } = rasterWidth;
 
     public int RasterHeight { get; } = rasterHeight;
+
+    public string? SvgContent { get; } = svgContent;
   }
 }

@@ -24,7 +24,7 @@ public static class CalcFaceplateLayout
 
   public const int Columns = 5;
 
-  public static readonly string[] CardSlotLabels = ["1/x", "\u221ax", "R\u2191", "R\u2193", "x\u2194y"];
+  public static readonly string[] CardSlotLabels = ["1/x", "\u221ax", "y^x", "R\u2193", "x\u2194y"];
 
   public static Vector2 OnOffSwitchNorm
   {
@@ -134,7 +134,8 @@ public static class CalcFaceplateLayout
       "*" => "\u00d7",
       "/" => "\u00f7",
       " " => "R/S",
-      "-" or "+" or "." => charValue,
+      "." => "\u00b7",
+      "-" or "+" => charValue,
       _ when charValue.Length == 1 && char.IsDigit(charValue[0]) => charValue,
       _ => null,
     };

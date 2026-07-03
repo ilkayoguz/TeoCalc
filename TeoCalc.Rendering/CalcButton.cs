@@ -7,20 +7,22 @@ public enum CalcButtonStyle
 {
   Black,
   Grey,
+  White,
   Orange,
   Blue,
 }
 
-/// <summary>HP key cap — KeyCap.svg when loaded, procedural fallback.</summary>
+/// <summary>HP key cap — procedural Key2 geometry; labels drawn at runtime.</summary>
 public static class CalcButton
 {
-  private const float SkirtRatio = 1f - KeyCapGeometry.FaceEndRatio;
+  private const float WellInsetRatio = 0.024f;
 
-  private const float WellInsetRatio = 0.06f;
+  /// <summary>Panamatik reference caps — slight inset leaves room for bezel + gold shift labels.</summary>
+  private const float KeyCapLayoutScale = 1.02f;
 
   private const float PressTravelRatio = 0.045f;
 
-  private const float FaceLabelDropPx = 2f;
+  private const float FaceLabelDropPx = 0f;
 
   public static CalcButtonStyle StyleForKeyIndex(int keyChartIndex)
   {
@@ -28,8 +30,10 @@ public static class CalcButton
     {
       10 or 11 => CalcButtonStyle.Orange,
       14 => CalcButtonStyle.Blue,
-      >= 20 and <= 37 => CalcButtonStyle.Grey,
-      15 or 16 or 17 or 18 or 19 => CalcButtonStyle.Grey,
+      12 or 13 => CalcButtonStyle.Grey,
+      21 or 22 or 23 or 26 or 27 or 28 or 31 or 32 or 33 or 36 or 37 => CalcButtonStyle.White,
+      >= 15 and <= 19 => CalcButtonStyle.Grey,
+      >= 20 and <= 35 => CalcButtonStyle.Grey,
       38 => CalcButtonStyle.Black,
       _ => CalcButtonStyle.Black,
     };
@@ -48,7 +52,9 @@ public static class CalcButton
     float scale,
     bool leftAlignPrimary = false,
     bool drawWell = true,
-    bool overlayOnly = false)
+    bool overlayOnly = false,
+    bool forcePressed = false,
+    bool interactive = true)
   {
     if (!overlayOnly && drawWell && !Hp65FaceplateSvgAssets.CanDrawKeyCaps)
     {
@@ -56,19 +62,30 @@ public static class CalcButton
     }
 
     Vector2 size = max - min;
-    ImGui.SetCursorScreenPos(min);
-    bool clicked = ImGui.InvisibleButton(id, size);
-    bool hovered = ImGui.IsItemHovered();
-    bool pressed = ImGui.IsItemActive();
+    bool clicked = false;
+    bool hovered = false;
+    bool pressed = forcePressed;
+    if (interactive)
+    {
+      ImGui.SetCursorScreenPos(min);
+      clicked = ImGui.InvisibleButton(id, size);
+      hovered = ImGui.IsItemHovered();
+      pressed = ImGui.IsItemActive() || forcePressed;
+    }
 
     if (overlayOnly)
     {
       return clicked;
     }
 
-    float insetX = WellInsetRatio;
-    Vector2 capMin = min + new Vector2(size.X * insetX, size.Y * WellInsetRatio);
-    Vector2 capMax = max - new Vector2(size.X * insetX, size.Y * WellInsetRatio * 0.55f);
+    Vector2 center = (min + max) * 0.5f;
+    Vector2 half = size * 0.5f;
+    float insetBottom = WellInsetRatio * 0.38f;
+    Vector2 capHalf = new(
+      half.X * KeyCapLayoutScale * (1f - WellInsetRatio * 2f),
+      half.Y * KeyCapLayoutScale * (1f - WellInsetRatio - insetBottom));
+    Vector2 capMin = center - capHalf;
+    Vector2 capMax = center + capHalf;
     float pressTravel = MathF.Max(scale * 1.25f, size.Y * PressTravelRatio);
     if (pressed)
     {
@@ -77,16 +94,16 @@ public static class CalcButton
     }
 
     DrawCap(draw, capMin, capMax, style, kind, hovered, pressed, scale);
-    DrawPrimaryLabel(draw, primary, capMin, capMax, kind, style, scale, leftAlignPrimary);
+    CalcKeyCapComponent cap = new() { CapMin = capMin, CapMax = capMax };
+    DrawPrimaryLabel(draw, primary, cap, kind, style, scale, leftAlignPrimary);
 
     if (!string.IsNullOrEmpty(blueOnBody))
     {
-      float skirtFont = CalcFaceplateTypography.BlueSkirt(scale) * CalcKeyLabelPalette.SkirtLabelFontScale(blueOnBody);
+      float skirtFont = CalcFaceplateTypography.BlueSkirt(scale) * CalcKeyLabelPalette.BlueSkirtFontScale(blueOnBody);
       DrawSkirtLabel(
         draw,
         blueOnBody,
-        capMin,
-        capMax,
+        cap,
         style,
         kind,
         CalcKeyLabelPalette.SkirtLabelInk(blueOnBody, style),
@@ -114,93 +131,14 @@ public static class CalcButton
     bool pressed,
     float scale)
   {
-    if (kind == CalcButtonKind.EnterWide && Hp65FaceplateSvgAssets.CanDrawKeyCaps)
-    {
-      DrawKeyCapBezel(draw, capMin, capMax, scale, fixedRadius: true);
-      DrawEnterWideCapProcedural(draw, capMin, capMax, style, pressed, scale);
-      DrawGreySkirtBandIfNeeded(draw, capMin, capMax, style, scale);
-      return;
-    }
-
-    if (Hp65FaceplateSvgAssets.CanDrawKeyCaps)
-    {
-      DrawKeyCapBezel(draw, capMin, capMax, scale);
-      Hp65FaceplateSvgAssets.DrawKeyCap(draw, capMin, capMax, style);
-      DrawGreySkirtBandIfNeeded(draw, capMin, capMax, style, scale);
-      if (pressed)
-      {
-        float tintHeight = (capMax.Y - capMin.Y) * 0.38f;
-        Vector2 tintMax = new(capMax.X, capMin.Y + tintHeight);
-        uint shade = Rgba(0, 0, 0, 52);
-        draw.AddRectFilledMultiColor(capMin, tintMax, shade, shade, Rgba(0, 0, 0, 8), Rgba(0, 0, 0, 8));
-      }
-
-      return;
-    }
-
-    (uint top, uint face, uint skirt) = Colors(style, hovered, pressed);
-    float rounding = Math.Clamp(MathF.Min(capMax.X - capMin.X, capMax.Y - capMin.Y) * 0.12f, 2f * scale, 5f * scale);
-    float skirtY = capMin.Y + (capMax.Y - capMin.Y) * (1f - SkirtRatio);
-    Vector2 midY = new(capMin.X, capMin.Y + (capMax.Y - capMin.Y) * 0.44f);
-
-    draw.AddRectFilled(capMin, capMax, face, rounding);
-    draw.AddRectFilledMultiColor(capMin, midY, top, top, face, face);
-    draw.AddRectFilled(new Vector2(capMin.X, skirtY), capMax, skirt, rounding, ImDrawFlags.RoundCornersBottom);
-    DrawGreySkirtBandIfNeeded(draw, capMin, capMax, style, scale);
-
-    if (pressed)
-    {
-      float tintHeight = (capMax.Y - capMin.Y) * 0.38f;
-      Vector2 tintMax = new(capMax.X, capMin.Y + tintHeight);
-      uint shade = Rgba(0, 0, 0, 52);
-      draw.AddRectFilledMultiColor(capMin, tintMax, shade, shade, Rgba(0, 0, 0, 8), Rgba(0, 0, 0, 8));
-    }
-
-    if (!pressed)
-    {
-      byte highlightAlpha = (byte)(hovered ? 50 : 36);
-      draw.AddLine(
-        capMin + new Vector2(rounding * 0.6f, scale * 0.9f),
-        new Vector2(capMax.X - rounding * 0.6f, capMin.Y + scale * 0.9f),
-        Rgba(255, 255, 255, highlightAlpha),
-        MathF.Max(1f, scale * 0.85f));
-    }
+    CalcKeyCapComponent cap = new() { CapMin = capMin, CapMax = capMax };
+    cap.DrawCap(draw, style, hovered, pressed, scale, kind);
   }
-
-  private static (uint Top, uint Face, uint Skirt) Colors(CalcButtonStyle style, bool hovered, bool pressed)
-  {
-    byte bump = (byte)(hovered && !pressed ? 10 : 0);
-    byte drop = (byte)(pressed ? 16 : 0);
-    byte skirtDrop = (byte)(pressed ? 18 : 0);
-    return style switch
-    {
-      CalcButtonStyle.Grey => (
-        Sub(Add(CalcChassisPalette.KeyGreyTop, bump), drop),
-        Sub(CalcChassisPalette.KeyGreyFace, drop),
-        Sub(CalcChassisPalette.KeyGreySkirt, skirtDrop)),
-      CalcButtonStyle.Orange => (
-        Sub(Add(CalcChassisPalette.KeyOrangeTop, bump), drop),
-        Sub(CalcChassisPalette.KeyOrangeFace, drop),
-        Sub(CalcChassisPalette.KeyOrangeSkirt, skirtDrop)),
-      CalcButtonStyle.Blue => (
-        Sub(Add(CalcChassisPalette.KeyBlueTop, bump), drop),
-        Sub(CalcChassisPalette.KeyBlueFace, drop),
-        Sub(CalcChassisPalette.KeyBlueSkirt, skirtDrop)),
-      _ => (
-        Sub(Add(CalcChassisPalette.KeyBlackTop, bump), drop),
-        Sub(CalcChassisPalette.KeyBlackFace, drop),
-        Sub(CalcChassisPalette.KeyBlackSkirt, skirtDrop)),
-    };
-  }
-
-  private static uint Rgba(byte r, byte g, byte b, byte a = 255) =>
-    (uint)a << 24 | (uint)b << 16 | (uint)g << 8 | r;
 
   private static void DrawPrimaryLabel(
     ImDrawListPtr draw,
     string text,
-    Vector2 capMin,
-    Vector2 capMax,
+    CalcKeyCapComponent cap,
     CalcButtonKind kind,
     CalcButtonStyle style,
     float scale,
@@ -210,57 +148,69 @@ public static class CalcButton
 
     if (kind == CalcButtonKind.EnterWide)
     {
-      DrawEnterLabel(draw, capMin, capMax, scale, ink);
+      DrawEnterLabel(draw, cap.CapMin, cap.CapMax, scale, ink);
       return;
     }
 
     if (kind == CalcButtonKind.OperatorColon)
     {
-      DrawFaceCenteredOperatorColon(draw, capMin, capMax, scale, ink);
+      DrawFaceCenteredOperatorColon(draw, cap.FaceBand.Min, cap.FaceBand.Max, scale, ink);
       return;
     }
 
-    DrawFaceCenteredKeyLabel(draw, text, capMin, capMax, scale, ink);
+    DrawFaceCenteredKeyLabel(draw, text, cap.FaceBand.Min, cap.FaceBand.Max, scale, ink);
   }
 
   private static void DrawFaceCenteredKeyLabel(
     ImDrawListPtr draw,
     string text,
-    Vector2 capMin,
-    Vector2 capMax,
+    Vector2 faceMin,
+    Vector2 faceMax,
     float scale,
     uint ink)
   {
-    (Vector2 faceMin, Vector2 faceMax) = KeyCapGeometry.FaceRect(capMin, capMax);
-    float fontSize = CalcFaceplateTypography.KeyPrimary(scale);
-    HpClassicFaceplateGlyphs.LabelSize labelSize = HpClassicFaceplateGlyphs.MeasureKeyFaceLabel(text, fontSize);
-    float centerX = (faceMin.X + faceMax.X) * 0.5f;
-    float centerY = (faceMin.Y + faceMax.Y) * 0.5f;
-    if (text is "f\u207b\u00b9" or "f⁻¹")
+    if (text == "\u00b7")
     {
-      centerX += fontSize * 0.12f;
-      centerY -= fontSize * 0.02f;
-    }
-    else if (text == "g")
-    {
-      centerY -= fontSize * 0.26f;
+      DrawKeyFaceDot(draw, faceMin, faceMax, scale, ink);
+      return;
     }
 
-    float x = centerX - labelSize.Width * 0.5f;
-    float y = centerY - labelSize.Height * 0.5f + FaceLabelDropPx;
-    HpClassicFaceplateGlyphs.DrawKeyFaceLabel(draw, new Vector2(x, y), text, fontSize, ink, scale);
+    if (text is "+" or "-" or "\u00d7")
+    {
+      DrawKeyFaceOperator(draw, text, faceMin, faceMax, scale, ink);
+      return;
+    }
+
+    float fontSize = PrimaryFontSize(text, scale);
+    HpClassicFaceplateGlyphs.DrawKeyFaceLabelInRect(draw, faceMin, faceMax, text, fontSize, ink, scale);
   }
+
+  private static void DrawKeyFaceDot(ImDrawListPtr draw, Vector2 faceMin, Vector2 faceMax, float scale, uint ink)
+  {
+    Vector2 center = (faceMin + faceMax) * 0.5f;
+    float radius = MathF.Min(faceMax.X - faceMin.X, faceMax.Y - faceMin.Y) * 0.13f;
+    draw.AddCircleFilled(center, MathF.Max(radius, scale * 2.3f), ink, 24);
+  }
+
+  private static float PrimaryFontSize(string text, float scale) =>
+    text switch
+    {
+      "\u00b7" or "\u00f7" => CalcFaceplateTypography.KeyOperator(scale),
+      "+" or "-" or "\u00d7" => CalcFaceplateTypography.KeyOperator(scale),
+      _ when text.Length == 1 && char.IsDigit(text[0]) => CalcFaceplateTypography.KeyDigit(scale),
+      _ when text.Length == 1 && char.IsLetter(text[0]) => CalcFaceplateTypography.KeyLetter(scale),
+      _ => CalcFaceplateTypography.KeyPrimary(scale),
+    };
 
   private static void DrawFaceCenteredOperatorColon(
     ImDrawListPtr draw,
-    Vector2 capMin,
-    Vector2 capMax,
+    Vector2 faceMin,
+    Vector2 faceMax,
     float scale,
     uint ink)
   {
-    (Vector2 faceMin, Vector2 faceMax) = KeyCapGeometry.FaceRect(capMin, capMax);
     float centerX = (faceMin.X + faceMax.X) * 0.5f;
-    float centerY = (faceMin.Y + faceMax.Y) * 0.5f + FaceLabelDropPx;
+    float centerY = (faceMin.Y + faceMax.Y) * 0.5f;
     DrawColonDivideSymbol(draw, new Vector2(centerX, centerY), faceMax.X - faceMin.X, scale, ink);
   }
 
@@ -276,12 +226,12 @@ public static class CalcButton
     Vector2 textSize = CalcFaceplateFonts.IsArialBoldReady || CalcFaceplateFonts.IsArialReady
       ? CalcFaceplateFonts.MeasureArialBold(enterText, fontSize)
       : ImGui.GetFont().CalcTextSizeA(fontSize, float.MaxValue, 0f, enterText);
-    float arrowWidth = fontSize * 0.55f;
-    float gap = scale * 3f;
+    float arrowWidth = fontSize * 0.38f;
+    float gap = scale * 5f;
     float totalWidth = textSize.X + gap + arrowWidth;
     float totalHeight = MathF.Max(textSize.Y, fontSize * 0.72f);
 
-    (Vector2 faceMin, Vector2 faceMax) = KeyCapGeometry.FaceRect(capMin, capMax);
+    (Vector2 faceMin, Vector2 faceMax) = KeyCapGeometry.FaceLabelRect(capMin, capMax);
     float centerX = (faceMin.X + faceMax.X) * 0.5f;
     float centerY = (faceMin.Y + faceMax.Y) * 0.5f + FaceLabelDropPx;
     float startX = centerX - totalWidth * 0.5f;
@@ -297,8 +247,8 @@ public static class CalcButton
     }
 
     float arrowCenterX = startX + textSize.X + gap + arrowWidth * 0.5f;
-    float capTop = y + textSize.Y * 0.1f;
-    float capBottom = y + textSize.Y * 0.88f;
+    float capTop = y + textSize.Y * 0.22f;
+    float capBottom = y + textSize.Y * 0.78f;
     DrawInlineUpArrow(draw, arrowCenterX - arrowWidth * 0.5f, capTop, capBottom, fontSize, ink, scale);
   }
 
@@ -312,60 +262,67 @@ public static class CalcButton
     float scale)
   {
     float capHeight = capBottom - capTop;
-    float w = fontSize * 0.3f;
-    float thickness = MathF.Max(3.2f, scale * 2.25f);
-    float cx = x + w * 0.5f;
-    float arrowHeight = capHeight * 0.88f;
-    float arrowBottom = capBottom - (capHeight - arrowHeight) * 0.5f;
-    float tipY = arrowBottom - arrowHeight;
-    float headH = arrowHeight * 0.38f;
-    float headBottom = tipY + headH;
-
-    draw.AddLine(new Vector2(cx, arrowBottom), new Vector2(cx, headBottom), color, thickness);
-    draw.AddTriangleFilled(new Vector2(cx, tipY), new Vector2(x, headBottom), new Vector2(x + w, headBottom), color);
+    float w = fontSize * 0.28f;
+    DrawSvgArrowUp(draw, new Vector2(x + w * 0.5f, (capTop + capBottom) * 0.5f), MathF.Min(capHeight, fontSize * 0.55f), color);
     return w + fontSize * 0.03f;
   }
 
-  private static void DrawEnterWideCapProcedural(
-    ImDrawListPtr draw,
-    Vector2 capMin,
-    Vector2 capMax,
-    CalcButtonStyle style,
-    bool pressed,
-    float scale)
+  private static void DrawSvgArrowUp(ImDrawListPtr draw, Vector2 center, float size, uint color)
   {
-    (uint top, uint face, uint skirt) = Colors(style, hovered: false, pressed);
-    float rounding = Math.Clamp(4f * scale, 3f, 4.5f);
-    float skirtY = capMin.Y + (capMax.Y - capMin.Y) * KeyCapGeometry.FaceEndRatio;
-    Vector2 midY = new(capMin.X, capMin.Y + (capMax.Y - capMin.Y) * 0.44f);
+    float s = size / 32f;
+    Vector2 p(float x, float y) => center + new Vector2((x - 16f) * s, (y - 16f) * s);
+    draw.AddTriangleFilled(p(16f, 0f), p(4f, 10f), p(28f, 10f), color);
+    draw.AddQuadFilled(p(12f, 10f), p(20f, 10f), p(20f, 32f), p(12f, 32f), color);
+  }
 
-    draw.AddRectFilled(capMin, capMax, face, rounding);
-    draw.AddRectFilledMultiColor(capMin, midY, top, top, face, face);
-    draw.AddRectFilled(new Vector2(capMin.X, skirtY), capMax, skirt, rounding, ImDrawFlags.RoundCornersBottom);
+  private static void DrawKeyFaceOperator(
+    ImDrawListPtr draw,
+    string op,
+    Vector2 faceMin,
+    Vector2 faceMax,
+    float scale,
+    uint ink)
+  {
+    Vector2 center = (faceMin + faceMax) * 0.5f;
+    float fw = faceMax.X - faceMin.X;
+    float fh = faceMax.Y - faceMin.Y;
+    float stroke = MathF.Max(2.6f, scale * 2.5f);
 
-    if (pressed)
+    switch (op)
     {
-      float tintHeight = (capMax.Y - capMin.Y) * 0.38f;
-      Vector2 tintMax = new(capMax.X, capMin.Y + tintHeight);
-      uint shade = Rgba(0, 0, 0, 52);
-      draw.AddRectFilledMultiColor(capMin, tintMax, shade, shade, Rgba(0, 0, 0, 8), Rgba(0, 0, 0, 8));
-    }
-    else
-    {
-      byte highlightAlpha = 36;
-      draw.AddLine(
-        capMin + new Vector2(rounding * 0.6f, scale * 0.9f),
-        new Vector2(capMax.X - rounding * 0.6f, capMin.Y + scale * 0.9f),
-        Rgba(255, 255, 255, highlightAlpha),
-        MathF.Max(1f, scale * 0.85f));
+      case "-":
+        float minusW = fw * 0.5f;
+        draw.AddLine(
+          center + new Vector2(-minusW * 0.5f, 0f),
+          center + new Vector2(minusW * 0.5f, 0f),
+          ink,
+          stroke);
+        break;
+      case "+":
+        float plusSize = MathF.Min(fw, fh) * 0.58f;
+        draw.AddLine(
+          center + new Vector2(-plusSize * 0.5f, 0f),
+          center + new Vector2(plusSize * 0.5f, 0f),
+          ink,
+          stroke);
+        draw.AddLine(
+          center + new Vector2(0f, -plusSize * 0.5f),
+          center + new Vector2(0f, plusSize * 0.5f),
+          ink,
+          stroke);
+        break;
+      case "\u00d7":
+        float xSize = CalcFaceplateTypography.KeyOperator(scale) * 1.22f;
+        HpClassicFaceplateGlyphs.DrawKeyFaceMultiply(draw, center, xSize, ink, scale);
+        break;
     }
   }
 
   private static void DrawColonDivideSymbol(ImDrawListPtr draw, Vector2 center, float capWidth, float scale, uint ink)
   {
-    float symbolHeight = MathF.Min(capWidth * 0.42f, ImGui.GetFontSize() * 1.05f * scale);
-    float lineWidth = MathF.Max(2f, capWidth * 0.34f);
-    float dotRadius = MathF.Max(1.4f, scale * 1.5f);
+    float symbolHeight = MathF.Min(capWidth * 0.52f, ImGui.GetFontSize() * 1.28f * scale);
+    float lineWidth = MathF.Max(2f, capWidth * 0.4f);
+    float dotRadius = MathF.Max(1.6f, scale * 1.75f);
     float topDotY = center.Y - symbolHeight * 0.34f;
     float lineY = center.Y;
     float bottomDotY = center.Y + symbolHeight * 0.34f;
@@ -378,83 +335,30 @@ public static class CalcButton
     draw.AddCircleFilled(new Vector2(center.X, bottomDotY), dotRadius, ink);
   }
 
-  private static void DrawKeyCapBezel(ImDrawListPtr draw, Vector2 capMin, Vector2 capMax, float scale, bool fixedRadius = false)
-  {
-    const float pad = 1f;
-    float rounding = fixedRadius
-      ? Math.Clamp(4f * scale, 3f, 4.5f)
-      : Math.Clamp((capMax.X - capMin.X) * (4f / 48f), 3f, 5f);
-    Vector2 bezelMin = capMin - new Vector2(pad, pad);
-    Vector2 bezelMax = capMax + new Vector2(pad, pad);
-    draw.AddRectFilled(bezelMin, bezelMax, CalcChassisPalette.KeyCapBezel, rounding + pad);
-  }
-
-  private static void DrawGreySkirtBandIfNeeded(
-    ImDrawListPtr draw,
-    Vector2 capMin,
-    Vector2 capMax,
-    CalcButtonStyle style,
-    float scale)
-  {
-    if (style != CalcButtonStyle.Grey)
-    {
-      return;
-    }
-
-    (Vector2 skirtMin, Vector2 skirtMax) = KeyCapGeometry.SkirtRect(capMin, capMax);
-    draw.AddRectFilled(skirtMin, skirtMax, CalcChassisPalette.GreySkirtLabelBand, 2f * scale);
-  }
-
   private static void DrawSkirtLabel(
     ImDrawListPtr draw,
     string text,
-    Vector2 capMin,
-    Vector2 capMax,
+    CalcKeyCapComponent cap,
     CalcButtonStyle style,
     CalcButtonKind kind,
     uint color,
     float fontSize,
     float scale)
   {
-    (Vector2 skirtMin, Vector2 skirtMax) = KeyCapGeometry.SkirtRect(capMin, capMax);
-    float skirtHeight = skirtMax.Y - skirtMin.Y;
-    Vector2 skirtCenter = new((skirtMin.X + skirtMax.X) * 0.5f, skirtMin.Y + skirtHeight * 0.46f);
+    (Vector2 bottomMin, Vector2 bottomMax) = cap.BottomBand;
+    float bottomHeight = bottomMax.Y - bottomMin.Y;
+    fontSize = MathF.Min(MathF.Max(fontSize, bottomHeight * 0.98f), bottomHeight * 1.16f);
+    Vector2 bottomNudge = new(0f, scale * 0.75f);
     if (kind == CalcButtonKind.EnterWide)
     {
       float pad = scale * 2.5f;
-      HpClassicFaceplateGlyphs.LabelSize size = HpClassicFaceplateGlyphs.MeasureSkirtLabel(text, fontSize);
-      Vector2 topLeft = new(
-        skirtMax.X - pad - size.Width,
-        skirtCenter.Y - size.Height * 0.5f);
-      HpClassicFaceplateGlyphs.DrawSkirtLabel(draw, topLeft, text, fontSize, color, scale);
+      Vector2 topLeft = CalcFaceplateFonts.ArialBoldTopLeftForBand(bottomMin + bottomNudge, bottomMax + bottomNudge, text, fontSize, verticalBiasRatio: 0f);
+      CalcFaceplateFonts.FontInkBounds ink = CalcFaceplateFonts.MeasureArialBoldInk(text, fontSize);
+      topLeft.X = bottomMax.X - pad - (ink.Left + ink.Width);
+      HpClassicFaceplateGlyphs.DrawArialBoldGlyph(draw, text, topLeft.X, topLeft.Y, fontSize, color);
       return;
     }
 
-    if (HpClassicFaceplateGlyphs.TryDrawSkirtCardSlotLabel(draw, text, skirtCenter, fontSize, color, scale))
-    {
-      return;
-    }
-
-    HpClassicFaceplateGlyphs.LabelSize skirtSize = HpClassicFaceplateGlyphs.MeasureSkirtLabel(text, fontSize);
-    Vector2 skirtTopLeft = skirtCenter - new Vector2(skirtSize.Width * 0.5f, skirtSize.Height * 0.5f);
-    HpClassicFaceplateGlyphs.DrawSkirtLabel(draw, skirtTopLeft, text, fontSize, color, scale);
-  }
-
-  private static uint Add(uint color, byte amount)
-  {
-    byte r = (byte)Math.Min(255, (color & 0xFF) + amount);
-    byte g = (byte)Math.Min(255, ((color >> 8) & 0xFF) + amount);
-    byte b = (byte)Math.Min(255, ((color >> 16) & 0xFF) + amount);
-  byte a = (byte)(color >> 24);
-    return (uint)a << 24 | (uint)b << 16 | (uint)g << 8 | r;
-  }
-
-  private static uint Sub(uint color, byte amount)
-  {
-    byte r = (byte)Math.Max(0, (color & 0xFF) - amount);
-    byte g = (byte)Math.Max(0, ((color >> 8) & 0xFF) - amount);
-    byte b = (byte)Math.Max(0, ((color >> 16) & 0xFF) - amount);
-    byte a = (byte)(color >> 24);
-    return (uint)a << 24 | (uint)b << 16 | (uint)g << 8 | r;
+    HpClassicFaceplateGlyphs.DrawSkirtLabelInRect(draw, bottomMin + bottomNudge, bottomMax + bottomNudge, text, fontSize, color, scale);
   }
 }

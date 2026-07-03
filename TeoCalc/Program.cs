@@ -7,13 +7,21 @@ internal class Program
 {
   private static int Main(string[] args)
   {
-    if (args.Length > 0 && args[0].Equals("models", StringComparison.OrdinalIgnoreCase))
+    try
     {
-      foreach (string model in HpCalcModelCatalog.SupportedModels)
-        Console.WriteLine(model);
-      return 0;
-    }
+      if (args.Length > 0 && args[0].Equals("models", StringComparison.OrdinalIgnoreCase))
+      {
+        foreach (string model in HpCalcModelCatalog.SupportedModels)
+          Console.WriteLine(model);
+        return 0;
+      }
 
-    return CalcAppHost.Run();
+      return CalcAppHost.Run();
+    }
+    catch (Exception exception)
+    {
+      FatalErrorDialog.Show(exception);
+      return 1;
+    }
   }
 }

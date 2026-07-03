@@ -72,6 +72,7 @@ public sealed class ClassicCpuState
     ProgramRamBase = DefaultProgramRamBase;
     Registers.ClearAll();
     Array.Clear(Ram);
+    ClassicPowerOnDefaults.Apply(this);
     LastOpcode = 0;
     LastHandlerId = null;
   }

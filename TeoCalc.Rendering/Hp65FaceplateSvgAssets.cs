@@ -11,7 +11,9 @@ public static class Hp65FaceplateSvgAssets
   private static readonly SvgRasterCache Cache = new();
 
   /// <summary>Bump when Body.svg panel colors change (invalidates raster cache).</summary>
-  private const int BodySvgRevision = 3;
+  private const int BodySvgRevision = 5;
+
+  private const int LogoSvgRevision = 2;
 
   private static string AssetsRoot => TeoCalcPaths.ResourcePath("Engine/HP-65/Assets");
 
@@ -24,6 +26,7 @@ public static class Hp65FaceplateSvgAssets
   /// <summary>Body.svg chrome from faceplate-d03-layout.json companion (409×861).</summary>
   public static bool UseBodyChrome => true;
 
+  /// <summary>Body/logo SVG cache is ready (key caps are procedural).</summary>
   public static bool CanDrawKeyCaps => Cache.IsInitialized;
 
   public static bool CanDrawCardSlotLabels => Cache.IsInitialized;
@@ -56,26 +59,27 @@ public static class Hp65FaceplateSvgAssets
     Vector2 plateMax = plateMin + new Vector2(plateWidth, plateHeight);
 
     float logoAspect = 888f / 562f;
-    float logoPadX = plateWidth * 0.02f;
-    float maxLogoWidth = plateWidth * 0.42f;
-    float logoHeight = plateHeight * 0.82f;
-    float logoWidth = logoHeight * logoAspect;
+    float logoPadX = plateWidth * 0.03f;
+    float logoPadY = plateHeight * 0.06f;
+    float maxLogoWidth = plateWidth * 0.58f;
+    float logoHeight = (plateHeight - logoPadY * 2f) * 0.82f;
+    float logoWidth = logoHeight * logoAspect * 1.4f;
     if (logoWidth > maxLogoWidth)
     {
       logoWidth = maxLogoWidth;
-      logoHeight = logoWidth / logoAspect;
+      logoHeight = logoWidth / (logoAspect * 1.4f);
     }
 
-    Vector2 logoMin = plateMin + new Vector2(logoPadX, (plateHeight - logoHeight) * 0.5f);
+    Vector2 logoMin = plateMin + new Vector2(logoPadX, logoPadY + (plateHeight - logoPadY * 2f - logoHeight) * 0.5f);
     Vector2 logoMax = logoMin + new Vector2(logoWidth, logoHeight);
 
     if (Cache.IsInitialized && File.Exists(LogoPath))
     {
       int w = Math.Max(1, (int)MathF.Ceiling(logoWidth * 5f));
       int h = Math.Max(1, (int)MathF.Ceiling(logoHeight * 5f));
-      if (!Cache.TryDraw(draw, logoMin, logoMax, LogoPath, w, h))
+      if (!Cache.TryDraw(draw, logoMin, logoMax, LogoPath, w, h, revision: LogoSvgRevision))
       {
-        Cache.TryDraw(draw, logoMin, logoMax, LogoPath, w, h);
+        Cache.TryDraw(draw, logoMin, logoMax, LogoPath, w, h, revision: LogoSvgRevision);
       }
     }
 
@@ -110,29 +114,24 @@ public static class Hp65FaceplateSvgAssets
     Vector2 capMax,
     CalcButtonStyle style)
   {
-    if (!Cache.IsInitialized)
-    {
-      return;
-    }
-
-    string path = KeyCapPath(style);
-    if (!File.Exists(path))
-    {
-      return;
-    }
-
-    float width = capMax.X - capMin.X;
-    float height = capMax.Y - capMin.Y;
-    int w = Math.Max(1, (int)MathF.Ceiling(width * 2f));
-    int h = Math.Max(1, (int)MathF.Ceiling(height * 2f));
-    Cache.TryDraw(draw, capMin, capMax, path, w, h);
+    KeyCapRenderer.Draw(
+      draw,
+      capMin,
+      capMax,
+      KeyCapPalette.ForStyle(style, hovered: false, pressed: false),
+      hovered: false,
+      pressed: false,
+      scale: MathF.Max(1f, (capMax.X - capMin.X) / 48f));
   }
 
-  public static string KeyCapPath(CalcButtonStyle style)
+  public static string KeyCapPath(CalcButtonStyle style) => LegacyKeyCapPath(style);
+
+  private static string LegacyKeyCapPath(CalcButtonStyle style)
   {
     string file = style switch
     {
       CalcButtonStyle.Grey => "KeyCap-grey.svg",
+      CalcButtonStyle.White => "KeyCap-grey.svg",
       CalcButtonStyle.Blue => "KeyCap-blue.svg",
       CalcButtonStyle.Orange => "KeyCap.svg",
       _ => "KeyCap-black.svg",

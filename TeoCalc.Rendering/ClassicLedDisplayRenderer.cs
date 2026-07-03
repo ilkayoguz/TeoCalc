@@ -4,12 +4,11 @@ using TeoCalc.Core.Engine.Classic;
 
 namespace TeoCalc.Rendering;
 
-/// <summary>Draws HP-65 Classic 15-position segmented LED display (3×5 modules).</summary>
+/// <summary>Draws HP-65 Classic LED display via Panamatik <c>LEDcharset_class.TTF</c> or procedural 7-segment fallback.</summary>
 public static class ClassicLedDisplayRenderer
 {
-  private const int ModuleSize = 5;
-
-  private const float ModuleGapFactor = 0.35f;
+  /// <summary>Panamatik KML <c>hp65_470</c>: font 20 in display height 42.</summary>
+  private const float LedFontHeightRatio = 20f / 42f;
 
   private const float ExponentScale = 0.76f;
 
@@ -33,7 +32,8 @@ public static class ClassicLedDisplayRenderer
     bool displayOn,
     bool programMode,
     byte programEndState,
-    float scale)
+    float scale,
+    string? ledText = null)
   {
     Vector2 min = display.Min + new Vector2(5f * scale, 4f * scale);
     Vector2 max = display.Max - new Vector2(5f * scale, 4f * scale);
@@ -44,15 +44,74 @@ public static class ClassicLedDisplayRenderer
       return;
     }
 
-    ClassicLedDisplaySlot[] slots = ClassicLedDisplayMapper.Map(
-      registers,
-      displayOn: true,
-      programMode,
-      programEndState);
+    if (CalcFaceplateFonts.IsLedDisplayReady)
+    {
+      string text = ledText ?? ClassicDisplayFormatter.ToLedFontText(
+        registers,
+        displayOn: true,
+        programMode,
+        programEndState);
+      DrawLedFontText(draw, min, max, text, scale, programMode);
+    }
+    else
+    {
+      ClassicLedDisplaySlot[] slots = ClassicLedDisplayMapper.Map(
+        registers,
+        displayOn: true,
+        programMode,
+        programEndState);
+      DrawProcedural(draw, min, max, slots, scale, programMode);
+    }
+  }
 
+  private static void DrawLedFontText(
+    ImDrawListPtr draw,
+    Vector2 min,
+    Vector2 max,
+    string text,
+    float scale,
+    bool programMode)
+  {
+    ImFontPtr font = CalcFaceplateFonts.LedDisplay;
+    float padX = 6f * scale;
+    float innerHeight = max.Y - min.Y - 6f * scale;
+    float fontSize = innerHeight * LedFontHeightRatio;
+    Vector2 textSize = font.CalcTextSizeA(fontSize, float.MaxValue, 0f, text);
+    float x = min.X + padX;
+    float y = min.Y + (max.Y - min.Y - textSize.Y) * 0.5f;
+    Vector2 glowOffset = new(scale * 0.55f, scale * 0.55f);
+    Vector2 boldOffset = new(scale * 0.35f, 0f);
+    Vector2 pos = new(x, y);
+
+    draw.AddText(font, fontSize, pos + glowOffset, CalcChassisPalette.DisplayDigitGlow, text);
+    draw.AddText(font, fontSize, pos + boldOffset, CalcChassisPalette.DisplayDigit, text);
+    draw.AddText(font, fontSize, pos, CalcChassisPalette.DisplayDigit, text);
+
+    if (programMode)
+    {
+      float badge = Math.Clamp(fontSize * 0.28f, 8f * scale, 12f * scale);
+      draw.AddText(
+        ImGui.GetFont(),
+        badge,
+        new Vector2(max.X - badge * 4.2f, min.Y + scale),
+        CalcChassisPalette.DisplayDigit,
+        "PRGM");
+    }
+  }
+
+  private static void DrawProcedural(
+    ImDrawListPtr draw,
+    Vector2 min,
+    Vector2 max,
+    ClassicLedDisplaySlot[] slots,
+    float scale,
+    bool programMode)
+  {
+    const int moduleSize = 5;
+    const float moduleGapFactor = 0.35f;
     float innerWidth = max.X - min.X - 8f * scale;
     float innerHeight = max.Y - min.Y - 6f * scale;
-    float moduleGap = innerWidth * ModuleGapFactor / (ClassicLedDisplayMapper.LogicalSlotCount / (float)ModuleSize);
+    float moduleGap = innerWidth * moduleGapFactor / (ClassicLedDisplayMapper.LogicalSlotCount / (float)moduleSize);
     float cellWidth = (innerWidth - moduleGap * 2f) / ClassicLedDisplayMapper.LogicalSlotCount;
     float digitHeight = innerHeight * 0.84f;
     float digitY = min.Y + (max.Y - min.Y - digitHeight) * 0.5f;
@@ -131,7 +190,6 @@ public static class ClassicLedDisplayRenderer
 
     float padding = size.X * 0.1f;
     float thickness = MathF.Max(1.4f * scale, size.Y * 0.11f);
-    float horizontalLength = size.X - padding * 2f;
     float verticalLength = (size.Y - thickness * 3f) * 0.5f;
     float left = origin.X + padding;
     float right = origin.X + size.X - padding;

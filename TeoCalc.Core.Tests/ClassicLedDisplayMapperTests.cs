@@ -95,4 +95,20 @@ public sealed class ClassicLedDisplayMapperTests
     ClassicLedDisplaySlot[] slots = ClassicLedDisplayMapper.Map(registers, displayOn: false);
     Assert.IsTrue(slots.All(slot => slot.Kind == ClassicLedSlotKind.Blank));
   }
+
+  [TestMethod]
+  public void ToFontText_UsesSemicolonForDecimalPoint()
+  {
+    ClassicLedDisplaySlot[] slots = new ClassicLedDisplaySlot[ClassicLedDisplayMapper.LogicalSlotCount];
+    slots[4] = ClassicLedDisplaySlot.FromDigit(3);
+    slots[5] = ClassicLedDisplaySlot.DecimalPoint;
+    slots[6] = ClassicLedDisplaySlot.FromDigit(1);
+
+    string text = ClassicLedDisplayMapper.ToFontText(slots);
+
+    Assert.AreEqual(15, text.Length);
+    Assert.AreEqual('3', text[4]);
+    Assert.AreEqual(';', text[5]);
+    Assert.AreEqual('1', text[6]);
+  }
 }
