@@ -54,7 +54,9 @@ public static class CalcButton
     bool drawWell = true,
     bool overlayOnly = false,
     bool forcePressed = false,
-    bool interactive = true)
+    bool interactive = true,
+    uint? primaryInkOverride = null,
+    uint? skirtInkOverride = null)
   {
     if (!overlayOnly && drawWell && !Hp65FaceplateSvgAssets.CanDrawKeyCaps)
     {
@@ -95,7 +97,7 @@ public static class CalcButton
 
     DrawCap(draw, capMin, capMax, style, kind, hovered, pressed, scale);
     CalcKeyCapComponent cap = new() { CapMin = capMin, CapMax = capMax };
-    DrawPrimaryLabel(draw, primary, cap, kind, style, scale, leftAlignPrimary);
+    DrawPrimaryLabel(draw, primary, cap, kind, style, scale, leftAlignPrimary, primaryInkOverride);
 
     if (!string.IsNullOrEmpty(blueOnBody))
     {
@@ -106,7 +108,7 @@ public static class CalcButton
         cap,
         style,
         kind,
-        CalcKeyLabelPalette.SkirtLabelInk(blueOnBody, style),
+        skirtInkOverride ?? CalcKeyLabelPalette.SkirtLabelInk(blueOnBody, style),
         skirtFont,
         scale);
     }
@@ -142,9 +144,10 @@ public static class CalcButton
     CalcButtonKind kind,
     CalcButtonStyle style,
     float scale,
-    bool leftAlign)
+    bool leftAlign,
+    uint? inkOverride)
   {
-    uint ink = CalcKeyLabelPalette.PrimaryOnCap(style);
+    uint ink = inkOverride ?? CalcKeyLabelPalette.PrimaryOnCap(style);
 
     if (kind == CalcButtonKind.EnterWide)
     {

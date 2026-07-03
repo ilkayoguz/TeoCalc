@@ -178,11 +178,17 @@ public static class HpClassicFaceplateGlyphs
 
   private static CalcFaceplateBandLabel.LayoutBox MeasureComparisonLayoutBox(string text, float fontSize)
   {
-    float gap = fontSize * 0.19f;
-    float glyphSize = fontSize * 1.24f;
+    float gap = fontSize * 0.17f;
+    float glyphSize = fontSize * 1.12f;
     Vector2 xDim = MathGlyphSize("x", glyphSize);
     Vector2 yDim = MathGlyphSize("y", glyphSize);
-    float opW = text is "x\u2260y" or "x\u2264y" ? fontSize * 0.56f : fontSize * 0.5f;
+    float opW = text switch
+    {
+      "x\u2260y" or "x\u2264y" => fontSize * 0.4f,
+      "x=y" => ArialBoldGlyphWidth("=", fontSize),
+      "x>y" => ArialBoldGlyphWidth(">", fontSize),
+      _ => fontSize * 0.4f,
+    };
     float opH = fontSize * 0.46f;
     float rowH = MathF.Max(xDim.Y, MathF.Max(opH, yDim.Y));
     float width = xDim.X + gap + opW + gap + yDim.X;
@@ -219,8 +225,7 @@ public static class HpClassicFaceplateGlyphs
 
       if (TryConsume(text, ref i, "x\u2194y", out _))
       {
-        float xSize = fontSize * 1.08f;
-        float w = MathGlyphWidth("x", xSize) + CardSlotExchangeArt.MeasureWidth(fontSize) + MathGlyphWidth("y", xSize) + fontSize * 0.28f;
+        float w = MeasureXExchangeYWidth(fontSize, widen: true);
         union = CalcFaceplateBandLabel.Union(union, CalcFaceplateBandLabel.BoxAt(x, rowMidY - fontSize * 0.55f, w, fontSize * 1.1f));
         x += w;
         continue;
@@ -228,7 +233,7 @@ public static class HpClassicFaceplateGlyphs
 
       if (TryConsume(text, ref i, "1/x", out _))
       {
-        float w = fontSize * 1.72f;
+        float w = MeasureInverseXWidth(fontSize);
         union = CalcFaceplateBandLabel.Union(union, CalcFaceplateBandLabel.BoxAt(x, rowMidY - fontSize * 0.6f, w, fontSize * 1.2f));
         x += w;
         continue;
@@ -236,15 +241,39 @@ public static class HpClassicFaceplateGlyphs
 
       if (TryConsume(text, ref i, "y^x", out _))
       {
-        float w = fontSize * 1.62f;
-        union = CalcFaceplateBandLabel.Union(union, CalcFaceplateBandLabel.BoxAt(x, rowMidY - fontSize * 0.6f, w, fontSize * 1.2f));
+        float w = MeasureYToTheXWidth(fontSize);
+        union = CalcFaceplateBandLabel.Union(union, CalcFaceplateBandLabel.BoxAt(x, rowMidY - fontSize * 0.5f, w, fontSize));
         x += w;
         continue;
       }
 
-      if (TryConsume(text, ref i, "R\u2191", out _) || TryConsume(text, ref i, "R\u2193", out _))
+      if (TryConsume(text, ref i, "e^x", out _))
       {
-        float w = fontSize * 1.47f;
+        float w = MeasurePowerLabelWidth("e", fontSize);
+        union = CalcFaceplateBandLabel.Union(union, CalcFaceplateBandLabel.BoxAt(x, rowMidY - fontSize * 0.58f, w, fontSize * 1.08f));
+        x += w;
+        continue;
+      }
+
+      if (TryConsume(text, ref i, "10^x", out _))
+      {
+        float w = MeasurePowerLabelWidth("10", fontSize);
+        union = CalcFaceplateBandLabel.Union(union, CalcFaceplateBandLabel.BoxAt(x, rowMidY - fontSize * 0.58f, w, fontSize * 1.08f));
+        x += w;
+        continue;
+      }
+
+      if (TryConsume(text, ref i, "R\u2191", out _))
+      {
+        float w = MeasureRArrowWidth(fontSize, down: false);
+        union = CalcFaceplateBandLabel.Union(union, CalcFaceplateBandLabel.BoxAt(x, rowMidY - fontSize * 0.52f, w, fontSize * 1.04f));
+        x += w;
+        continue;
+      }
+
+      if (TryConsume(text, ref i, "R\u2193", out _))
+      {
+        float w = MeasureRArrowWidth(fontSize, down: true);
         union = CalcFaceplateBandLabel.Union(union, CalcFaceplateBandLabel.BoxAt(x, rowMidY - fontSize * 0.52f, w, fontSize * 1.04f));
         x += w;
         continue;
@@ -265,23 +294,31 @@ public static class HpClassicFaceplateGlyphs
 
       if (TryConsume(text, ref i, "\u221ax", out _) || TryConsume(text, ref i, "√x", out _))
       {
-        float w = fontSize * 1.15f;
+        float w = MeasureSqrtXWidth(fontSize);
         union = CalcFaceplateBandLabel.Union(union, CalcFaceplateBandLabel.BoxAt(x, rowMidY - fontSize * 0.5f, w, fontSize));
         x += w;
         continue;
       }
 
-      if (TryConsume(text, ref i, "R\u2192P", out _))
+      if (TryConsume(text, ref i, "R\u2192P", out _) || TryConsume(text, ref i, "P\u2192R", out _))
       {
-        float w = fontSize * 1.75f;
+        float w = MeasureArrowBetweenTextWidth("R", "P", fontSize);
         union = CalcFaceplateBandLabel.Union(union, CalcFaceplateBandLabel.BoxAt(x, rowMidY - fontSize * 0.5f, w, fontSize));
         x += w;
         continue;
       }
 
-      if (TryConsume(text, ref i, "\u2192D.MS", out _) || TryConsume(text, ref i, "\u2192OCT", out _))
+      if (TryConsume(text, ref i, "\u2192D.MS", out _) || TryConsume(text, ref i, "D.MS\u2192", out _))
       {
-        float w = fontSize * 2.15f;
+        float w = MeasureArrowTextWidth("D.MS", fontSize);
+        union = CalcFaceplateBandLabel.Union(union, CalcFaceplateBandLabel.BoxAt(x, rowMidY - fontSize * 0.5f, w, fontSize));
+        x += w;
+        continue;
+      }
+
+      if (TryConsume(text, ref i, "\u2192OCT", out _) || TryConsume(text, ref i, "OCT\u2192", out _))
+      {
+        float w = MeasureArrowTextWidth("OCT", fontSize);
         union = CalcFaceplateBandLabel.Union(union, CalcFaceplateBandLabel.BoxAt(x, rowMidY - fontSize * 0.5f, w, fontSize));
         x += w;
         continue;
@@ -290,6 +327,36 @@ public static class HpClassicFaceplateGlyphs
       if (TryConsume(text, ref i, "f\u207b\u00b9", out _) || TryConsume(text, ref i, "f⁻¹", out _))
       {
         float w = fontSize * 1.05f;
+        union = CalcFaceplateBandLabel.Union(union, CalcFaceplateBandLabel.BoxAt(x, rowMidY - fontSize * 0.5f, w, fontSize));
+        x += w;
+        continue;
+      }
+
+      if (TryConsume(text, ref i, "SIN^-1", out _)
+        || TryConsume(text, ref i, "SIN\u207b\u00b9", out _)
+        || TryConsume(text, ref i, "SIN⁻¹", out _))
+      {
+        float w = MeasureInverseFunctionWidth("SIN", fontSize);
+        union = CalcFaceplateBandLabel.Union(union, CalcFaceplateBandLabel.BoxAt(x, rowMidY - fontSize * 0.5f, w, fontSize));
+        x += w;
+        continue;
+      }
+
+      if (TryConsume(text, ref i, "COS^-1", out _)
+        || TryConsume(text, ref i, "COS\u207b\u00b9", out _)
+        || TryConsume(text, ref i, "COS⁻¹", out _))
+      {
+        float w = MeasureInverseFunctionWidth("COS", fontSize);
+        union = CalcFaceplateBandLabel.Union(union, CalcFaceplateBandLabel.BoxAt(x, rowMidY - fontSize * 0.5f, w, fontSize));
+        x += w;
+        continue;
+      }
+
+      if (TryConsume(text, ref i, "TAN^-1", out _)
+        || TryConsume(text, ref i, "TAN\u207b\u00b9", out _)
+        || TryConsume(text, ref i, "TAN⁻¹", out _))
+      {
+        float w = MeasureInverseFunctionWidth("TAN", fontSize);
         union = CalcFaceplateBandLabel.Union(union, CalcFaceplateBandLabel.BoxAt(x, rowMidY - fontSize * 0.5f, w, fontSize));
         x += w;
         continue;
@@ -351,6 +418,34 @@ public static class HpClassicFaceplateGlyphs
     float scale) =>
     Draw(draw, topLeft, text, fontSize, color, scale, bold: false, skirtArial: true, bandAlign: true);
 
+  public static void DrawBodyLabelInRect(
+    ImDrawListPtr draw,
+    Vector2 bandMin,
+    Vector2 bandMax,
+    string text,
+    float fontSize,
+    uint color,
+    float scale)
+  {
+    Vector2 bandCenter = KeyCapGeometry.BandCenter(bandMin, bandMax);
+    CalcFaceplateBandLabel.LayoutBox box = IsPlainArialSkirtLabel(text)
+      ? CalcFaceplateBandLabel.FromInk(CalcFaceplateFonts.MeasureArialBoldInk(text, fontSize))
+      : MeasureCompositeLayoutBox(text, fontSize, skirtArial: true);
+    Vector2 topLeft = CalcFaceplateBandLabel.TopLeftForBand(bandMin, bandMax, box);
+    Draw(
+      draw,
+      topLeft,
+      text,
+      fontSize,
+      color,
+      scale,
+      bold: false,
+      skirtArial: true,
+      bandAlign: true,
+      rowMidY: bandCenter.Y,
+      useRowMid: true);
+  }
+
   public static void DrawSkirtLabel(
     ImDrawListPtr draw,
     Vector2 topLeft,
@@ -387,6 +482,12 @@ public static class HpClassicFaceplateGlyphs
       return;
     }
 
+    if (IsSkirtComparisonLabel(text))
+    {
+      DrawComparisonRowAtCenter(draw, bandCenter, text, fontSize, color, scale);
+      return;
+    }
+
     if (!ContainsKeyFaceGlyphPattern(text) && IsPlainArialKeyFaceLabel(text))
     {
       float bias = ContainsDescender(text) ? -0.1f : 0f;
@@ -396,6 +497,17 @@ public static class HpClassicFaceplateGlyphs
     }
 
     CalcFaceplateBandLabel.LayoutBox box = MeasureFaceLayoutBox(text, fontSize);
+    float maxWidth = (bandMax.X - bandMin.X) * 0.92f;
+    float maxHeight = (bandMax.Y - bandMin.Y) * 0.95f;
+    float fit = MathF.Min(
+      box.Width > 0f ? maxWidth / box.Width : 1f,
+      box.Height > 0f ? maxHeight / box.Height : 1f);
+    if (fit < 1f)
+    {
+      fontSize *= MathF.Max(0.62f, fit);
+      box = MeasureFaceLayoutBox(text, fontSize);
+    }
+
     Vector2 topLeftComposite = CalcFaceplateBandLabel.TopLeftForBand(bandMin, bandMax, box);
     Draw(
       draw,
@@ -625,6 +737,18 @@ public static class HpClassicFaceplateGlyphs
         continue;
       }
 
+      if (TryConsume(text, ref i, "e^x", out _))
+      {
+        x += DrawPowerLabel(draw, "e", x, y, fontSize, color, scale, bold, keyFaceArialBold, skirtArial, skirtBand, bandAlign, rowMidY, useRowMid);
+        continue;
+      }
+
+      if (TryConsume(text, ref i, "10^x", out _))
+      {
+        x += DrawPowerLabel(draw, "10", x, y, fontSize, color, scale, bold, keyFaceArialBold, skirtArial, skirtBand, bandAlign, rowMidY, useRowMid);
+        continue;
+      }
+
       if (TryConsume(text, ref i, "1/x", out _))
       {
         float drawFont = useRowMid ? fontSize * 1.12f : fontSize;
@@ -636,11 +760,23 @@ public static class HpClassicFaceplateGlyphs
 
       if (TryConsume(text, ref i, "R\u2192P", out _))
       {
-        x += DrawPlainRun(draw, "R", x, y, fontSize, color, bold, keyFaceArialBold, skirtArial, skirtBand);
+        float drawY = useRowMid ? rowMidY - fontSize * 0.5f : y;
+        x += DrawPlainRun(draw, "R", x, drawY, fontSize, color, bold, keyFaceArialBold, skirtArial, skirtBand, bandAlign, rowMidY, useRowMid);
         x += fontSize * 0.1f;
-        x += DrawArrowRight(draw, x, y, fontSize, color, scale, bandMode);
+        x += DrawArrowRight(draw, x, drawY, fontSize, color, scale, bandMode || useRowMid);
         x += fontSize * 0.1f;
-        x += DrawPlainRun(draw, "P", x, y, fontSize, color, bold, keyFaceArialBold, skirtArial, skirtBand);
+        x += DrawPlainRun(draw, "P", x, drawY, fontSize, color, bold, keyFaceArialBold, skirtArial, skirtBand, bandAlign, rowMidY, useRowMid);
+        continue;
+      }
+
+      if (TryConsume(text, ref i, "P\u2192R", out _))
+      {
+        float drawY = useRowMid ? rowMidY - fontSize * 0.5f : y;
+        x += DrawPlainRun(draw, "P", x, drawY, fontSize, color, bold, keyFaceArialBold, skirtArial, skirtBand, bandAlign, rowMidY, useRowMid);
+        x += fontSize * 0.1f;
+        x += DrawArrowRight(draw, x, drawY, fontSize, color, scale, bandMode || useRowMid);
+        x += fontSize * 0.1f;
+        x += DrawPlainRun(draw, "R", x, drawY, fontSize, color, bold, keyFaceArialBold, skirtArial, skirtBand, bandAlign, rowMidY, useRowMid);
         continue;
       }
 
@@ -655,7 +791,8 @@ public static class HpClassicFaceplateGlyphs
         else
         {
           x += DrawPlainRun(draw, "R", x, y, fontSize, color, bold, keyFaceArialBold, skirtArial, skirtBand, bandAlign, rowMidY, useRowMid);
-          x += DrawArrowUp(draw, x, y, fontSize, color, scale, bandMode);
+          float arrowY = useRowMid ? rowMidY - fontSize * 0.5f : y;
+          x += DrawArrowUp(draw, x, arrowY, fontSize, color, scale, bandMode || useRowMid);
         }
 
         continue;
@@ -671,17 +808,37 @@ public static class HpClassicFaceplateGlyphs
 
       if (TryConsume(text, ref i, "\u2192D.MS", out _))
       {
-        x += DrawArrowRight(draw, x, y, fontSize, color, scale, bandMode);
+        float drawY = useRowMid ? rowMidY - fontSize * 0.5f : y;
+        x += DrawArrowRight(draw, x, drawY, fontSize, color, scale, bandMode || useRowMid);
         x += fontSize * 0.1f;
-        x += DrawPlainRun(draw, "D.MS", x, y, fontSize, color, bold, keyFaceArialBold, skirtArial, skirtBand);
+        x += DrawPlainRun(draw, "D.MS", x, drawY, fontSize, color, bold, keyFaceArialBold, skirtArial, skirtBand, bandAlign, rowMidY, useRowMid);
         continue;
       }
 
       if (TryConsume(text, ref i, "\u2192OCT", out _))
       {
-        x += DrawArrowRight(draw, x, y, fontSize, color, scale, bandMode);
+        float drawY = useRowMid ? rowMidY - fontSize * 0.5f : y;
+        x += DrawArrowRight(draw, x, drawY, fontSize, color, scale, bandMode || useRowMid);
         x += fontSize * 0.1f;
-        x += DrawPlainRun(draw, "OCT", x, y, fontSize, color, bold, keyFaceArialBold, skirtArial, skirtBand);
+        x += DrawPlainRun(draw, "OCT", x, drawY, fontSize, color, bold, keyFaceArialBold, skirtArial, skirtBand, bandAlign, rowMidY, useRowMid);
+        continue;
+      }
+
+      if (TryConsume(text, ref i, "D.MS\u2192", out _))
+      {
+        float drawY = useRowMid ? rowMidY - fontSize * 0.5f : y;
+        x += DrawPlainRun(draw, "D.MS", x, drawY, fontSize, color, bold, keyFaceArialBold, skirtArial, skirtBand, bandAlign, rowMidY, useRowMid);
+        x += fontSize * 0.1f;
+        x += DrawArrowRight(draw, x, drawY, fontSize, color, scale, bandMode || useRowMid);
+        continue;
+      }
+
+      if (TryConsume(text, ref i, "OCT\u2192", out _))
+      {
+        float drawY = useRowMid ? rowMidY - fontSize * 0.5f : y;
+        x += DrawPlainRun(draw, "OCT", x, drawY, fontSize, color, bold, keyFaceArialBold, skirtArial, skirtBand, bandAlign, rowMidY, useRowMid);
+        x += fontSize * 0.1f;
+        x += DrawArrowRight(draw, x, drawY, fontSize, color, scale, bandMode || useRowMid);
         continue;
       }
 
@@ -701,6 +858,30 @@ public static class HpClassicFaceplateGlyphs
           skirtBand,
           nudgeRight: keyFaceArialBold && !skirtBand ? fontSize * 0.08f + MathF.Max(scale, 1.5f) : 0f,
           nudgeDown: keyFaceArialBold && !skirtBand ? fontSize * 0.14f : 0f);
+        continue;
+      }
+
+      if (TryConsume(text, ref i, "SIN^-1", out _)
+        || TryConsume(text, ref i, "SIN\u207b\u00b9", out _)
+        || TryConsume(text, ref i, "SIN⁻¹", out _))
+      {
+        x += DrawInverseFunctionLabel(draw, "SIN", x, y, fontSize, color, scale, bold, keyFaceArialBold, skirtArial, skirtBand, bandAlign, rowMidY, useRowMid);
+        continue;
+      }
+
+      if (TryConsume(text, ref i, "COS^-1", out _)
+        || TryConsume(text, ref i, "COS\u207b\u00b9", out _)
+        || TryConsume(text, ref i, "COS⁻¹", out _))
+      {
+        x += DrawInverseFunctionLabel(draw, "COS", x, y, fontSize, color, scale, bold, keyFaceArialBold, skirtArial, skirtBand, bandAlign, rowMidY, useRowMid);
+        continue;
+      }
+
+      if (TryConsume(text, ref i, "TAN^-1", out _)
+        || TryConsume(text, ref i, "TAN\u207b\u00b9", out _)
+        || TryConsume(text, ref i, "TAN⁻¹", out _))
+      {
+        x += DrawInverseFunctionLabel(draw, "TAN", x, y, fontSize, color, scale, bold, keyFaceArialBold, skirtArial, skirtBand, bandAlign, rowMidY, useRowMid);
         continue;
       }
 
@@ -786,7 +967,7 @@ public static class HpClassicFaceplateGlyphs
   {
     float xSize = fontSize * CardSlotMathXScale;
     Vector2 xDim = MathGlyphSize("x", xSize);
-    float gap = fontSize * 0.26f;
+    float gap = fontSize * 0.20f;
     float width = MathGlyphWidth("x", xSize) + gap + CardSlotExchangeArt.MeasureWidth(fontSize) + gap + MathGlyphWidth("y", xSize);
     float left = center.X - width * 0.5f;
     float top = center.Y - xDim.Y * 0.5f;
@@ -847,18 +1028,17 @@ public static class HpClassicFaceplateGlyphs
     uint color,
     float scale)
   {
-    float xSize = fontSize * CardSlotMathXScale;
-    Vector2 xDim = MathGlyphSize("x", xSize);
-    Vector2 yDim = MathGlyphSize("y", fontSize);
-    float xTop = CardSlotMathXTop(center, fontSize, xDim.Y);
-    float rowBottom = xTop + xDim.Y;
-    float yTop = rowBottom - yDim.Y;
-    float totalW = MathGlyphWidth("y", fontSize) + fontSize * 0.04f + MathGlyphWidth("x", xSize);
+    float ySize = fontSize;
+    float xSize = fontSize * 0.66f;
+    Vector2 yDim = MathGlyphSize("y", ySize);
+    float gap = fontSize * 0.07f;
+    float totalW = MathGlyphWidth("y", ySize) + gap + MathGlyphWidth("x", xSize);
     float left = center.X - totalW * 0.5f;
+    float yTop = center.Y - yDim.Y * 0.5f;
 
-    float yW = DrawCardSlotMathY(draw, left, yTop, fontSize, color);
-    float xX = left + yW + fontSize * 0.04f;
-    float xY = xTop;
+    float yW = DrawCardSlotMathY(draw, left, yTop, ySize, color);
+    float xX = left + yW + gap;
+    float xY = yTop - MathGlyphSize("x", xSize).Y * 0.12f;
     DrawCardSlotMathX(draw, xX, xY, xSize, color);
   }
 
@@ -1031,7 +1211,7 @@ public static class HpClassicFaceplateGlyphs
     float scale)
   {
     float rW = DrawArialBoldGlyph(draw, "R", x, y, fontSize, color);
-    float gap = fontSize * 0.14f;
+    float gap = fontSize * 0.20f;
     float arrowX = x + rW + gap;
     float capTop = y + fontSize * 0.15f;
     float capBottom = y + fontSize * (SansCapHeightRatio + 0.12f);
@@ -1115,6 +1295,48 @@ public static class HpClassicFaceplateGlyphs
     DrawSvgArrow(draw, new Vector2(x + w * 0.5f, midY), fontSize * 0.62f, ArrowDirection.Right, color);
     return w + fontSize * 0.04f;
   }
+
+  private static float MeasureArrowTextWidth(string text, float fontSize) =>
+    fontSize * 0.62f + fontSize * 0.1f + PlainGlyphWidth(text, fontSize);
+
+  private static float MeasureArrowBetweenTextWidth(string leftText, string rightText, float fontSize) =>
+    PlainGlyphWidth(leftText, fontSize)
+    + fontSize * 0.1f
+    + fontSize * 0.62f
+    + fontSize * 0.1f
+    + PlainGlyphWidth(rightText, fontSize);
+
+  private static float MeasureRArrowWidth(float fontSize, bool down)
+  {
+    float gap = fontSize * 0.20f;
+    return ArialBoldGlyphWidth("R", fontSize) + gap + fontSize * 0.31f;
+  }
+
+  private static float MeasureXExchangeYWidth(float fontSize, bool widen)
+  {
+    float xSize = fontSize * CardSlotMathXScale * (widen ? 1.08f : 1f);
+    float gap = fontSize * (widen ? 0.14f : 0.06f);
+    return MathGlyphWidth("x", xSize)
+      + gap
+      + CardSlotExchangeArt.MeasureWidth(fontSize)
+      + gap
+      + MathGlyphWidth("y", xSize);
+  }
+
+  private static float MeasureSqrtXWidth(float fontSize) =>
+    MeasureCardSlotLabel(1, fontSize).Width;
+
+  private static float MeasureInverseXWidth(float fontSize) =>
+    fontSize * 1.52f;
+
+  private static float MeasureYToTheXWidth(float fontSize) =>
+    fontSize * 1.42f;
+
+  private static float MeasurePowerLabelWidth(string baseText, float fontSize) =>
+    PlainGlyphWidth(baseText, fontSize) + fontSize * 0.1f + MathGlyphWidth("x", fontSize * 0.68f);
+
+  private static float MeasureInverseFunctionWidth(string functionName, float fontSize) =>
+    PlainGlyphWidth(functionName, fontSize) + fontSize * 0.04f + PlainGlyphWidth("-1", fontSize * 0.68f);
 
   private enum ArrowDirection
   {
@@ -1413,6 +1635,63 @@ public static class HpClassicFaceplateGlyphs
     return w + nudgeRight;
   }
 
+  private static float DrawPowerLabel(
+    ImDrawListPtr draw,
+    string baseText,
+    float x,
+    float y,
+    float fontSize,
+    uint color,
+    float scale,
+    bool bold,
+    bool keyFaceArialBold,
+    bool skirtArial,
+    bool skirtBand,
+    bool bandAlign,
+    float rowMidY,
+    bool useRowMid)
+  {
+    float baseY = useRowMid ? rowMidY - fontSize * 0.18f : y + fontSize * 0.16f;
+    float baseW = DrawPlainRun(draw, baseText, x, baseY, fontSize, color, bold, keyFaceArialBold, skirtArial, skirtBand, bandAlign, rowMidY, useRowMid: false);
+    float xSize = fontSize * 0.68f;
+    float superX = x + baseW + fontSize * 0.1f;
+    float superY = useRowMid ? rowMidY - fontSize * 0.32f : y + fontSize * 0.12f;
+    return baseW + fontSize * 0.1f + DrawMathX(draw, superX, superY, xSize, color, scale);
+  }
+
+  private static float DrawInverseFunctionLabel(
+    ImDrawListPtr draw,
+    string functionName,
+    float x,
+    float y,
+    float fontSize,
+    uint color,
+    float scale,
+    bool bold,
+    bool keyFaceArialBold,
+    bool skirtArial,
+    bool skirtBand,
+    bool bandAlign,
+    float rowMidY,
+    bool useRowMid)
+  {
+    float baseY = useRowMid ? rowMidY - fontSize * 0.32f : y;
+    float baseW = DrawPlainRun(draw, functionName, x, baseY, fontSize, color, bold, keyFaceArialBold, skirtArial, skirtBand, bandAlign, rowMidY, useRowMid: false);
+    float superW = DrawSuperscriptMinusOne(
+      draw,
+      x + baseW + fontSize * 0.04f,
+      baseY,
+      fontSize,
+      color,
+      scale,
+      bold,
+      keyFaceArialBold,
+      skirtArial,
+      skirtBand,
+      nudgeDown: useRowMid ? fontSize * 0.08f : 0f);
+    return baseW + fontSize * 0.04f + superW;
+  }
+
   private static void DrawRWithInlineUpArrow(
     ImDrawListPtr draw,
     float x,
@@ -1515,13 +1794,13 @@ public static class HpClassicFaceplateGlyphs
     while (i < text.Length)
     {
       if (TryConsume(text, ref i, "CLX", out _)) { width += PlainGlyphWidth("CL", fontSize) + MathGlyphWidth("X", fontSize); continue; }
-      if (TryConsume(text, ref i, "x\u2194y", out _)) { width += fontSize * 2.05f; continue; }
+      if (TryConsume(text, ref i, "x\u2194y", out _)) { width += MeasureXExchangeYWidth(fontSize, widen: true); continue; }
       if (TryConsume(text, ref i, "x\u2260y", out _)) { width += fontSize * 2.05f; continue; }
       if (TryConsume(text, ref i, "x\u2264y", out _)) { width += fontSize * 2.05f; continue; }
       if (TryConsume(text, ref i, "x=y", out _)) { width += fontSize * 1.95f; continue; }
       if (TryConsume(text, ref i, "x>y", out _)) { width += fontSize * 1.95f; continue; }
       if (TryConsume(text, ref i, "x!/y", out _)) { width += fontSize * 1.8f; continue; }
-      if (TryConsume(text, ref i, "\u221ax", out _) || TryConsume(text, ref i, "√x", out _)) { width += fontSize * 1.15f; continue; }
+      if (TryConsume(text, ref i, "\u221ax", out _) || TryConsume(text, ref i, "√x", out _)) { width += MeasureSqrtXWidth(fontSize); continue; }
       if (TryConsume(text, ref i, "\u03c0", out _) || TryConsume(text, ref i, "π", out _))
       {
         float piSize = fontSize * 0.92f;
@@ -1531,14 +1810,19 @@ public static class HpClassicFaceplateGlyphs
         continue;
       }
       if (TryConsume(text, ref i, "LST X", out _)) { width += PlainGlyphWidth("LST ", fontSize) + MathGlyphWidth("X", fontSize); continue; }
-      if (TryConsume(text, ref i, "y^x", out _)) { width += fontSize * 1.25f; continue; }
-      if (TryConsume(text, ref i, "1/x", out _)) { width += fontSize * 1.35f; continue; }
-      if (TryConsume(text, ref i, "R\u2192P", out _)) { width += fontSize * 1.75f; continue; }
-      if (TryConsume(text, ref i, "R\u2191", out _)) { width += fontSize * 1.2f; continue; }
-      if (TryConsume(text, ref i, "R\u2193", out _)) { width += fontSize * 1.2f; continue; }
-      if (TryConsume(text, ref i, "\u2192D.MS", out _)) { width += fontSize * 2.2f; continue; }
-      if (TryConsume(text, ref i, "\u2192OCT", out _)) { width += fontSize * 2.1f; continue; }
+      if (TryConsume(text, ref i, "y^x", out _)) { width += MeasureYToTheXWidth(fontSize); continue; }
+      if (TryConsume(text, ref i, "e^x", out _)) { width += MeasurePowerLabelWidth("e", fontSize); continue; }
+      if (TryConsume(text, ref i, "10^x", out _)) { width += MeasurePowerLabelWidth("10", fontSize); continue; }
+      if (TryConsume(text, ref i, "1/x", out _)) { width += MeasureInverseXWidth(fontSize); continue; }
+      if (TryConsume(text, ref i, "R\u2192P", out _) || TryConsume(text, ref i, "P\u2192R", out _)) { width += MeasureArrowBetweenTextWidth("R", "P", fontSize); continue; }
+      if (TryConsume(text, ref i, "R\u2191", out _)) { width += MeasureRArrowWidth(fontSize, down: false); continue; }
+      if (TryConsume(text, ref i, "R\u2193", out _)) { width += MeasureRArrowWidth(fontSize, down: true); continue; }
+      if (TryConsume(text, ref i, "\u2192D.MS", out _) || TryConsume(text, ref i, "D.MS\u2192", out _)) { width += MeasureArrowTextWidth("D.MS", fontSize); continue; }
+      if (TryConsume(text, ref i, "\u2192OCT", out _) || TryConsume(text, ref i, "OCT\u2192", out _)) { width += MeasureArrowTextWidth("OCT", fontSize); continue; }
       if (TryConsume(text, ref i, "f\u207b\u00b9", out _) || TryConsume(text, ref i, "f⁻¹", out _)) { width += fontSize * 1.05f; continue; }
+      if (TryConsume(text, ref i, "SIN^-1", out _) || TryConsume(text, ref i, "SIN\u207b\u00b9", out _) || TryConsume(text, ref i, "SIN⁻¹", out _)) { width += MeasureInverseFunctionWidth("SIN", fontSize); continue; }
+      if (TryConsume(text, ref i, "COS^-1", out _) || TryConsume(text, ref i, "COS\u207b\u00b9", out _) || TryConsume(text, ref i, "COS⁻¹", out _)) { width += MeasureInverseFunctionWidth("COS", fontSize); continue; }
+      if (TryConsume(text, ref i, "TAN^-1", out _) || TryConsume(text, ref i, "TAN\u207b\u00b9", out _) || TryConsume(text, ref i, "TAN⁻¹", out _)) { width += MeasureInverseFunctionWidth("TAN", fontSize); continue; }
       if (text[i] == 'x' || text[i] == 'y')
       {
         width += CalcFaceplateFonts.IsMathReady
@@ -1622,7 +1906,10 @@ public static class HpClassicFaceplateGlyphs
     || text.Contains('y');
 
   public static bool IsPlainArialSkirtLabel(string text) =>
-    !IsCardSlotSkirtLabel(text) && !IsSkirtComparisonLabel(text);
+    !IsCardSlotSkirtLabel(text)
+    && !IsSkirtComparisonLabel(text)
+    && !ContainsKeyFaceGlyphPattern(text)
+    && !IsPatternStart(text, 0);
 
   private static Vector2 PlainArialBoldSize(string text, float size) =>
     CalcFaceplateFonts.IsArialBoldReady || CalcFaceplateFonts.IsArialReady
@@ -1642,7 +1929,10 @@ public static class HpClassicFaceplateGlyphs
     || text.Contains('\u2264')
     || text.Contains('=')
     || text.Contains('>')
-    || text.Contains("!/");
+    || text.Contains("!/")
+    || text.Contains("^-1")
+    || text.Contains('\u207b')
+    || text.Contains('⁻');
 
   private static bool IsPatternStart(string text, int index)
   {
@@ -1656,15 +1946,29 @@ public static class HpClassicFaceplateGlyphs
       || tail.StartsWith("\u221ax")
       || tail.StartsWith("√x")
       || tail.StartsWith("y^x")
+      || tail.StartsWith("e^x")
+      || tail.StartsWith("10^x")
       || tail.StartsWith("1/x")
       || tail.StartsWith("R\u2192P")
+      || tail.StartsWith("P\u2192R")
       || tail.StartsWith("R\u2191")
       || tail.StartsWith("R\u2193")
       || tail.StartsWith("\u2192D.MS")
+      || tail.StartsWith("D.MS\u2192")
       || tail.StartsWith("\u2192OCT")
+      || tail.StartsWith("OCT\u2192")
       || tail.StartsWith("LST X")
       || tail.StartsWith("f\u207b\u00b9")
       || tail.StartsWith("f⁻¹")
+      || tail.StartsWith("SIN^-1")
+      || tail.StartsWith("SIN\u207b\u00b9")
+      || tail.StartsWith("SIN⁻¹")
+      || tail.StartsWith("COS^-1")
+      || tail.StartsWith("COS\u207b\u00b9")
+      || tail.StartsWith("COS⁻¹")
+      || tail.StartsWith("TAN^-1")
+      || tail.StartsWith("TAN\u207b\u00b9")
+      || tail.StartsWith("TAN⁻¹")
       || tail.StartsWith("\u03c0")
       || tail.StartsWith("π");
   }

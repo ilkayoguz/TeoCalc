@@ -21,6 +21,7 @@ public static class ClassicKeyFaceplateLegend
       primary,
       entry?.Gold,
       entry?.Blue,
+      entry?.GoldInverse,
       labelStyle);
   }
 
@@ -80,5 +81,8 @@ public static class ClassicKeyFaceplateLegend
 
     [JsonPropertyName("Blue")]
     public string? Blue { get; init; }
+
+    [JsonPropertyName("GoldInverse")]
+    public string? GoldInverse { get; init; }
   }
 }

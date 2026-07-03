@@ -7,6 +7,7 @@ public readonly record struct HpCalcKeyVisual(
   string Primary,
   string? GoldShift = null,
   string? BlueShift = null,
+  string? GoldInverseShift = null,
   FaceplateLabelStyle LabelStyle = FaceplateLabelStyle.Normal);
 
 public static class HpCalcKeyRenderer

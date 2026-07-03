@@ -11,6 +11,16 @@ public static class CalcKeyLabelPalette
   /// <summary>Dark blue skirt ink on white/grey caps.</summary>
   public static uint SkirtBlueDark => CalcChassisPalette.SkirtBlueDark;
 
+  public static uint GoldOnCap(CalcButtonStyle style) =>
+    style is CalcButtonStyle.Black or CalcButtonStyle.Blue
+      ? GoldOnBody
+      : CalcChassisPalette.KeyOrangeSkirt;
+
+  public static uint BlueOnCap(CalcButtonStyle style) =>
+    style is CalcButtonStyle.Black or CalcButtonStyle.Blue
+      ? BlueOnSkirt
+      : SkirtBlueDark;
+
   public static uint SkirtLabelInk(string? label, CalcButtonStyle style)
   {
     if (IsProgramRowComparisonLabel(label))

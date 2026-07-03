@@ -72,6 +72,8 @@ public sealed class CalcExplorerSession
 
   public string DisplayText => _displayText;
 
+  public ShiftPreviewMode ShiftPreview { get; private set; }
+
   public bool IsKeyHeld => _mouseKeyHeld || _keyboardKeyHeld;
 
   public void PowerOnResume()
@@ -96,6 +98,7 @@ public sealed class CalcExplorerSession
     _keyHoldBatchesRemaining = 0;
     _displayText = string.Empty;
     _displayBlankPulse = false;
+    ShiftPreview = ShiftPreviewMode.None;
   }
 
   public bool IsDisplayVisible() =>
@@ -109,6 +112,8 @@ public sealed class CalcExplorerSession
   public void SetKeyboardKeyHeld(bool held) => _keyboardKeyHeld = held;
 
   public void ReleaseMouseKey() => _mouseKeyHeld = false;
+
+  public void ClearShiftPreview() => ShiftPreview = ShiftPreviewMode.None;
 
   public void ToggleProgramMode()
   {
@@ -169,6 +174,7 @@ public sealed class CalcExplorerSession
     _mouseKeyHeld = false;
     _keyboardKeyHeld = false;
     _keyHoldBatchesRemaining = 0;
+    ShiftPreview = ShiftPreviewMode.None;
   }
 
   public void Tick(float deltaSeconds)
@@ -200,6 +206,12 @@ public sealed class CalcExplorerSession
   public void ResetCpu() => PowerOff();
 
   /// <summary>Panamatik <c>press_key</c> — display blank, buffer key, <c>Run()</c>.</summary>
+  public void PressKey(int keyChartIndex, byte keyCode)
+  {
+    UpdateShiftPreview(keyChartIndex);
+    PressKey(keyCode);
+  }
+
   public void PressKey(byte keyCode)
   {
     if (Cpu is null || !PowerOn)
@@ -214,6 +226,19 @@ public sealed class CalcExplorerSession
     _mouseKeyHeld = true;
     _keyHoldBatchesRemaining = Math.Max(_keyHoldBatchesRemaining, 12);
     RunInstructionBatch(KeyRunSteps);
+  }
+
+  private void UpdateShiftPreview(int keyChartIndex)
+  {
+    ShiftPreviewMode requested = keyChartIndex switch
+    {
+      10 => ShiftPreviewMode.Gold,
+      11 => ShiftPreviewMode.GoldInverse,
+      14 => ShiftPreviewMode.Blue,
+      _ => ShiftPreviewMode.None,
+    };
+
+    ShiftPreview = requested == ShiftPreview ? ShiftPreviewMode.None : requested;
   }
 
   private void RunInstructionBatch(int steps)

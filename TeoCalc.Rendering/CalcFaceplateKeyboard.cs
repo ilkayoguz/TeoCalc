@@ -85,6 +85,13 @@ public static class CalcFaceplateKeyboard
       return;
     }
 
+    if (session.ShiftPreview != ShiftPreviewMode.None && ImGui.IsKeyPressed(ImGuiKey.Escape, repeat: false))
+    {
+      session.ClearShiftPreview();
+      session.SetKeyboardKeyHeld(false);
+      return;
+    }
+
     bool fired = false;
     foreach (KeyBinding binding in Bindings)
     {
@@ -95,7 +102,7 @@ public static class CalcFaceplateKeyboard
 
       if (TryGetKeyCode(vocabulary, binding.KeyChartIndex, out byte keyCode))
       {
-        session.PressKey(keyCode);
+        session.PressKey(binding.KeyChartIndex, keyCode);
         fired = true;
       }
     }

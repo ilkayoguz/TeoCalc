@@ -55,7 +55,7 @@ public static class CalcFaceplateView
       CalcChassisRenderer.HandleSwitchPointers(origin, metrics, session, powerOn);
     bool anySwitchHovered = switchPointer.Hovered;
     bool switchClickHandled = switchPointer.ClickHandled;
-    CalcEnterRowLabels.Draw(draw, origin, metrics);
+    CalcEnterRowLabels.Draw(draw, origin, metrics, session.ShiftPreview);
 
     bool anyKeyHovered = false;
     foreach (FaceplateCell cell in cells)
@@ -76,6 +76,13 @@ public static class CalcFaceplateView
         key,
         session.Vocabulary,
         cell.LabelStyle);
+      if (CalcEnterRowLabels.GoldLabelForKey(cell.KeyChartIndex) is { } enterRowGold)
+      {
+        visual = visual with { GoldShift = enterRowGold, GoldInverseShift = enterRowGold };
+      }
+
+      CalcButtonStyle style = CalcButton.StyleForKeyIndex(cell.KeyChartIndex);
+      PreviewVisual preview = ApplyShiftPreview(visual, session.ShiftPreview, style);
       if (string.IsNullOrEmpty(visual.Primary))
       {
         continue;
@@ -92,12 +99,13 @@ public static class CalcFaceplateView
       System.Numerics.Vector2 cellSize = keyRect.Size;
       CalcButtonKind kind = CalcFaceplateLayout.ButtonKindForKey(key, cell);
 
-      if (!string.IsNullOrEmpty(visual.GoldShift) && !CalcEnterRowLabels.IsEnterRowKey(cell.KeyChartIndex))
+      if (!string.IsNullOrEmpty(preview.GoldOnBody)
+        && (!CalcEnterRowLabels.IsEnterRowKey(cell.KeyChartIndex)
+          || session.ShiftPreview is ShiftPreviewMode.Gold or ShiftPreviewMode.GoldInverse))
       {
-        DrawGoldBodyLabel(draw, visual.GoldShift, cellMin, cellMax, metrics);
+        DrawGoldBodyLabel(draw, preview.GoldOnBody, cellMin, cellMax, metrics, preview.GoldBodyInk);
       }
 
-      CalcButtonStyle style = CalcButton.StyleForKeyIndex(cell.KeyChartIndex);
       bool leftAlign = kind != CalcButtonKind.EnterWide && cell.ColSpan >= 2;
       bool keyboardPressed = calcInputActive && powerOn && !switchClickHandled && cell.KeyChartIndex == keyboardHeldKey;
       if (CalcButton.Draw(
@@ -107,16 +115,20 @@ public static class CalcFaceplateView
             cellMax,
             style,
             kind,
-            visual.Primary,
+            preview.Face,
             goldOnBody: null,
-            blueOnBody: visual.BlueShift,
+            blueOnBody: preview.BlueOnSkirt,
             metrics.Scale,
             leftAlign,
             forcePressed: keyboardPressed,
-            interactive: calcInputActive && powerOn && !switchClickHandled))
+            interactive: calcInputActive && powerOn && !switchClickHandled,
+            primaryInkOverride: preview.FaceInk,
+            skirtInkOverride: preview.SkirtInk))
       {
-        session.PressKey((byte)key.KeyCode);
+        session.PressKey(cell.KeyChartIndex, (byte)key.KeyCode);
       }
+
+      DrawShiftPreviewIndicator(draw, keyRect, cell.KeyChartIndex, session.ShiftPreview, metrics.Scale);
 
       if (ImGui.IsItemHovered() && calcInputActive && powerOn)
       {
@@ -145,21 +157,113 @@ public static class CalcFaceplateView
     ImGui.PopStyleVar(2);
   }
 
+  private static void DrawShiftPreviewIndicator(
+    ImDrawListPtr draw,
+    RectF keyRect,
+    int keyChartIndex,
+    ShiftPreviewMode mode,
+    float scale)
+  {
+    if (mode == ShiftPreviewMode.None || keyChartIndex != ShiftPreviewKeyIndex(mode))
+    {
+      return;
+    }
+
+    uint color = mode == ShiftPreviewMode.Blue
+      ? CalcChassisPalette.BlueLabel
+      : CalcChassisPalette.GoldLabel;
+    float inset = scale * 2.2f;
+    float rounding = scale * 7f;
+    float thickness = MathF.Max(scale * 1.6f, 2.2f);
+    System.Numerics.Vector2 min = keyRect.Min + new System.Numerics.Vector2(inset);
+    System.Numerics.Vector2 max = keyRect.Max - new System.Numerics.Vector2(inset);
+
+    draw.AddRect(min, max, WithAlpha(color, 48), rounding, ImDrawFlags.RoundCornersAll, thickness + scale * 5.5f);
+    draw.AddRect(min, max, WithAlpha(color, 92), rounding, ImDrawFlags.RoundCornersAll, thickness + scale * 2.6f);
+    draw.AddRect(min, max, WithAlpha(color, 245), rounding, ImDrawFlags.RoundCornersAll, thickness);
+
+    if (mode == ShiftPreviewMode.GoldInverse)
+    {
+      float inner = scale * 3.6f;
+      draw.AddRect(
+        min + new System.Numerics.Vector2(inner),
+        max - new System.Numerics.Vector2(inner),
+        WithAlpha(CalcChassisPalette.KeyText, 190),
+        MathF.Max(scale * 4f, rounding - inner),
+        ImDrawFlags.RoundCornersAll,
+        MathF.Max(scale * 0.9f, 1.2f));
+    }
+  }
+
+  private static int ShiftPreviewKeyIndex(ShiftPreviewMode mode) =>
+    mode switch
+    {
+      ShiftPreviewMode.Gold => 10,
+      ShiftPreviewMode.GoldInverse => 11,
+      ShiftPreviewMode.Blue => 14,
+      _ => -1,
+    };
+
+  private static uint WithAlpha(uint color, byte alpha) =>
+    (color & 0x00FFFFFFu) | ((uint)alpha << 24);
+
+  private static PreviewVisual ApplyShiftPreview(HpCalcKeyVisual visual, ShiftPreviewMode mode, CalcButtonStyle style)
+  {
+    return mode switch
+    {
+      ShiftPreviewMode.Blue when !string.IsNullOrEmpty(visual.BlueShift) => new(
+        visual.BlueShift,
+        visual.GoldShift,
+        visual.Primary,
+        CalcKeyLabelPalette.BlueOnCap(style),
+        CalcKeyLabelPalette.SkirtOnCap(style),
+        null),
+      ShiftPreviewMode.Gold when !string.IsNullOrEmpty(visual.GoldShift) => new(
+        visual.GoldShift,
+        visual.Primary,
+        visual.BlueShift,
+        CalcKeyLabelPalette.GoldOnCap(style),
+        null,
+        CalcKeyLabelPalette.PrimaryOnCap(style)),
+      ShiftPreviewMode.GoldInverse when !string.IsNullOrEmpty(visual.GoldInverseShift) => new(
+        visual.GoldInverseShift,
+        visual.Primary,
+        visual.BlueShift,
+        CalcKeyLabelPalette.GoldOnCap(style),
+        null,
+        CalcKeyLabelPalette.PrimaryOnCap(style)),
+      _ => new(visual.Primary, visual.GoldShift, visual.BlueShift, null, null, null),
+    };
+  }
+
+  private readonly record struct PreviewVisual(
+    string Face,
+    string? GoldOnBody,
+    string? BlueOnSkirt,
+    uint? FaceInk,
+    uint? SkirtInk,
+    uint? GoldBodyInk);
+
   private static void DrawGoldBodyLabel(
     ImDrawListPtr draw,
     string text,
     System.Numerics.Vector2 cellMin,
     System.Numerics.Vector2 cellMax,
-    CalcChassisMetrics metrics)
+    CalcChassisMetrics metrics,
+    uint? inkOverride = null)
   {
     float fontSize = CalcFaceplateTypography.GoldShift(metrics.Scale);
     float centerY = cellMin.Y - CalcEnterRowLabels.ShiftLabelGapAboveKey(metrics);
     float centerX = (cellMin.X + cellMax.X) * 0.5f;
-    System.Numerics.Vector2 topLeft = CalcFaceplateFonts.ArialBoldTopLeftForBandCenter(
-      new System.Numerics.Vector2(centerX, centerY),
+    System.Numerics.Vector2 bandHalf = new((cellMax.X - cellMin.X) * 0.5f, fontSize * 0.58f);
+    System.Numerics.Vector2 bandCenter = new(centerX, centerY);
+    HpClassicFaceplateGlyphs.DrawBodyLabelInRect(
+      draw,
+      bandCenter - bandHalf,
+      bandCenter + bandHalf,
       text,
       fontSize,
-      verticalBiasRatio: 0f);
-    HpClassicFaceplateGlyphs.DrawBodyLabel(draw, topLeft, text, fontSize, CalcKeyLabelPalette.GoldOnBody, metrics.Scale);
+      inkOverride ?? CalcKeyLabelPalette.GoldOnBody,
+      metrics.Scale);
   }
 }

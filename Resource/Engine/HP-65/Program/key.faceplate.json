@@ -54,63 +54,63 @@
 
 
 
-    "20": { "Gold": "SF 1" },
+    "20": { "Gold": "SF 1", "GoldInverse": "SF 1" },
 
 
 
-    "21": { "Gold": "LN", "Blue": "x\u2194y" },
+    "21": { "Gold": "LN", "GoldInverse": "e^x", "Blue": "x\u2194y" },
 
 
 
-    "22": { "Gold": "LOG", "Blue": "R\u2193" },
+    "22": { "Gold": "LOG", "GoldInverse": "10^x", "Blue": "R\u2193" },
 
 
 
-    "23": { "Gold": "\u221ax", "Blue": "R\u2191" },
+    "23": { "Gold": "\u221ax", "GoldInverse": "x\u00b2", "Blue": "R\u2191" },
 
 
 
-    "25": { "Gold": "TF 1" },
+    "25": { "Gold": "TF 1", "GoldInverse": "TF 1" },
 
 
 
-    "26": { "Gold": "SIN", "Blue": "1/x" },
+    "26": { "Gold": "SIN", "GoldInverse": "SIN^-1", "Blue": "1/x" },
 
 
 
-    "27": { "Gold": "COS", "Blue": "y^x" },
+    "27": { "Gold": "COS", "GoldInverse": "COS^-1", "Blue": "y^x" },
 
 
 
-    "28": { "Gold": "TAN", "Blue": "ABS" },
+    "28": { "Gold": "TAN", "GoldInverse": "TAN^-1", "Blue": "ABS" },
 
 
 
-    "30": { "Gold": "SF 2" },
+    "30": { "Gold": "SF 2", "GoldInverse": "SF 2" },
 
 
 
-    "31": { "Gold": "R\u2192P", "Blue": "NOP" },
+    "31": { "Gold": "R\u2192P", "GoldInverse": "P\u2192R", "Blue": "NOP" },
 
 
 
-    "32": { "Gold": "D.MS+", "Blue": "\u03c0" },
+    "32": { "Gold": "D.MS+", "GoldInverse": "D.MS-", "Blue": "\u03c0" },
 
 
 
-    "33": { "Gold": "\u2192D.MS", "Blue": "n!" },
+    "33": { "Gold": "\u2192D.MS", "GoldInverse": "D.MS\u2192", "Blue": "n!" },
 
 
 
-    "35": { "Gold": "TF 2" },
+    "35": { "Gold": "TF 2", "GoldInverse": "TF 2" },
 
 
 
-    "36": { "Gold": "\u2192OCT", "Blue": "LST X" },
+    "36": { "Gold": "\u2192OCT", "GoldInverse": "OCT\u2192", "Blue": "LST X" },
 
 
 
-    "37": { "Gold": "INT", "Blue": "DSZ" }
+    "37": { "Gold": "INT", "GoldInverse": "FRAC", "Blue": "DSZ" }
 
 
 

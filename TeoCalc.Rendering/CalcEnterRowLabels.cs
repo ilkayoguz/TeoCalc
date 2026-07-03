@@ -18,7 +18,17 @@ public static class CalcEnterRowLabels
     return enterRect.Y - ShiftLabelGapAboveKey(metrics);
   }
 
-  public static void Draw(ImDrawListPtr draw, Vector2 origin, CalcChassisMetrics metrics)
+  public static string? GoldLabelForKey(int keyChartIndex) =>
+    keyChartIndex switch
+    {
+      15 => "PREFIX",
+      17 => "STK",
+      18 => "REG",
+      19 => "PRGM",
+      _ => null,
+    };
+
+  public static void Draw(ImDrawListPtr draw, Vector2 origin, CalcChassisMetrics metrics, ShiftPreviewMode preview = ShiftPreviewMode.None)
   {
     RectF enterRect = metrics.KeyRect(origin, 15);
     RectF chsRect = metrics.KeyRect(origin, 17);
@@ -36,10 +46,15 @@ public static class CalcEnterRowLabels
     float clearRowY = labelRowY - gap - metrics.Scale * 2f;
 
     DrawClearRule(draw, enterRect, chsRect, clxRect, clearRowY, subFont, metrics.Scale);
-    DrawGoldTextCentered(draw, "PREFIX", enterRect, subFont, labelRowY, metrics.Scale);
-    DrawGoldTextCentered(draw, "STK", chsRect, subFont, labelRowY, metrics.Scale);
-    DrawGoldTextCentered(draw, "REG", eexRect, subFont, labelRowY, metrics.Scale);
-    DrawGoldTextCentered(draw, "PRGM", clxRect, subFont, labelRowY, metrics.Scale);
+    if (preview is ShiftPreviewMode.Gold or ShiftPreviewMode.GoldInverse)
+    {
+      return;
+    }
+
+    DrawGoldTextCentered(draw, GoldLabelForKey(15)!, enterRect, subFont, labelRowY, metrics.Scale);
+    DrawGoldTextCentered(draw, GoldLabelForKey(17)!, chsRect, subFont, labelRowY, metrics.Scale);
+    DrawGoldTextCentered(draw, GoldLabelForKey(18)!, eexRect, subFont, labelRowY, metrics.Scale);
+    DrawGoldTextCentered(draw, GoldLabelForKey(19)!, clxRect, subFont, labelRowY, metrics.Scale);
   }
 
   private static void DrawGoldTextCentered(ImDrawListPtr draw, string text, RectF anchor, float fontSize, float centerY, float scale)
