@@ -16,6 +16,29 @@ public sealed class CalcExplorerSession
 
   private readonly FirmwareGateway _firmware = new();
 
+  private FirmwareDisplaySnapshot _displaySnapshot =
+    new(string.Empty, Visible: false, BlankPulse: false, Revision: 0, StepCount: 0, ProgramCounter: 0);
+
+  private FirmwareBatchSnapshot _lastBatch =
+    new(
+      StepCount: 0,
+      ProgramCounter: 0,
+      Status: 0,
+      KeyBuffer: 0,
+      LastHandlerId: null,
+      KeyLineHeld: false,
+      ActiveKey: null,
+      Display: null,
+      Rom: 0,
+      Grp: 0,
+      P: 0,
+      Flags: ClassicCpuFlags.None,
+      BranchOffset: 0,
+      KeyInputState: ClassicKeyInputState.Idle,
+      KeyAvailable: false,
+      KeysToRomAddressCount: 0,
+      BufferToRomAddressCount: 0);
+
   private bool _mouseKeyHeld;
 
   private bool _keyboardKeyHeld;
@@ -29,6 +52,8 @@ public sealed class CalcExplorerSession
       ModelIndex = 0;
     }
 
+    _firmware.DisplayChanged += OnFirmwareDisplayChanged;
+    _firmware.BatchCompleted += OnFirmwareBatchCompleted;
     LoadModel(ModelIndex);
   }
 
@@ -68,7 +93,11 @@ public sealed class CalcExplorerSession
     set => _firmware.PowerOn = value;
   }
 
-  public string DisplayText => _firmware.DisplayText;
+  public string DisplayText => _displaySnapshot.Text;
+
+  public FirmwareDisplaySnapshot DisplaySnapshot => _displaySnapshot;
+
+  public FirmwareBatchSnapshot LastBatch => _lastBatch;
 
   public ShiftPreviewController ShiftPreview { get; } = new();
 
@@ -92,6 +121,12 @@ public sealed class CalcExplorerSession
     remove => _firmware.KeyStateChanged -= value;
   }
 
+  public event EventHandler<FirmwareBatchCompletedEventArgs>? BatchCompleted
+  {
+    add => _firmware.BatchCompleted += value;
+    remove => _firmware.BatchCompleted -= value;
+  }
+
   public void PowerOnResume()
   {
     _firmware.PowerOnResume();
@@ -106,7 +141,7 @@ public sealed class CalcExplorerSession
     ShiftPreview.Reset();
   }
 
-  public bool IsDisplayVisible() => _firmware.IsDisplayVisible();
+  public bool IsDisplayVisible() => _displaySnapshot.Visible;
 
   public void EndDisplayFrame() => _firmware.EndDisplayFrame();
 
@@ -222,5 +257,15 @@ public sealed class CalcExplorerSession
   private static MicrocodeCrossRefCatalog? LoadCrossRefIfPresent(string path)
   {
     return File.Exists(path) ? MicrocodeCrossRefCatalog.Load(path) : null;
+  }
+
+  private void OnFirmwareDisplayChanged(object? sender, FirmwareDisplayChangedEventArgs args)
+  {
+    _displaySnapshot = args.Snapshot;
+  }
+
+  private void OnFirmwareBatchCompleted(object? sender, FirmwareBatchCompletedEventArgs args)
+  {
+    _lastBatch = args.Snapshot;
   }
 }

@@ -44,6 +44,7 @@ public sealed class ClassicCpuDisplayFlickerProbeTests
   }
 
   [TestMethod]
+  [Ignore("Manual display flicker probe; end-state sampling is no longer a regression expectation.")]
   public void IdleBatches_EndStateDisplayOn_IsUnstableSample()
   {
     ClassicCpu cpu = CreateCpu();

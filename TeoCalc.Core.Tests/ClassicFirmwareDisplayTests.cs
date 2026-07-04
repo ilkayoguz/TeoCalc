@@ -27,4 +27,20 @@ public sealed class ClassicFirmwareDisplayTests
     state.Registers.B[12] = 0;
     Assert.IsNull(ClassicFirmwareDisplay.TryBuildLedText(state));
   }
+
+  [TestMethod]
+  public void EnteredMantissaDecimalMarker_UpdatesDisplay()
+  {
+    ClassicCpuState state = new();
+    state.Flags = ClassicCpuFlags.DisplayOn;
+    state.Registers.A[12] = 7;
+    state.Registers.B[12] = 0;
+    state.Registers.A[11] = 6;
+    state.Registers.B[11] = 2;
+
+    string? text = ClassicFirmwareDisplay.TryBuildLedText(state);
+
+    Assert.IsNotNull(text);
+    StringAssert.Contains(text, "76;");
+  }
 }

@@ -2,9 +2,9 @@ namespace TeoCalc.Core.Engine.Classic;
 
 /// <summary>
 /// Panamatik <c>ShowDisplay</c> on firmware <c>act_a</c>/<c>act_b</c>.
-/// During idle the wait loop multiplexes the LED scan through A/B; we latch only when the
-/// decimal mask is stable (<c>B[12]==2</c>) and apply the FIX blank mask if firmware has not
-/// yet written <c>8/9</c> nibbles into B (display-format microcode still pending).
+/// During idle the wait loop multiplexes the LED scan through A/B; we latch when the
+/// decimal mask has a stable mantissa marker. The idle <c>B[12]==2</c> latch gets the
+/// FIX blank mask while entered numbers use the firmware's own mantissa mask.
 /// </summary>
 public static class ClassicFirmwareDisplay
 {
@@ -23,8 +23,9 @@ public static class ClassicFirmwareDisplay
       return null;
     }
 
+    bool applyFixBlankMask = !programMode && state.Registers.B[12] == 2;
     ClassicRegisterFile view = SnapshotRegisters(state.Registers);
-    if (!programMode)
+    if (applyFixBlankMask)
     {
       int decimalPlaces = ClassicDisplayFormatRam.TryGetFixDecimalPlaces(state, out int places)
         ? places
@@ -35,8 +36,24 @@ public static class ClassicFirmwareDisplay
     return ClassicDisplayFormatter.ToLedFontText(view, displayOn: true, programMode, programEndState);
   }
 
-  /// <summary>LED scan step — not a latched mantissa layout.</summary>
-  public static bool IsStableDisplayLatch(ClassicRegisterFile registers) => registers.B[12] == 2;
+  /// <summary>Reject LED scan steps that have not latched a mantissa decimal marker.</summary>
+  public static bool IsStableDisplayLatch(ClassicRegisterFile registers)
+  {
+    if (registers.B[12] == 2)
+    {
+      return true;
+    }
+
+    for (int index = 3; index <= 11; index++)
+    {
+      if (registers.B[index] == 2)
+      {
+        return true;
+      }
+    }
+
+    return false;
+  }
 
   private static ClassicRegisterFile SnapshotRegisters(ClassicRegisterFile source)
   {

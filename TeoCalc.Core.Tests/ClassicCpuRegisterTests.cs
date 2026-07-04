@@ -79,4 +79,34 @@ public sealed class ClassicCpuRegisterTests
     Assert.AreEqual(2, cpu.State.Registers.C[5]);
     Assert.AreEqual(4, cpu.State.P);
   }
+
+  [TestMethod]
+  public void ClassicCpu_ArithmeticCase27_DecrementsRegisterAField()
+  {
+    ClassicCpu cpu = CreateCpu();
+    cpu.State.Grp = 1;
+    cpu.State.ProgramCounter = 0x54;
+    cpu.State.Registers.A[0] = 2;
+
+    MicrocodeHandlerEntry entry = cpu.Step();
+
+    Assert.AreEqual("ClassicCpu.Arithmetic", entry.HandlerId);
+    Assert.AreEqual(1, cpu.State.Registers.A[0]);
+    Assert.IsFalse((cpu.State.Flags & ClassicCpuFlags.Carry) != 0);
+  }
+
+  [TestMethod]
+  public void ClassicCpu_ArithmeticCase11_DecrementsRegisterCField()
+  {
+    ClassicCpu cpu = CreateCpu();
+    cpu.State.Rom = 1;
+    cpu.State.ProgramCounter = 0x16;
+    cpu.State.Registers.C[0] = 2;
+
+    MicrocodeHandlerEntry entry = cpu.Step();
+
+    Assert.AreEqual("ClassicCpu.Arithmetic", entry.HandlerId);
+    Assert.AreEqual(1, cpu.State.Registers.C[0]);
+    Assert.IsFalse((cpu.State.Flags & ClassicCpuFlags.Carry) != 0);
+  }
 }

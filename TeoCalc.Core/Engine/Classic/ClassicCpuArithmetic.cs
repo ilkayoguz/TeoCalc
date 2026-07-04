@@ -46,7 +46,7 @@ internal static class ClassicCpuArithmetic
         break;
       case 11:
         state.Flags |= ClassicCpuFlags.Carry;
-        Subtract(registers.C, registers.C, null, first, last, state);
+        Subtract(registers.C, null, registers.C, first, last, state);
         break;
       case 12:
         Copy(registers.A, registers.C, first, last);
@@ -95,7 +95,7 @@ internal static class ClassicCpuArithmetic
         break;
       case 27:
         state.Flags |= ClassicCpuFlags.Carry;
-        Subtract(registers.A, registers.A, null, first, last, state);
+        Subtract(registers.A, null, registers.A, first, last, state);
         break;
       case 28:
         Add(registers.A, registers.B, first, last, state);

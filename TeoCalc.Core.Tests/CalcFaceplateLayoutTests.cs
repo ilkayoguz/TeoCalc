@@ -1,6 +1,7 @@
 using System.Numerics;
 using TeoCalc.Core;
 using TeoCalc.Core.Catalog;
+using TeoCalc.Core.Engine.Classic;
 using TeoCalc.Rendering;
 
 namespace TeoCalc.Core.Tests;
@@ -97,6 +98,78 @@ public sealed class CalcFaceplateLayoutTests
 
     Assert.AreEqual(35, BodyFaceplateLayout.KeyCount);
     Assert.AreEqual(35, cells.Count);
+  }
+
+  [TestMethod]
+  public void Hp65KeyChart_MatchesPanamatikReference()
+  {
+    ProgramVocabulary vocabulary = LoadHp65Vocabulary();
+    string[] expectedChars =
+    [
+      "a", "b", "c", "d", "e", "p", "o", "l", "q", "t",
+      "f", "h", "s", "r", "g", "\r", "\r", "n", "x", "\b",
+      "-", "7", "8", "9", "\0", "+", "4", "5", "6", "\0",
+      "*", "1", "2", "3", "\0", "/", "0", ".", " ", "\0",
+    ];
+    int[] expectedKeyCodes =
+    [
+      30, 28, 27, 26, 24, 46, 44, 43, 42, 40,
+      14, 12, 11, 10, 8, 62, 62, 59, 58, 56,
+      54, 52, 51, 50, 0, 22, 20, 19, 18, 0,
+      6, 4, 3, 2, 0, 38, 36, 35, 34, 0,
+    ];
+
+    Assert.AreEqual(expectedChars.Length, vocabulary.KeyChart.Count);
+    Assert.AreEqual(expectedKeyCodes.Length, vocabulary.KeyChart.Count);
+    for (int index = 0; index < vocabulary.KeyChart.Count; index++)
+    {
+      ProgramKeyEntry key = vocabulary.KeyChart[index];
+      Assert.AreEqual(expectedChars[index], key.Char, $"HP-65 key-chart char {index}");
+      Assert.AreEqual(expectedKeyCodes[index], key.KeyCode, $"HP-65 key-chart code {index}");
+    }
+  }
+
+  [TestMethod]
+  public void ClassicPhysicalLayout_AllVisibleCellsHaveFirmwareKeyCodes()
+  {
+    ProgramVocabulary vocabulary = LoadHp65Vocabulary();
+    IReadOnlyList<FaceplateCell> cells = CalcFaceplateLayout.GetPhysicalCells("Classic", "HP-65");
+
+    Assert.AreEqual(35, cells.Count);
+    foreach (FaceplateCell cell in cells)
+    {
+      ProgramKeyEntry key = vocabulary.KeyChart[cell.KeyChartIndex];
+      Assert.AreNotEqual(0, key.KeyCode, $"Visible key {cell.KeyChartIndex} should have a firmware key code.");
+      Assert.IsFalse(string.IsNullOrEmpty(CalcFaceplateLayout.LabelForKey(key, vocabulary)));
+    }
+
+    Assert.AreEqual(36, vocabulary.KeyChart.Count(key => key.KeyCode != 0), "Panamatik maps 36 chart entries including the duplicate ENTER slot.");
+    Assert.AreEqual(4, vocabulary.KeyChart.Count(key => key.KeyCode == 0), "The remaining HP-65 chart slots are spacers.");
+  }
+
+  [TestMethod]
+  public void Hp65DigitKeys_ResolveToPanamatikFirmwareCodes()
+  {
+    ProgramVocabulary vocabulary = LoadHp65Vocabulary();
+    Dictionary<char, byte> expected = new()
+    {
+      ['0'] = 36,
+      ['1'] = 4,
+      ['2'] = 3,
+      ['3'] = 2,
+      ['4'] = 20,
+      ['5'] = 19,
+      ['6'] = 18,
+      ['7'] = 52,
+      ['8'] = 51,
+      ['9'] = 50,
+    };
+
+    foreach ((char digit, byte keyCode) in expected)
+    {
+      Assert.IsTrue(ClassicProgramInput.TryResolveKeyCode(vocabulary, digit, out byte resolved));
+      Assert.AreEqual(keyCode, resolved);
+    }
   }
 
   [TestMethod]

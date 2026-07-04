@@ -113,6 +113,16 @@ public static class CalcExplorerView
       ImGui.SameLine();
       ImGui.TextDisabled(
         $"PC={session.Cpu!.State.ProgramCounter:X4}  ROM={session.Cpu.State.Rom}  steps={session.Cpu.StepCount}");
+      ImGui.SameLine();
+      FirmwareDisplaySnapshot display = session.DisplaySnapshot;
+      string displayText = display.Text.Length == 0 ? "<blank>" : display.Text.Replace(';', '.');
+      ImGui.TextDisabled(
+        $"DISP#{display.Revision} {(display.Visible ? "on" : "off")} {displayText} @PC={display.ProgramCounter:X4}");
+      ImGui.SameLine();
+      FirmwareBatchSnapshot batch = session.LastBatch;
+      string keyText = batch.ActiveKey is { } key ? $"{key.KeyChartIndex}:{key.KeyCode:X2}" : "-";
+      ImGui.TextDisabled(
+        $"KEY={keyText} held={(batch.KeyLineHeld ? "1" : "0")} input={batch.KeyInputState}{(batch.KeyAvailable ? "*" : "")} PC={batch.ProgramCounter:X4} R={batch.Grp:X1}{batch.Rom:X1} P={batch.P:X1} F={(byte)batch.Flags:X2} S={batch.Status:X3} KB={batch.KeyBuffer:X2} K2R={batch.KeysToRomAddressCount} B2R={batch.BufferToRomAddressCount} H={batch.LastHandlerId ?? "-"}");
     }
     else
     {

@@ -5,13 +5,15 @@ namespace TeoCalc.Rendering;
 public sealed class FirmwareGateway
 {
   private const int KeyRunSteps = 200;
+  private const int IoStepInterval = 50;
   private const float RunTickSeconds = 0.01f;
 
   private float _runAccumulator;
+  private int _ioStepsUntilNext;
   private string _displayText = string.Empty;
   private bool _displayBlankPulse;
-  private int _keyHoldBatchesRemaining;
   private bool _keyLineHeld;
+  private long _displayRevision;
   private FirmwareKeyCommand? _activeKey;
 
   public event EventHandler<FirmwareDisplayChangedEventArgs>? DisplayChanged;
@@ -20,6 +22,8 @@ public sealed class FirmwareGateway
 
   public event EventHandler<FirmwareKeyStateChangedEventArgs>? KeyStateChanged;
 
+  public event EventHandler<FirmwareBatchCompletedEventArgs>? BatchCompleted;
+
   public ClassicCpu? Cpu { get; private set; }
 
   public bool PowerOn { get; set; }
@@ -27,6 +31,29 @@ public sealed class FirmwareGateway
   public bool ProgramMode { get; private set; }
 
   public string DisplayText => _displayText;
+
+  public FirmwareDisplaySnapshot DisplaySnapshot { get; private set; } =
+    new(string.Empty, Visible: false, BlankPulse: false, Revision: 0, StepCount: 0, ProgramCounter: 0);
+
+  public FirmwareBatchSnapshot LastBatch { get; private set; } =
+    new(
+      StepCount: 0,
+      ProgramCounter: 0,
+      Status: 0,
+      KeyBuffer: 0,
+      LastHandlerId: null,
+      KeyLineHeld: false,
+      ActiveKey: null,
+      Display: null,
+      Rom: 0,
+      Grp: 0,
+      P: 0,
+      Flags: ClassicCpuFlags.None,
+      BranchOffset: 0,
+      KeyInputState: ClassicKeyInputState.Idle,
+      KeyAvailable: false,
+      KeysToRomAddressCount: 0,
+      BufferToRomAddressCount: 0);
 
   public FirmwareKeyCommand? ActiveKey => _activeKey;
 
@@ -37,7 +64,7 @@ public sealed class FirmwareGateway
     Cpu = cpu;
     PowerOn = false;
     _runAccumulator = 0f;
-    _keyHoldBatchesRemaining = 0;
+    _ioStepsUntilNext = 0;
     _activeKey = null;
     _keyLineHeld = false;
     SetDisplayState(string.Empty, blankPulse: false);
@@ -57,7 +84,7 @@ public sealed class FirmwareGateway
     }
 
     PowerOn = false;
-    _keyHoldBatchesRemaining = 0;
+    _ioStepsUntilNext = 0;
     ClearKeyLine();
     SetDisplayState(string.Empty, blankPulse: false);
   }
@@ -122,7 +149,6 @@ public sealed class FirmwareGateway
     Cpu.State.Flags &= ~ClassicCpuFlags.DisplayOn;
     SetDisplayState(string.Empty, blankPulse: true);
     Cpu.PressKey(key.KeyCode);
-    _keyHoldBatchesRemaining = Math.Max(_keyHoldBatchesRemaining, 12);
     RunInstructionBatch(KeyRunSteps);
     KeyProcessed?.Invoke(this, new FirmwareKeyProcessedEventArgs(key, _displayText, IsDisplayVisible()));
   }
@@ -166,13 +192,34 @@ public sealed class FirmwareGateway
       return;
     }
 
-    bool firmwareKeyHeld = _keyLineHeld || _keyHoldBatchesRemaining > 0;
+    bool firmwareKeyHeld = _keyLineHeld;
+    string? lastHandlerId = null;
+    int keysToRomAddressCount = 0;
+    int bufferToRomAddressCount = 0;
     for (int step = 0; step < steps; step++)
     {
-      Cpu.Step();
-      if (firmwareKeyHeld)
+      lastHandlerId = Cpu.Step().HandlerId;
+      _ioStepsUntilNext--;
+      if (_ioStepsUntilNext <= 0)
+      {
+        Cpu.State.HandleIo();
+        _ioStepsUntilNext = IoStepInterval;
+      }
+
+      Cpu.State.ApplyKeyInput();
+
+      if (_keyLineHeld)
       {
         Cpu.State.Status |= 1;
+      }
+
+      if (lastHandlerId == "ClassicCpu.KeysToRomAddress")
+      {
+        keysToRomAddressCount++;
+      }
+      else if (lastHandlerId == "ClassicCpu.BufferToRomAddress")
+      {
+        bufferToRomAddressCount++;
       }
 
       if (ProgramMode)
@@ -181,12 +228,26 @@ public sealed class FirmwareGateway
       }
     }
 
-    if (_keyHoldBatchesRemaining > 0)
-    {
-      _keyHoldBatchesRemaining--;
-    }
-
     RefreshDisplayFromCpu();
+    LastBatch = new FirmwareBatchSnapshot(
+      Cpu.StepCount,
+      Cpu.State.ProgramCounter,
+      Cpu.State.Status,
+      Cpu.State.KeyBuffer,
+      lastHandlerId,
+      firmwareKeyHeld,
+      _activeKey,
+      DisplaySnapshot,
+      Cpu.State.Rom,
+      Cpu.State.Grp,
+      Cpu.State.P,
+      Cpu.State.Flags,
+      Cpu.State.BranchOffset,
+      Cpu.State.KeyInputState,
+      Cpu.State.KeyAvailable,
+      keysToRomAddressCount,
+      bufferToRomAddressCount);
+    BatchCompleted?.Invoke(this, new FirmwareBatchCompletedEventArgs(LastBatch));
   }
 
   private void RefreshDisplayFromCpu()
@@ -221,12 +282,32 @@ public sealed class FirmwareGateway
     _displayBlankPulse = blankPulse;
     if (changed)
     {
-      DisplayChanged?.Invoke(this, new FirmwareDisplayChangedEventArgs(text, IsDisplayVisible()));
+      DisplaySnapshot = new FirmwareDisplaySnapshot(
+        text,
+        IsDisplayVisible(),
+        blankPulse,
+        ++_displayRevision,
+        Cpu?.StepCount ?? 0,
+        Cpu?.State.ProgramCounter ?? 0);
+      DisplayChanged?.Invoke(this, new FirmwareDisplayChangedEventArgs(DisplaySnapshot));
     }
   }
 }
 
-public sealed record FirmwareDisplayChangedEventArgs(string Text, bool Visible);
+public sealed record FirmwareDisplaySnapshot(
+  string Text,
+  bool Visible,
+  bool BlankPulse,
+  long Revision,
+  long StepCount,
+  int ProgramCounter);
+
+public sealed record FirmwareDisplayChangedEventArgs(FirmwareDisplaySnapshot Snapshot)
+{
+  public string Text => Snapshot.Text;
+
+  public bool Visible => Snapshot.Visible;
+}
 
 public readonly record struct FirmwareKeyCommand(int KeyChartIndex, byte KeyCode);
 
@@ -236,3 +317,24 @@ public sealed record FirmwareKeyProcessedEventArgs(
   FirmwareKeyCommand Key,
   string DisplayText,
   bool DisplayVisible);
+
+public sealed record FirmwareBatchSnapshot(
+  int StepCount,
+  int ProgramCounter,
+  ushort Status,
+  byte KeyBuffer,
+  string? LastHandlerId,
+  bool KeyLineHeld,
+  FirmwareKeyCommand? ActiveKey,
+  FirmwareDisplaySnapshot? Display,
+  byte Rom,
+  byte Grp,
+  byte P,
+  ClassicCpuFlags Flags,
+  int BranchOffset,
+  ClassicKeyInputState KeyInputState,
+  bool KeyAvailable,
+  int KeysToRomAddressCount,
+  int BufferToRomAddressCount);
+
+public sealed record FirmwareBatchCompletedEventArgs(FirmwareBatchSnapshot Snapshot);

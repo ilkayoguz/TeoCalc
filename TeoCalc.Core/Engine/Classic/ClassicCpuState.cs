@@ -34,6 +34,10 @@ public sealed class ClassicCpuState
 
   public byte KeyBuffer { get; set; }
 
+  public bool KeyAvailable { get; set; }
+
+  public ClassicKeyInputState KeyInputState { get; set; }
+
   public byte RamAddress { get; set; }
 
   public byte RamSlotSize { get; set; } = 10;
@@ -67,6 +71,8 @@ public sealed class ClassicCpuState
     Status = 0;
     Base = 10;
     KeyBuffer = 0;
+    KeyAvailable = false;
+    KeyInputState = ClassicKeyInputState.Idle;
     RamAddress = 0;
     RamSlotSize = 10;
     ProgramRamBase = DefaultProgramRamBase;
@@ -87,6 +93,42 @@ public sealed class ClassicCpuState
     else
     {
       Flags &= ~ClassicCpuFlags.PrevCarry;
+    }
+  }
+
+  public void ApplyKeyInput()
+  {
+    if (KeyInputState != ClassicKeyInputState.Pressed)
+    {
+      return;
+    }
+
+    Status |= 1;
+    KeyInputState = ClassicKeyInputState.Wait;
+  }
+
+  public void HandleIo()
+  {
+    switch (KeyInputState)
+    {
+      case ClassicKeyInputState.Idle:
+        if (KeyAvailable)
+        {
+          KeyAvailable = false;
+          KeyInputState = ClassicKeyInputState.Pressed;
+        }
+
+        break;
+      case ClassicKeyInputState.Wait:
+        if ((Status & 1) == 0)
+        {
+          KeyInputState = ClassicKeyInputState.Depressed;
+        }
+
+        break;
+      case ClassicKeyInputState.Depressed:
+        KeyInputState = ClassicKeyInputState.Idle;
+        break;
     }
   }
 }

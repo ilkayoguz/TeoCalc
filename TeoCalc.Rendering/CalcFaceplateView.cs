@@ -41,14 +41,15 @@ public static class CalcFaceplateView
 
     CalcChassisRenderer.DrawShell(draw, origin, metrics);
     RectF display = metrics.DisplayRect(origin);
+    FirmwareDisplaySnapshot displaySnapshot = session.DisplaySnapshot;
     CalcChassisRenderer.DrawDisplayDigits(
       draw,
       display,
       session.Cpu,
       session.ProgramMode,
       metrics.Scale,
-      session.IsDisplayVisible(),
-      session.DisplayText);
+      displaySnapshot.Visible,
+      displaySnapshot.Text);
 
     CalcChassisRenderer.DrawSliderSwitches(draw, origin, metrics, powerOn, session.ProgramMode);
     CalcChassisRenderer.SwitchPointerState switchPointer =
