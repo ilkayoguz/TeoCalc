@@ -7,9 +7,14 @@ public sealed class CalcModelDefinition
 
   public required string DisplayName { get; init; }
 
+  public string ThemeId { get; init; } = CalcThemeCatalog.DefaultThemeId;
+
   public IReadOnlyList<CalcModifierKey> ModifierKeys { get; init; } = [];
 
   public IReadOnlyList<CalcModifierAnnotationStyle> AnnotationStyles { get; init; } = [];
+
+  public IReadOnlyDictionary<string, string> PaletteOverrides { get; init; }
+    = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
   public string LogoCaption => $"HEWLETT-PACKARD {Id}";
 }

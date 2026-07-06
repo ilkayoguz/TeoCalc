@@ -1,15 +1,15 @@
+using TeoCalc.Rendering.Faceplate;
+
 namespace TeoCalc.Rendering;
 
 public static class CalcKeyLabelPalette
 {
   /// <summary>Gold shift labels on body above keys — matches KeyCap gold face paint.</summary>
-  public static uint GoldOnBody => CalcChassisPalette.KeyCapGoldFace;
+  public static uint GoldOnBody => CalcFaceplateTheme.Resolve(CalcFaceplateTokens.ModifierFCapAboveColor);
 
-  /// <summary>Light blue on dark cap skirts only.</summary>
-  public static uint BlueOnSkirt => CalcChassisPalette.BlueLabel;
+  public static uint BlueOnSkirt => CalcFaceplateTheme.Resolve(CalcFaceplateTokens.ModifierGCapSkirtColor);
 
-  /// <summary>Dark blue skirt ink on white/grey caps.</summary>
-  public static uint SkirtBlueDark => CalcChassisPalette.SkirtBlueDark;
+  public static uint SkirtBlueDark => CalcFaceplateTheme.Resolve(CalcFaceplateTokens.SkirtBlueDarkColor);
 
   public static uint GoldOnCap(CalcButtonStyle style) =>
     style is CalcButtonStyle.Black or CalcButtonStyle.Blue

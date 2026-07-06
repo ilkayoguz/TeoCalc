@@ -1,0 +1,47 @@
+using TeoCalc.Rendering;
+using TeoCalc.Rendering.Faceplate;
+
+namespace TeoCalc.Core.Tests;
+
+[TestClass]
+public sealed class CalcFaceplateThemeTests
+{
+  [TestMethod]
+  public void RetroTheme_Loads_And_Resolves_FrameToken()
+  {
+    CalcThemePack retro = CalcThemeCatalog.Load("Retro");
+    Assert.AreEqual("Retro", retro.Id);
+    Assert.IsFalse(string.IsNullOrWhiteSpace(retro.DisplayName));
+
+    CalcFaceplateTheme.SetTheme(retro);
+    uint frame = CalcFaceplateTheme.Resolve(CalcFaceplateTokens.FrameColor);
+    Assert.AreNotEqual(0u, frame);
+  }
+
+  [TestMethod]
+  public void Model_ThemeId_Resolves_Through_ModelDefinition()
+  {
+    CalcModelDefinition hp65 = CalcModelCatalog.Hp65;
+    uint bezel = CalcFaceplateTheme.Resolve(CalcFaceplateTokens.DisplayBezelColor, hp65);
+    Assert.AreNotEqual(0u, bezel);
+  }
+
+  [TestMethod]
+  public void CalcKeyVisual_FromLegacy_Maps_ShiftLabels()
+  {
+    HpCalcKeyVisual legacy = new()
+    {
+      Primary = "1",
+      GoldShift = "LN",
+      BlueShift = "e^x",
+    };
+
+    CalcKeyVisual visual = CalcKeyVisual.FromLegacy(legacy, CalcButtonStyle.Black, CalcButtonKind.Standard);
+    Assert.AreEqual("1", visual.CapFace);
+    Assert.AreEqual(2, visual.Annotations.Count);
+    Assert.IsTrue(visual.Annotations.Any(annotation =>
+      annotation is { Modifier: CalcModifierKey.F, Anchor: CalcLabelAnchor.CapAbove, Text: "LN" }));
+    Assert.IsTrue(visual.Annotations.Any(annotation =>
+      annotation is { Modifier: CalcModifierKey.G, Anchor: CalcLabelAnchor.CapSkirt, Text: "e^x" }));
+  }
+}

@@ -1,6 +1,8 @@
 using ImGuiNET;
 using TeoCalc.Core.Catalog;
 
+using TeoCalc.Rendering.Faceplate;
+
 namespace TeoCalc.Rendering;
 
 public static class CalcFaceplateView
@@ -57,6 +59,7 @@ public static class CalcFaceplateView
     ShiftPreviewMode shiftPreview = session.ShiftPreview.Mode;
     CalcEnterRowLabels.Draw(draw, origin, metrics, shiftPreview);
 
+    CalcModelDefinition faceplateModel = CalcModelCatalog.Resolve(session.Model.Model);
     bool anyKeyHovered = false;
     foreach (FaceplateCell cell in cells)
     {
@@ -99,31 +102,21 @@ public static class CalcFaceplateView
       System.Numerics.Vector2 cellSize = keyRect.Size;
       CalcButtonKind kind = CalcFaceplateLayout.ButtonKindForKey(key, cell);
 
-      if (!string.IsNullOrEmpty(preview.GoldOnBody)
-        && (!CalcEnterRowLabels.IsEnterRowKey(cell.KeyChartIndex)
-          || shiftPreview is ShiftPreviewMode.Gold or ShiftPreviewMode.GoldInverse))
-      {
-        DrawGoldBodyLabel(draw, preview.GoldOnBody, cellMin, cellMax, metrics, preview.GoldBodyInk);
-      }
+      CalcKeyVisual keyVisual = BuildKeyVisual(preview, style, kind, cell.KeyChartIndex, shiftPreview);
 
       bool leftAlign = kind != CalcButtonKind.EnterWide && cell.ColSpan >= 2;
       bool keyboardPressed = calcInputActive && powerOn && !switchClickHandled && cell.KeyChartIndex == keyboardHeldKey;
-      if (CalcButton.Draw(
+      if (CalcKeyComponent.Draw(
             draw,
             $"##hpkey{cell.KeyChartIndex}",
             cellMin,
             cellMax,
-            style,
-            kind,
-            preview.Face,
-            goldOnBody: null,
-            blueOnBody: preview.BlueOnSkirt,
+            keyVisual,
+            faceplateModel,
             metrics.Scale,
             leftAlign,
             forcePressed: keyboardPressed,
-            interactive: calcInputActive && powerOn && !switchClickHandled,
-            primaryInkOverride: preview.FaceInk,
-            skirtInkOverride: preview.SkirtInk))
+            interactive: calcInputActive && powerOn && !switchClickHandled))
       {
         session.PressKey(cell.KeyChartIndex, (byte)key.KeyCode);
       }
@@ -236,6 +229,37 @@ public static class CalcFaceplateView
     };
   }
 
+  private static CalcKeyVisual BuildKeyVisual(
+    PreviewVisual preview,
+    CalcButtonStyle style,
+    CalcButtonKind kind,
+    int keyChartIndex,
+    ShiftPreviewMode shiftPreview)
+  {
+    List<CalcKeyAnnotation> annotations = [];
+    if (!string.IsNullOrEmpty(preview.GoldOnBody)
+      && (!CalcEnterRowLabels.IsEnterRowKey(keyChartIndex)
+        || shiftPreview is ShiftPreviewMode.Gold or ShiftPreviewMode.GoldInverse))
+    {
+      annotations.Add(new CalcKeyAnnotation(CalcModifierKey.F, CalcLabelAnchor.CapAbove, preview.GoldOnBody));
+    }
+
+    if (!string.IsNullOrEmpty(preview.BlueOnSkirt))
+    {
+      annotations.Add(new CalcKeyAnnotation(CalcModifierKey.G, CalcLabelAnchor.CapSkirt, preview.BlueOnSkirt));
+    }
+
+    return new CalcKeyVisual
+    {
+      CapFace = preview.Face,
+      CapStyle = style,
+      Kind = kind,
+      Annotations = annotations,
+      CapFaceInkOverride = preview.FaceInk,
+      CapSkirtInkOverride = preview.SkirtInk,
+    };
+  }
+
   private readonly record struct PreviewVisual(
     string Face,
     string? GoldOnBody,
@@ -244,26 +268,4 @@ public static class CalcFaceplateView
     uint? SkirtInk,
     uint? GoldBodyInk);
 
-  private static void DrawGoldBodyLabel(
-    ImDrawListPtr draw,
-    string text,
-    System.Numerics.Vector2 cellMin,
-    System.Numerics.Vector2 cellMax,
-    CalcChassisMetrics metrics,
-    uint? inkOverride = null)
-  {
-    float fontSize = CalcFaceplateTypography.GoldShift(metrics.Scale);
-    float centerY = cellMin.Y - CalcEnterRowLabels.ShiftLabelGapAboveKey(metrics);
-    float centerX = (cellMin.X + cellMax.X) * 0.5f;
-    System.Numerics.Vector2 bandHalf = new((cellMax.X - cellMin.X) * 0.5f, fontSize * 0.58f);
-    System.Numerics.Vector2 bandCenter = new(centerX, centerY);
-    HpClassicFaceplateGlyphs.DrawBodyLabelInRect(
-      draw,
-      bandCenter - bandHalf,
-      bandCenter + bandHalf,
-      text,
-      fontSize,
-      inkOverride ?? CalcKeyLabelPalette.GoldOnBody,
-      metrics.Scale);
-  }
 }

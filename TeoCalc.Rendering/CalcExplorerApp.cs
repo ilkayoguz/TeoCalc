@@ -5,6 +5,7 @@ using Silk.NET.OpenGL;
 using Silk.NET.OpenGL.Extensions.ImGui;
 using Silk.NET.Windowing;
 using TeoCalc.Core;
+using TeoCalc.Rendering.Faceplate;
 
 namespace TeoCalc.Rendering;
 
@@ -31,6 +32,7 @@ public static class CalcExplorerApp
 
   private static int RunCore()
   {
+    CalcFaceplateTheme.SetTheme(CalcThemeCatalog.LoadDefault());
     string engineRoot = TeoCalcPaths.ResourcePath("Engine");
     CalcExplorerSession session = new(engineRoot);
     CalculatorLauncherModel launcher = CalculatorLauncherModel.CreateDefault();
