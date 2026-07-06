@@ -24,7 +24,7 @@ public static class Hp65FaceplateSvgAssets
   public static bool IsReady => Cache.IsInitialized && File.Exists(BodyPath);
 
   /// <summary>Body.svg chrome from faceplate-d03-layout.json companion (409×861).</summary>
-  public static bool UseBodyChrome => true;
+  public static bool UseBodyChrome => false;
 
   /// <summary>Body/logo SVG cache is ready (key caps are procedural).</summary>
   public static bool CanDrawKeyCaps => Cache.IsInitialized;

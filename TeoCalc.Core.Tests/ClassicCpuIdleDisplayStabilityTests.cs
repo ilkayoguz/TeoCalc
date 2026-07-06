@@ -27,7 +27,8 @@ public sealed class ClassicCpuIdleDisplayStabilityTests
       for (int i = 0; i < 200; i++)
       {
         cpu.Step();
-        latched = ClassicFirmwareDisplay.TryBuildLedText(cpu.State) ?? latched;
+        string text = ClassicFirmwareDisplay.BuildLedText(cpu.State);
+        latched = text.Length == 0 ? latched : text;
       }
     }
 

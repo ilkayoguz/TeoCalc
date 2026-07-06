@@ -10,6 +10,12 @@ namespace TeoCalc.Rendering;
 
 public static class CalcExplorerApp
 {
+  private enum CalcAppScreen
+  {
+    Launcher,
+    Explorer,
+  }
+
   public static int Run()
   {
     try
@@ -27,9 +33,11 @@ public static class CalcExplorerApp
   {
     string engineRoot = TeoCalcPaths.ResourcePath("Engine");
     CalcExplorerSession session = new(engineRoot);
+    CalculatorLauncherModel launcher = CalculatorLauncherModel.CreateDefault();
+    CalcAppScreen screen = CalcAppScreen.Launcher;
 
     WindowOptions options = WindowOptions.Default;
-    options.Title = "TeoCalc Explorer";
+    options.Title = "TeoCalc";
     options.Size = new Vector2D<int>(1440, 900);
     options.VSync = true;
 
@@ -60,7 +68,11 @@ public static class CalcExplorerApp
       double time = window.Time;
       float delta = lastFrameTime > 0d ? (float)(time - lastFrameTime) : 0.016f;
       lastFrameTime = time;
-      session.Tick(delta);
+      if (screen == CalcAppScreen.Explorer)
+      {
+        session.Tick(delta);
+      }
+
       controller?.Update(delta);
     };
 
@@ -76,7 +88,19 @@ public static class CalcExplorerApp
         gl.ClearColor(0.12f, 0.12f, 0.14f, 1f);
         gl.Clear(ClearBufferMask.ColorBufferBit);
         controller.MakeCurrent();
-        CalcExplorerView.Draw(session);
+        if (screen == CalcAppScreen.Launcher)
+        {
+          if (CalculatorLauncherView.Draw(launcher))
+          {
+            OpenExplorer(session, launcher);
+            screen = CalcAppScreen.Explorer;
+          }
+        }
+        else
+        {
+          CalcExplorerView.Draw(session, () => screen = CalcAppScreen.Launcher);
+        }
+
         controller.Render();
         CalcFaceplatePointer.ApplyPendingCursor(input);
       }
@@ -105,5 +129,21 @@ public static class CalcExplorerApp
 
     window.Run();
     return 0;
+  }
+
+  private static void OpenExplorer(CalcExplorerSession session, CalculatorLauncherModel launcher)
+  {
+    if (launcher.SelectedEntry is not { } entry)
+    {
+      return;
+    }
+
+    int modelIndex = Array.FindIndex(
+      session.Models,
+      modelId => string.Equals(modelId, entry.TeoCalcModelId, StringComparison.OrdinalIgnoreCase));
+    if (modelIndex >= 0 && !string.Equals(session.Model.Model, entry.TeoCalcModelId, StringComparison.OrdinalIgnoreCase))
+    {
+      session.LoadModel(modelIndex);
+    }
   }
 }

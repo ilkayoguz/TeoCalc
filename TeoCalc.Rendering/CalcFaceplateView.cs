@@ -1,6 +1,5 @@
 using ImGuiNET;
 using TeoCalc.Core.Catalog;
-using TeoCalc.Core.Engine.Classic;
 
 namespace TeoCalc.Rendering;
 
@@ -8,9 +7,9 @@ public static class CalcFaceplateView
 {
   public static void Draw(CalcExplorerSession session)
   {
-    if (!session.SupportsCpu || session.Vocabulary is null || session.Cpu is null)
+    if (!session.SupportsFaceplate || session.Vocabulary is null)
     {
-      ImGui.TextDisabled("Calculator faceplate requires a Classic CPU model.");
+      PanamatikDisplayOnlyView.Draw(session);
       return;
     }
 
@@ -42,10 +41,9 @@ public static class CalcFaceplateView
     CalcChassisRenderer.DrawShell(draw, origin, metrics);
     RectF display = metrics.DisplayRect(origin);
     FirmwareDisplaySnapshot displaySnapshot = session.DisplaySnapshot;
-    CalcChassisRenderer.DrawDisplayDigits(
+    CalcChassisRenderer.DrawPanamatikDisplay(
       draw,
       display,
-      session.Cpu,
       session.ProgramMode,
       metrics.Scale,
       displaySnapshot.Visible,

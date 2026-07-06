@@ -91,6 +91,25 @@ public static class CalcChassisRenderer
       CalcChassisPalette.FooterText);
   }
 
+  public static void DrawPanamatikDisplay(
+    ImDrawListPtr draw,
+    RectF display,
+    bool programMode,
+    float scale,
+    bool displayLit,
+    string? ledText = null)
+  {
+    ClassicLedDisplayRenderer.Draw(
+      draw,
+      display,
+      new ClassicRegisterFile(),
+      displayLit,
+      programMode,
+      programEndState: 0,
+      scale,
+      ledText);
+  }
+
   public static void DrawDisplayDigits(
     ImDrawListPtr draw,
     RectF display,
@@ -100,15 +119,7 @@ public static class CalcChassisRenderer
     bool displayLit,
     string? ledText = null)
   {
-    DrawSegmentedDisplay(
-      draw,
-      display,
-      cpu.State.Registers,
-      displayLit,
-      programMode,
-      cpu.Program.EndState,
-      scale,
-      ledText);
+    DrawPanamatikDisplay(draw, display, programMode, scale, displayLit, ledText);
   }
 
   public static void DrawSegmentedDisplay(

@@ -73,7 +73,7 @@ public static class CalcFaceplateKeyboard
       return;
     }
 
-    if (session.Cpu is null || !session.PowerOn)
+    if (!session.PowerOn)
     {
       session.SetKeyboardKeyHeld(false);
       return;

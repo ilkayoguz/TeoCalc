@@ -1,12 +1,11 @@
 using ImGuiNET;
 using TeoCalc.Core.Catalog;
-using TeoCalc.Core.Engine.Classic;
 
 namespace TeoCalc.Rendering;
 
 public static class CalcExplorerView
 {
-  public static void Draw(CalcExplorerSession session)
+  public static void Draw(CalcExplorerSession session, Action? openLauncher = null)
   {
     ImGui.SetNextWindowPos(System.Numerics.Vector2.Zero);
     ImGui.SetNextWindowSize(ImGui.GetIO().DisplaySize);
@@ -15,7 +14,8 @@ public static class CalcExplorerView
       ImGuiWindowFlags.NoDecoration | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoBringToFrontOnFocus);
 
     CalcExplorerGlobalKeyboard.Update(session);
-    DrawToolbar(session);
+    DrawToolbar(session, openLauncher);
+    DrawFirmwareInspector(session);
     ImGui.Separator();
 
     if (ImGui.BeginTable("main", 3, ImGuiTableFlags.Resizable | ImGuiTableFlags.BordersInnerV))
@@ -44,6 +44,8 @@ public static class CalcExplorerView
   private static void DrawCalculatorPanel(CalcExplorerSession session)
   {
     ImGui.TextUnformatted(session.Model.DisplayName);
+    ImGui.SameLine();
+    ImGui.TextDisabled("(Panamatik engine)");
     ImGui.PushStyleColor(ImGuiCol.ChildBg, 0);
     ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, System.Numerics.Vector2.Zero);
     ImGui.BeginChild("calculator", new System.Numerics.Vector2(0, 0), ImGuiChildFlags.Border);
@@ -52,24 +54,25 @@ public static class CalcExplorerView
       ImGui.SetWindowFocus();
     }
 
-    if (session.SupportsCpu)
-    {
-      CalcFaceplateView.Draw(session);
-    }
-    else
-    {
-      ImGui.TextDisabled($"{session.Model.Family} — ROM study (CPU pending)");
-      ImGui.Separator();
-      ImGui.TextDisabled("Microcode map is available in the center panel.");
-    }
+    CalcFaceplateView.Draw(session);
 
     ImGui.EndChild();
     ImGui.PopStyleVar();
     ImGui.PopStyleColor();
   }
 
-  private static void DrawToolbar(CalcExplorerSession session)
+  private static void DrawToolbar(CalcExplorerSession session, Action? openLauncher)
   {
+    if (openLauncher is not null)
+    {
+      if (ImGui.Button("Launcher"))
+      {
+        openLauncher();
+      }
+
+      ImGui.SameLine();
+    }
+
     if (ImGui.BeginCombo("Model", session.Model.DisplayName))
     {
       for (int index = 0; index < session.Models.Length; index++)
@@ -89,52 +92,65 @@ public static class CalcExplorerView
       ImGui.EndCombo();
     }
 
-    if (session.SupportsCpu)
+    ImGui.SameLine();
+    if (ImGui.Button("Step"))
     {
-      ImGui.SameLine();
-      if (ImGui.Button("Step"))
-      {
-        session.StepCpu();
-      }
-
-      ImGui.SameLine();
-      if (ImGui.Button("Reset"))
-      {
-        session.ResetCpu();
-      }
-
-      ImGui.SameLine();
-      bool programMode = session.ProgramMode;
-      if (ImGui.Checkbox("PRGM", ref programMode))
-      {
-        session.ProgramMode = programMode;
-      }
-
-      ImGui.SameLine();
-      ImGui.TextDisabled(
-        $"PC={session.Cpu!.State.ProgramCounter:X4}  ROM={session.Cpu.State.Rom}  steps={session.Cpu.StepCount}");
-      ImGui.SameLine();
-      FirmwareDisplaySnapshot display = session.DisplaySnapshot;
-      string displayText = display.Text.Length == 0 ? "<blank>" : display.Text.Replace(';', '.');
-      ImGui.TextDisabled(
-        $"DISP#{display.Revision} {(display.Visible ? "on" : "off")} {displayText} @PC={display.ProgramCounter:X4}");
-      ImGui.SameLine();
-      FirmwareBatchSnapshot batch = session.LastBatch;
-      string keyText = batch.ActiveKey is { } key ? $"{key.KeyChartIndex}:{key.KeyCode:X2}" : "-";
-      ImGui.TextDisabled(
-        $"KEY={keyText} held={(batch.KeyLineHeld ? "1" : "0")} input={batch.KeyInputState}{(batch.KeyAvailable ? "*" : "")} PC={batch.ProgramCounter:X4} R={batch.Grp:X1}{batch.Rom:X1} P={batch.P:X1} F={(byte)batch.Flags:X2} S={batch.Status:X3} KB={batch.KeyBuffer:X2} K2R={batch.KeysToRomAddressCount} B2R={batch.BufferToRomAddressCount} H={batch.LastHandlerId ?? "-"}");
+      session.StepCpu();
     }
-    else
+
+    ImGui.SameLine();
+    if (ImGui.Button("Reset"))
     {
-      ImGui.SameLine();
-      ImGui.TextDisabled($"{session.Model.Family} — ROM study (CPU pending)");
+      session.ResetCpu();
     }
+
+    ImGui.SameLine();
+    bool programMode = session.ProgramMode;
+    if (ImGui.Checkbox("PRGM", ref programMode))
+    {
+      session.ProgramMode = programMode;
+    }
+
+    ImGui.SameLine();
+    ImGui.TextDisabled(
+      $"Engine=Panamatik  PC={session.LastBatch.ProgramCounter:X4}  ROM={session.LastBatch.Rom}  steps={session.LastBatch.StepCount}");
+  }
+
+  private static void DrawFirmwareInspector(CalcExplorerSession session)
+  {
+    if (!ImGui.CollapsingHeader("Firmware inspector", ImGuiTreeNodeFlags.DefaultOpen))
+    {
+      return;
+    }
+
+    FirmwareDisplaySnapshot display = session.DisplaySnapshot;
+    FirmwareBatchSnapshot batch = session.LastBatch;
+    string displayText = display.Text.Length == 0 ? "<blank>" : display.Text.Replace(';', '.');
+    string displayState = display.Visible
+      ? "visible"
+      : display.BlankPulse ? "blank pulse" : "off";
+    string keyText = batch.ActiveKey is { } key ? $"{key.KeyChartIndex}:{key.KeyCode:X2}" : "-";
+
+    ImGui.TextDisabled(
+      $"Display #{display.Revision}: {displayState} \"{displayText}\" @PC={display.ProgramCounter:X4}");
+    ImGui.TextDisabled(
+      $"Key: active={keyText} held={(batch.KeyLineHeld ? "yes" : "no")} buffer={batch.KeyBuffer:X2}");
+    ImGui.TextDisabled(
+      $"CPU: PC={batch.ProgramCounter:X4} ROM={batch.Grp:X1}{batch.Rom:X1} P={batch.P:X1} F={(byte)batch.Flags:X2} S={batch.Status:X3}");
+    ImGui.TextDisabled($"Engine: {batch.LastHandlerId ?? "-"}");
   }
 
   private static void DrawMicrocodePanel(CalcExplorerSession session)
   {
     ImGui.Text("Microcode ROM (.mlist)");
     ImGui.BeginChild("microcode", new System.Numerics.Vector2(0, 0), ImGuiChildFlags.Border);
+
+    if (session.Map is null)
+    {
+      ImGui.TextDisabled("Microcode map is not available for this model yet.");
+      ImGui.EndChild();
+      return;
+    }
 
     if (ImGui.BeginTable("rom", 5, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg | ImGuiTableFlags.ScrollY))
     {
@@ -183,31 +199,19 @@ public static class CalcExplorerView
 
   private static void DrawProgramPanel(CalcExplorerSession session)
   {
-    ImGui.Text("User program (act_ram)");
+    ImGui.Text("User program");
     ImGui.BeginChild("program", new System.Numerics.Vector2(0, 0), ImGuiChildFlags.Border);
-
-    if (session.Cpu is null)
-    {
-      ImGui.TextDisabled("User program requires a Classic CPU model.");
-      ImGui.EndChild();
-      return;
-    }
 
     if (session.Model.Program is null)
     {
-      ImGui.TextDisabled("This model has no user program layer in Panamatik.");
-      ImGui.EndChild();
-      return;
+      ImGui.TextDisabled("User program view is not available for this model yet.");
     }
-
-    foreach (ClassicProgramLine line in ClassicProgramListing.Enumerate(session.Cpu.Program))
+    else
     {
-      ImGui.Text(line.ToString());
+      ImGui.TextDisabled("Program listing will follow Panamatik act_ram in a later phase.");
+      ImGui.TextDisabled($"Max steps: {session.Model.Program.MaxSteps}");
     }
 
-    ImGui.Separator();
-    ImGui.Text($"Pointer @ {session.Cpu.Program.PointerPosition()}");
-    ImGui.Text($"Buffer code: {session.Cpu.State.Buffer}");
     ImGui.EndChild();
   }
 }

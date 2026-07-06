@@ -6,7 +6,7 @@
     <ProjectReference Include="..\TeoCalc.Game\TeoCalc.Game.csproj" />
     <ProjectReference Include="..\TeoCalc.Core\TeoCalc.Core.csproj" />
     <ProjectReference Include="..\TeoCalc.Formats\TeoCalc.Formats.csproj" />
-    <ProjectReference Include="..\TeoCalc.Storage\TeoCalc.Storage.csproj" />
+    <ProjectReference Include="..\TeoCalc.Panamatik\TeoCalc.Panamatik.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
@@ -15,8 +15,6 @@
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <SupportedOSPlatform>windows</SupportedOSPlatform>
-    <SupportedOSPlatformVersion>6.1</SupportedOSPlatformVersion>
   </PropertyGroup>
 
   <ItemGroup>

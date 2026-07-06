@@ -231,7 +231,6 @@ public sealed class KeyPressDisplayProbeTests
     }
 
     Console.WriteLine("PRGM Display: [" + session.DisplayText.Replace(';', '.') + "]");
-    Console.WriteLine("A: " + string.Join(",", session.Cpu!.State.Registers.A));
-    Console.WriteLine("B: " + string.Join(",", session.Cpu.State.Registers.B));
+    Assert.IsTrue(session.DisplayText.Length > 0);
   }
 }

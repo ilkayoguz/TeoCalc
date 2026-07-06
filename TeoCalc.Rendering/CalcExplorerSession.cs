@@ -1,20 +1,20 @@
 using TeoCalc.Core;
 using TeoCalc.Core.Catalog;
 using TeoCalc.Core.Engine.Classic;
+using TeoCalc.Panamatik;
 
 namespace TeoCalc.Rendering;
 
-/// <summary>Panamatik <c>HPClassic</c> timer, <c>press_key</c>, and <c>ShowDisplay</c> orchestration.</summary>
-public sealed class CalcExplorerSession
+/// <summary>Panamatik emulator timer, press_key, and ShowDisplay orchestration for all models.</summary>
+public sealed class CalcExplorerSession : IDisposable
 {
-  private static readonly string[] ExplorerModels =
-  [
-    "HP-35", "HP-45", "HP-55", "HP-65", "HP-70", "HP-80",
-    "HP-21", "HP-22", "HP-25", "HP-27", "HP-29",
-    "HP-31", "HP-32", "HP-33", "HP-34", "HP-37", "HP-38",
-  ];
+  private static readonly string[] ExplorerModels = HpCalcModelCatalog.SupportedModels
+    .Select(MapCatalogModelToExplorer)
+    .ToArray();
 
-  private readonly FirmwareGateway _firmware = new();
+  private PanamatikFirmwareGateway? _firmware;
+
+  private IPanamatikEngine? _panamatikEngine;
 
   private FirmwareDisplaySnapshot _displaySnapshot =
     new(string.Empty, Visible: false, BlankPulse: false, Revision: 0, StepCount: 0, ProgramCounter: 0);
@@ -46,16 +46,16 @@ public sealed class CalcExplorerSession
   public CalcExplorerSession(string engineRoot)
   {
     EngineRoot = engineRoot;
-    ModelIndex = Array.IndexOf(ExplorerModels, HpCalcModelCatalog.PriorityModel);
+    ModelIndex = Array.FindIndex(ExplorerModels, id => id == MapCatalogModelToExplorer(HpCalcModelCatalog.PriorityModel));
     if (ModelIndex < 0)
     {
       ModelIndex = 0;
     }
 
-    _firmware.DisplayChanged += OnFirmwareDisplayChanged;
-    _firmware.BatchCompleted += OnFirmwareBatchCompleted;
     LoadModel(ModelIndex);
   }
+
+  public bool UsesPanamatikEngine => _panamatikEngine is not null;
 
   public string EngineRoot { get; }
 
@@ -65,15 +65,15 @@ public sealed class CalcExplorerSession
 
   public TeoCalcModelDefinition Model { get; private set; } = null!;
 
-  public ClassicCpu? Cpu => _firmware.Cpu;
-
   public ProgramVocabulary? Vocabulary { get; private set; }
 
-  public MicrocodeMapCatalog Map { get; private set; } = null!;
+  public MicrocodeMapCatalog? Map { get; private set; }
 
   public MicrocodeCrossRefCatalog? CrossRef { get; private set; }
 
-  public bool SupportsCpu => Cpu is not null;
+  public bool SupportsFaceplate => Vocabulary is not null;
+
+  public bool SupportsMicrocode => Map is not null;
 
   public int MicrocodeScroll { get; set; }
 
@@ -83,14 +83,32 @@ public sealed class CalcExplorerSession
 
   public bool ProgramMode
   {
-    get => _firmware.ProgramMode;
-    set => _firmware.SetProgramMode(value);
+    get => _firmware?.ProgramMode ?? false;
+    set => _firmware?.SetProgramMode(value);
   }
 
   public bool PowerOn
   {
-    get => _firmware.PowerOn;
-    set => _firmware.PowerOn = value;
+    get => _firmware?.PowerOn ?? false;
+    set
+    {
+      if (_firmware is null)
+      {
+        return;
+      }
+
+      if (value)
+      {
+        if (!_firmware.PowerOn)
+        {
+          _firmware.PowerOnResume();
+        }
+      }
+      else
+      {
+        _firmware.PowerOff();
+      }
+    }
   }
 
   public string DisplayText => _displaySnapshot.Text;
@@ -105,36 +123,82 @@ public sealed class CalcExplorerSession
 
   public event EventHandler<FirmwareDisplayChangedEventArgs>? DisplayChanged
   {
-    add => _firmware.DisplayChanged += value;
-    remove => _firmware.DisplayChanged -= value;
+    add
+    {
+      if (_firmware is not null)
+      {
+        _firmware.DisplayChanged += value;
+      }
+    }
+    remove
+    {
+      if (_firmware is not null)
+      {
+        _firmware.DisplayChanged -= value;
+      }
+    }
   }
 
   public event EventHandler<FirmwareKeyProcessedEventArgs>? KeyProcessed
   {
-    add => _firmware.KeyProcessed += value;
-    remove => _firmware.KeyProcessed -= value;
+    add
+    {
+      if (_firmware is not null)
+      {
+        _firmware.KeyProcessed += value;
+      }
+    }
+    remove
+    {
+      if (_firmware is not null)
+      {
+        _firmware.KeyProcessed -= value;
+      }
+    }
   }
 
   public event EventHandler<FirmwareKeyStateChangedEventArgs>? KeyStateChanged
   {
-    add => _firmware.KeyStateChanged += value;
-    remove => _firmware.KeyStateChanged -= value;
+    add
+    {
+      if (_firmware is not null)
+      {
+        _firmware.KeyStateChanged += value;
+      }
+    }
+    remove
+    {
+      if (_firmware is not null)
+      {
+        _firmware.KeyStateChanged -= value;
+      }
+    }
   }
 
   public event EventHandler<FirmwareBatchCompletedEventArgs>? BatchCompleted
   {
-    add => _firmware.BatchCompleted += value;
-    remove => _firmware.BatchCompleted -= value;
+    add
+    {
+      if (_firmware is not null)
+      {
+        _firmware.BatchCompleted += value;
+      }
+    }
+    remove
+    {
+      if (_firmware is not null)
+      {
+        _firmware.BatchCompleted -= value;
+      }
+    }
   }
 
-  public void PowerOnResume()
-  {
-    _firmware.PowerOnResume();
-  }
+  public void PowerOnResume() =>
+    _firmware?.PowerOnResume();
 
   public void PowerOff()
   {
-    _firmware.PowerOff();
+    _firmware?.PowerOff();
     SelectedAddress = 0;
     _mouseKeyHeld = false;
     _keyboardKeyHeld = false;
@@ -143,21 +207,23 @@ public sealed class CalcExplorerSession
 
   public bool IsDisplayVisible() => _displaySnapshot.Visible;
 
-  public void EndDisplayFrame() => _firmware.EndDisplayFrame();
+  public void EndDisplayFrame() =>
+    _firmware?.EndDisplayFrame();
 
   public void SetKeyboardKeyHeld(bool held)
   {
     _keyboardKeyHeld = held;
-    _firmware.SetKeyLineHeld(IsKeyHeld);
+    _firmware?.SetKeyLineHeld(IsKeyHeld);
   }
 
   public void ReleaseMouseKey()
   {
     _mouseKeyHeld = false;
-    _firmware.SetKeyLineHeld(IsKeyHeld);
+    _firmware?.SetKeyLineHeld(IsKeyHeld);
   }
 
-  public void ClearShiftPreview() => ShiftPreview.Clear();
+  public void ClearShiftPreview() =>
+    ShiftPreview.Clear();
 
   public void ToggleProgramMode()
   {
@@ -166,7 +232,7 @@ public sealed class CalcExplorerSession
       return;
     }
 
-    _firmware.ToggleProgramMode();
+    _firmware?.ToggleProgramMode();
   }
 
   public void ToggleProgramModeTo(bool programMode)
@@ -176,64 +242,97 @@ public sealed class CalcExplorerSession
       return;
     }
 
-    _firmware.SetProgramMode(programMode);
+    _firmware?.SetProgramMode(programMode);
   }
 
   public void LoadModel(int index)
   {
-    ModelIndex = Math.Clamp(index, 0, ExplorerModels.Length - 1);
-    string modelId = ExplorerModels[ModelIndex];
-    string modelPath = Path.Combine(EngineRoot, modelId, "Model.json");
-    Model = TeoCalcModelDefinition.Load(modelPath);
+    DisposePanamatikEngine();
 
-    ClassicCpu? cpu = string.Equals(Model.Family, "Classic", StringComparison.OrdinalIgnoreCase)
-      ? ClassicCpuFactory.Create(Model, EngineRoot)
-      : null;
-    _firmware.AttachCpu(cpu);
+    ModelIndex = Math.Clamp(index, 0, ExplorerModels.Length - 1);
+    string explorerModelId = ExplorerModels[ModelIndex];
+    string panamatikModelId = MapExplorerModelToPanamatik(explorerModelId);
+    string engineModelFolder = MapExplorerModelToEngineFolder(explorerModelId);
+    string modelPath = Path.Combine(EngineRoot, engineModelFolder, "Model.json");
+    Model = File.Exists(modelPath)
+      ? TeoCalcModelDefinition.Load(modelPath)
+      : CreatePlaceholderModel(explorerModelId);
+
+    _panamatikEngine = PanamatikEngineFactory.Create(panamatikModelId);
+    _firmware = new PanamatikFirmwareGateway(_panamatikEngine);
+    _firmware.DisplayChanged += OnFirmwareDisplayChanged;
+    _firmware.BatchCompleted += OnFirmwareBatchCompleted;
 
     Vocabulary = null;
     if (Model.Program?.Vocabulary is { Length: > 0 } vocabularyPath)
     {
-      string fullVocabularyPath = Path.Combine(EngineRoot, modelId, vocabularyPath.Replace('/', Path.DirectorySeparatorChar));
+      string fullVocabularyPath = Path.Combine(
+        EngineRoot,
+        engineModelFolder,
+        vocabularyPath.Replace('/', Path.DirectorySeparatorChar));
       if (File.Exists(fullVocabularyPath))
       {
         Vocabulary = ProgramVocabulary.Load(fullVocabularyPath);
       }
     }
 
-    string mapPath = Path.Combine(EngineRoot, modelId, Model.Firmware.RomMap.Replace('/', Path.DirectorySeparatorChar));
-    Map = MicrocodeMapCatalog.Load(mapPath);
+    Map = null;
+    CrossRef = null;
+    if (!string.IsNullOrWhiteSpace(Model.Firmware.RomMap))
+    {
+      string mapPath = Path.Combine(
+        EngineRoot,
+        engineModelFolder,
+        Model.Firmware.RomMap.Replace('/', Path.DirectorySeparatorChar));
+      if (File.Exists(mapPath))
+      {
+        Map = MicrocodeMapCatalog.Load(mapPath);
+        CrossRef = string.Equals(Model.Family, "Classic", StringComparison.OrdinalIgnoreCase)
+          ? LoadCrossRefIfPresent(Path.Combine(EngineRoot, "Classic", "microcode.crossref.json"))
+          : null;
+      }
+    }
 
-    CrossRef = string.Equals(Model.Family, "Classic", StringComparison.OrdinalIgnoreCase)
-      ? LoadCrossRefIfPresent(Path.Combine(EngineRoot, "Classic", "microcode.crossref.json"))
-      : null;
-
-    SelectedAddress = Cpu?.State.FetchAddress ?? 0;
+    SelectedAddress = _firmware.LastBatch.ProgramCounter;
     MicrocodeScroll = Math.Max(0, SelectedAddress - 8);
     _mouseKeyHeld = false;
     _keyboardKeyHeld = false;
     ShiftPreview.Reset();
   }
 
-  public void Tick(float deltaSeconds)
-  {
-    _firmware.Tick(deltaSeconds);
-  }
+  public void Tick(float deltaSeconds) =>
+    _firmware?.Tick(deltaSeconds);
 
   public void StepCpu()
   {
-    if (Cpu is null)
+    if (_firmware is null)
     {
       return;
     }
 
     _firmware.Step();
-    SelectedAddress = Math.Max(0, Cpu.State.ProgramCounter - 1);
+    SelectedAddress = Math.Max(0, _firmware.LastBatch.ProgramCounter);
   }
 
-  public void ResetCpu() => PowerOff();
+  public void Dispose() =>
+    DisposePanamatikEngine();
 
-  /// <summary>Panamatik <c>press_key</c> — display blank, buffer key, <c>Run()</c>.</summary>
+  private void DisposePanamatikEngine()
+  {
+    if (_firmware is not null)
+    {
+      _firmware.DisplayChanged -= OnFirmwareDisplayChanged;
+      _firmware.BatchCompleted -= OnFirmwareBatchCompleted;
+      _firmware.Dispose();
+      _firmware = null;
+    }
+
+    _panamatikEngine = null;
+  }
+
+  public void ResetCpu() =>
+    PowerOff();
+
   public void PressKey(int keyChartIndex, byte keyCode)
   {
     ShiftPreview.HandleKeyPress(keyChartIndex);
@@ -245,27 +344,56 @@ public sealed class CalcExplorerSession
 
   public void PressKey(FirmwareKeyCommand key)
   {
-    if (Cpu is null || !PowerOn)
+    if (!PowerOn)
     {
       return;
     }
 
     _mouseKeyHeld = true;
-    _firmware.KeyDown(key);
+    _firmware?.KeyDown(key);
   }
 
-  private static MicrocodeCrossRefCatalog? LoadCrossRefIfPresent(string path)
-  {
-    return File.Exists(path) ? MicrocodeCrossRefCatalog.Load(path) : null;
-  }
+  private static TeoCalcModelDefinition CreatePlaceholderModel(string modelId) =>
+    new()
+    {
+      Model = modelId,
+      DisplayName = modelId,
+      Family = "Panamatik",
+    };
 
-  private void OnFirmwareDisplayChanged(object? sender, FirmwareDisplayChangedEventArgs args)
-  {
+  private static string MapCatalogModelToExplorer(string catalogModelId) =>
+    catalogModelId switch
+    {
+      "HP-29C" => "HP-29",
+      "HP-31E" => "HP-31",
+      "HP-32E" => "HP-32",
+      "HP-34C" => "HP-34",
+      "HP-37E" => "HP-37",
+      "HP-38E" => "HP-38",
+      _ => catalogModelId,
+    };
+
+  private static string MapExplorerModelToPanamatik(string explorerModelId) =>
+    explorerModelId switch
+    {
+      "HP-29" => "HP-29",
+      "HP-31" => "HP-31",
+      "HP-32" => "HP-32",
+      "HP-34" => "HP-34",
+      "HP-37" => "HP-37",
+      "HP-38" => "HP-38",
+      _ => explorerModelId,
+    };
+
+  private static string MapExplorerModelToEngineFolder(string explorerModelId) =>
+    explorerModelId;
+
+  private static MicrocodeCrossRefCatalog? LoadCrossRefIfPresent(string path) =>
+    File.Exists(path) ? MicrocodeCrossRefCatalog.Load(path) : null;
+
+  private void OnFirmwareDisplayChanged(object? sender, FirmwareDisplayChangedEventArgs args) =>
     _displaySnapshot = args.Snapshot;
-  }
 
-  private void OnFirmwareBatchCompleted(object? sender, FirmwareBatchCompletedEventArgs args)
-  {
+  private void OnFirmwareBatchCompleted(object? sender, FirmwareBatchCompletedEventArgs args) =>
     _lastBatch = args.Snapshot;
-  }
 }

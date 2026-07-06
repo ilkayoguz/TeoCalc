@@ -8,9 +8,35 @@
   <Folder Name="/Solution Items/Catalog/Workspace/HpCalcExplorer/">
     <File Path="Catalog/Workspace/HpCalcExplorer/Readme.md" />
     <File Path="Catalog/Workspace/HpCalcExplorer/scripts/decompile-all.ps1" />
+    <File Path="Catalog/Workspace/HpCalcExplorer/scripts/upgrade-panamatik-projects.ps1" />
   </Folder>
   <Folder Name="/Solution Items/Resource/Config/">
     <File Path="Resource/Config/Readme.md" />
+  </Folder>
+  <Folder Name="/Reference/">
+    <Project Path="TeoCalc.Panamatik/TeoCalc.Panamatik.csproj" />
+  </Folder>
+  <Folder Name="/Reference/Panamatik/">
+    <Project Path="Catalog/Workspace/HpCalcExplorer/Reference/Decompiled/Panamatik/HP-01 Stainless Steel/HP01StainlessSteel.csproj" />
+    <Project Path="Catalog/Workspace/HpCalcExplorer/Reference/Decompiled/Panamatik/HP-19/HP19C.csproj" />
+    <Project Path="Catalog/Workspace/HpCalcExplorer/Reference/Decompiled/Panamatik/HP-21/HP21.csproj" />
+    <Project Path="Catalog/Workspace/HpCalcExplorer/Reference/Decompiled/Panamatik/HP-22/HP22.csproj" />
+    <Project Path="Catalog/Workspace/HpCalcExplorer/Reference/Decompiled/Panamatik/HP-25/HP25.csproj" />
+    <Project Path="Catalog/Workspace/HpCalcExplorer/Reference/Decompiled/Panamatik/HP-27/HP27.csproj" />
+    <Project Path="Catalog/Workspace/HpCalcExplorer/Reference/Decompiled/Panamatik/HP-29/HP29.csproj" />
+    <Project Path="Catalog/Workspace/HpCalcExplorer/Reference/Decompiled/Panamatik/HP-31/HP31E.csproj" />
+    <Project Path="Catalog/Workspace/HpCalcExplorer/Reference/Decompiled/Panamatik/HP-32/HP32E.csproj" />
+    <Project Path="Catalog/Workspace/HpCalcExplorer/Reference/Decompiled/Panamatik/HP-33/HP33.csproj" />
+    <Project Path="Catalog/Workspace/HpCalcExplorer/Reference/Decompiled/Panamatik/HP-34/HP34C.csproj" />
+    <Project Path="Catalog/Workspace/HpCalcExplorer/Reference/Decompiled/Panamatik/HP-35/HP35.csproj" />
+    <Project Path="Catalog/Workspace/HpCalcExplorer/Reference/Decompiled/Panamatik/HP-37/HP37E.csproj" />
+    <Project Path="Catalog/Workspace/HpCalcExplorer/Reference/Decompiled/Panamatik/HP-38/HP38E.csproj" />
+    <Project Path="Catalog/Workspace/HpCalcExplorer/Reference/Decompiled/Panamatik/HP-45/HP45.csproj" />
+    <Project Path="Catalog/Workspace/HpCalcExplorer/Reference/Decompiled/Panamatik/HP-55/HP55.csproj" />
+    <Project Path="Catalog/Workspace/HpCalcExplorer/Reference/Decompiled/Panamatik/HP-65/HP65_105.csproj" />
+    <Project Path="Catalog/Workspace/HpCalcExplorer/Reference/Decompiled/Panamatik/HP-67BE/HP67_104.csproj" />
+    <Project Path="Catalog/Workspace/HpCalcExplorer/Reference/Decompiled/Panamatik/HP-70/HP70.csproj" />
+    <Project Path="Catalog/Workspace/HpCalcExplorer/Reference/Decompiled/Panamatik/HP-80/HP80.csproj" />
   </Folder>
   <Folder Name="/Modules/">
     <Project Path="TeoCalc.Core/TeoCalc.Core.csproj" />

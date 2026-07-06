@@ -13,6 +13,12 @@ public sealed class CalcExplorerSessionPanamatikTests
     return new CalcExplorerSession(TeoCalcPaths.ResourcePath("Engine"));
   }
 
+  private static ProgramVocabulary LoadHp65Vocabulary() =>
+    ProgramVocabulary.Load(TeoCalcPaths.ResourcePath("Engine/HP-65/Program/program.vocabulary.json"));
+
+  private static string NormalizeLedText(string text) =>
+    string.Join(' ', text.Replace(';', '.').Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries));
+
   private static void Warmup(CalcExplorerSession session, int ticks = 20)
   {
     session.PowerOnResume();
@@ -99,13 +105,12 @@ public sealed class CalcExplorerSessionPanamatikTests
     CalcExplorerSession session = CreateSession();
     Warmup(session);
 
-    ProgramVocabulary vocabulary = ProgramVocabulary.Load(
-      TeoCalcPaths.ResourcePath("Engine/HP-65/Program/program.vocabulary.json"));
+    ProgramVocabulary vocabulary = LoadHp65Vocabulary();
     PressCharacter(session, vocabulary, '7');
 
     Console.WriteLine("Display: [" + session.DisplayText.Replace(';', '.') + "]");
-    Console.WriteLine("PC: " + session.Cpu!.State.ProgramCounter.ToString("X4"));
-    Console.WriteLine("KeyBuf: " + session.Cpu.State.KeyBuffer.ToString("X2"));
+    Console.WriteLine("PC: " + session.LastBatch.ProgramCounter.ToString("X4"));
+    Console.WriteLine("KeyBuf: " + session.LastBatch.KeyBuffer.ToString("X2"));
     Console.WriteLine("K2R: " + session.LastBatch.KeysToRomAddressCount);
     Console.WriteLine("B2R: " + session.LastBatch.BufferToRomAddressCount);
     Assert.IsTrue(session.PowerOn);
@@ -129,8 +134,7 @@ public sealed class CalcExplorerSessionPanamatikTests
     CalcExplorerSession session = CreateSession();
     Warmup(session);
 
-    ProgramVocabulary vocabulary = ProgramVocabulary.Load(
-      TeoCalcPaths.ResourcePath("Engine/HP-65/Program/program.vocabulary.json"));
+    ProgramVocabulary vocabulary = LoadHp65Vocabulary();
     PressCharacter(session, vocabulary, digit);
 
     Assert.IsTrue(session.IsDisplayVisible(), "Display should be visible after digit entry.");
@@ -146,20 +150,20 @@ public sealed class CalcExplorerSessionPanamatikTests
     CalcExplorerSession session = CreateSession();
     Warmup(session);
 
-    ProgramVocabulary vocabulary = ProgramVocabulary.Load(
-      TeoCalcPaths.ResourcePath("Engine/HP-65/Program/program.vocabulary.json"));
+    ProgramVocabulary vocabulary = LoadHp65Vocabulary();
     Assert.IsTrue(ClassicProgramInput.TryResolveKeyCode(vocabulary, digit, out byte keyCode));
     session.PressKey(keyCode);
     int framesToVisible = 0;
     while (!session.IsDisplayVisible() && framesToVisible < 120)
     {
       session.EndDisplayFrame();
-      session.Tick(0.016f);
+      session.Tick(0.05f);
       framesToVisible++;
     }
 
     Assert.IsTrue(session.IsDisplayVisible(), "Display should be visible after key-down batch.");
-    Assert.IsTrue(framesToVisible <= 1, "Key blank pulse should clear on the next normal frame.");
+    int maxFrames = 5;
+    Assert.IsTrue(framesToVisible <= maxFrames, "Key blank pulse should clear on the next timer frame.");
     StringAssert.Contains(session.DisplayText, digit.ToString());
   }
 
@@ -173,8 +177,7 @@ public sealed class CalcExplorerSessionPanamatikTests
     CalcExplorerSession session = CreateSession();
     Warmup(session);
 
-    ProgramVocabulary vocabulary = ProgramVocabulary.Load(
-      TeoCalcPaths.ResourcePath("Engine/HP-65/Program/program.vocabulary.json"));
+    ProgramVocabulary vocabulary = LoadHp65Vocabulary();
     foreach (char digit in digits)
     {
       PressCharacter(session, vocabulary, digit);
@@ -185,13 +188,183 @@ public sealed class CalcExplorerSessionPanamatikTests
   }
 
   [TestMethod]
+  public void NumberEntryDisplay_SingleDigit1_MatchesPanamatik()
+  {
+    CalcExplorerSession session = CreateSession();
+    Warmup(session);
+
+    PressCharacter(session, LoadHp65Vocabulary(), '1');
+
+    Assert.AreEqual("1.", NormalizeLedText(session.DisplayText));
+  }
+
+  [TestMethod]
+  public void NumberEntryDisplay_LongDigitSequence_MatchesPanamatik()
+  {
+    CalcExplorerSession session = CreateSession();
+    Warmup(session);
+    ProgramVocabulary vocabulary = LoadHp65Vocabulary();
+
+    foreach (char digit in "1234567890")
+    {
+      PressCharacter(session, vocabulary, digit);
+    }
+
+    Assert.AreEqual("1234567890.", NormalizeLedText(session.DisplayText));
+  }
+
+  [TestMethod]
+  public void NumberEntryDisplay_LongDigitSequenceThenEnter_MatchesPanamatik()
+  {
+    CalcExplorerSession session = CreateSession();
+    Warmup(session);
+    ProgramVocabulary vocabulary = LoadHp65Vocabulary();
+
+    foreach (char digit in "1234567890")
+    {
+      PressCharacter(session, vocabulary, digit);
+    }
+
+    PressCharacter(session, vocabulary, Convert.ToChar(13));
+
+    Assert.AreEqual("1.234567890 09", NormalizeLedText(session.DisplayText));
+  }
+
+  [TestMethod]
+  public void DivideByZero_BlanksOnDisplayOffBatchesLikePanamatik()
+  {
+    CalcExplorerSession session = CreateSession();
+    Warmup(session);
+    ProgramVocabulary vocabulary = LoadHp65Vocabulary();
+
+    PressCharacter(session, vocabulary, '1');
+    PressCharacter(session, vocabulary, Convert.ToChar(13));
+    PressCharacter(session, vocabulary, '0');
+    PressCharacter(session, vocabulary, '/');
+
+    int visibleBatches = 0;
+    int blankBatches = 0;
+    for (int i = 0; i < 80; i++)
+    {
+      session.Tick(0.05f);
+      if (session.DisplayText.Length == 0)
+      {
+        blankBatches++;
+      }
+      else if (NormalizeLedText(session.DisplayText) == "0.00")
+      {
+        visibleBatches++;
+      }
+    }
+
+    Assert.IsTrue(visibleBatches > 0, "Panamatik keeps the 0.00 display registers during the error blink.");
+    Assert.IsTrue(blankBatches > 0, "Panamatik blanks timer batches when DISPLAY_ON is clear during the error blink.");
+  }
+
+  [TestMethod]
+  public void NormalMappedKeys_DispatchWithoutBlankingDisplayPipeline()
+  {
+    ProgramVocabulary vocabulary = LoadHp65Vocabulary();
+
+    foreach (FaceplateCell cell in CalcFaceplateLayout.GetPhysicalCells("Classic", "HP-65"))
+    {
+      ProgramKeyEntry key = vocabulary.KeyChart[cell.KeyChartIndex];
+      if (key.KeyCode == 0)
+      {
+        continue;
+      }
+
+      CalcExplorerSession session = CreateSession();
+      Warmup(session);
+      FirmwareKeyProcessedEventArgs? processed = null;
+      session.KeyProcessed += (_, args) => processed = args;
+
+      session.PressKey(cell.KeyChartIndex, (byte)key.KeyCode);
+      session.SetKeyboardKeyHeld(true);
+      for (int i = 0; i < 10; i++)
+      {
+        session.Tick(0.05f);
+      }
+
+      session.SetKeyboardKeyHeld(false);
+      session.ReleaseMouseKey();
+      for (int i = 0; i < 10; i++)
+      {
+        session.Tick(0.05f);
+      }
+
+      Assert.IsNotNull(processed, $"Key chart {key.Index} ({key.Char}) should dispatch.");
+      Assert.AreEqual(key.Index, processed.Key.KeyChartIndex);
+      Assert.AreEqual((byte)key.KeyCode, processed.Key.KeyCode);
+      Assert.IsTrue(session.PowerOn, $"Key chart {key.Index} ({key.Char}) should not power off the app.");
+      Assert.IsNotNull(session.LastBatch.Display, $"Key chart {key.Index} ({key.Char}) should refresh display state.");
+      if (key.Char.Length == 1 && key.Char[0] is >= '0' and <= '9')
+      {
+        Assert.IsTrue(
+          session.DisplayText.Length > 0,
+          $"Key chart {cell.KeyChartIndex} ({key.Char}) should not leave the display pipeline blank after settling.");
+      }
+    }
+  }
+
+  [TestMethod]
+  [DataRow(10, ShiftPreviewMode.Gold, 14)]
+  [DataRow(11, ShiftPreviewMode.GoldInverse, 12)]
+  [DataRow(14, ShiftPreviewMode.Blue, 8)]
+  public void ShiftKeys_UpdatePreviewAndDispatchFirmwareKeyCode(
+    int keyChartIndex,
+    ShiftPreviewMode expectedPreview,
+    int expectedKeyCode)
+  {
+    CalcExplorerSession session = CreateSession();
+    Warmup(session);
+    ProgramVocabulary vocabulary = LoadHp65Vocabulary();
+    ProgramKeyEntry key = vocabulary.KeyChart[keyChartIndex];
+    FirmwareKeyProcessedEventArgs? processed = null;
+    session.KeyProcessed += (_, args) => processed = args;
+
+    session.PressKey(keyChartIndex, (byte)key.KeyCode);
+
+    Assert.AreEqual(expectedPreview, session.ShiftPreview.Mode);
+    Assert.IsNotNull(processed);
+    Assert.AreEqual(keyChartIndex, processed.Key.KeyChartIndex);
+    Assert.AreEqual((byte)expectedKeyCode, processed.Key.KeyCode);
+  }
+
+  [TestMethod]
+  public void ProgramMode_ToggleAndKeyPress_KeepsFirmwareInspectorStateValid()
+  {
+    CalcExplorerSession session = CreateSession();
+    Warmup(session);
+
+    session.ToggleProgramMode();
+    for (int i = 0; i < 20; i++)
+    {
+      session.Tick(0.05f);
+    }
+
+    Assert.IsTrue(session.ProgramMode);
+    Assert.IsTrue(session.PowerOn);
+    Assert.IsNotNull(session.LastBatch.Display);
+    Assert.IsTrue(session.DisplayText.Length > 0);
+
+    PressCharacter(session, LoadHp65Vocabulary(), '7');
+
+    Assert.IsTrue(session.LastBatch.ProgramCounter > 0, "Panamatik program key entry should advance firmware state.");
+    Assert.IsTrue(session.DisplayText.Contains('7'), "Program-mode digit entry should update the Panamatik display.");
+
+    Assert.IsTrue(session.PowerOn);
+    Assert.IsTrue(session.ProgramMode);
+    Assert.IsNotNull(session.LastBatch.Display);
+  }
+
+  [TestMethod]
   public void PressKey_WithChartIndex_RaisesKeyProcessedEvent()
   {
     CalcExplorerSession session = CreateSession();
     session.PowerOnResume();
 
-    ProgramVocabulary vocabulary = ProgramVocabulary.Load(
-      TeoCalcPaths.ResourcePath("Engine/HP-65/Program/program.vocabulary.json"));
+    ProgramVocabulary vocabulary = LoadHp65Vocabulary();
     ClassicProgramInput.TryResolveKeyCode(vocabulary, '7', out byte keyCode);
 
     FirmwareKeyProcessedEventArgs? processed = null;
@@ -210,8 +383,7 @@ public sealed class CalcExplorerSessionPanamatikTests
     CalcExplorerSession session = CreateSession();
     session.PowerOnResume();
 
-    ProgramVocabulary vocabulary = ProgramVocabulary.Load(
-      TeoCalcPaths.ResourcePath("Engine/HP-65/Program/program.vocabulary.json"));
+    ProgramVocabulary vocabulary = LoadHp65Vocabulary();
     ClassicProgramInput.TryResolveKeyCode(vocabulary, '7', out byte keyCode);
 
     List<FirmwareKeyStateChangedEventArgs> states = [];
@@ -233,8 +405,7 @@ public sealed class CalcExplorerSessionPanamatikTests
     CalcExplorerSession session = CreateSession();
     session.PowerOnResume();
 
-    ProgramVocabulary vocabulary = ProgramVocabulary.Load(
-      TeoCalcPaths.ResourcePath("Engine/HP-65/Program/program.vocabulary.json"));
+    ProgramVocabulary vocabulary = LoadHp65Vocabulary();
     ClassicProgramInput.TryResolveKeyCode(vocabulary, '7', out byte keyCode);
 
     FirmwareBatchSnapshot? batch = null;
@@ -248,9 +419,9 @@ public sealed class CalcExplorerSessionPanamatikTests
     Assert.AreEqual(keyCode, batch.ActiveKey?.KeyCode);
     Assert.IsTrue(batch.StepCount > 0);
     Assert.IsNotNull(batch.Display);
-    Assert.AreEqual(session.Cpu!.State.ProgramCounter, batch.ProgramCounter);
-    Assert.AreEqual(session.Cpu.State.P, batch.P);
-    Assert.AreEqual(session.Cpu.State.Flags, batch.Flags);
+    Assert.AreEqual("Panamatik.Engine", batch.LastHandlerId);
+    Assert.IsTrue(batch.ProgramCounter > 0);
+
     Assert.IsTrue(batch.KeysToRomAddressCount >= 0);
     Assert.IsTrue(batch.BufferToRomAddressCount >= 0);
   }

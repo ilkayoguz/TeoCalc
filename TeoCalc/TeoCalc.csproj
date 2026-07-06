@@ -7,13 +7,21 @@
   </ItemGroup>
 
   <PropertyGroup>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <SupportedOSPlatform>windows</SupportedOSPlatform>
-    <SupportedOSPlatformVersion>6.1</SupportedOSPlatformVersion>
     <ApplicationIcon>App.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <Target Name="CopyPanamatikSources" AfterTargets="Build">
+    <ItemGroup>
+      <PanamatikSourceAssets Include="..\TeoCalc.Panamatik\bin\$(Configuration)\$(TargetFramework)\Sources\**\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(PanamatikSourceAssets)"
+          DestinationFiles="@(PanamatikSourceAssets->'$(OutDir)Sources\%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true"
+          Condition="Exists('..\TeoCalc.Panamatik\bin\$(Configuration)\$(TargetFramework)\Sources')" />
+  </Target>
 
 </Project>

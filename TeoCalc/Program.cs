@@ -5,6 +5,7 @@ namespace TeoCalc;
 
 internal class Program
 {
+  [STAThread]
   private static int Main(string[] args)
   {
     try

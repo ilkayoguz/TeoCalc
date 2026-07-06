@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>TeoCalc.Panamatik</RootNamespace>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="IPanamatikEngine.cs" />
+    <Compile Include="PanamatikEngineFactory.cs" />
+    <Compile Include="PanamatikFormEngine.cs" />
+    <Compile Include="Shims\DrawingStubs.cs" />
+    <Compile Include="Shims\ComponentModelStubs.cs" />
+    <Compile Include="Shims\MediaStubs.cs" />
+    <Compile Include="Shims\WinFormsStubs.cs" />
+    <Compile Include="Sources\**\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Sources\**\*.*" Exclude="Sources\**\*.cs">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TeoCalc.Core\TeoCalc.Core.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -2,7 +2,7 @@ using TeoCalc.Core.Engine.Classic;
 
 namespace TeoCalc.Rendering;
 
-public sealed class FirmwareGateway
+public sealed class FirmwareGateway : ICalcFirmwareGateway
 {
   private const int KeyRunSteps = 200;
   private const int IoStepInterval = 50;
@@ -258,21 +258,12 @@ public sealed class FirmwareGateway
       return;
     }
 
-    string? text = ClassicFirmwareDisplay.TryBuildLedText(
+    string text = ClassicFirmwareDisplay.BuildLedText(
       Cpu.State,
       ProgramMode,
       Cpu.Program.EndState);
 
-    if (text is not null)
-    {
-      SetDisplayState(text, blankPulse: false);
-      return;
-    }
-
-    if (_displayBlankPulse)
-    {
-      SetDisplayState(string.Empty, blankPulse: true);
-    }
+    SetDisplayState(text, blankPulse: false);
   }
 
   private void SetDisplayState(string text, bool blankPulse)

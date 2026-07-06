@@ -5,42 +5,48 @@ namespace TeoCalc.Core.Tests;
 [TestClass]
 public sealed class ClassicFirmwareDisplayTests
 {
-  [TestMethod]
-  public void IdleZero_Fix2_ShowsTwoDecimalPlaces()
+  private static void SetRegisterMsbFirst(byte[] register, string digits)
   {
-    ClassicCpuState state = new();
-    state.Reset();
-    state.Flags = ClassicCpuFlags.DisplayOn;
-    state.Registers.B[12] = 2;
-
-    string? text = ClassicFirmwareDisplay.TryBuildLedText(state);
-    Assert.IsNotNull(text);
-    StringAssert.Contains(text, "0;00");
-    Assert.IsFalse(text.Length >= 2 && text[^2] == '0' && text[^1] == '0', "Exponent digits should be blanked.");
+    Assert.AreEqual(ClassicRegisterFile.DigitCount, digits.Length);
+    for (int i = 0; i < digits.Length; i++)
+    {
+      register[ClassicRegisterFile.DigitCount - 1 - i] = (byte)(digits[i] - '0');
+    }
   }
 
   [TestMethod]
-  public void MultiplexStep_SkipsUpdate()
+  public void IdleZero_FormatsRawPanamatikDisplayRegisters()
   {
     ClassicCpuState state = new();
     state.Flags = ClassicCpuFlags.DisplayOn;
-    state.Registers.B[12] = 0;
-    Assert.IsNull(ClassicFirmwareDisplay.TryBuildLedText(state));
+    SetRegisterMsbFirst(state.Registers.A, "00000000000999");
+    SetRegisterMsbFirst(state.Registers.B, "02009999999999");
+
+    string text = ClassicFirmwareDisplay.BuildLedText(state);
+
+    Assert.AreEqual("0.00", string.Join(' ', text.Replace(';', '.').Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries)));
   }
 
   [TestMethod]
-  public void EnteredMantissaDecimalMarker_UpdatesDisplay()
+  public void DisplayOff_BlanksText()
+  {
+    ClassicCpuState state = new();
+    SetRegisterMsbFirst(state.Registers.A, "00000000000999");
+    SetRegisterMsbFirst(state.Registers.B, "02009999999999");
+
+    Assert.AreEqual(string.Empty, ClassicFirmwareDisplay.BuildLedText(state));
+  }
+
+  [TestMethod]
+  public void LongIntegerEntry_UsesRawFirmwareMask()
   {
     ClassicCpuState state = new();
     state.Flags = ClassicCpuFlags.DisplayOn;
-    state.Registers.A[12] = 7;
-    state.Registers.B[12] = 0;
-    state.Registers.A[11] = 6;
-    state.Registers.B[11] = 2;
+    SetRegisterMsbFirst(state.Registers.A, "01234567890000");
+    SetRegisterMsbFirst(state.Registers.B, "00000000002999");
 
-    string? text = ClassicFirmwareDisplay.TryBuildLedText(state);
+    string text = ClassicFirmwareDisplay.BuildLedText(state);
 
-    Assert.IsNotNull(text);
-    StringAssert.Contains(text, "76;");
+    Assert.AreEqual("1234567890.", string.Join(' ', text.Replace(';', '.').Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries)));
   }
 }
