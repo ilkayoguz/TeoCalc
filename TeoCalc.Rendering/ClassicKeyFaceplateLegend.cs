@@ -11,11 +11,12 @@ public static class ClassicKeyFaceplateLegend
 
   public static HpCalcKeyVisual Resolve(
     string modelId,
+    string family,
     ProgramKeyEntry key,
     ProgramVocabulary vocabulary,
     FaceplateLabelStyle labelStyle)
   {
-    string primary = CalcFaceplateLayout.LabelForKey(key, vocabulary);
+    string primary = CalcFaceplateLayout.LabelForKey(key, vocabulary, family);
     KeyFaceplateEntry? entry = key.Index is >= 10 and <= 14 ? null : TryGetEntry(modelId, key.Index);
     return new HpCalcKeyVisual(
       primary,

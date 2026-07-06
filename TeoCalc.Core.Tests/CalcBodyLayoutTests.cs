@@ -37,4 +37,34 @@ public sealed class CalcBodyLayoutTests
     Assert.AreEqual(metrics.DisplayRect(System.Numerics.Vector2.Zero), slots.Display);
     Assert.AreEqual(metrics.LogoRect(System.Numerics.Vector2.Zero), slots.Logo);
   }
+
+  [TestMethod]
+  public void Hp21Layout_HasWoodstockSlots()
+  {
+    CalcBodyLayout layout = Hp21CalcBodyLayout.Instance;
+    Assert.AreEqual(Hp21CalcBodyLayout.LayoutId, layout.Id);
+    Assert.AreEqual(360f, layout.ReferenceWidth);
+    Assert.IsFalse(layout.HasCardSlots);
+    Assert.AreEqual(CalcSwitchLabels.WoodstockAngle, layout.SwitchLabels);
+    Assert.IsTrue(layout.TryGetKeySlot(0, out _));
+    Assert.IsTrue(layout.TryGetKeySlot(33, out RectF dsp));
+    Assert.IsTrue(dsp.Width > dsp.Height);
+  }
+
+  [TestMethod]
+  public void ModelCatalog_Hp21_UsesWoodstockBody()
+  {
+    CalcModelDefinition model = CalcModelCatalog.Hp21;
+    CalcBodyLayout layout = CalcBodyLayoutCatalog.Resolve(model);
+    Assert.AreEqual(Hp21CalcBodyLayout.LayoutId, layout.Id);
+  }
+
+  [TestMethod]
+  public void ThemeCatalog_Loads_RetroAndModern()
+  {
+    IReadOnlyList<CalcThemePack> themes = CalcThemeCatalog.LoadAll();
+    Assert.IsTrue(themes.Count >= 2);
+    Assert.IsTrue(themes.Any(theme => theme.Id == "Retro"));
+    Assert.IsTrue(themes.Any(theme => theme.Id == "Modern"));
+  }
 }

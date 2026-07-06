@@ -1,5 +1,6 @@
 using ImGuiNET;
 using TeoCalc.Core.Catalog;
+using TeoCalc.Rendering.Faceplate;
 
 namespace TeoCalc.Rendering;
 
@@ -93,6 +94,9 @@ public static class CalcExplorerView
     }
 
     ImGui.SameLine();
+    CalcFaceplateThemeView.DrawThemeCombo();
+
+    ImGui.SameLine();
     if (ImGui.Button("Step"))
     {
       session.StepCpu();
@@ -138,6 +142,10 @@ public static class CalcExplorerView
     ImGui.TextDisabled(
       $"CPU: PC={batch.ProgramCounter:X4} ROM={batch.Grp:X1}{batch.Rom:X1} P={batch.P:X1} F={(byte)batch.Flags:X2} S={batch.Status:X3}");
     ImGui.TextDisabled($"Engine: {batch.LastHandlerId ?? "-"}");
+    if (session.LoadWarnings.Count > 0)
+    {
+      ImGui.TextColored(new System.Numerics.Vector4(1f, 0.72f, 0.2f, 1f), string.Join("  ", session.LoadWarnings));
+    }
   }
 
   private static void DrawMicrocodePanel(CalcExplorerSession session)

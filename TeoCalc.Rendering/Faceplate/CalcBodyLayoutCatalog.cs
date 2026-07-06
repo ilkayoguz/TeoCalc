@@ -19,6 +19,7 @@ public static class CalcBodyLayoutCatalog
     CalcBodyLayout loaded = layoutId.ToLowerInvariant() switch
     {
       Hp65CalcBodyLayout.LayoutId => Hp65CalcBodyLayout.Instance,
+      Hp21CalcBodyLayout.LayoutId => Hp21CalcBodyLayout.Instance,
       _ => Hp65CalcBodyLayout.Instance,
     };
 

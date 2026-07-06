@@ -59,7 +59,10 @@ public static class CalcFaceplateView
     bool anySwitchHovered = switchPointer.Hovered;
     bool switchClickHandled = switchPointer.ClickHandled;
     ShiftPreviewMode shiftPreview = session.ShiftPreview.Mode;
-    CalcEnterRowLabels.Draw(draw, origin, metrics, shiftPreview);
+    if (string.Equals(session.Model.Family, "Classic", StringComparison.OrdinalIgnoreCase))
+    {
+      CalcEnterRowLabels.Draw(draw, origin, metrics, shiftPreview);
+    }
 
     bool anyKeyHovered = DrawKeypadRows(
       draw,
@@ -121,6 +124,7 @@ public static class CalcFaceplateView
         ProgramKeyEntry key = session.Vocabulary.KeyChart[cell.KeyChartIndex];
         if (key.KeyCode == 0 || string.IsNullOrEmpty(ClassicKeyFaceplateLegend.Resolve(
               session.Model.Model,
+              session.Model.Family,
               key,
               session.Vocabulary,
               cell.LabelStyle).Primary))
@@ -136,6 +140,7 @@ public static class CalcFaceplateView
 
         HpCalcKeyVisual visual = ClassicKeyFaceplateLegend.Resolve(
           session.Model.Model,
+          session.Model.Family,
           key,
           session.Vocabulary,
           cell.LabelStyle);
@@ -144,7 +149,10 @@ public static class CalcFaceplateView
           visual = visual with { GoldShift = enterRowGold, GoldInverseShift = enterRowGold };
         }
 
-        CalcButtonStyle style = CalcButton.StyleForKeyIndex(cell.KeyChartIndex);
+        CalcButtonStyle style = CalcFaceplateKeyStyles.StyleForKey(
+          session.Model.Family,
+          session.Model.Model,
+          cell.KeyChartIndex);
         PreviewVisual preview = ApplyShiftPreview(visual, shiftPreview, style);
         CalcButtonKind kind = CalcFaceplateLayout.ButtonKindForKey(key, cell);
         CalcKeyVisual keyVisual = BuildKeyVisual(preview, style, kind, cell.KeyChartIndex, shiftPreview);

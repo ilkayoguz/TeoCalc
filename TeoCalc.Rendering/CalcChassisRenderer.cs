@@ -102,6 +102,11 @@ public static class CalcChassisRenderer
 
   public static void DrawCardSlots(ImDrawListPtr draw, Vector2 origin, CalcChassisMetrics metrics, bool paintChrome)
   {
+    if (!metrics.Layout.HasCardSlots)
+    {
+      return;
+    }
+
     RectF band = metrics.CardSlotBandRect(origin);
     float bandInsetY = metrics.Scale * 0.8f;
     float baseFont = (band.Height - bandInsetY * 2f) / 1.15f;
@@ -195,8 +200,8 @@ public static class CalcChassisRenderer
       labelY,
       metrics.Scale,
       programMode ? 0f : 1f,
-      "W/PRGM",
-      "RUN");
+      metrics.Layout.SwitchLabels.Left,
+      metrics.Layout.SwitchLabels.Right);
   }
 
   public readonly record struct SwitchPointerState(bool Hovered, bool ClickHandled);

@@ -1,8 +1,8 @@
 using System.Numerics;
 using ImGuiNET;
+using TeoCalc.Rendering;
 
 namespace TeoCalc.Rendering.Faceplate;
-
 /// <summary>Footer strip: hp mark on the left, HEWLETT-PACKARD {model.Id} on the right.</summary>
 public static class CalcLogoComponent
 {
@@ -16,15 +16,23 @@ public static class CalcLogoComponent
 
     draw.AddRectFilled(stripMin, stripMax, strip, 2f * scale);
 
-    float markSize = height * 0.55f;
-    Vector2 markCenter = new(stripMin.X + padX + markSize * 0.5f, (stripMin.Y + stripMax.Y) * 0.5f);
-    draw.AddCircleFilled(markCenter, markSize * 0.5f, markInk);
-    draw.AddText(
-      ImGui.GetFont(),
-      markSize * 0.45f,
-      markCenter - new Vector2(markSize * 0.22f, markSize * 0.2f),
-      0xFFFFFFFFu,
-      "hp");
+    float textLeft = stripMin.X + padX;
+    if (model.Id == "65" && Hp65FaceplateSvgAssets.TryDrawLogoMark(draw, stripMin, stripMax, scale))
+    {
+      textLeft = stripMin.X + stripMax.Y * 0.95f * (888f / 562f) * 1.4f + padX;
+    }
+    else
+    {
+      float markSize = height * 0.55f;
+      Vector2 markCenter = new(stripMin.X + padX + markSize * 0.5f, (stripMin.Y + stripMax.Y) * 0.5f);
+      draw.AddCircleFilled(markCenter, markSize * 0.5f, markInk);
+      draw.AddText(
+        ImGui.GetFont(),
+        markSize * 0.45f,
+        markCenter - new Vector2(markSize * 0.22f, markSize * 0.2f),
+        0xFFFFFFFFu,
+        "hp");
+    }
 
     string caption = model.LogoCaption;
     float fontSize = height * 0.38f;

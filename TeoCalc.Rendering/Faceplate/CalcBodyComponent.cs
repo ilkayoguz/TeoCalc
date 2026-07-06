@@ -45,7 +45,10 @@ public static class CalcBodyComponent
     DrawDisplayBezel(draw, slots.Display, scale);
     DrawSwitchBand(draw, faceMin, faceMax, slots.Switches, scale);
     DrawKeypadChrome(draw, slots.Keypad, metrics);
-    CalcChassisRenderer.DrawCardSlots(draw, origin, metrics, paintChrome: true);
+    if (metrics.Layout.HasCardSlots)
+    {
+      CalcChassisRenderer.DrawCardSlots(draw, origin, metrics, paintChrome: true);
+    }
 
     CalcLogoComponent.Draw(draw, slots.Logo.Min, slots.Logo.Max, model, scale);
   }

@@ -2,6 +2,7 @@ using TeoCalc.Core;
 using TeoCalc.Core.Catalog;
 using TeoCalc.Core.Engine.Classic;
 using TeoCalc.Panamatik;
+using TeoCalc.Rendering.Faceplate;
 
 namespace TeoCalc.Rendering;
 
@@ -245,6 +246,8 @@ public sealed class CalcExplorerSession : IDisposable
     _firmware?.SetProgramMode(programMode);
   }
 
+  public IReadOnlyList<string> LoadWarnings { get; private set; } = [];
+
   public void LoadModel(int index)
   {
     DisposePanamatikEngine();
@@ -298,6 +301,20 @@ public sealed class CalcExplorerSession : IDisposable
     _mouseKeyHeld = false;
     _keyboardKeyHeld = false;
     ShiftPreview.Reset();
+
+    CalcModelDefinition faceplateModel = CalcModelCatalog.Resolve(Model.DisplayName);
+    CalcFaceplateThemeState.ApplyForModel(faceplateModel);
+    LoadWarnings = BuildLoadWarnings(explorerModelId, engineModelFolder, panamatikModelId);
+  }
+
+  private static List<string> BuildLoadWarnings(
+    string explorerModelId,
+    string engineModelFolder,
+    string panamatikModelId)
+  {
+    List<string> warnings = [];
+    warnings.AddRange(PanamatikEngineFactory.GetAssetWarnings(panamatikModelId));
+    return warnings;
   }
 
   public void Tick(float deltaSeconds) =>

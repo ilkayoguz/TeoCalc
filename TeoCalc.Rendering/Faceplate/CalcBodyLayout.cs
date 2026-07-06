@@ -29,6 +29,10 @@ public sealed class CalcBodyLayout
 
   public Vector2 PrgmRunSwitchCenter { get; init; }
 
+  public CalcSwitchLabels SwitchLabels { get; init; } = CalcSwitchLabels.ClassicPrgmRun;
+
+  public bool HasCardSlots => CardSlotBand is not null;
+
   public IReadOnlyDictionary<int, RectF> KeySlots { get; init; }
     = new Dictionary<int, RectF>();
 

@@ -53,10 +53,66 @@ public static class Hp65FaceplateSvgAssets
   {
     BodyFaceplateLayout.EnsureLoaded();
     RectF plate = BodyFaceplateLayout.BrandPlate;
+    if (!TryGetLogoBounds(origin, metrics, plate, out Vector2 logoMin, out Vector2 logoMax, out Vector2 plateMin, out Vector2 plateMax))
+    {
+      return;
+    }
+
+    if (Cache.IsInitialized && File.Exists(LogoPath))
+    {
+      int w = Math.Max(1, (int)MathF.Ceiling((logoMax.X - logoMin.X) * 5f));
+      int h = Math.Max(1, (int)MathF.Ceiling((logoMax.Y - logoMin.Y) * 5f));
+      if (!Cache.TryDraw(draw, logoMin, logoMax, LogoPath, w, h, revision: LogoSvgRevision))
+      {
+        Cache.TryDraw(draw, logoMin, logoMax, LogoPath, w, h, revision: LogoSvgRevision);
+      }
+    }
+
+    float textMargin = (plateMax.X - plateMin.X) * 0.025f;
+    float textLeft = logoMax.X + textMargin;
+    CalcChassisRenderer.DrawBrandPlateText(draw, textLeft, plateMin, plateMax, textRightMargin: textMargin);
+  }
+
+  public static bool TryDrawLogoMark(ImDrawListPtr draw, Vector2 stripMin, Vector2 stripMax, float scale)
+  {
+    if (!Cache.IsInitialized || !File.Exists(LogoPath))
+    {
+      return false;
+    }
+
+    float plateWidth = stripMax.X - stripMin.X;
+    float plateHeight = stripMax.Y - stripMin.Y;
+    float logoPadX = plateWidth * 0.03f;
+    float logoPadY = plateHeight * 0.06f;
+    float maxLogoWidth = plateWidth * 0.58f;
+    float logoHeight = (plateHeight - logoPadY * 2f) * 0.82f;
+    float logoWidth = logoHeight * (888f / 562f) * 1.4f;
+    if (logoWidth > maxLogoWidth)
+    {
+      logoWidth = maxLogoWidth;
+      logoHeight = logoWidth / (888f / 562f) / 1.4f;
+    }
+
+    Vector2 logoMin = stripMin + new Vector2(logoPadX, logoPadY + (plateHeight - logoPadY * 2f - logoHeight) * 0.5f);
+    Vector2 logoMax = logoMin + new Vector2(logoWidth, logoHeight);
+    int w = Math.Max(1, (int)MathF.Ceiling(logoWidth * 5f));
+    int h = Math.Max(1, (int)MathF.Ceiling(logoHeight * 5f));
+    return Cache.TryDraw(draw, logoMin, logoMax, LogoPath, w, h, revision: LogoSvgRevision);
+  }
+
+  private static bool TryGetLogoBounds(
+    Vector2 origin,
+    CalcChassisMetrics metrics,
+    RectF plate,
+    out Vector2 logoMin,
+    out Vector2 logoMax,
+    out Vector2 plateMin,
+    out Vector2 plateMax)
+  {
     float plateWidth = plate.Width * metrics.Scale;
     float plateHeight = plate.Height * metrics.Scale;
-    Vector2 plateMin = origin + new Vector2(plate.X * metrics.Scale, plate.Y * metrics.Scale);
-    Vector2 plateMax = plateMin + new Vector2(plateWidth, plateHeight);
+    plateMin = origin + new Vector2(plate.X * metrics.Scale, plate.Y * metrics.Scale);
+    plateMax = plateMin + new Vector2(plateWidth, plateHeight);
 
     float logoAspect = 888f / 562f;
     float logoPadX = plateWidth * 0.03f;
@@ -70,22 +126,9 @@ public static class Hp65FaceplateSvgAssets
       logoHeight = logoWidth / (logoAspect * 1.4f);
     }
 
-    Vector2 logoMin = plateMin + new Vector2(logoPadX, logoPadY + (plateHeight - logoPadY * 2f - logoHeight) * 0.5f);
-    Vector2 logoMax = logoMin + new Vector2(logoWidth, logoHeight);
-
-    if (Cache.IsInitialized && File.Exists(LogoPath))
-    {
-      int w = Math.Max(1, (int)MathF.Ceiling(logoWidth * 5f));
-      int h = Math.Max(1, (int)MathF.Ceiling(logoHeight * 5f));
-      if (!Cache.TryDraw(draw, logoMin, logoMax, LogoPath, w, h, revision: LogoSvgRevision))
-      {
-        Cache.TryDraw(draw, logoMin, logoMax, LogoPath, w, h, revision: LogoSvgRevision);
-      }
-    }
-
-    float textMargin = plateWidth * 0.025f;
-    float textLeft = logoMax.X + textMargin;
-    CalcChassisRenderer.DrawBrandPlateText(draw, textLeft, plateMin, plateMax, textRightMargin: textMargin);
+    logoMin = plateMin + new Vector2(logoPadX, logoPadY + (plateHeight - logoPadY * 2f - logoHeight) * 0.5f);
+    logoMax = logoMin + new Vector2(logoWidth, logoHeight);
+    return true;
   }
 
   public static bool TryDrawSvg(

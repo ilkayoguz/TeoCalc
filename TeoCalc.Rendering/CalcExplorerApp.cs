@@ -32,7 +32,7 @@ public static class CalcExplorerApp
 
   private static int RunCore()
   {
-    CalcFaceplateTheme.SetTheme(CalcThemeCatalog.LoadDefault());
+    CalcFaceplateThemeState.ApplyForModel(CalcModelCatalog.Hp65);
     string engineRoot = TeoCalcPaths.ResourcePath("Engine");
     CalcExplorerSession session = new(engineRoot);
     CalculatorLauncherModel launcher = CalculatorLauncherModel.CreateDefault();

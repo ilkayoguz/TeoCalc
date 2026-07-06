@@ -42,7 +42,9 @@ public readonly record struct CalcChassisMetrics(CalcBodyLayout Layout, float Sc
   }
 
   public float GoldBandForKey(int keyChartIndex) =>
-    BodyFaceplateLayout.GoldBandHeight(keyChartIndex) * Scale;
+    string.Equals(Layout.Id, Hp65CalcBodyLayout.LayoutId, StringComparison.OrdinalIgnoreCase)
+      ? BodyFaceplateLayout.GoldBandHeight(keyChartIndex) * Scale
+      : 12f * Scale;
 
   public RectF SwitchTrackRect(Vector2 origin) => ScaleRect(origin, Layout.SwitchSlot);
 

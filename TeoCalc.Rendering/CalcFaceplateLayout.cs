@@ -67,17 +67,32 @@ public static class CalcFaceplateLayout
       return ClassicPhysicalCells;
     }
 
+    if (string.Equals(modelId, "HP-21", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(family, "Woodstock", StringComparison.OrdinalIgnoreCase))
+    {
+      return WoodstockFaceplateLayout.GetPhysicalCells(modelId);
+    }
+
     return Enumerable.Range(0, Rows * Columns)
       .Select(index => new FaceplateCell(index, index / Columns, index % Columns))
       .Where(cell => cell.KeyChartIndex is >= 0)
       .ToArray();
   }
 
-  public static string LabelForKey(ProgramKeyEntry key, ProgramVocabulary? vocabulary)
+  public static string LabelForKey(ProgramKeyEntry key, ProgramVocabulary? vocabulary, string? family = null)
   {
     if (key.KeyCode == 0)
     {
       return string.Empty;
+    }
+
+    if (string.Equals(family, "Woodstock", StringComparison.OrdinalIgnoreCase))
+    {
+      string? woodstock = WoodstockLabelFromChar(key.Char);
+      if (woodstock is not null)
+      {
+        return woodstock;
+      }
     }
 
     string? faceplate = PrimaryLabelFromChar(key.Char);
@@ -140,6 +155,21 @@ public static class CalcFaceplateLayout
       _ => null,
     };
   }
+
+  private static string? WoodstockLabelFromChar(string charValue) =>
+    charValue switch
+    {
+      "k" => "1/x",
+      "i" => "SIN",
+      "c" => "COS",
+      "t" => "TAN",
+      "g" => "g",
+      "y" => "x\u2194y",
+      "d" => "R\u2193",
+      "e" => "e^x",
+      "w" => "DSP",
+      _ => null,
+    };
 
   public static Vector2 PanelSize(IReadOnlyList<FaceplateCell> cells, CalcChassisMetrics metrics)
   {

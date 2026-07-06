@@ -40,6 +40,50 @@ public static class PanamatikEngineFactory
     return Path.Combine(AppContext.BaseDirectory, "Sources", sourceFolderId);
   }
 
+  public static IReadOnlyList<string> GetAssetWarnings(string teoCalcModelId)
+  {
+    if (!TryResolveBinding(teoCalcModelId, out string sourceFolderId, out _))
+    {
+      return [];
+    }
+
+    List<string> warnings = [];
+    string directory = ResolveModelDirectory(sourceFolderId);
+    string? kml = ResolveKmlFileName(teoCalcModelId);
+    if (kml is not null && !File.Exists(Path.Combine(directory, kml)))
+    {
+      warnings.Add($"Panamatik keyboard layout '{kml}' is missing from {directory}.");
+    }
+
+    return warnings;
+  }
+
+  private static string? ResolveKmlFileName(string teoCalcModelId) =>
+    teoCalcModelId.ToUpperInvariant() switch
+    {
+      "HP-01" => "hp01.kml",
+      "HP-19C" => "hp19C.kml",
+      "HP-21" => "hp21.kml",
+      "HP-22" => "hp22.kml",
+      "HP-25" => "hp25.kml",
+      "HP-27" => "hp27.kml",
+      "HP-29" => "hp29.kml",
+      "HP-31" => "hp31.kml",
+      "HP-32" => "hp32.kml",
+      "HP-33" => "hp33.kml",
+      "HP-34" => "hp34.kml",
+      "HP-35" => "hp35.kml",
+      "HP-37" => "hp37.kml",
+      "HP-38" => "hp38.kml",
+      "HP-45" => "hp45.kml",
+      "HP-55" => "hp55.kml",
+      "HP-65" => "hp65.kml",
+      "HP-67" => "hp67.kml",
+      "HP-70" => "hp70.kml",
+      "HP-80" => "hp80.kml",
+      _ => null,
+    };
+
   private static bool TryResolveBinding(string teoCalcModelId, out string sourceFolderId, out Type formType)
   {
     switch (teoCalcModelId.ToUpperInvariant())

@@ -13,6 +13,10 @@
     "ProgramRamBase": 0,
     "RomWordCount": 1024
   },
+  "Program": {
+    "MaxSteps": 0,
+    "Vocabulary": "Program/program.vocabulary.json"
+  },
   "Firmware": {
     "RomBinary": "Firmware/hp21.microcode.bin",
     "RomListing": "Firmware/hp21.microcode.mlist",
