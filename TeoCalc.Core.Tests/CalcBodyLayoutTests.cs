@@ -1,0 +1,40 @@
+using TeoCalc.Rendering;
+using TeoCalc.Rendering.Faceplate;
+
+namespace TeoCalc.Core.Tests;
+
+[TestClass]
+public sealed class CalcBodyLayoutTests
+{
+  [TestMethod]
+  public void Hp65Layout_MatchesBodyFaceplateLayout()
+  {
+    CalcBodyLayout layout = Hp65CalcBodyLayout.Instance;
+    BodyFaceplateLayout.EnsureLoaded();
+
+    Assert.AreEqual(Hp65CalcBodyLayout.LayoutId, layout.Id);
+    Assert.AreEqual(BodyFaceplateLayout.ReferenceWidth, layout.ReferenceWidth);
+    Assert.AreEqual(BodyFaceplateLayout.DisplayWindow, layout.DisplaySlot);
+    Assert.AreEqual(BodyFaceplateLayout.KeypadPanel, layout.KeypadSlot);
+    Assert.IsTrue(layout.TryGetKeySlot(0, out RectF key0));
+    Assert.IsTrue(BodyFaceplateLayout.TryGetKeyRect(0, out RectF legacyKey0));
+    Assert.AreEqual(legacyKey0, key0);
+  }
+
+  [TestMethod]
+  public void ModelCatalog_Resolves_Hp65BodyLayout()
+  {
+    CalcBodyLayout layout = CalcBodyLayoutCatalog.Resolve(CalcModelCatalog.Hp65);
+    Assert.AreEqual(Hp65CalcBodyLayout.LayoutId, layout.Id);
+  }
+
+  [TestMethod]
+  public void BodySlots_MeasureFromMetrics()
+  {
+    CalcChassisMetrics metrics = new(Hp65CalcBodyLayout.Instance, 1f);
+    CalcBodySlots slots = CalcBodyComponent.MeasureSlots(System.Numerics.Vector2.Zero, metrics);
+
+    Assert.AreEqual(metrics.DisplayRect(System.Numerics.Vector2.Zero), slots.Display);
+    Assert.AreEqual(metrics.LogoRect(System.Numerics.Vector2.Zero), slots.Logo);
+  }
+}

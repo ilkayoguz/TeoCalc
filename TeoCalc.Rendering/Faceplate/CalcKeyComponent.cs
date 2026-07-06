@@ -120,8 +120,38 @@ public static class CalcKeyComponent
     bool forcePressed = false,
     bool interactive = true)
   {
-    CalcKeyMetrics metrics = Measure(slotMin, slotMax, visual, scale);
+    CalcKeyMetrics measured = Measure(slotMin, slotMax, visual, scale);
+    return DrawAtCapBounds(
+      draw,
+      id,
+      slotMin,
+      slotMax,
+      measured.CapMin,
+      measured.CapMax,
+      visual,
+      model,
+      scale,
+      leftAlignPrimary,
+      drawWell,
+      forcePressed,
+      interactive);
+  }
 
+  public static bool DrawAtCapBounds(
+    ImDrawListPtr draw,
+    string id,
+    Vector2 slotMin,
+    Vector2 slotMax,
+    Vector2 capMin,
+    Vector2 capMax,
+    CalcKeyVisual visual,
+    CalcModelDefinition model,
+    float scale,
+    bool leftAlignPrimary = false,
+    bool drawWell = true,
+    bool forcePressed = false,
+    bool interactive = true)
+  {
     foreach (CalcKeyAnnotation annotation in visual.Annotations)
     {
       if (annotation.Anchor is not (CalcLabelAnchor.CapAbove or CalcLabelAnchor.CapBelow)
@@ -138,7 +168,7 @@ public static class CalcKeyComponent
           annotation.Text,
           slotMin,
           slotMax,
-          metrics.CapMin.Y,
+          capMin.Y,
           above: true,
           ink,
           scale);
@@ -150,7 +180,7 @@ public static class CalcKeyComponent
           annotation.Text,
           slotMin,
           slotMax,
-          metrics.CapMax.Y,
+          capMax.Y,
           above: false,
           ink,
           scale);
@@ -171,8 +201,8 @@ public static class CalcKeyComponent
     return CalcButton.Draw(
       draw,
       id,
-      metrics.CapMin,
-      metrics.CapMax,
+      capMin,
+      capMax,
       visual.CapStyle,
       visual.Kind,
       capFace,

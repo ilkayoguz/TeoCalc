@@ -3,6 +3,7 @@ using TeoCalc.Core;
 using TeoCalc.Core.Catalog;
 using TeoCalc.Core.Engine.Classic;
 using TeoCalc.Rendering;
+using TeoCalc.Rendering.Faceplate;
 
 namespace TeoCalc.Core.Tests;
 
@@ -63,7 +64,7 @@ public sealed class CalcFaceplateLayoutTests
   public void ChassisGeometry_MatchesBodyLayout()
   {
     BodyFaceplateLayout.EnsureLoaded();
-    CalcChassisMetrics metrics = new(1f);
+    CalcChassisMetrics metrics = new(Hp65CalcBodyLayout.Instance, 1f);
 
     Assert.AreEqual(409f, metrics.Width);
     Assert.AreEqual(861f, metrics.Height);

@@ -1,45 +1,39 @@
 using System.Numerics;
+using TeoCalc.Rendering.Faceplate;
 
 namespace TeoCalc.Rendering;
 
-/// <summary>HP-65 chassis proportions from Body.svg and faceplate-d03-layout.json (409×861).</summary>
+/// <summary>Calculator chassis proportions from a <see cref="CalcBodyLayout"/>.</summary>
 public static class CalcChassisGeometry
 {
-  public const float ReferenceWidth = BodyFaceplateLayout.ReferenceWidth;
-
-  public const float ReferenceHeight = BodyFaceplateLayout.ReferenceHeight;
-
-  public static CalcChassisMetrics Fit(Vector2 available)
+  public static CalcChassisMetrics Fit(Vector2 available, CalcBodyLayout layout)
   {
-    BodyFaceplateLayout.EnsureLoaded();
-    float scale = Math.Min(available.X / ReferenceWidth, available.Y / ReferenceHeight);
+    float scale = Math.Min(available.X / layout.ReferenceWidth, available.Y / layout.ReferenceHeight);
     scale = Math.Clamp(scale, 0.85f, 2.8f);
-    return new CalcChassisMetrics(scale);
+    return new CalcChassisMetrics(layout, scale);
   }
+
+  public static CalcChassisMetrics FitHp65(Vector2 available) =>
+    Fit(available, Hp65CalcBodyLayout.Instance);
 }
 
-public readonly record struct CalcChassisMetrics(float Scale)
+public readonly record struct CalcChassisMetrics(CalcBodyLayout Layout, float Scale)
 {
-  public float Width => CalcChassisGeometry.ReferenceWidth * Scale;
+  public float Width => Layout.ReferenceWidth * Scale;
 
-  public float Height => CalcChassisGeometry.ReferenceHeight * Scale;
+  public float Height => Layout.ReferenceHeight * Scale;
 
-  public float FooterHeight
-  {
-    get
-    {
-      BodyFaceplateLayout.EnsureLoaded();
-      return BodyFaceplateLayout.BrandPlate.Height * Scale;
-    }
-  }
+  public float FooterHeight => Layout.LogoSlot.Height * Scale;
 
-  public RectF DisplayRect(Vector2 origin) => ScaleRect(origin, BodyFaceplateLayout.DisplayWindow);
+  public RectF DisplayRect(Vector2 origin) => ScaleRect(origin, Layout.DisplaySlot);
 
-  public RectF KeypadPanelRect(Vector2 origin) => ScaleRect(origin, BodyFaceplateLayout.KeypadPanel);
+  public RectF KeypadPanelRect(Vector2 origin) => ScaleRect(origin, Layout.KeypadSlot);
+
+  public RectF LogoRect(Vector2 origin) => ScaleRect(origin, Layout.LogoSlot);
 
   public RectF KeyRect(Vector2 origin, int keyChartIndex)
   {
-    if (!BodyFaceplateLayout.TryGetKeyRect(keyChartIndex, out RectF rect))
+    if (!Layout.TryGetKeySlot(keyChartIndex, out RectF rect))
     {
       return default;
     }
@@ -47,15 +41,17 @@ public readonly record struct CalcChassisMetrics(float Scale)
     return ScaleRect(origin, rect);
   }
 
-  public float GoldBandForKey(int keyChartIndex) => BodyFaceplateLayout.GoldBandHeight(keyChartIndex) * Scale;
+  public float GoldBandForKey(int keyChartIndex) =>
+    BodyFaceplateLayout.GoldBandHeight(keyChartIndex) * Scale;
 
-  public RectF SwitchTrackRect(Vector2 origin) => ScaleRect(origin, BodyFaceplateLayout.SwitchTrack);
+  public RectF SwitchTrackRect(Vector2 origin) => ScaleRect(origin, Layout.SwitchSlot);
 
-  public Vector2 OnOffSwitchCenter(Vector2 origin) => ScalePoint(origin, BodyFaceplateLayout.OnOffSwitchKnob);
+  public Vector2 OnOffSwitchCenter(Vector2 origin) => ScalePoint(origin, Layout.OnOffSwitchCenter);
 
-  public Vector2 PrgmRunSwitchCenter(Vector2 origin) => ScalePoint(origin, BodyFaceplateLayout.PrgmRunSwitchKnob);
+  public Vector2 PrgmRunSwitchCenter(Vector2 origin) => ScalePoint(origin, Layout.PrgmRunSwitchCenter);
 
-  public RectF CardSlotBandRect(Vector2 origin) => ScaleRect(origin, BodyFaceplateLayout.CardSlotBand);
+  public RectF CardSlotBandRect(Vector2 origin) =>
+    Layout.CardSlotBand is { } band ? ScaleRect(origin, band) : default;
 
   public bool TryGetCardSlotColumn(Vector2 origin, int column, out RectF slotRect)
   {
@@ -65,12 +61,16 @@ public readonly record struct CalcChassisMetrics(float Scale)
       return false;
     }
 
-    if (!BodyFaceplateLayout.TryGetKeyRect(column, out RectF key))
+    if (!Layout.TryGetKeySlot(column, out RectF key))
     {
       return false;
     }
 
-    RectF band = BodyFaceplateLayout.CardSlotBand;
+    if (Layout.CardSlotBand is not { } band)
+    {
+      return false;
+    }
+
     slotRect = ScaleRect(origin, new RectF(key.X, band.Y, key.Width, band.Height));
     return true;
   }

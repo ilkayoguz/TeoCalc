@@ -7,6 +7,7 @@ public static class CalcModelCatalog
     Id = "65",
     DisplayName = "HP-65",
     ThemeId = CalcThemeCatalog.DefaultThemeId,
+    BodyLayoutId = Hp65CalcBodyLayout.LayoutId,
     ModifierKeys = [CalcModifierKey.F, CalcModifierKey.G],
   };
 
@@ -16,6 +17,7 @@ public static class CalcModelCatalog
       Id = displayName.Replace("HP-", string.Empty, StringComparison.OrdinalIgnoreCase),
       DisplayName = displayName,
       ThemeId = CalcThemeCatalog.DefaultThemeId,
+      BodyLayoutId = CalcBodyLayoutCatalog.DefaultLayoutId,
       ModifierKeys = [CalcModifierKey.F, CalcModifierKey.G],
     };
 }

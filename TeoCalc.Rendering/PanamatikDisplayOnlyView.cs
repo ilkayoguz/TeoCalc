@@ -1,4 +1,5 @@
 using ImGuiNET;
+using TeoCalc.Rendering.Faceplate;
 
 namespace TeoCalc.Rendering;
 
@@ -10,13 +11,15 @@ public static class PanamatikDisplayOnlyView
     ImGui.PushStyleVar(ImGuiStyleVar.ItemSpacing, System.Numerics.Vector2.Zero);
 
     System.Numerics.Vector2 available = ImGui.GetContentRegionAvail();
-    CalcChassisMetrics metrics = CalcChassisGeometry.Fit(available);
+    CalcModelDefinition model = CalcModelCatalog.Resolve(session.Model.Model);
+    CalcBodyLayout layout = CalcBodyLayoutCatalog.Resolve(model);
+    CalcChassisMetrics metrics = CalcChassisGeometry.Fit(available, layout);
     System.Numerics.Vector2 origin = ImGui.GetWindowPos() + ImGui.GetWindowContentRegionMin();
     ImDrawListPtr draw = ImGui.GetWindowDrawList();
 
     ImGui.Dummy(new System.Numerics.Vector2(metrics.Width, metrics.Height));
 
-    CalcChassisRenderer.DrawShell(draw, origin, metrics);
+    CalcChassisRenderer.DrawShell(draw, origin, metrics, model);
     RectF display = metrics.DisplayRect(origin);
     FirmwareDisplaySnapshot displaySnapshot = session.DisplaySnapshot;
     CalcChassisRenderer.DrawPanamatikDisplay(

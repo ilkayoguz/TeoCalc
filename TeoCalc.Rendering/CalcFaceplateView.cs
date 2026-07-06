@@ -1,6 +1,6 @@
 using ImGuiNET;
+using System.Numerics;
 using TeoCalc.Core.Catalog;
-
 using TeoCalc.Rendering.Faceplate;
 
 namespace TeoCalc.Rendering;
@@ -19,7 +19,9 @@ public static class CalcFaceplateView
     ImGui.PushStyleVar(ImGuiStyleVar.ItemSpacing, System.Numerics.Vector2.Zero);
 
     System.Numerics.Vector2 available = ImGui.GetContentRegionAvail();
-    CalcChassisMetrics metrics = CalcChassisGeometry.Fit(available);
+    CalcModelDefinition faceplateModel = CalcModelCatalog.Resolve(session.Model.Model);
+    CalcBodyLayout bodyLayout = CalcBodyLayoutCatalog.Resolve(faceplateModel);
+    CalcChassisMetrics metrics = CalcChassisGeometry.Fit(available, bodyLayout);
     IReadOnlyList<FaceplateCell> cells = CalcFaceplateLayout.GetPhysicalCells(session.Model.Family, session.Model.Model);
 
     System.Numerics.Vector2 origin = ImGui.GetWindowPos() + ImGui.GetWindowContentRegionMin();
@@ -40,7 +42,7 @@ public static class CalcFaceplateView
     CalcFaceplateKeyboard.Update(session, session.Vocabulary, calcInputActive);
     int keyboardHeldKey = CalcFaceplateKeyboard.HeldKeyChartIndex;
 
-    CalcChassisRenderer.DrawShell(draw, origin, metrics);
+    CalcChassisRenderer.DrawShell(draw, origin, metrics, faceplateModel);
     RectF display = metrics.DisplayRect(origin);
     FirmwareDisplaySnapshot displaySnapshot = session.DisplaySnapshot;
     CalcChassisRenderer.DrawPanamatikDisplay(
@@ -59,76 +61,18 @@ public static class CalcFaceplateView
     ShiftPreviewMode shiftPreview = session.ShiftPreview.Mode;
     CalcEnterRowLabels.Draw(draw, origin, metrics, shiftPreview);
 
-    CalcModelDefinition faceplateModel = CalcModelCatalog.Resolve(session.Model.Model);
-    bool anyKeyHovered = false;
-    foreach (FaceplateCell cell in cells)
-    {
-      if (cell.KeyChartIndex >= session.Vocabulary.KeyChart.Count)
-      {
-        continue;
-      }
-
-      ProgramKeyEntry key = session.Vocabulary.KeyChart[cell.KeyChartIndex];
-      if (key.KeyCode == 0)
-      {
-        continue;
-      }
-
-      HpCalcKeyVisual visual = ClassicKeyFaceplateLegend.Resolve(
-        session.Model.Model,
-        key,
-        session.Vocabulary,
-        cell.LabelStyle);
-      if (CalcEnterRowLabels.GoldLabelForKey(cell.KeyChartIndex) is { } enterRowGold)
-      {
-        visual = visual with { GoldShift = enterRowGold, GoldInverseShift = enterRowGold };
-      }
-
-      CalcButtonStyle style = CalcButton.StyleForKeyIndex(cell.KeyChartIndex);
-      PreviewVisual preview = ApplyShiftPreview(visual, shiftPreview, style);
-      if (string.IsNullOrEmpty(visual.Primary))
-      {
-        continue;
-      }
-
-      RectF keyRect = metrics.KeyRect(origin, cell.KeyChartIndex);
-      if (keyRect.Width <= 0f || keyRect.Height <= 0f)
-      {
-        continue;
-      }
-
-      System.Numerics.Vector2 cellMin = keyRect.Min;
-      System.Numerics.Vector2 cellMax = keyRect.Max;
-      System.Numerics.Vector2 cellSize = keyRect.Size;
-      CalcButtonKind kind = CalcFaceplateLayout.ButtonKindForKey(key, cell);
-
-      CalcKeyVisual keyVisual = BuildKeyVisual(preview, style, kind, cell.KeyChartIndex, shiftPreview);
-
-      bool leftAlign = kind != CalcButtonKind.EnterWide && cell.ColSpan >= 2;
-      bool keyboardPressed = calcInputActive && powerOn && !switchClickHandled && cell.KeyChartIndex == keyboardHeldKey;
-      if (CalcKeyComponent.Draw(
-            draw,
-            $"##hpkey{cell.KeyChartIndex}",
-            cellMin,
-            cellMax,
-            keyVisual,
-            faceplateModel,
-            metrics.Scale,
-            leftAlign,
-            forcePressed: keyboardPressed,
-            interactive: calcInputActive && powerOn && !switchClickHandled))
-      {
-        session.PressKey(cell.KeyChartIndex, (byte)key.KeyCode);
-      }
-
-      DrawShiftPreviewIndicator(draw, keyRect, cell.KeyChartIndex, shiftPreview, metrics.Scale);
-
-      if (ImGui.IsItemHovered() && calcInputActive && powerOn)
-      {
-        anyKeyHovered = true;
-        ImGui.SetTooltip($"{visual.Primary}  (code {key.KeyCode})");
-      }
-    }
+    bool anyKeyHovered = DrawKeypadRows(
+      draw,
+      origin,
+      metrics,
+      cells,
+      session,
+      faceplateModel,
+      shiftPreview,
+      calcInputActive,
+      powerOn,
+      switchClickHandled,
+      keyboardHeldKey);
 
     if (!ImGui.IsMouseDown(ImGuiMouseButton.Left))
     {
@@ -149,6 +93,138 @@ public static class CalcFaceplateView
 
     ImGui.PopStyleVar(2);
   }
+
+  private static bool DrawKeypadRows(
+    ImDrawListPtr draw,
+    Vector2 origin,
+    CalcChassisMetrics metrics,
+    IReadOnlyList<FaceplateCell> cells,
+    CalcExplorerSession session,
+    CalcModelDefinition faceplateModel,
+    ShiftPreviewMode shiftPreview,
+    bool calcInputActive,
+    bool powerOn,
+    bool switchClickHandled,
+    int keyboardHeldKey)
+  {
+    bool anyKeyHovered = false;
+    foreach (IGrouping<int, FaceplateCell> row in cells.GroupBy(cell => cell.Row).OrderBy(group => group.Key))
+    {
+      List<KeypadDrawItem> rowItems = [];
+      foreach (FaceplateCell cell in row)
+      {
+        if (cell.KeyChartIndex >= session.Vocabulary!.KeyChart.Count)
+        {
+          continue;
+        }
+
+        ProgramKeyEntry key = session.Vocabulary.KeyChart[cell.KeyChartIndex];
+        if (key.KeyCode == 0 || string.IsNullOrEmpty(ClassicKeyFaceplateLegend.Resolve(
+              session.Model.Model,
+              key,
+              session.Vocabulary,
+              cell.LabelStyle).Primary))
+        {
+          continue;
+        }
+
+        RectF keyRect = metrics.KeyRect(origin, cell.KeyChartIndex);
+        if (keyRect.Width <= 0f || keyRect.Height <= 0f)
+        {
+          continue;
+        }
+
+        HpCalcKeyVisual visual = ClassicKeyFaceplateLegend.Resolve(
+          session.Model.Model,
+          key,
+          session.Vocabulary,
+          cell.LabelStyle);
+        if (CalcEnterRowLabels.GoldLabelForKey(cell.KeyChartIndex) is { } enterRowGold)
+        {
+          visual = visual with { GoldShift = enterRowGold, GoldInverseShift = enterRowGold };
+        }
+
+        CalcButtonStyle style = CalcButton.StyleForKeyIndex(cell.KeyChartIndex);
+        PreviewVisual preview = ApplyShiftPreview(visual, shiftPreview, style);
+        CalcButtonKind kind = CalcFaceplateLayout.ButtonKindForKey(key, cell);
+        CalcKeyVisual keyVisual = BuildKeyVisual(preview, style, kind, cell.KeyChartIndex, shiftPreview);
+
+        rowItems.Add(new KeypadDrawItem(
+          cell,
+          key,
+          visual,
+          keyRect,
+          keyVisual,
+          kind,
+          style,
+          preview));
+      }
+
+      if (rowItems.Count == 0)
+      {
+        continue;
+      }
+
+      int count = rowItems.Count;
+      Vector2[] slotMins = new Vector2[count];
+      Vector2[] slotMaxs = new Vector2[count];
+      Vector2[] capMins = new Vector2[count];
+      Vector2[] capMaxs = new Vector2[count];
+      CalcKeyVisual[] visuals = new CalcKeyVisual[count];
+      for (int i = 0; i < count; i++)
+      {
+        slotMins[i] = rowItems[i].KeyRect.Min;
+        slotMaxs[i] = rowItems[i].KeyRect.Max;
+        visuals[i] = rowItems[i].KeyVisual;
+      }
+
+      CalcKeyRowLayout.ApplyRowBands(visuals, slotMins, slotMaxs, capMins, capMaxs, metrics.Scale);
+
+      for (int i = 0; i < count; i++)
+      {
+        KeypadDrawItem item = rowItems[i];
+        bool leftAlign = item.Kind != CalcButtonKind.EnterWide && item.Cell.ColSpan >= 2;
+        bool keyboardPressed = calcInputActive && powerOn && !switchClickHandled
+          && item.Cell.KeyChartIndex == keyboardHeldKey;
+        if (CalcKeyComponent.DrawAtCapBounds(
+              draw,
+              $"##hpkey{item.Cell.KeyChartIndex}",
+              slotMins[i],
+              slotMaxs[i],
+              capMins[i],
+              capMaxs[i],
+              item.KeyVisual,
+              faceplateModel,
+              metrics.Scale,
+              leftAlign,
+              forcePressed: keyboardPressed,
+              interactive: calcInputActive && powerOn && !switchClickHandled))
+        {
+          session.PressKey(item.Cell.KeyChartIndex, (byte)item.Key.KeyCode);
+        }
+
+        DrawShiftPreviewIndicator(draw, item.KeyRect, item.Cell.KeyChartIndex, shiftPreview, metrics.Scale);
+
+        if (ImGui.IsItemHovered() && calcInputActive && powerOn)
+        {
+          anyKeyHovered = true;
+          ImGui.SetTooltip($"{item.Visual.Primary}  (code {item.Key.KeyCode})");
+        }
+      }
+    }
+
+    return anyKeyHovered;
+  }
+
+  private readonly record struct KeypadDrawItem(
+    FaceplateCell Cell,
+    ProgramKeyEntry Key,
+    HpCalcKeyVisual Visual,
+    RectF KeyRect,
+    CalcKeyVisual KeyVisual,
+    CalcButtonKind Kind,
+    CalcButtonStyle Style,
+    PreviewVisual Preview);
 
   private static void DrawShiftPreviewIndicator(
     ImDrawListPtr draw,

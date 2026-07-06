@@ -9,6 +9,8 @@ public sealed class CalcModelDefinition
 
   public string ThemeId { get; init; } = CalcThemeCatalog.DefaultThemeId;
 
+  public string BodyLayoutId { get; init; } = CalcBodyLayoutCatalog.DefaultLayoutId;
+
   public IReadOnlyList<CalcModifierKey> ModifierKeys { get; init; } = [];
 
   public IReadOnlyList<CalcModifierAnnotationStyle> AnnotationStyles { get; init; } = [];

@@ -1,52 +1,14 @@
 using System.Numerics;
 using ImGuiNET;
 using TeoCalc.Core.Engine.Classic;
+using TeoCalc.Rendering.Faceplate;
 
 namespace TeoCalc.Rendering;
 
 public static class CalcChassisRenderer
 {
-  public static void DrawShell(ImDrawListPtr draw, Vector2 origin, CalcChassisMetrics metrics)
-  {
-    if (Hp65FaceplateSvgAssets.UseBodyChrome && Hp65FaceplateSvgAssets.IsReady)
-    {
-      Hp65FaceplateSvgAssets.DrawBody(draw, origin, metrics);
-      DrawCardSlotLabels(draw, origin, metrics);
-      Hp65FaceplateSvgAssets.DrawLogo(draw, origin, metrics);
-      return;
-    }
-
-    Vector2 size = new(metrics.Width, metrics.Height);
-    Vector2 max = origin + size;
-    float r = 10f * metrics.Scale;
-
-    draw.AddRectFilled(origin, max, CalcChassisPalette.FrameEdge, r + metrics.Scale);
-    Vector2 inner = origin + new Vector2(5f * metrics.Scale, 5f * metrics.Scale);
-    Vector2 innerMax = max - new Vector2(5f * metrics.Scale, 5f * metrics.Scale);
-    draw.AddRectFilled(inner, innerMax, CalcChassisPalette.Frame, r);
-
-    Vector2 faceMin = inner + new Vector2(8f * metrics.Scale, 8f * metrics.Scale);
-    Vector2 faceMax = innerMax - new Vector2(8f * metrics.Scale, metrics.FooterHeight + 6f * metrics.Scale);
-    DrawFaceplateGrain(draw, faceMin, faceMax, metrics.Scale);
-
-    RectF display = metrics.DisplayRect(origin);
-    DrawDisplayBezel(draw, display, metrics.Scale);
-
-    DrawSliderBand(draw, origin, faceMin, faceMax, metrics);
-
-    RectF keypad = metrics.KeypadPanelRect(origin);
-    DrawKeypadFace(draw, keypad, metrics);
-    DrawCardSlots(draw, origin, metrics, paintChrome: true);
-
-    float footerY = innerMax.Y - metrics.FooterHeight;
-    draw.AddRectFilled(
-      new Vector2(faceMin.X, footerY),
-      new Vector2(faceMax.X, innerMax.Y),
-      CalcChassisPalette.Footer,
-      2f * metrics.Scale);
-    DrawFooterText(draw, new Vector2(faceMin.X, footerY), faceMax.X - faceMin.X, metrics.FooterHeight, metrics.Scale);
-    Hp65FaceplateSvgAssets.DrawLogo(draw, origin, metrics);
-  }
+  public static void DrawShell(ImDrawListPtr draw, Vector2 origin, CalcChassisMetrics metrics, CalcModelDefinition model) =>
+    CalcBodyComponent.DrawChrome(draw, origin, metrics, model);
 
   public static void DrawBrandPlateText(
     ImDrawListPtr draw,
@@ -81,16 +43,7 @@ public static class CalcChassisRenderer
       ? CalcFaceplateFonts.MeasureArialBold(text, fontSize)
       : ImGui.GetFont().CalcTextSizeA(fontSize, float.MaxValue, 0f, text);
 
-  private static void DrawFooterText(ImDrawListPtr draw, Vector2 origin, float width, float height, float scale)
-  {
-    DrawBrandPlateText(
-      draw,
-      origin.X + width * 0.08f,
-      origin,
-      origin + new Vector2(width, height),
-      CalcChassisPalette.FooterText);
-  }
-
+  /// <summary>Card-slot function labels only — no chrome; Body.svg owns panel color.</summary>
   public static void DrawPanamatikDisplay(
     ImDrawListPtr draw,
     RectF display,
@@ -220,12 +173,12 @@ public static class CalcChassisRenderer
   public static void DrawSliderSwitches(ImDrawListPtr draw, Vector2 origin, CalcChassisMetrics metrics, bool powerOn, bool programMode)
   {
     RectF panel = metrics.SwitchTrackRect(origin);
-    float lift = BodyFaceplateLayout.SwitchRowLift * metrics.Scale;
+    float lift = metrics.Layout.SwitchRowLift * metrics.Scale;
     float rowY = panel.Y + panel.Height * 0.5f - lift;
     float onOffX = panel.X + panel.Width * 0.249f;
     float prgmX = panel.X + panel.Width * 0.751f;
 
-    float labelY = origin.Y + BodyFaceplateLayout.SwitchLabelY * metrics.Scale;
+    float labelY = origin.Y + metrics.Layout.SwitchLabelY * metrics.Scale;
 
     DrawSwitch(
       draw,
@@ -255,7 +208,7 @@ public static class CalcChassisRenderer
     bool powerOn)
   {
     RectF panel = metrics.SwitchTrackRect(origin);
-    float lift = BodyFaceplateLayout.SwitchRowLift * metrics.Scale;
+    float lift = metrics.Layout.SwitchRowLift * metrics.Scale;
     float rowY = panel.Y + panel.Height * 0.5f - lift;
     float onOffX = panel.X + panel.Width * 0.249f;
     float prgmX = panel.X + panel.Width * 0.751f;
@@ -304,7 +257,7 @@ public static class CalcChassisRenderer
   public static bool IsMouseOverSwitch(Vector2 mouse, Vector2 origin, CalcChassisMetrics metrics, bool powerOn, bool programMode)
   {
     RectF panel = metrics.SwitchTrackRect(origin);
-    float lift = BodyFaceplateLayout.SwitchRowLift * metrics.Scale;
+    float lift = metrics.Layout.SwitchRowLift * metrics.Scale;
     float rowY = panel.Y + panel.Height * 0.5f - lift;
     float onOffX = panel.X + panel.Width * 0.249f;
     float prgmX = panel.X + panel.Width * 0.751f;
@@ -389,24 +342,6 @@ public static class CalcChassisRenderer
   private static bool PointInRect(Vector2 point, Vector2 min, Vector2 max) =>
     point.X >= min.X && point.X <= max.X && point.Y >= min.Y && point.Y <= max.Y;
 
-  private static void DrawDisplayBezel(ImDrawListPtr draw, RectF display, float scale)
-  {
-    draw.AddRectFilled(display.Min, display.Max, CalcChassisPalette.DisplayBezel, 4f * scale);
-    draw.AddRect(display.Min, display.Max, CalcChassisPalette.KeyWellEdge, 4f * scale, ImDrawFlags.None, scale);
-  }
-
-  private static void DrawSliderBand(ImDrawListPtr draw, Vector2 origin, Vector2 faceMin, Vector2 faceMax, CalcChassisMetrics metrics)
-  {
-    RectF track = BodyFaceplateLayout.SwitchTrack;
-    float top = origin.Y + track.Y * metrics.Scale;
-    float bottom = top + track.Height * metrics.Scale;
-    draw.AddRectFilled(
-      new Vector2(faceMin.X, top),
-      new Vector2(faceMax.X, bottom),
-      CalcChassisPalette.SliderTrack,
-      3f * metrics.Scale);
-  }
-
   private static void DrawSwitch(
     ImDrawListPtr draw,
     Vector2 knobCenter,
@@ -442,39 +377,5 @@ public static class CalcChassisRenderer
     float x = rightAligned ? anchor.X - size.X : anchor.X;
     float y = anchor.Y - size.Y * 0.5f;
     draw.AddText(font, fontSize, new Vector2(x, y), CalcChassisPalette.SwitchLabel, text);
-  }
-
-  private static void DrawFaceplateGrain(ImDrawListPtr draw, Vector2 min, Vector2 max, float scale)
-  {
-    draw.AddRectFilled(min, max, CalcChassisPalette.Faceplate, 6f * scale);
-    int seed = (int)(min.X * 13 + min.Y * 29);
-    int grains = (int)Math.Clamp(180 * scale, 120, 280);
-    for (int grain = 0; grain < grains; grain++)
-    {
-      seed = seed * 1664525 + 1013904223;
-      float u = (seed & 0xFFFF) / 65535f;
-      seed = seed * 1664525 + 1013904223;
-      float v = (seed & 0xFFFF) / 65535f;
-      Vector2 point = new(
-        min.X + 6f + u * MathF.Max(10f, max.X - min.X - 12f),
-        min.Y + 6f + v * MathF.Max(10f, max.Y - min.Y - 12f));
-      draw.AddCircleFilled(point, (0.45f + (grain % 3) * 0.18f) * scale, CalcChassisPalette.FaceplateGrain);
-    }
-  }
-
-  private static void DrawKeypadFace(ImDrawListPtr draw, RectF keypad, CalcChassisMetrics metrics)
-  {
-    draw.AddRectFilled(keypad.Min, keypad.Max, CalcChassisPalette.Faceplate, 4f * metrics.Scale);
-
-    if (BodyFaceplateLayout.TryGetKeyRect(15, out RectF enterKey))
-    {
-      RectF panel = BodyFaceplateLayout.KeypadPanel;
-      float enterRuleY = keypad.Y + (enterKey.Y + enterKey.Height * 0.5f - panel.Y) * metrics.Scale;
-      draw.AddLine(
-        new Vector2(keypad.X + metrics.Scale * 4f, enterRuleY),
-        new Vector2(keypad.Max.X - metrics.Scale * 4f, enterRuleY),
-        CalcChassisPalette.GoldRule,
-        metrics.Scale);
-    }
   }
 }
