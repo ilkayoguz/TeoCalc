@@ -15,19 +15,20 @@ public static class CalcChassisRenderer
     float textLeftArg,
     Vector2 plateMin,
     Vector2 plateMax,
+    string brandLine,
     uint? color = null,
     float textRightMargin = 0f)
   {
-    const string brandLine = "HEWLETT-PACKARD 65";
     float plateHeight = plateMax.Y - plateMin.Y;
     float plateWidth = plateMax.X - plateMin.X;
     float textLeft = textLeftArg;
-    float textRight = plateMax.X - MathF.Max(textRightMargin, plateWidth * 0.04f);
-    uint ink = color ?? CalcChassisPalette.FooterBrandText;
+    float textRight = plateMax.X - MathF.Max(textRightMargin, plateWidth * 0.03f);
+    uint ink = color ?? CalcChassisPalette.FooterText;
 
-    float fontSize = plateHeight * 0.5f;
-    Vector2 measure = MeasureBrandArial(brandLine, fontSize);
-    float y = plateMin.Y + (plateHeight - measure.Y) * 0.5f;
+    float fontSize = plateHeight * 0.52f;
+    CalcFaceplateFonts.FontInkBounds inkBounds = CalcFaceplateFonts.MeasureArialBoldInk(brandLine, fontSize);
+    float bottomPad = plateHeight * 0.10f;
+    float y = plateMax.Y - bottomPad - inkBounds.Height;
 
     if (CalcFaceplateFonts.IsArialBoldReady || CalcFaceplateFonts.IsArialReady)
     {
@@ -35,7 +36,9 @@ public static class CalcChassisRenderer
       return;
     }
 
-    draw.AddText(ImGui.GetFont(), fontSize, new Vector2(textLeft, y), ink, brandLine);
+    Vector2 measure = ImGui.GetFont().CalcTextSizeA(fontSize, float.MaxValue, 0f, brandLine);
+    float fallbackY = plateMax.Y - bottomPad - measure.Y;
+    draw.AddText(ImGui.GetFont(), fontSize, new Vector2(textLeft, fallbackY), ink, brandLine);
   }
 
   private static Vector2 MeasureBrandArial(string text, float fontSize) =>
@@ -175,33 +178,19 @@ public static class CalcChassisRenderer
     }
   }
 
-  public static void DrawSliderSwitches(ImDrawListPtr draw, Vector2 origin, CalcChassisMetrics metrics, bool powerOn, bool programMode)
+  public static void DrawSliderSwitches(ImDrawListPtr draw, Vector2 origin, CalcChassisMetrics metrics, CalcExplorerSession session)
   {
-    RectF panel = metrics.SwitchTrackRect(origin);
-    float lift = metrics.Layout.SwitchRowLift * metrics.Scale;
-    float rowY = panel.Y + panel.Height * 0.5f - lift;
-    float onOffX = panel.X + panel.Width * 0.249f;
-    float prgmX = panel.X + panel.Width * 0.751f;
-
-    float labelY = origin.Y + metrics.Layout.SwitchLabelY * metrics.Scale;
-
-    DrawSwitch(
+    float scale = metrics.Scale;
+    RectF slot = metrics.SwitchTrackRect(origin);
+    IReadOnlyList<CalcSwitchSpec> specs = metrics.Layout.Switches;
+    session.EnsureFaceplateSwitches(specs);
+    CalcSwitchPanelComponent.Draw(
       draw,
-      new Vector2(onOffX, rowY),
-      labelY,
-      metrics.Scale,
-      powerOn ? 1f : 0f,
-      "OFF",
-      "ON");
-
-    DrawSwitch(
-      draw,
-      new Vector2(prgmX, rowY),
-      labelY,
-      metrics.Scale,
-      programMode ? 0f : 1f,
-      metrics.Layout.SwitchLabels.Left,
-      metrics.Layout.SwitchLabels.Right);
+      slot,
+      scale,
+      specs,
+      (index, spec) => session.GetFaceplateSwitchNorm(index, spec),
+      modernChrome: CalcModernBody.IsActive);
   }
 
   public readonly record struct SwitchPointerState(bool Hovered, bool ClickHandled);
@@ -212,68 +201,110 @@ public static class CalcChassisRenderer
     CalcExplorerSession session,
     bool powerOn)
   {
-    RectF panel = metrics.SwitchTrackRect(origin);
-    float lift = metrics.Layout.SwitchRowLift * metrics.Scale;
-    float rowY = panel.Y + panel.Height * 0.5f - lift;
-    float onOffX = panel.X + panel.Width * 0.249f;
-    float prgmX = panel.X + panel.Width * 0.751f;
+    RectF slot = metrics.SwitchTrackRect(origin);
     float scale = metrics.Scale;
+    IReadOnlyList<CalcSwitchSpec> specs = metrics.Layout.Switches;
+    session.EnsureFaceplateSwitches(specs);
     Vector2 mouse = ImGui.GetIO().MousePos;
     bool clicked = ImGui.IsMouseClicked(ImGuiMouseButton.Left);
 
     bool anyHovered = false;
     bool clickHandled = false;
-    anyHovered |= PollSwitchPointer(
-      mouse,
-      clicked,
-      panel,
-      new Vector2(onOffX, rowY),
-      scale,
-      powerOn ? 1f : 0f,
-      leftHalf =>
-      {
-        if (leftHalf)
-        {
-          session.PowerOff();
-        }
-        else
-        {
-          session.PowerOnResume();
-        }
-      },
-      ref clickHandled);
 
-    if (powerOn)
+    for (int i = 0; i < specs.Count; i++)
     {
-      anyHovered |= PollSwitchPointer(
-        mouse,
-        clicked,
-        panel,
-        new Vector2(prgmX, rowY),
-        scale,
-        session.ProgramMode ? 0f : 1f,
-        leftHalf => session.ToggleProgramModeTo(leftHalf),
-        ref clickHandled);
+      CalcSwitchSpec spec = specs[i];
+      bool interactive = spec.IsPower || powerOn;
+      if (!interactive)
+      {
+        continue;
+      }
+
+      float norm = session.GetFaceplateSwitchNorm(i, spec);
+      CalcSwitchComponent.HitLayout hit = CalcSwitchPanelComponent.BuildHitLayout(slot, scale, specs, i, norm);
+      SwitchLabelSlot part = CalcSwitchComponent.HitTest(mouse, hit);
+      if (part == SwitchLabelSlot.None)
+      {
+        continue;
+      }
+
+      anyHovered = true;
+      if (!clicked || clickHandled)
+      {
+        continue;
+      }
+
+      if (part == SwitchLabelSlot.Knob)
+      {
+        session.AdvanceFaceplateSwitch(i, spec);
+      }
+      else if (part == SwitchLabelSlot.Track)
+      {
+        session.SetFaceplateSwitchIndex(i, spec, CalcSwitchComponent.IndexForTrackClick(spec, hit, mouse));
+      }
+      else
+      {
+        session.SetFaceplateSwitchIndex(i, spec, spec.IndexForLabel(part));
+      }
+
+      clickHandled = true;
     }
 
     return new SwitchPointerState(anyHovered, clickHandled);
   }
 
-  public static bool IsMouseOverSwitch(Vector2 mouse, Vector2 origin, CalcChassisMetrics metrics, bool powerOn, bool programMode)
+  public static bool IsMouseOverSwitch(
+    Vector2 mouse,
+    Vector2 origin,
+    CalcChassisMetrics metrics,
+    CalcExplorerSession session,
+    bool powerOn)
   {
-    RectF panel = metrics.SwitchTrackRect(origin);
-    float lift = metrics.Layout.SwitchRowLift * metrics.Scale;
-    float rowY = panel.Y + panel.Height * 0.5f - lift;
-    float onOffX = panel.X + panel.Width * 0.249f;
-    float prgmX = panel.X + panel.Width * 0.751f;
+    RectF slot = metrics.SwitchTrackRect(origin);
     float scale = metrics.Scale;
+    IReadOnlyList<CalcSwitchSpec> specs = metrics.Layout.Switches;
+    session.EnsureFaceplateSwitches(specs);
 
-    if (ContainsSwitchHit(mouse, panel, new Vector2(onOffX, rowY), scale, powerOn ? 1f : 0f))
+    for (int i = 0; i < specs.Count; i++)
     {
-      return true;
+      CalcSwitchSpec spec = specs[i];
+      if (!spec.IsPower && !powerOn)
+      {
+        continue;
+      }
+
+      float norm = session.GetFaceplateSwitchNorm(i, spec);
+      CalcSwitchComponent.HitLayout hit = CalcSwitchPanelComponent.BuildHitLayout(slot, scale, specs, i, norm);
+      if (CalcSwitchComponent.HitTest(mouse, hit) != SwitchLabelSlot.None)
+      {
+        return true;
+      }
     }
 
-    return powerOn && ContainsSwitchHit(mouse, panel, new Vector2(prgmX, rowY), scale, programMode ? 0f : 1f);
+    return false;
+  }
+
+  private static (float RowY, float OnOffX, float PrgmX, RectF Panel) ResolveSwitchGeometry(
+    Vector2 origin,
+    CalcChassisMetrics metrics)
+  {
+    RectF panel = metrics.SwitchTrackRect(origin);
+    if (CalcModernBody.IsActive)
+    {
+      return (
+        origin.Y + metrics.Layout.OnOffSwitchCenter.Y * metrics.Scale,
+        origin.X + metrics.Layout.OnOffSwitchCenter.X * metrics.Scale,
+        origin.X + metrics.Layout.PrgmRunSwitchCenter.X * metrics.Scale,
+        panel);
+    }
+
+    float lift = metrics.Layout.SwitchRowLift * metrics.Scale;
+    float rowY = panel.Y + panel.Height * 0.5f - lift;
+    return (
+      rowY,
+      panel.X + panel.Width * 0.249f,
+      panel.X + panel.Width * 0.751f,
+      panel);
   }
 
   private static (Vector2 Min, Vector2 Max) SwitchTrackBounds(Vector2 knobCenter, float scale)
@@ -354,29 +385,74 @@ public static class CalcChassisRenderer
     float scale,
     float position,
     string leftLabel,
-    string rightLabel)
+    string rightLabel,
+    bool paintTrack = true,
+    bool paintLabels = true,
+    bool paintKnob = true)
   {
-    float trackWidth = 58f * scale;
-    float trackHeight = 8f * scale;
-    float knobWidth = 22f * scale;
-    float knobHeight = 14f * scale;
+    bool modern = CalcModernBody.IsActive;
+    float trackWidth = (modern ? 76f : 58f) * scale;
+    float trackHeight = (modern ? 10f : 8f) * scale;
+    float knobWidth = (modern ? 26f : 22f) * scale;
+    float knobHeight = (modern ? 16f : 14f) * scale;
     Vector2 trackMin = new(knobCenter.X - trackWidth * 0.5f, knobCenter.Y - trackHeight * 0.5f);
     Vector2 trackMax = new(knobCenter.X + trackWidth * 0.5f, knobCenter.Y + trackHeight * 0.5f);
-    draw.AddRectFilled(trackMin, trackMax, CalcChassisPalette.SwitchTrack, trackHeight * 0.5f);
+    if (paintTrack)
+    {
+      uint track = modern ? CalcChassisPalette.SwitchTrack : CalcChassisPalette.KeyWell;
+      uint edge = CalcChassisPalette.KeyWellEdge;
+      draw.AddRectFilled(trackMin, trackMax, track, trackHeight * 0.5f);
+      draw.AddRect(trackMin, trackMax, edge, trackHeight * 0.5f, ImDrawFlags.None, scale * 0.55f);
+      if (modern)
+      {
+        Vector2 inset = new(scale * 0.5f, scale * 0.35f);
+        draw.AddRect(trackMin + inset, trackMax - inset, 0x33000000, trackHeight * 0.5f, ImDrawFlags.None, scale * 0.35f);
+      }
+    }
 
-    float knobX = trackMin.X + position * (trackWidth - knobWidth);
-    Vector2 knobMin = new(knobX, knobCenter.Y - knobHeight * 0.5f);
-    Vector2 knobMax = new(knobX + knobWidth, knobCenter.Y + knobHeight * 0.5f);
-    draw.AddRectFilled(knobMin, knobMax, CalcChassisPalette.SwitchKnob, 2f * scale);
+    if (paintKnob)
+    {
+      float knobX = trackMin.X + position * (trackWidth - knobWidth);
+      Vector2 knobMin = new(knobX, knobCenter.Y - knobHeight * 0.5f);
+      Vector2 knobMax = new(knobX + knobWidth, knobCenter.Y + knobHeight * 0.5f);
+      draw.AddRectFilled(knobMin, knobMax, CalcChassisPalette.SwitchKnob, modern ? 2.5f * scale : 2f * scale);
+      if (modern)
+      {
+        float ridgeX = knobMin.X + scale * 2f;
+        while (ridgeX < knobMax.X - scale * 2f)
+        {
+          draw.AddLine(
+            new Vector2(ridgeX, knobMin.Y + scale),
+            new Vector2(ridgeX, knobMax.Y - scale),
+            0x44FFFFFF,
+            scale * 0.35f);
+          ridgeX += scale * 2.2f;
+        }
+      }
+      else
+      {
+        draw.AddRect(knobMin, knobMax, 0x44FFFFFF, 2f * scale, ImDrawFlags.None, scale * 0.5f);
+      }
+    }
+
+    if (!paintLabels)
+    {
+      return;
+    }
 
     float labelSize = CalcFaceplateTypography.SwitchLabel(scale);
-    float labelGap = scale * 10f;
+    float labelGap = (modern ? 14f : 10f) * scale;
     DrawSwitchLabel(draw, leftLabel, new Vector2(trackMin.X - labelGap, labelBaselineY), labelSize, rightAligned: true);
     DrawSwitchLabel(draw, rightLabel, new Vector2(trackMax.X + labelGap, labelBaselineY), labelSize, rightAligned: false);
   }
 
   private static void DrawSwitchLabel(ImDrawListPtr draw, string text, Vector2 anchor, float fontSize, bool rightAligned)
   {
+    if (string.IsNullOrEmpty(text))
+    {
+      return;
+    }
+
     ImFontPtr font = CalcFaceplateFonts.IsReady ? CalcFaceplateFonts.SansBold : ImGui.GetFont();
     Vector2 size = font.CalcTextSizeA(fontSize, float.MaxValue, 0f, text);
     float x = rightAligned ? anchor.X - size.X : anchor.X;

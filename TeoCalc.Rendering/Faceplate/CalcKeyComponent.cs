@@ -21,22 +21,28 @@ public sealed class CalcKeyVisual
   public static CalcKeyVisual FromLegacy(
     HpCalcKeyVisual legacy,
     CalcButtonStyle capStyle,
-    CalcButtonKind kind)
+    CalcButtonKind kind,
+    CalcModelDefinition? model = null)
   {
+    CalcModelDefinition bindings = model ?? CalcModelCatalog.Hp65;
     List<CalcKeyAnnotation> annotations = [];
     if (!string.IsNullOrEmpty(legacy.GoldShift))
     {
-      annotations.Add(new CalcKeyAnnotation(CalcModifierKey.F, CalcLabelAnchor.CapAbove, legacy.GoldShift));
+      annotations.Add(CalcModifierPlacement.Annotate(bindings, CalcModifierKey.F, legacy.GoldShift));
     }
 
     if (!string.IsNullOrEmpty(legacy.GoldInverseShift))
     {
-      annotations.Add(new CalcKeyAnnotation(CalcModifierKey.F, CalcLabelAnchor.CapFace, legacy.GoldInverseShift));
+      annotations.Add(CalcModifierPlacement.Annotate(
+        bindings,
+        CalcModifierKey.F,
+        legacy.GoldInverseShift,
+        CalcLabelAnchor.CapFace));
     }
 
     if (!string.IsNullOrEmpty(legacy.BlueShift))
     {
-      annotations.Add(new CalcKeyAnnotation(CalcModifierKey.G, CalcLabelAnchor.CapSkirt, legacy.BlueShift));
+      annotations.Add(CalcModifierPlacement.Annotate(bindings, CalcModifierKey.G, legacy.BlueShift));
     }
 
     return new CalcKeyVisual
@@ -79,6 +85,13 @@ public static class CalcKeyRowLayout
       maxBelow = MathF.Max(maxBelow, metrics.BelowBandHeight);
     }
 
+    // Empty CapAbove keys share the row’s top band so gold labels stay aligned.
+    // CapSkirt lives on the key etek (inside CapHeight); CapBelow alone needs the bottom band.
+    if (CalcModernBody.IsActive)
+    {
+      maxAbove = MathF.Max(maxAbove, CalcKeyPanelComponent.LabelAboveRef * scale);
+    }
+
     for (int i = 0; i < visuals.Count; i++)
     {
       capMins[i] = new Vector2(slotMins[i].X, slotMins[i].Y + maxAbove);
@@ -91,15 +104,17 @@ public static class CalcKeyComponent
 {
   private const float AboveBandScale = 0.72f;
 
-  private const float BelowBandScale = 0.34f;
+  private const float BelowBandScale = 0.42f;
 
   public static CalcKeyMetrics Measure(Vector2 slotMin, Vector2 slotMax, CalcKeyVisual visual, float scale)
   {
+    // TopLabel (CapAbove) and BottomLabel (CapBelow) sit outside the cap.
+    // BelowLabel (CapSkirt / g) sits on the key etek — inside CapHeight.
     float above = HasAnchor(visual, CalcLabelAnchor.CapAbove)
       ? CalcFaceplateTypography.GoldShift(scale) * AboveBandScale
       : 0f;
     float below = HasAnchor(visual, CalcLabelAnchor.CapBelow)
-      ? CalcFaceplateTypography.BlueSkirt(scale) * BelowBandScale
+      ? CalcFaceplateTypography.GoldShift(scale) * BelowBandScale
       : 0f;
 
     Vector2 capMin = new(slotMin.X, slotMin.Y + above);
@@ -154,40 +169,26 @@ public static class CalcKeyComponent
   {
     foreach (CalcKeyAnnotation annotation in visual.Annotations)
     {
-      if (annotation.Anchor is not (CalcLabelAnchor.CapAbove or CalcLabelAnchor.CapBelow)
-          || string.IsNullOrEmpty(annotation.Text))
+      if (string.IsNullOrEmpty(annotation.Text))
       {
         continue;
       }
 
-      uint ink = CalcFaceplateTheme.ResolveAnnotation(annotation.Modifier, annotation.Anchor, model);
       if (annotation.Anchor == CalcLabelAnchor.CapAbove)
       {
-        DrawBodyBandLabel(
-          draw,
-          annotation.Text,
-          slotMin,
-          slotMax,
-          capMin.Y,
-          above: true,
-          ink,
-          scale);
+        uint ink = CalcFaceplateTheme.ResolveAnnotation(annotation.Modifier, annotation.Anchor, model);
+        DrawBodyBandLabel(draw, annotation.Text, slotMin, slotMax, capMin.Y, above: true, ink, scale);
       }
-      else
+      else if (annotation.Anchor == CalcLabelAnchor.CapBelow)
       {
-        DrawBodyBandLabel(
-          draw,
-          annotation.Text,
-          slotMin,
-          slotMax,
-          capMax.Y,
-          above: false,
-          ink,
-          scale);
+        uint ink = CalcFaceplateTheme.ResolveAnnotation(annotation.Modifier, annotation.Anchor, model);
+        DrawBodyBandLabel(draw, annotation.Text, slotMin, slotMax, capMax.Y, above: false, ink, scale);
       }
     }
 
-    string? skirtLabel = FindAnnotationText(visual, CalcLabelAnchor.CapSkirt);
+    // CapSkirt → key etek; CapFace modifier text may replace primary when present.
+    CalcKeyAnnotation? skirtAnnotation = FindAnnotation(visual, CalcLabelAnchor.CapSkirt);
+    string? skirtLabel = skirtAnnotation?.Text;
     string capFace = visual.CapFace;
     foreach (CalcKeyAnnotation annotation in visual.Annotations)
     {
@@ -196,6 +197,14 @@ public static class CalcKeyComponent
         capFace = annotation.Text;
         break;
       }
+    }
+
+    uint? skirtInk = visual.CapSkirtInkOverride;
+    if (skirtInk is null && skirtAnnotation is { } skirt)
+    {
+      skirtInk = CalcModernBody.IsActive
+        ? CalcKeyLabelPalette.SkirtLabelInk(skirt.Text, visual.CapStyle)
+        : CalcFaceplateTheme.ResolveAnnotation(skirt.Modifier, skirt.Anchor, model);
     }
 
     return CalcButton.Draw(
@@ -214,19 +223,24 @@ public static class CalcKeyComponent
       forcePressed: forcePressed,
       interactive: interactive,
       primaryInkOverride: visual.CapFaceInkOverride,
-      skirtInkOverride: visual.CapSkirtInkOverride
-        ?? (skirtLabel is not null
-          ? CalcFaceplateTheme.ResolveAnnotation(CalcModifierKey.G, CalcLabelAnchor.CapSkirt, model)
-          : null));
+      skirtInkOverride: skirtInk);
   }
 
   private static bool HasAnchor(CalcKeyVisual visual, CalcLabelAnchor anchor) =>
     visual.Annotations.Any(annotation => annotation.Anchor == anchor && !string.IsNullOrEmpty(annotation.Text));
 
-  private static string? FindAnnotationText(CalcKeyVisual visual, CalcLabelAnchor anchor) =>
-    visual.Annotations.FirstOrDefault(annotation => annotation.Anchor == anchor).Text is { Length: > 0 } text
-      ? text
-      : null;
+  private static CalcKeyAnnotation? FindAnnotation(CalcKeyVisual visual, CalcLabelAnchor anchor)
+  {
+    foreach (CalcKeyAnnotation annotation in visual.Annotations)
+    {
+      if (annotation.Anchor == anchor && !string.IsNullOrEmpty(annotation.Text))
+      {
+        return annotation;
+      }
+    }
+
+    return null;
+  }
 
   private static void DrawBodyBandLabel(
     ImDrawListPtr draw,
@@ -240,7 +254,7 @@ public static class CalcKeyComponent
   {
     float fontSize = above
       ? CalcFaceplateTypography.GoldShift(scale)
-      : CalcFaceplateTypography.BlueSkirt(scale) * CalcKeyLabelPalette.BlueSkirtFontScale(text);
+      : CalcFaceplateTypography.GoldShift(scale) * 0.92f;
 
     Vector2 textSize = CalcFaceplateFonts.IsArialBoldReady || CalcFaceplateFonts.IsArialReady
       ? CalcFaceplateFonts.MeasureArialBold(text, fontSize)
@@ -248,8 +262,8 @@ public static class CalcKeyComponent
 
     float x = slotMin.X + ((slotMax.X - slotMin.X) - textSize.X) * 0.5f;
     float y = above
-      ? capEdgeY - textSize.Y - scale * 1.5f
-      : capEdgeY + scale * 1.5f;
+      ? capEdgeY - textSize.Y - scale * 1.2f
+      : capEdgeY + scale * 1.2f;
 
     if (CalcFaceplateFonts.IsArialBoldReady || CalcFaceplateFonts.IsArialReady)
     {

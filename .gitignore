@@ -42,3 +42,6 @@ Catalog/Workspace/HpCalcExplorer/Reference/Decompiled/**
 # legacy flat layout (unused)
 Catalog/Workspace/HpCalcExplorer/Reference/Exe/**
 !Catalog/Workspace/HpCalcExplorer/Reference/Exe/.gitkeep
+
+# Reference documents (PDFs, scans) kept locally, not tracked
+Catalog/Documents/

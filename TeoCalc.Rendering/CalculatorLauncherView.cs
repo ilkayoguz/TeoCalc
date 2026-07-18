@@ -5,7 +5,7 @@ namespace TeoCalc.Rendering;
 
 public static class CalculatorLauncherView
 {
-  private const int ColumnCount = 4;
+  private const int ColumnCount = 5;
 
   public static bool Draw(CalculatorLauncherModel launcher)
   {
@@ -13,35 +13,36 @@ public static class CalculatorLauncherView
 
     ImGui.SetNextWindowPos(Vector2.Zero);
     ImGui.SetNextWindowSize(ImGui.GetIO().DisplaySize);
+    ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, new Vector2(10f, 8f));
+    ImGui.PushStyleVar(ImGuiStyleVar.ItemSpacing, new Vector2(4f, 4f));
+    ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 4f);
     ImGui.Begin(
       "TeoCalc Launcher",
       ImGuiWindowFlags.NoDecoration | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoBringToFrontOnFocus);
 
+    ImGui.AlignTextToFramePadding();
     ImGui.TextUnformatted("TeoCalc");
-    ImGui.TextDisabled("Classic calculator launcher");
-    ImGui.Separator();
+    ImGui.SameLine();
+    ImGui.TextDisabled("· pick a model");
 
-    ImGui.TextWrapped(
-      "Open TeoCalc launches the in-app explorer. Open Reference launches the local Panamatik reference app when a runnable build is present.");
     ImGui.Spacing();
 
-    if (ImGui.BeginTable("calculator-launcher", ColumnCount, ImGuiTableFlags.SizingStretchSame | ImGuiTableFlags.PadOuterX))
+    if (ImGui.BeginTable("calculator-launcher", ColumnCount, ImGuiTableFlags.SizingStretchSame))
     {
       for (int index = 0; index < launcher.Entries.Count; index++)
       {
         ImGui.TableNextColumn();
-        openSelected |= DrawEntryCard(launcher, index, launcher.Entries[index]);
+        openSelected |= DrawModelButton(launcher, index, launcher.Entries[index]);
       }
 
       ImGui.EndTable();
     }
 
-    ImGui.Separator();
-    ImGui.TextDisabled(launcher.StatusLine);
-    ImGui.SameLine();
-    ImGui.TextDisabled("Arrow keys move, Enter opens TeoCalc when available.");
+    ImGui.Spacing();
+    ImGui.TextDisabled("Enter / click opens · right-click: Reference");
 
     ImGui.End();
+    ImGui.PopStyleVar(3);
     return openSelected;
   }
 
@@ -52,75 +53,79 @@ public static class CalculatorLauncherView
       return false;
     }
 
+    int columns = ColumnCount;
     if (ImGui.IsKeyPressed(ImGuiKey.LeftArrow, repeat: true))
     {
-      launcher.MoveSelectionByGrid(-1, 0, ColumnCount);
+      launcher.MoveSelectionByGrid(-1, 0, columns);
     }
     else if (ImGui.IsKeyPressed(ImGuiKey.RightArrow, repeat: true))
     {
-      launcher.MoveSelectionByGrid(1, 0, ColumnCount);
+      launcher.MoveSelectionByGrid(1, 0, columns);
     }
     else if (ImGui.IsKeyPressed(ImGuiKey.UpArrow, repeat: true))
     {
-      launcher.MoveSelectionByGrid(0, -1, ColumnCount);
+      launcher.MoveSelectionByGrid(0, -1, columns);
     }
     else if (ImGui.IsKeyPressed(ImGuiKey.DownArrow, repeat: true))
     {
-      launcher.MoveSelectionByGrid(0, 1, ColumnCount);
+      launcher.MoveSelectionByGrid(0, 1, columns);
     }
 
     return ImGui.IsKeyPressed(ImGuiKey.Enter, repeat: false) && launcher.TryOpenSelectedTeoCalc(out _);
   }
 
-  private static bool DrawEntryCard(CalculatorLauncherModel launcher, int index, CalculatorLauncherEntry entry)
+  private static bool DrawModelButton(
+    CalculatorLauncherModel launcher,
+    int index,
+    CalculatorLauncherEntry entry)
   {
     bool selected = index == launcher.SelectedIndex;
-    Vector4 cardColor = selected
-      ? new Vector4(0.20f, 0.28f, 0.36f, 1f)
-      : new Vector4(0.15f, 0.15f, 0.18f, 1f);
+    bool open = false;
+    Vector2 size = new(-1f, 26f);
 
     ImGui.PushID(entry.ModelId);
-    ImGui.PushStyleColor(ImGuiCol.ChildBg, cardColor);
-    ImGui.BeginChild("card", new Vector2(0, 168), ImGuiChildFlags.Border);
-
-    if (ImGui.IsWindowHovered() && ImGui.IsMouseClicked(ImGuiMouseButton.Left))
+    if (selected)
     {
-      launcher.Select(index);
+      ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0.28f, 0.40f, 0.52f, 1f));
+      ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new Vector4(0.34f, 0.48f, 0.62f, 1f));
+      ImGui.PushStyleColor(ImGuiCol.ButtonActive, new Vector4(0.22f, 0.34f, 0.46f, 1f));
+    }
+    else if (!entry.CanOpenTeoCalc)
+    {
+      ImGui.PushStyleColor(ImGuiCol.Button, new Vector4(0.18f, 0.18f, 0.20f, 1f));
+      ImGui.PushStyleColor(ImGuiCol.ButtonHovered, new Vector4(0.22f, 0.22f, 0.24f, 1f));
+      ImGui.PushStyleColor(ImGuiCol.ButtonActive, new Vector4(0.16f, 0.16f, 0.18f, 1f));
     }
 
-    ImGui.TextUnformatted(entry.DisplayName);
-    ImGui.TextDisabled(entry.TeoCalcStatus);
-    ImGui.TextDisabled(entry.ReferenceStatus);
-    ImGui.Spacing();
-
-    bool open = false;
-    if (entry.CanOpenTeoCalc)
+    int styleCount = selected || !entry.CanOpenTeoCalc ? 3 : 0;
+    if (ImGui.Button(entry.DisplayName, size))
     {
-      if (ImGui.Button("Open TeoCalc", new Vector2(-1, 30)))
+      launcher.Select(index);
+      if (entry.CanOpenTeoCalc)
       {
-        launcher.Select(index);
         open = launcher.TryOpenSelectedTeoCalc(out _);
       }
     }
-    else
+
+    if (ImGui.IsItemClicked(ImGuiMouseButton.Right) && entry.CanOpenReference)
     {
-      ImGui.TextDisabled("TeoCalc pending");
+      launcher.OpenReference(index);
     }
 
-    if (entry.CanOpenReference)
+    if (ImGui.IsItemHovered())
     {
-      if (ImGui.Button("Open Reference", new Vector2(-1, 30)))
-      {
-        launcher.OpenReference(index);
-      }
-    }
-    else
-    {
-      ImGui.TextDisabled(entry.Reference is null ? "Reference pending" : "Reference build pending");
+      launcher.Select(index);
+      ImGui.SetTooltip(
+        entry.CanOpenTeoCalc
+          ? $"{entry.DisplayName}\nClick / Enter: TeoCalc"
+          : $"{entry.DisplayName}\nTeoCalc pending");
     }
 
-    ImGui.EndChild();
-    ImGui.PopStyleColor();
+    if (styleCount > 0)
+    {
+      ImGui.PopStyleColor(styleCount);
+    }
+
     ImGui.PopID();
     return open;
   }

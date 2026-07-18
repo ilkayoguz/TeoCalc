@@ -1,6 +1,7 @@
 using System.Numerics;
 using ImGuiNET;
 using TeoCalc.Core.Engine.Classic;
+using TeoCalc.Rendering.Faceplate;
 
 namespace TeoCalc.Rendering;
 
@@ -9,6 +10,9 @@ public static class ClassicLedDisplayRenderer
 {
   /// <summary>Panamatik KML <c>hp65_470</c>: font 20 in display height 42.</summary>
   private const float LedFontHeightRatio = 20f / 42f;
+
+  /// <summary>Modern glass is shorter — keep digits inside the bezel, then letter-space to full width.</summary>
+  private const float ModernLedFontHeightRatio = 0.52f;
 
   private const float ExponentScale = 0.76f;
 
@@ -35,9 +39,21 @@ public static class ClassicLedDisplayRenderer
     float scale,
     string? ledText = null)
   {
-    Vector2 min = display.Min + new Vector2(5f * scale, 4f * scale);
-    Vector2 max = display.Max - new Vector2(5f * scale, 4f * scale);
-    draw.AddRectFilled(min, max, CalcChassisPalette.DisplayGlass, 2f * scale);
+    bool modern = CalcModernBody.IsActive;
+    Vector2 min;
+    Vector2 max;
+    if (modern)
+    {
+      // Caller passes the glass rect; chrome already owns the surround.
+      min = display.Min;
+      max = display.Max;
+    }
+    else
+    {
+      min = display.Min + new Vector2(5f * scale, 4f * scale);
+      max = display.Max - new Vector2(5f * scale, 4f * scale);
+      draw.AddRectFilled(min, max, CalcChassisPalette.DisplayGlass, 2f * scale);
+    }
 
     if (!displayOn)
     {
@@ -73,29 +89,92 @@ public static class ClassicLedDisplayRenderer
     bool programMode)
   {
     ImFontPtr font = CalcFaceplateFonts.LedDisplay;
-    float padX = 6f * scale;
-    float innerHeight = max.Y - min.Y - 6f * scale;
-    float fontSize = innerHeight * LedFontHeightRatio;
-    Vector2 textSize = font.CalcTextSizeA(fontSize, float.MaxValue, 0f, text);
-    float x = min.X + padX;
-    float y = min.Y + (max.Y - min.Y - textSize.Y) * 0.5f;
-    Vector2 glowOffset = new(scale * 0.55f, scale * 0.55f);
-    Vector2 boldOffset = new(scale * 0.35f, 0f);
-    Vector2 pos = new(x, y);
+    float padX = 5f * scale;
+    float padY = 4f * scale;
+    float innerWidth = MathF.Max(1f, max.X - min.X - padX * 2f);
+    float innerHeight = MathF.Max(1f, max.Y - min.Y - padY * 2f);
+    float ratio = CalcModernBody.IsActive ? ModernLedFontHeightRatio : LedFontHeightRatio;
+    float fontSize = innerHeight * ratio;
 
-    draw.AddText(font, fontSize, pos + glowOffset, CalcChassisPalette.DisplayDigitGlow, text);
-    draw.AddText(font, fontSize, pos + boldOffset, CalcChassisPalette.DisplayDigit, text);
-    draw.AddText(font, fontSize, pos, CalcChassisPalette.DisplayDigit, text);
+    // Center the painted ink (not the font's em/line box) so left/right and top/bottom gaps match.
+    CalcFaceplateFonts.FontInkBounds ink = CalcFaceplateFonts.MeasureLedInk(text, fontSize);
+    if (ink.Width > innerWidth && ink.Width > 1f)
+    {
+      fontSize *= innerWidth / ink.Width;
+      ink = CalcFaceplateFonts.MeasureLedInk(text, fontSize);
+    }
+
+    Vector2 center = new((min.X + max.X) * 0.5f, (min.Y + max.Y) * 0.5f);
+    float y = center.Y - ink.InkMidY;
+    Vector2 glowOffset = new(scale * 0.45f, scale * 0.45f);
+    Vector2 boldOffset = new(scale * 0.28f, 0f);
+
+    draw.PushClipRect(min, max, true);
+    bool stretch = CalcModernBody.IsActive && text.Length > 1 && ink.Width + 1f < innerWidth;
+    if (stretch)
+    {
+      DrawLedStretched(draw, font, text, min.X + padX, max.X - padX, y, fontSize, glowOffset, boldOffset);
+    }
+    else
+    {
+      Vector2 pos = new(center.X - ink.InkMidX, y);
+      draw.AddText(font, fontSize, pos + glowOffset, CalcChassisPalette.DisplayDigitGlow, text);
+      draw.AddText(font, fontSize, pos + boldOffset, CalcChassisPalette.DisplayDigit, text);
+      draw.AddText(font, fontSize, pos, CalcChassisPalette.DisplayDigit, text);
+    }
 
     if (programMode)
     {
-      float badge = Math.Clamp(fontSize * 0.28f, 8f * scale, 12f * scale);
+      float badge = Math.Clamp(fontSize * 0.28f, 7f * scale, 11f * scale);
       draw.AddText(
         ImGui.GetFont(),
         badge,
         new Vector2(max.X - badge * 4.2f, min.Y + scale),
         CalcChassisPalette.DisplayDigit,
         "PRGM");
+    }
+
+    draw.PopClipRect();
+  }
+
+  private static void DrawLedStretched(
+    ImDrawListPtr draw,
+    ImFontPtr font,
+    string text,
+    float leftX,
+    float rightX,
+    float topY,
+    float fontSize,
+    Vector2 glowOffset,
+    Vector2 boldOffset)
+  {
+    int n = text.Length;
+    Span<float> advance = stackalloc float[n];
+    float totalAdvance = 0f;
+    for (int i = 0; i < n; i++)
+    {
+      advance[i] = font.CalcTextSizeA(fontSize, float.MaxValue, 0f, text.AsSpan(i, 1)).X;
+      totalAdvance += advance[i];
+    }
+
+    // Pin the first glyph's ink-left to leftX and the last glyph's ink-right to rightX so the
+    // outer margins are symmetric (leftX / rightX are equidistant from the glass edges); the
+    // leftover space is shared as equal inter-glyph gaps.
+    CalcFaceplateFonts.FontInkBounds firstInk = CalcFaceplateFonts.MeasureLedInk(text.Substring(0, 1), fontSize);
+    CalcFaceplateFonts.FontInkBounds lastInk = CalcFaceplateFonts.MeasureLedInk(text.Substring(n - 1, 1), fontSize);
+    float penStart = leftX - firstInk.Left;
+    float penEnd = rightX - (lastInk.Left + lastInk.Width);
+    float spacing = (penEnd - penStart - (totalAdvance - advance[n - 1])) / (n - 1);
+
+    float x = penStart;
+    for (int i = 0; i < n; i++)
+    {
+      ReadOnlySpan<char> glyph = text.AsSpan(i, 1);
+      Vector2 pos = new(x, topY);
+      draw.AddText(font, fontSize, pos + glowOffset, CalcChassisPalette.DisplayDigitGlow, glyph);
+      draw.AddText(font, fontSize, pos + boldOffset, CalcChassisPalette.DisplayDigit, glyph);
+      draw.AddText(font, fontSize, pos, CalcChassisPalette.DisplayDigit, glyph);
+      x += advance[i] + spacing;
     }
   }
 

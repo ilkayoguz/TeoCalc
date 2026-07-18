@@ -1,61 +1,122 @@
 {
+
   "Format": "CalcTheme.Pack",
+
   "SchemaVersion": 2,
+
   "Id": "Modern",
+
   "DisplayName": "Modern",
+
   "Palette": {
-    "FrameColor": "#2A2D32",
-    "FrameEdgeColor": "#1A1C20",
-    "FaceplateColor": "#1E2126",
-    "FaceplateGrainColor": [40, 44, 50, 40],
-    "KeyWellColor": "#121418",
-    "KeyWellEdgeColor": "#0A0C10",
-    "DisplayBezelColor": "#101216",
-    "DisplayGlassColor": "#14080A",
-    "DisplayDigitColor": "#FF5533",
-    "DisplayDigitGlowColor": [140, 24, 8, 72],
-    "BodyFrameColor": "#3A3F48",
-    "SliderTrackColor": "#3A3F48",
-    "FooterColor": "#4A4F58",
-    "FooterTextColor": "#C8CCD4",
-    "FooterBrandTextColor": "#F0F2F6",
-    "ModifierLabelColor": "#F0C040",
-    "ModifierFCapAboveColor": "#F0C040",
-    "ModifierGCapSkirtColor": "#7EC8FF",
-    "ModifierHCapFaceColor": "White",
-    "SkirtBlueDarkColor": "#2088D8",
-    "SkirtLabelBandColor": "#2A4A68",
-    "GreySkirtLabelBandColor": "#6A7078",
-    "GoldRuleColor": [240, 192, 64, 96],
-    "CardSlotColor": "#101216",
-    "CardSlotLabelColor": "#E8ECF2",
-    "SwitchTrackColor": "#3A3F48",
-    "SwitchKnobColor": "#101216",
-    "SwitchLabelColor": "#E8ECF2",
-    "KeyHighlightColor": [255, 255, 255, 28],
-    "KeyBlackTopColor": "#3A4048",
-    "KeyBlackFaceColor": "#2A3038",
-    "KeyBlackSkirtColor": "#2A3038",
-    "KeyGreyTopColor": "#B8BCC4",
-    "KeyGreyFaceColor": "#A8ACB4",
-    "KeyGreySkirtColor": "#A8ACB4",
-    "KeyWhiteTopColor": "#F4F6FA",
-    "KeyWhiteFaceColor": "#E8ECF2",
-    "KeyWhiteSkirtColor": "#E8ECF2",
-    "KeyOrangeTopColor": "#F5C84A",
-    "KeyOrangeFaceColor": "#E8A830",
-    "KeyOrangeSkirtColor": "#E8A830",
-    "KeyBlueTopColor": "#7EC8FF",
-    "KeyBlueFaceColor": "#58B0F0",
-    "KeyBlueSkirtColor": "#58B0F0",
-    "KeyTextColor": "#F4F6FA",
-    "KeyCapDarkTextColor": "#101216",
-    "KeyCapBezelColor": "#101216",
-    "LogoMarkColor": "#58B0F0",
-    "LogoCaptionColor": "#F0F2F6",
-    "LogoStripColor": "#4A4F58",
-    "LabelOnDarkSurfaceColor": "#F4F6FA",
-    "LabelOnLightCapColor": "#101216",
-    "LabelOnDarkCapColor": "#F0F2F6"
+
+    "FrameColor": "#333333",
+
+    "FrameEdgeColor": "#292929",
+
+    "FaceplateColor": "#515150",
+
+    "FaceplateGrainColor": [65, 65, 64, 36],
+
+    "KeyWellColor": "#515150",
+
+    "KeyWellEdgeColor": "#3A3A3A",
+
+    "DisplayBezelColor": "#3A3A3A",
+
+    "DisplayGlassColor": "#280B0D",
+
+    "DisplayDigitColor": "#FF5038",
+
+    "DisplayDigitGlowColor": [96, 18, 10, 76],
+
+    "BodyFrameColor": "#292929",
+
+    "SliderTrackColor": "#454545",
+
+    "FooterColor": "#B7B7B6",
+
+    "FooterTextColor": "#3A3836",
+
+    "FooterBrandTextColor": "#2E2E2E",
+
+    "ModifierLabelColor": "#DCB03A",
+
+    "ModifierFCapAboveColor": "#DCB03A",
+
+    "ModifierGCapSkirtColor": "#A8D2F8",
+
+    "ModifierHCapFaceColor": "#E8E6E2",
+
+    "SkirtBlueDarkColor": "#0060A8",
+
+    "SkirtLabelBandColor": "#4A5058",
+
+    "GreySkirtLabelBandColor": "#7A7C80",
+
+    "GoldRuleColor": [180, 150, 60, 80],
+
+    "CardSlotColor": "#2E2E2E",
+
+    "CardSlotLabelColor": "#D8D6D0",
+
+    "SwitchTrackColor": "#2A2A2A",
+
+    "SwitchKnobColor": "#1A1A1A",
+
+    "SwitchLabelColor": "#F5F0E8",
+
+    "KeyHighlightColor": [255, 255, 255, 18],
+
+    "KeyBlackTopColor": "#4A5056",
+
+    "KeyBlackFaceColor": "#2C2F31",
+
+    "KeyBlackSkirtColor": "#141618",
+
+    "KeyGreyTopColor": "#CCC8BC",
+
+    "KeyGreyFaceColor": "#B8B4AA",
+
+    "KeyGreySkirtColor": "#A29E92",
+
+    "KeyWhiteTopColor": "#FCFAF6",
+
+    "KeyWhiteFaceColor": "#F4F2EC",
+
+    "KeyWhiteSkirtColor": "#B0ACA4",
+
+    "KeyOrangeTopColor": "#F7D876",
+
+    "KeyOrangeFaceColor": "#E8B040",
+
+    "KeyOrangeSkirtColor": "#A16F22",
+
+    "KeyBlueTopColor": "#94D7F8",
+
+    "KeyBlueFaceColor": "#7EBFE7",
+
+    "KeyBlueSkirtColor": "#629DC7",
+
+    "KeyTextColor": "#F4F4F8",
+
+    "KeyCapDarkTextColor": "#12100E",
+
+    "KeyCapBezelColor": "#1A1A1A",
+
+    "LogoMarkColor": "#4A4A48",
+
+    "LogoCaptionColor": "#2E2E2E",
+
+    "LogoStripColor": "#B7B7B6",
+
+    "LabelOnDarkSurfaceColor": "#E8E6E2",
+
+    "LabelOnLightCapColor": "#1A1A1A",
+
+    "LabelOnDarkCapColor": "#E0DED8"
+
   }
+
 }
+

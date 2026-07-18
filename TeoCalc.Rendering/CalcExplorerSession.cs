@@ -44,6 +44,10 @@ public sealed class CalcExplorerSession : IDisposable
 
   private bool _keyboardKeyHeld;
 
+  private int[] _faceplateSwitchIndices = [];
+
+  private IReadOnlyList<CalcSwitchSpec> _faceplateSwitchSpecs = [];
+
   public CalcExplorerSession(string engineRoot)
   {
     EngineRoot = engineRoot;
@@ -102,12 +106,12 @@ public sealed class CalcExplorerSession : IDisposable
       {
         if (!_firmware.PowerOn)
         {
-          _firmware.PowerOnResume();
+          PowerOnResume();
         }
       }
       else
       {
-        _firmware.PowerOff();
+        PowerOff();
       }
     }
   }
@@ -194,8 +198,12 @@ public sealed class CalcExplorerSession : IDisposable
     }
   }
 
-  public void PowerOnResume() =>
+  public void PowerOnResume()
+  {
     _firmware?.PowerOnResume();
+    SyncPowerSwitchIndicesOn();
+    ApplyNonPowerFaceplateSwitchesToFirmware();
+  }
 
   public void PowerOff()
   {
@@ -204,6 +212,7 @@ public sealed class CalcExplorerSession : IDisposable
     _mouseKeyHeld = false;
     _keyboardKeyHeld = false;
     ShiftPreview.Reset();
+    ResetNonPowerSwitchesToInitial();
   }
 
   public bool IsDisplayVisible() => _displaySnapshot.Visible;
@@ -246,6 +255,176 @@ public sealed class CalcExplorerSession : IDisposable
     _firmware?.SetProgramMode(programMode);
   }
 
+  public void EnsureFaceplateSwitches(IReadOnlyList<CalcSwitchSpec> specs)
+  {
+    _faceplateSwitchSpecs = specs;
+    if (_faceplateSwitchIndices.Length == specs.Count)
+    {
+      return;
+    }
+
+    _faceplateSwitchIndices = new int[specs.Count];
+    for (int i = 0; i < specs.Count; i++)
+    {
+      _faceplateSwitchIndices[i] = specs[i].ClampIndex(specs[i].InitialIndex);
+    }
+  }
+
+  public int GetFaceplateSwitchIndex(int switchIndex, CalcSwitchSpec spec)
+  {
+    if ((uint)switchIndex >= (uint)_faceplateSwitchIndices.Length)
+    {
+      return spec.ClampIndex(spec.InitialIndex);
+    }
+
+    int index = _faceplateSwitchIndices[switchIndex];
+    if (spec.IsPower && spec.PositionCount == 2)
+    {
+      index = PowerOn ? 1 : 0;
+      _faceplateSwitchIndices[switchIndex] = index;
+    }
+    else if (spec.IsPower && !PowerOn)
+    {
+      index = 0;
+      _faceplateSwitchIndices[switchIndex] = 0;
+    }
+
+    return spec.ClampIndex(index);
+  }
+
+  public float GetFaceplateSwitchNorm(int switchIndex, CalcSwitchSpec spec) =>
+    spec.NormForIndex(GetFaceplateSwitchIndex(switchIndex, spec));
+
+  public void SetFaceplateSwitchIndex(int switchIndex, CalcSwitchSpec spec, int positionIndex)
+  {
+    EnsureFaceplateSwitchesSize(switchIndex + 1);
+    positionIndex = spec.ClampIndex(positionIndex);
+    _faceplateSwitchIndices[switchIndex] = positionIndex;
+    ApplyFaceplateSwitchToFirmware(spec, positionIndex);
+  }
+
+  public void AdvanceFaceplateSwitch(int switchIndex, CalcSwitchSpec spec)
+  {
+    int current = GetFaceplateSwitchIndex(switchIndex, spec);
+    SetFaceplateSwitchIndex(switchIndex, spec, spec.NextIndex(current));
+  }
+
+  private void EnsureFaceplateSwitchesSize(int count)
+  {
+    if (_faceplateSwitchIndices.Length >= count)
+    {
+      return;
+    }
+
+    int[] next = new int[count];
+    Array.Copy(_faceplateSwitchIndices, next, _faceplateSwitchIndices.Length);
+    _faceplateSwitchIndices = next;
+  }
+
+  private void ResetNonPowerSwitchesToInitial()
+  {
+    int n = Math.Min(_faceplateSwitchIndices.Length, _faceplateSwitchSpecs.Count);
+    for (int i = 0; i < n; i++)
+    {
+      CalcSwitchSpec spec = _faceplateSwitchSpecs[i];
+      _faceplateSwitchIndices[i] = spec.IsPower
+        ? 0
+        : spec.ClampIndex(spec.InitialIndex);
+    }
+  }
+
+  private void SyncPowerSwitchIndicesOn()
+  {
+    int n = Math.Min(_faceplateSwitchIndices.Length, _faceplateSwitchSpecs.Count);
+    for (int i = 0; i < n; i++)
+    {
+      CalcSwitchSpec spec = _faceplateSwitchSpecs[i];
+      if (!spec.IsPower)
+      {
+        continue;
+      }
+
+      if (spec.PositionCount == 2)
+      {
+        _faceplateSwitchIndices[i] = 1;
+      }
+      else if (_faceplateSwitchIndices[i] <= 0)
+      {
+        _faceplateSwitchIndices[i] = spec.ClampIndex(spec.InitialIndex > 0 ? spec.InitialIndex : spec.PositionCount - 1);
+      }
+    }
+  }
+
+  private void ApplyNonPowerFaceplateSwitchesToFirmware()
+  {
+    if (!PowerOn)
+    {
+      return;
+    }
+
+    int n = Math.Min(_faceplateSwitchIndices.Length, _faceplateSwitchSpecs.Count);
+    for (int i = 0; i < n; i++)
+    {
+      CalcSwitchSpec spec = _faceplateSwitchSpecs[i];
+      if (spec.IsPower)
+      {
+        continue;
+      }
+
+      ApplyModeSwitchToFirmware(spec, GetFaceplateSwitchIndex(i, spec));
+    }
+  }
+
+  private void ApplyFaceplateSwitchToFirmware(CalcSwitchSpec spec, int positionIndex)
+  {
+    if (spec.IsPower)
+    {
+      if (positionIndex <= 0)
+      {
+        PowerOff();
+        return;
+      }
+
+      bool wasOn = PowerOn;
+      if (!wasOn)
+      {
+        PowerOnResume();
+      }
+      else
+      {
+        SyncPowerSwitchIndicesOn();
+      }
+
+      if (spec.PositionCount == 3)
+      {
+        // OFF · PRGM · RUN — mid is program mode.
+        ToggleProgramModeTo(positionIndex == 1);
+      }
+
+      return;
+    }
+
+    if (!PowerOn)
+    {
+      return;
+    }
+
+    ApplyModeSwitchToFirmware(spec, positionIndex);
+  }
+
+  private void ApplyModeSwitchToFirmware(CalcSwitchSpec spec, int positionIndex)
+  {
+    if (spec.PositionCount == 2)
+    {
+      // Left = program / DEG / BEGIN / … ; right = run / RAD / END.
+      ToggleProgramModeTo(positionIndex == 0);
+      return;
+    }
+
+    // 3-pos mode: left & mid → program-ish, right → run.
+    ToggleProgramModeTo(positionIndex <= 1);
+  }
+
   public IReadOnlyList<string> LoadWarnings { get; private set; } = [];
 
   public void LoadModel(int index)
@@ -265,6 +444,8 @@ public sealed class CalcExplorerSession : IDisposable
     _firmware = new PanamatikFirmwareGateway(_panamatikEngine);
     _firmware.DisplayChanged += OnFirmwareDisplayChanged;
     _firmware.BatchCompleted += OnFirmwareBatchCompleted;
+    _faceplateSwitchIndices = [];
+    _faceplateSwitchSpecs = [];
 
     Vocabulary = null;
     if (Model.Program?.Vocabulary is { Length: > 0 } vocabularyPath)
@@ -375,7 +556,23 @@ public sealed class CalcExplorerSession : IDisposable
     {
       Model = modelId,
       DisplayName = modelId,
-      Family = "Panamatik",
+      Family = InferFamily(modelId),
+      Program = new TeoCalcModelProgram
+      {
+        Vocabulary = "Program/program.vocabulary.json",
+      },
+    };
+
+  private static string InferFamily(string modelId) =>
+    modelId.ToUpperInvariant() switch
+    {
+      "HP-01" => "HP01",
+      "HP-19C" => "HP19C",
+      "HP-67" => "Classic",
+      "HP-35" or "HP-45" or "HP-55" or "HP-65" or "HP-70" or "HP-80" => "Classic",
+      var id when id.StartsWith("HP-3", StringComparison.Ordinal) && id is not "HP-35" => "Spice",
+      var id when id.StartsWith("HP-2", StringComparison.Ordinal) => "Woodstock",
+      _ => "Panamatik",
     };
 
   private static string MapCatalogModelToExplorer(string catalogModelId) =>

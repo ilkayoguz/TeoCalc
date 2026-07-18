@@ -1,0 +1,185 @@
+{
+  "Format": "TeoCalc.ProgramVocabulary",
+  "SchemaVersion": 1,
+  "Model": "HP-25",
+  "Source": "Panamatik HP25 (HP2xKeyChartable)",
+  "CodeBits": 6,
+  "Steps": [],
+  "KeyChart": [
+    {
+      "Index": 0,
+      "Char": "t",
+      "KeyCode": 179
+    },
+    {
+      "Index": 1,
+      "Char": "b",
+      "KeyCode": 178
+    },
+    {
+      "Index": 2,
+      "Char": "o",
+      "KeyCode": 177
+    },
+    {
+      "Index": 3,
+      "Char": "f",
+      "KeyCode": 176
+    },
+    {
+      "Index": 4,
+      "Char": "g",
+      "KeyCode": 180
+    },
+    {
+      "Index": 5,
+      "Char": "y",
+      "KeyCode": 67
+    },
+    {
+      "Index": 6,
+      "Char": "d",
+      "KeyCode": 66
+    },
+    {
+      "Index": 7,
+      "Char": "s",
+      "KeyCode": 65
+    },
+    {
+      "Index": 8,
+      "Char": "r",
+      "KeyCode": 64
+    },
+    {
+      "Index": 9,
+      "Char": "#",
+      "KeyCode": 68
+    },
+    {
+      "Index": 10,
+      "Char": "\r",
+      "KeyCode": 211
+    },
+    {
+      "Index": 11,
+      "Char": "\r",
+      "KeyCode": 211
+    },
+    {
+      "Index": 12,
+      "Char": "n",
+      "KeyCode": 209
+    },
+    {
+      "Index": 13,
+      "Char": "x",
+      "KeyCode": 208
+    },
+    {
+      "Index": 14,
+      "Char": "\b",
+      "KeyCode": 212
+    },
+    {
+      "Index": 15,
+      "Char": "-",
+      "KeyCode": 99
+    },
+    {
+      "Index": 16,
+      "Char": "7",
+      "KeyCode": 98
+    },
+    {
+      "Index": 17,
+      "Char": "8",
+      "KeyCode": 97
+    },
+    {
+      "Index": 18,
+      "Char": "9",
+      "KeyCode": 96
+    },
+    {
+      "Index": 19,
+      "Char": "\u0000",
+      "KeyCode": 0
+    },
+    {
+      "Index": 20,
+      "Char": "+",
+      "KeyCode": 163
+    },
+    {
+      "Index": 21,
+      "Char": "4",
+      "KeyCode": 162
+    },
+    {
+      "Index": 22,
+      "Char": "5",
+      "KeyCode": 161
+    },
+    {
+      "Index": 23,
+      "Char": "6",
+      "KeyCode": 160
+    },
+    {
+      "Index": 24,
+      "Char": "\u0000",
+      "KeyCode": 0
+    },
+    {
+      "Index": 25,
+      "Char": "*",
+      "KeyCode": 115
+    },
+    {
+      "Index": 26,
+      "Char": "1",
+      "KeyCode": 114
+    },
+    {
+      "Index": 27,
+      "Char": "2",
+      "KeyCode": 113
+    },
+    {
+      "Index": 28,
+      "Char": "3",
+      "KeyCode": 112
+    },
+    {
+      "Index": 29,
+      "Char": "\u0000",
+      "KeyCode": 0
+    },
+    {
+      "Index": 30,
+      "Char": "/",
+      "KeyCode": 147
+    },
+    {
+      "Index": 31,
+      "Char": "0",
+      "KeyCode": 146
+    },
+    {
+      "Index": 32,
+      "Char": ".",
+      "KeyCode": 145
+    },
+    {
+      "Index": 33,
+      "Char": " ",
+      "KeyCode": 144
+    },
+    {
+      "Index": 34,
+      "Char": "\u0000",
+      "KeyCode": 0
+    }
+  ]
+}

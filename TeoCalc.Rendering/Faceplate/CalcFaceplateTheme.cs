@@ -49,15 +49,12 @@ public static class CalcFaceplateTheme
 
   public static string ResolveAnnotationToken(CalcModifierKey modifier, CalcLabelAnchor anchor, CalcModelDefinition model)
   {
-    foreach (CalcModifierAnnotationStyle style in model.AnnotationStyles)
+    if (CalcModifierPlacement.TryGetInkToken(model, modifier, anchor, out CalcColorToken ink))
     {
-      if (style.Modifier == modifier && style.Anchor == anchor)
-      {
-        return style.Ink.Name;
-      }
+      return ink.Name;
     }
 
-    return DefaultAnnotationToken(modifier, anchor);
+    return CalcFaceplateTokens.ModifierLabelColor;
   }
 
   public static uint ResolveAnnotation(
@@ -65,17 +62,6 @@ public static class CalcFaceplateTheme
     CalcLabelAnchor anchor,
     CalcModelDefinition model) =>
     Resolve(ResolveAnnotationToken(modifier, anchor, model), model);
-
-  private static string DefaultAnnotationToken(CalcModifierKey modifier, CalcLabelAnchor anchor) =>
-    (modifier, anchor) switch
-    {
-      (CalcModifierKey.F, CalcLabelAnchor.CapAbove) => CalcFaceplateTokens.ModifierFCapAboveColor,
-      (CalcModifierKey.F, CalcLabelAnchor.CapBelow) => CalcFaceplateTokens.ModifierFCapAboveColor,
-      (CalcModifierKey.G, CalcLabelAnchor.CapSkirt) => CalcFaceplateTokens.ModifierGCapSkirtColor,
-      (CalcModifierKey.G, CalcLabelAnchor.CapAbove) => CalcFaceplateTokens.ModifierGCapSkirtColor,
-      (CalcModifierKey.H, CalcLabelAnchor.CapFace) => CalcFaceplateTokens.ModifierHCapFaceColor,
-      _ => CalcFaceplateTokens.ModifierLabelColor,
-    };
 
   private static uint ToImGuiColor(ThemeColor color)
   {

@@ -1,0 +1,62 @@
+{
+  "Format": "CalcBody.ShellLayout",
+  "SchemaVersion": 6,
+  "ShellPixelWidth": 687,
+  "ShellPixelHeight": 1176,
+  "ReferenceWidth": 687,
+  "ReferenceHeight": 1176,
+  "ReferenceKeypadRows": 7,
+  "ReferenceKeypadCols": 5,
+  "DisplaySlot": {
+    "X": 73,
+    "Y": 79,
+    "Width": 537,
+    "Height": 105
+  },
+  "DisplayGlassInset": {
+    "Left": 5,
+    "Top": 5,
+    "Right": 5,
+    "Bottom": 5
+  },
+  "SwitchSlot": {
+    "X": 63,
+    "Y": 203,
+    "Width": 557,
+    "Height": 100
+  },
+  "SwitchRowY": 253,
+  "SwitchLeftNorm": 0.358,
+  "SwitchRightNorm": 0.816,
+  "KeypadSlot": {
+    "X": 73,
+    "Y": 311,
+    "Width": 537,
+    "Height": 732
+  },
+  "LogoSlot": {
+    "X": 73,
+    "Y": 1043,
+    "Width": 537,
+    "Height": 133
+  },
+  "BrandTextLeftNorm": 0.34,
+  "KeyGrid": {
+    "PadX": 22,
+    "PadY": 22,
+    "GapX": 10,
+    "GapY": 10,
+    "CapInset": 0.10,
+    "RowCounts": {
+      "Classic": 7,
+      "Woodstock": 7,
+      "HP01": 4,
+      "HP19C": 6
+    }
+  },
+  "DisplayGlassRgb": [
+    40,
+    11,
+    13
+  ]
+}

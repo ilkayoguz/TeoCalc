@@ -1,5 +1,6 @@
 using System.Numerics;
 using ImGuiNET;
+using TeoCalc.Rendering.Faceplate;
 
 namespace TeoCalc.Rendering;
 
@@ -19,6 +20,8 @@ public static class CalcButton
 
   /// <summary>Panamatik reference caps — slight inset leaves room for bezel + gold shift labels.</summary>
   private const float KeyCapLayoutScale = 1.02f;
+
+  private static float CapLayoutScale => KeyCapLayoutScale;
 
   private const float PressTravelRatio = 0.045f;
 
@@ -58,6 +61,25 @@ public static class CalcButton
     uint? primaryInkOverride = null,
     uint? skirtInkOverride = null)
   {
+    if (!overlayOnly && CalcModernBody.IsActive)
+    {
+      return DrawModernFlat(
+        draw,
+        id,
+        min,
+        max,
+        style,
+        kind,
+        primary,
+        blueOnBody,
+        scale,
+        leftAlignPrimary,
+        forcePressed,
+        interactive,
+        primaryInkOverride,
+        skirtInkOverride);
+    }
+
     if (!overlayOnly && drawWell && !Hp65FaceplateSvgAssets.CanDrawKeyCaps)
     {
       DrawWell(draw, min, max, scale);
@@ -84,8 +106,8 @@ public static class CalcButton
     Vector2 half = size * 0.5f;
     float insetBottom = WellInsetRatio * 0.38f;
     Vector2 capHalf = new(
-      half.X * KeyCapLayoutScale * (1f - WellInsetRatio * 2f),
-      half.Y * KeyCapLayoutScale * (1f - WellInsetRatio - insetBottom));
+      half.X * CapLayoutScale * (1f - WellInsetRatio * 2f),
+      half.Y * CapLayoutScale * (1f - WellInsetRatio - insetBottom));
     Vector2 capMin = center - capHalf;
     Vector2 capMax = center + capHalf;
     float pressTravel = MathF.Max(scale * 1.25f, size.Y * PressTravelRatio);
@@ -96,6 +118,83 @@ public static class CalcButton
     }
 
     DrawCap(draw, capMin, capMax, style, kind, hovered, pressed, scale);
+    CalcKeyCapComponent cap = new() { CapMin = capMin, CapMax = capMax };
+    DrawPrimaryLabel(draw, primary, cap, kind, style, scale, leftAlignPrimary, primaryInkOverride);
+
+    if (!string.IsNullOrEmpty(blueOnBody))
+    {
+      float skirtFont = CalcFaceplateTypography.BlueSkirt(scale) * CalcKeyLabelPalette.BlueSkirtFontScale(blueOnBody);
+      DrawSkirtLabel(
+        draw,
+        blueOnBody,
+        cap,
+        style,
+        kind,
+        skirtInkOverride ?? CalcKeyLabelPalette.SkirtLabelInk(blueOnBody, style),
+        skirtFont,
+        scale);
+    }
+
+    return clicked;
+  }
+
+  private static bool DrawModernFlat(
+    ImDrawListPtr draw,
+    string id,
+    Vector2 min,
+    Vector2 max,
+    CalcButtonStyle style,
+    CalcButtonKind kind,
+    string primary,
+    string? blueOnBody,
+    float scale,
+    bool leftAlignPrimary,
+    bool forcePressed,
+    bool interactive,
+    uint? primaryInkOverride,
+    uint? skirtInkOverride)
+  {
+    Vector2 size = max - min;
+    bool clicked = false;
+    bool hovered = false;
+    bool pressed = forcePressed;
+    if (interactive)
+    {
+      ImGui.SetCursorScreenPos(min);
+      clicked = ImGui.InvisibleButton(id, size);
+      hovered = ImGui.IsItemHovered();
+      pressed = ImGui.IsItemActive() || forcePressed;
+    }
+
+    float inset = MathF.Min(size.X, size.Y) * 0.05f;
+    Vector2 capMin = min + new Vector2(inset);
+    Vector2 capMax = max - new Vector2(inset);
+    if (pressed)
+    {
+      float travel = MathF.Max(scale * 0.8f, size.Y * 0.03f);
+      capMin.Y += travel;
+      capMax.Y += travel;
+    }
+
+    float radius = Math.Clamp(MathF.Min(capMax.X - capMin.X, capMax.Y - capMin.Y) * 0.14f, 3f * scale, 10f * scale);
+    KeyCapPalette tones = KeyCapPalette.ForStyle(style, hovered, pressed);
+    draw.AddRectFilled(capMin, capMax, tones.Face, radius);
+
+    // CapSkirt etek uses palette skirt tone (same Top/Face/Skirt system as Retro).
+    float skirtTop = capMin.Y + (capMax.Y - capMin.Y) * KeyCapGeometry.BottomTopRatio;
+    draw.PushClipRect(new Vector2(capMin.X, skirtTop), capMax, true);
+    draw.AddRectFilled(capMin, capMax, tones.Skirt, radius);
+    draw.PopClipRect();
+
+    if (hovered || pressed)
+    {
+      draw.AddRect(capMin, capMax, CalcChassisPalette.KeyHighlight, radius, ImDrawFlags.None, scale * 0.5f);
+    }
+    else
+    {
+      draw.AddRect(capMin, capMax, CalcChassisPalette.KeyCapBezel, radius, ImDrawFlags.None, scale * 0.35f);
+    }
+
     CalcKeyCapComponent cap = new() { CapMin = capMin, CapMax = capMax };
     DrawPrimaryLabel(draw, primary, cap, kind, style, scale, leftAlignPrimary, primaryInkOverride);
 
@@ -350,8 +449,10 @@ public static class CalcButton
   {
     (Vector2 bottomMin, Vector2 bottomMax) = cap.BottomBand;
     float bottomHeight = bottomMax.Y - bottomMin.Y;
-    fontSize = MathF.Min(MathF.Max(fontSize, bottomHeight * 0.98f), bottomHeight * 1.16f);
-    Vector2 bottomNudge = new(0f, scale * 0.75f);
+    // CapSkirt slot size: shrink-to-fit only (never grow past band); keep below CapFace.
+    fontSize = MathF.Min(fontSize, bottomHeight * 0.82f);
+    // Slight upward bias so ink clears the cap lip.
+    Vector2 bottomNudge = new(0f, -scale * 0.35f);
     if (kind == CalcButtonKind.EnterWide)
     {
       float pad = scale * 2.5f;

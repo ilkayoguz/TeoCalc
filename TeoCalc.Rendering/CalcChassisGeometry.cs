@@ -9,7 +9,11 @@ public static class CalcChassisGeometry
   public static CalcChassisMetrics Fit(Vector2 available, CalcBodyLayout layout)
   {
     float scale = Math.Min(available.X / layout.ReferenceWidth, available.Y / layout.ReferenceHeight);
-    scale = Math.Clamp(scale, 0.85f, 2.8f);
+    if (!float.IsFinite(scale) || scale <= 0f)
+    {
+      scale = 1f;
+    }
+
     return new CalcChassisMetrics(layout, scale);
   }
 

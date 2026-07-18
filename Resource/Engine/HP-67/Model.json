@@ -1,0 +1,21 @@
+{
+  "Format": "TeoCalc.Model",
+  "SchemaVersion": 1,
+  "Model": "HP-67",
+  "DisplayName": "HP-67",
+  "Inherits": "Classic",
+  "Family": "Classic",
+  "FamilyConfig": "../Classic/Family.json",
+  "Hardware": {
+    "ButtonCount": 40,
+    "RamBytes": 448,
+    "RegisterDigits": 14,
+    "ProgramRamBase": 112,
+    "RomWordCount": 4096
+  },
+  "Program": {
+    "MaxSteps": 100,
+    "Vocabulary": "Program/program.vocabulary.json"
+  },
+  "Firmware": {}
+}

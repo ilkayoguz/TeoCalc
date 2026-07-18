@@ -7,6 +7,14 @@ namespace TeoCalc.Core.Tests;
 public sealed class CalcFaceplateThemeTests
 {
   [TestMethod]
+  public void DefaultTheme_Is_Modern()
+  {
+    Assert.AreEqual("Modern", CalcThemeCatalog.DefaultThemeId);
+    CalcThemePack modern = CalcThemeCatalog.LoadDefault();
+    Assert.AreEqual("Modern", modern.Id);
+  }
+
+  [TestMethod]
   public void RetroTheme_Loads_And_Resolves_FrameToken()
   {
     CalcThemePack retro = CalcThemeCatalog.Load("Retro");
@@ -43,5 +51,29 @@ public sealed class CalcFaceplateThemeTests
       annotation is { Modifier: CalcModifierKey.F, Anchor: CalcLabelAnchor.CapAbove, Text: "LN" }));
     Assert.IsTrue(visual.Annotations.Any(annotation =>
       annotation is { Modifier: CalcModifierKey.G, Anchor: CalcLabelAnchor.CapSkirt, Text: "e^x" }));
+  }
+
+  [TestMethod]
+  public void ModifierPlacement_Uses_Model_Bindings_Not_Hardcoded_Slots()
+  {
+    CalcModelDefinition remapped = new()
+    {
+      Id = "test",
+      DisplayName = "Test",
+      ModifierKeys = [CalcModifierKey.F, CalcModifierKey.G],
+      AnnotationStyles =
+      [
+        new(CalcModifierKey.F, CalcLabelAnchor.CapBelow, CalcKeyColorPalette.ModifierFOnCapAbove),
+        new(CalcModifierKey.G, CalcLabelAnchor.CapAbove, CalcKeyColorPalette.ModifierGOnCapSkirt),
+      ],
+    };
+
+    Assert.AreEqual(CalcLabelAnchor.CapBelow, CalcModifierPlacement.PrimaryAnchor(remapped, CalcModifierKey.F));
+    Assert.AreEqual(CalcLabelAnchor.CapAbove, CalcModifierPlacement.PrimaryAnchor(remapped, CalcModifierKey.G));
+
+    CalcKeyAnnotation gold = CalcModifierPlacement.Annotate(remapped, CalcModifierKey.F, "LN");
+    CalcKeyAnnotation blue = CalcModifierPlacement.Annotate(remapped, CalcModifierKey.G, "e^x");
+    Assert.AreEqual(CalcLabelAnchor.CapBelow, gold.Anchor);
+    Assert.AreEqual(CalcLabelAnchor.CapAbove, blue.Anchor);
   }
 }

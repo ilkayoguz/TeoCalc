@@ -57,10 +57,19 @@ public static class CalcFaceplateLayout
       .Where(cell => cell.KeyChartIndex is not (24 or 29 or 34 or 39)),
   ];
 
+  /// <summary>HP-35/45/55/70 share Classic map but omit blank top-right key (chart index 4).</summary>
+  private static readonly FaceplateCell[] ClassicPhysicalCellsNoTopRight =
+    ClassicPhysicalCells.Where(cell => cell.KeyChartIndex != 4).ToArray();
+
   public static int ToIndex(int row, int column) => row * Columns + column;
 
   public static IReadOnlyList<FaceplateCell> GetPhysicalCells(string family, string? modelId = null)
   {
+    if (IsClassicSparseTopRight(modelId))
+    {
+      return ClassicPhysicalCellsNoTopRight;
+    }
+
     if (string.Equals(modelId, "HP-65", StringComparison.OrdinalIgnoreCase)
         || string.Equals(family, "Classic", StringComparison.OrdinalIgnoreCase))
     {
@@ -68,9 +77,22 @@ public static class CalcFaceplateLayout
     }
 
     if (string.Equals(modelId, "HP-21", StringComparison.OrdinalIgnoreCase)
-        || string.Equals(family, "Woodstock", StringComparison.OrdinalIgnoreCase))
+        || string.Equals(family, "Woodstock", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(family, "Spice", StringComparison.OrdinalIgnoreCase))
     {
       return WoodstockFaceplateLayout.GetPhysicalCells(modelId);
+    }
+
+    if (string.Equals(modelId, "HP-01", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(family, "HP01", StringComparison.OrdinalIgnoreCase))
+    {
+      return Hp01FaceplateLayout.PhysicalCells;
+    }
+
+    if (string.Equals(modelId, "HP-19C", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(family, "HP19C", StringComparison.OrdinalIgnoreCase))
+    {
+      return Hp19CFaceplateLayout.PhysicalCells;
     }
 
     return Enumerable.Range(0, Rows * Columns)
@@ -79,6 +101,11 @@ public static class CalcFaceplateLayout
       .ToArray();
   }
 
+  private static bool IsClassicSparseTopRight(string? modelId) =>
+    modelId is not null
+    && modelId.ToUpperInvariant() is "HP-35" or "HP-45" or "HP-55" or "HP-70"
+      or "35" or "45" or "55" or "70";
+
   public static string LabelForKey(ProgramKeyEntry key, ProgramVocabulary? vocabulary, string? family = null)
   {
     if (key.KeyCode == 0)
@@ -86,12 +113,22 @@ public static class CalcFaceplateLayout
       return string.Empty;
     }
 
-    if (string.Equals(family, "Woodstock", StringComparison.OrdinalIgnoreCase))
+    if (string.Equals(family, "Woodstock", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(family, "Spice", StringComparison.OrdinalIgnoreCase))
     {
       string? woodstock = WoodstockLabelFromChar(key.Char);
       if (woodstock is not null)
       {
         return woodstock;
+      }
+    }
+
+    if (string.Equals(family, "HP01", StringComparison.OrdinalIgnoreCase))
+    {
+      string? hp01 = Hp01LabelFromChar(key.Char);
+      if (hp01 is not null)
+      {
+        return hp01;
       }
     }
 
@@ -168,6 +205,27 @@ public static class CalcFaceplateLayout
       "d" => "R\u2193",
       "e" => "e^x",
       "w" => "DSP",
+      "#" => "DSP",
+      "%" => "%",
+      _ => null,
+    };
+
+  private static string? Hp01LabelFromChar(string charValue) =>
+    charValue switch
+    {
+      "R" => "R",
+      "S" => "S",
+      "P" => "P",
+      "D" => "D",
+      "T" => "T",
+      "A" => "ALM",
+      "M" => "MEM",
+      "C" => "CLK",
+      "a" => "a",
+      "d" => "d",
+      ":" => ":",
+      ";" => ";",
+      "=" => "=",
       _ => null,
     };
 

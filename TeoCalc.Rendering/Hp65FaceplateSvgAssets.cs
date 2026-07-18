@@ -70,11 +70,20 @@ public static class Hp65FaceplateSvgAssets
 
     float textMargin = (plateMax.X - plateMin.X) * 0.025f;
     float textLeft = logoMax.X + textMargin;
-    CalcChassisRenderer.DrawBrandPlateText(draw, textLeft, plateMin, plateMax, textRightMargin: textMargin);
+    CalcChassisRenderer.DrawBrandPlateText(draw, textLeft, plateMin, plateMax, "HEWLETT-PACKARD 65", textRightMargin: textMargin);
   }
 
-  public static bool TryDrawLogoMark(ImDrawListPtr draw, Vector2 stripMin, Vector2 stripMax, float scale)
+  public static bool TryDrawLogoMark(ImDrawListPtr draw, Vector2 stripMin, Vector2 stripMax, float scale) =>
+    TryDrawLogoMark(draw, stripMin, stripMax, scale, out _);
+
+  public static bool TryDrawLogoMark(
+    ImDrawListPtr draw,
+    Vector2 stripMin,
+    Vector2 stripMax,
+    float scale,
+    out float logoRightEdge)
   {
+    logoRightEdge = stripMin.X;
     if (!Cache.IsInitialized || !File.Exists(LogoPath))
     {
       return false;
@@ -82,22 +91,28 @@ public static class Hp65FaceplateSvgAssets
 
     float plateWidth = stripMax.X - stripMin.X;
     float plateHeight = stripMax.Y - stripMin.Y;
-    float logoPadX = plateWidth * 0.03f;
-    float logoPadY = plateHeight * 0.06f;
-    float maxLogoWidth = plateWidth * 0.58f;
-    float logoHeight = (plateHeight - logoPadY * 2f) * 0.82f;
-    float logoWidth = logoHeight * (888f / 562f) * 1.4f;
+    float logoPadX = plateWidth * 0.04f;
+    float logoPadY = plateHeight * 0.08f;
+    float maxLogoWidth = plateWidth * 0.34f;
+    float logoHeight = plateHeight - logoPadY * 2f;
+    float logoWidth = logoHeight * (888f / 562f);
     if (logoWidth > maxLogoWidth)
     {
       logoWidth = maxLogoWidth;
-      logoHeight = logoWidth / (888f / 562f) / 1.4f;
+      logoHeight = logoWidth / (888f / 562f);
     }
 
     Vector2 logoMin = stripMin + new Vector2(logoPadX, logoPadY + (plateHeight - logoPadY * 2f - logoHeight) * 0.5f);
     Vector2 logoMax = logoMin + new Vector2(logoWidth, logoHeight);
     int w = Math.Max(1, (int)MathF.Ceiling(logoWidth * 5f));
     int h = Math.Max(1, (int)MathF.Ceiling(logoHeight * 5f));
-    return Cache.TryDraw(draw, logoMin, logoMax, LogoPath, w, h, revision: LogoSvgRevision);
+    bool drawn = Cache.TryDraw(draw, logoMin, logoMax, LogoPath, w, h, revision: LogoSvgRevision);
+    if (drawn)
+    {
+      logoRightEdge = logoMax.X;
+    }
+
+    return drawn;
   }
 
   private static bool TryGetLogoBounds(

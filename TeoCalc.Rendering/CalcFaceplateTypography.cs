@@ -31,7 +31,7 @@ public static class CalcFaceplateTypography
     Ref(15f, scale, 1.38f);
 
   public static float BlueSkirt(float scale) =>
-    Ref(29f, scale, 1.8f);
+    Ref(11.5f, scale, 1.05f);
 
   public static float SwitchLabel(float scale) =>
     16.5f * scale;

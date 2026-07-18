@@ -30,7 +30,7 @@ public static class PanamatikDisplayOnlyView
       displaySnapshot.Visible,
       displaySnapshot.Text);
 
-    CalcChassisRenderer.DrawSliderSwitches(draw, origin, metrics, session.PowerOn, session.ProgramMode);
+    CalcChassisRenderer.DrawSliderSwitches(draw, origin, metrics, session);
     CalcChassisRenderer.SwitchPointerState switchPointer =
       CalcChassisRenderer.HandleSwitchPointers(origin, metrics, session, session.PowerOn);
   }

@@ -7,7 +7,7 @@ namespace TeoCalc.Rendering;
 
 public static class CalcFaceplateView
 {
-  public static void Draw(CalcExplorerSession session)
+  public static void Draw(CalcExplorerSession session, Vector2? availableOverride = null)
   {
     if (!session.SupportsFaceplate || session.Vocabulary is null)
     {
@@ -18,22 +18,32 @@ public static class CalcFaceplateView
     ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, System.Numerics.Vector2.Zero);
     ImGui.PushStyleVar(ImGuiStyleVar.ItemSpacing, System.Numerics.Vector2.Zero);
 
-    System.Numerics.Vector2 available = ImGui.GetContentRegionAvail();
+    System.Numerics.Vector2 available = availableOverride ?? ImGui.GetContentRegionAvail();
     CalcModelDefinition faceplateModel = CalcModelCatalog.Resolve(session.Model.Model);
-    CalcBodyLayout bodyLayout = CalcBodyLayoutCatalog.Resolve(faceplateModel);
+    CalcBodyLayout bodyLayout = CalcBodyLayoutCatalog.ResolveForFaceplate(
+      faceplateModel,
+      session.Model.Family,
+      session.Model.Model);
     CalcChassisMetrics metrics = CalcChassisGeometry.Fit(available, bodyLayout);
     IReadOnlyList<FaceplateCell> cells = CalcFaceplateLayout.GetPhysicalCells(session.Model.Family, session.Model.Model);
 
-    System.Numerics.Vector2 origin = ImGui.GetWindowPos() + ImGui.GetWindowContentRegionMin();
-    ImDrawListPtr draw = ImGui.GetWindowDrawList();
+    Vector2 bodySize = new(metrics.Width, metrics.Height);
+    if (CalcModernBody.IsActive)
+    {
+      Vector2 cursor = ImGui.GetCursorPos();
+      ImGui.SetCursorPos(cursor + new Vector2(
+        MathF.Max(0f, (available.X - bodySize.X) * 0.5f),
+        MathF.Max(0f, (available.Y - bodySize.Y) * 0.5f)));
+    }
 
-    ImGui.Dummy(new System.Numerics.Vector2(metrics.Width, metrics.Height));
+    ImGui.Dummy(bodySize);
+    System.Numerics.Vector2 origin = ImGui.GetItemRectMin();
+    ImDrawListPtr draw = ImGui.GetWindowDrawList();
     if (ImGui.IsItemClicked(ImGuiMouseButton.Left))
     {
       ImGui.SetWindowFocus();
     }
 
-    bool powerOn = session.PowerOn;
     bool calcHovered = ImGui.IsWindowHovered(
       ImGuiHoveredFlags.AllowWhenBlockedByActiveItem | ImGuiHoveredFlags.ChildWindows);
     bool calcFocused = ImGui.IsWindowFocused();
@@ -43,7 +53,17 @@ public static class CalcFaceplateView
     int keyboardHeldKey = CalcFaceplateKeyboard.HeldKeyChartIndex;
 
     CalcChassisRenderer.DrawShell(draw, origin, metrics, faceplateModel);
-    RectF display = metrics.DisplayRect(origin);
+
+    RectF display = ResolveDisplayRect(origin, metrics);
+    HandleDisplayPowerDoubleClick(display, session);
+    bool powerOn = session.PowerOn;
+
+    CalcChassisRenderer.DrawSliderSwitches(draw, origin, metrics, session);
+    CalcChassisRenderer.SwitchPointerState switchPointer =
+      CalcChassisRenderer.HandleSwitchPointers(origin, metrics, session, powerOn);
+    bool anySwitchHovered = switchPointer.Hovered;
+    bool switchClickHandled = switchPointer.ClickHandled;
+
     FirmwareDisplaySnapshot displaySnapshot = session.DisplaySnapshot;
     CalcChassisRenderer.DrawPanamatikDisplay(
       draw,
@@ -53,13 +73,9 @@ public static class CalcFaceplateView
       displaySnapshot.Visible,
       displaySnapshot.Text);
 
-    CalcChassisRenderer.DrawSliderSwitches(draw, origin, metrics, powerOn, session.ProgramMode);
-    CalcChassisRenderer.SwitchPointerState switchPointer =
-      CalcChassisRenderer.HandleSwitchPointers(origin, metrics, session, powerOn);
-    bool anySwitchHovered = switchPointer.Hovered;
-    bool switchClickHandled = switchPointer.ClickHandled;
     ShiftPreviewMode shiftPreview = session.ShiftPreview.Mode;
-    if (string.Equals(session.Model.Family, "Classic", StringComparison.OrdinalIgnoreCase))
+    if (string.Equals(session.Model.Family, "Classic", StringComparison.OrdinalIgnoreCase)
+        && !CalcModernBody.IsActive)
     {
       CalcEnterRowLabels.Draw(draw, origin, metrics, shiftPreview);
     }
@@ -90,11 +106,33 @@ public static class CalcFaceplateView
       anyKeyHovered,
       anySwitchHovered,
       powerOn,
-      session.ProgramMode);
+      session.ProgramMode,
+      session);
 
     session.EndDisplayFrame();
 
     ImGui.PopStyleVar(2);
+  }
+
+  private static void HandleDisplayPowerDoubleClick(RectF display, CalcExplorerSession session)
+  {
+    Vector2 mouse = ImGui.GetIO().MousePos;
+    bool overDisplay = mouse.X >= display.Min.X && mouse.X <= display.Max.X
+      && mouse.Y >= display.Min.Y && mouse.Y <= display.Max.Y;
+    if (!overDisplay)
+    {
+      return;
+    }
+
+    if (!session.PowerOn)
+    {
+      CalcFaceplatePointer.RequestHandCursor();
+    }
+
+    if (!session.PowerOn && ImGui.IsMouseDoubleClicked(ImGuiMouseButton.Left))
+    {
+      session.PowerOnResume();
+    }
   }
 
   private static bool DrawKeypadRows(
@@ -111,6 +149,7 @@ public static class CalcFaceplateView
     int keyboardHeldKey)
   {
     bool anyKeyHovered = false;
+
     foreach (IGrouping<int, FaceplateCell> row in cells.GroupBy(cell => cell.Row).OrderBy(group => group.Key))
     {
       List<KeypadDrawItem> rowItems = [];
@@ -155,7 +194,13 @@ public static class CalcFaceplateView
           cell.KeyChartIndex);
         PreviewVisual preview = ApplyShiftPreview(visual, shiftPreview, style);
         CalcButtonKind kind = CalcFaceplateLayout.ButtonKindForKey(key, cell);
-        CalcKeyVisual keyVisual = BuildKeyVisual(preview, style, kind, cell.KeyChartIndex, shiftPreview);
+        CalcKeyVisual keyVisual = BuildKeyVisual(
+          preview,
+          style,
+          kind,
+          cell.KeyChartIndex,
+          shiftPreview,
+          faceplateModel);
 
         rowItems.Add(new KeypadDrawItem(
           cell,
@@ -205,6 +250,7 @@ public static class CalcFaceplateView
               faceplateModel,
               metrics.Scale,
               leftAlign,
+              drawWell: !CalcModernBody.IsActive,
               forcePressed: keyboardPressed,
               interactive: calcInputActive && powerOn && !switchClickHandled))
         {
@@ -216,7 +262,6 @@ public static class CalcFaceplateView
         if (ImGui.IsItemHovered() && calcInputActive && powerOn)
         {
           anyKeyHovered = true;
-          ImGui.SetTooltip($"{item.Visual.Primary}  (code {item.Key.KeyCode})");
         }
       }
     }
@@ -318,19 +363,20 @@ public static class CalcFaceplateView
     CalcButtonStyle style,
     CalcButtonKind kind,
     int keyChartIndex,
-    ShiftPreviewMode shiftPreview)
+    ShiftPreviewMode shiftPreview,
+    CalcModelDefinition model)
   {
     List<CalcKeyAnnotation> annotations = [];
     if (!string.IsNullOrEmpty(preview.GoldOnBody)
       && (!CalcEnterRowLabels.IsEnterRowKey(keyChartIndex)
         || shiftPreview is ShiftPreviewMode.Gold or ShiftPreviewMode.GoldInverse))
     {
-      annotations.Add(new CalcKeyAnnotation(CalcModifierKey.F, CalcLabelAnchor.CapAbove, preview.GoldOnBody));
+      annotations.Add(CalcModifierPlacement.Annotate(model, CalcModifierKey.F, preview.GoldOnBody));
     }
 
     if (!string.IsNullOrEmpty(preview.BlueOnSkirt))
     {
-      annotations.Add(new CalcKeyAnnotation(CalcModifierKey.G, CalcLabelAnchor.CapSkirt, preview.BlueOnSkirt));
+      annotations.Add(CalcModifierPlacement.Annotate(model, CalcModifierKey.G, preview.BlueOnSkirt));
     }
 
     return new CalcKeyVisual
@@ -352,4 +398,19 @@ public static class CalcFaceplateView
     uint? SkirtInk,
     uint? GoldBodyInk);
 
+  private static RectF ResolveDisplayRect(Vector2 origin, CalcChassisMetrics metrics)
+  {
+    if (!CalcModernBody.IsActive)
+    {
+      return metrics.DisplayRect(origin);
+    }
+
+    RectF glass = Calc00dBodyLayout.GlassFromBezel(metrics.Layout.DisplaySlot);
+    float scale = metrics.Scale;
+    return new RectF(
+      origin.X + glass.X * scale,
+      origin.Y + glass.Y * scale,
+      glass.Width * scale,
+      glass.Height * scale);
+  }
 }

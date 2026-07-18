@@ -1,10 +1,19 @@
 namespace TeoCalc.Rendering.Faceplate;
 
-/// <summary>Label placement relative to a key cap. Empty slots are not measured or drawn.</summary>
+/// <summary>
+/// Label slots on one key. Modifiers (F/G/H/…) bind to these via model AnnotationStyles.
+/// </summary>
 public enum CalcLabelAnchor
 {
+  /// <summary>Outside, above the cap.</summary>
   CapAbove,
+
+  /// <summary>Primary face band.</summary>
   CapFace,
+
+  /// <summary>On the key skirt / etek.</summary>
   CapSkirt,
+
+  /// <summary>Outside, below the cap.</summary>
   CapBelow,
 }

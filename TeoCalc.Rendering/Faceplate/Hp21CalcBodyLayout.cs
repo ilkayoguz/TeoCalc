@@ -57,7 +57,7 @@ public static class Hp21CalcBodyLayout
       SwitchLabelY = switchTrack.Y - 8f,
       OnOffSwitchCenter = new Vector2(onOffX, switchRowY),
       PrgmRunSwitchCenter = new Vector2(angleX, switchRowY),
-      SwitchLabels = CalcSwitchLabels.WoodstockAngle,
+      Switches = CalcSwitchCatalog.WoodstockAngle,
       KeySlots = keySlots,
     };
   }

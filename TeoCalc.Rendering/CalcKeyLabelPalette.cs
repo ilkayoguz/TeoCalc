@@ -35,10 +35,10 @@ public static class CalcKeyLabelPalette
       : SkirtBlueDark;
   }
 
-  // Blue skirt tiers: base + 1 tick (ASCII) or + 2 ticks (math glyphs), kept close in size.
-  private const float SkirtScaleBase = 1.20f;
-  private const float SkirtAsciiTick = 0.04f;
-  private const float SkirtMathTick = 0.30f;
+  // CapSkirt font stays smaller than CapFace; mild per-label ticks only.
+  private const float SkirtScaleBase = 1.0f;
+  private const float SkirtAsciiTick = 0.02f;
+  private const float SkirtMathTick = 0.08f;
 
   public static float BlueSkirtFontScale(string? label)
   {

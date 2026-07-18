@@ -13,6 +13,10 @@ public sealed class CalcModelDefinition
 
   public IReadOnlyList<CalcModifierKey> ModifierKeys { get; init; } = [];
 
+  /// <summary>
+  /// Modifier → label-slot → ink bindings for this model.
+  /// Empty falls back to <see cref="CalcModifierPlacement.ClassicFg"/>.
+  /// </summary>
   public IReadOnlyList<CalcModifierAnnotationStyle> AnnotationStyles { get; init; } = [];
 
   public IReadOnlyDictionary<string, string> PaletteOverrides { get; init; }

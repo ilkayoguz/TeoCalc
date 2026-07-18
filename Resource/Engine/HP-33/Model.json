@@ -18,5 +18,9 @@
     "RomListing": "Firmware/hp33.microcode.mlist",
     "RomMap": "Firmware/hp33.microcode.map.json",
     "HandlerCatalog": "../Spice/microcode.handlers.study.json"
+  },
+  "Program": {
+    "MaxSteps": 0,
+    "Vocabulary": "Program/program.vocabulary.json"
   }
 }

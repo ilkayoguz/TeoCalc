@@ -8,6 +8,8 @@ public static class CalcExplorerView
 {
   public static void Draw(CalcExplorerSession session, Action? openLauncher = null)
   {
+    CalcFaceplatePointer.BeginFrame();
+
     ImGui.SetNextWindowPos(System.Numerics.Vector2.Zero);
     ImGui.SetNextWindowSize(ImGui.GetIO().DisplaySize);
     ImGui.Begin(

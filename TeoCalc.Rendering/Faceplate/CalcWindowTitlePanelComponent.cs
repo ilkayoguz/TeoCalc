@@ -1,0 +1,121 @@
+using System.Numerics;
+using ImGuiNET;
+using Silk.NET.Input;
+
+namespace TeoCalc.Rendering.Faceplate;
+
+/// <summary>
+/// Window control buttons (Minimize, Maximize/Restore, Close) overlaid on the
+/// top-right of the calculator, whose own top area acts as the drag title bar.
+/// No separate title strip is drawn; the buttons simply float over the faceplate.
+/// </summary>
+public static class CalcWindowTitlePanelComponent
+{
+  /// <summary>Button band height — the top drag strip is kept at least this tall on resize.</summary>
+  public const float Height = 32f;
+
+  public const float ButtonWidth = 46f;
+
+  public const int ButtonCount = 3;
+
+  private const uint IconColor = 0xFFE8E8E8;
+  private const uint IconCloseHover = 0xFFFFFFFF;
+  private const uint HoverFill = 0x33FFFFFF;
+  private const uint HoverCloseFill = 0xFF2311E8; // Windows close red #E81123 (ImGui ABGR)
+
+  public static float ButtonsWidth => ButtonWidth * ButtonCount;
+
+  public enum TitleAction
+  {
+    None,
+    Minimize,
+    ToggleMaximize,
+    Close,
+  }
+
+  /// <summary>True when the mouse is over the caption buttons within the top band.</summary>
+  public static bool IsOverButtons(Vector2 mouse, float top, float height, float rightEdge) =>
+    mouse.Y >= top
+    && mouse.Y <= top + height
+    && mouse.X >= rightEdge - ButtonsWidth
+    && mouse.X <= rightEdge;
+
+  /// <summary>Draws the caption buttons inside the top band [top, top+height], flush to rightEdge.</summary>
+  public static TitleAction Draw(bool isMaximized, float top, float height, float rightEdge)
+  {
+    ImDrawListPtr draw = ImGui.GetForegroundDrawList();
+    TitleAction action = TitleAction.None;
+
+    float x0 = rightEdge - ButtonsWidth;
+
+    if (Button(draw, "##win-min", x0, top, height, HoverFill, IconColor, DrawMinimizeIcon))
+    {
+      action = TitleAction.Minimize;
+    }
+
+    float xMax = x0 + ButtonWidth;
+    if (Button(draw, "##win-max", xMax, top, height, HoverFill, IconColor, isMaximized ? DrawRestoreIcon : DrawMaximizeIcon))
+    {
+      action = TitleAction.ToggleMaximize;
+    }
+
+    float xClose = x0 + ButtonWidth * 2f;
+    if (Button(draw, "##win-close", xClose, top, height, HoverCloseFill, IconColor, DrawCloseIcon, IconCloseHover))
+    {
+      action = TitleAction.Close;
+    }
+
+    return action;
+  }
+
+  private static bool Button(
+    ImDrawListPtr draw,
+    string id,
+    float x,
+    float top,
+    float height,
+    uint hoverFill,
+    uint iconColor,
+    Action<ImDrawListPtr, float, float, uint> drawIcon,
+    uint? iconHoverColor = null)
+  {
+    ImGui.SetCursorScreenPos(new Vector2(x, top));
+    bool clicked = ImGui.InvisibleButton(id, new Vector2(ButtonWidth, height));
+    bool hovered = ImGui.IsItemHovered();
+    if (hovered)
+    {
+      CalcFaceplatePointer.RequestHandCursor();
+      draw.AddRectFilled(new Vector2(x, top), new Vector2(x + ButtonWidth, top + height), hoverFill);
+    }
+
+    float cy = top + height * 0.5f;
+    drawIcon(draw, x, cy, hovered && iconHoverColor.HasValue ? iconHoverColor.Value : iconColor);
+    return clicked;
+  }
+
+  private static void DrawMinimizeIcon(ImDrawListPtr draw, float x, float cy, uint color)
+  {
+    float cx = x + ButtonWidth * 0.5f;
+    draw.AddLine(new Vector2(cx - 5f, cy), new Vector2(cx + 5f, cy), color, 1.2f);
+  }
+
+  private static void DrawMaximizeIcon(ImDrawListPtr draw, float x, float cy, uint color)
+  {
+    float cx = x + ButtonWidth * 0.5f;
+    draw.AddRect(new Vector2(cx - 5f, cy - 5f), new Vector2(cx + 5f, cy + 5f), color, 0f, ImDrawFlags.None, 1.2f);
+  }
+
+  private static void DrawRestoreIcon(ImDrawListPtr draw, float x, float cy, uint color)
+  {
+    float cx = x + ButtonWidth * 0.5f;
+    draw.AddRect(new Vector2(cx - 3f, cy - 6f), new Vector2(cx + 5f, cy + 2f), color, 0f, ImDrawFlags.None, 1.2f);
+    draw.AddRect(new Vector2(cx - 5f, cy - 2f), new Vector2(cx + 3f, cy + 6f), color, 0f, ImDrawFlags.None, 1.2f);
+  }
+
+  private static void DrawCloseIcon(ImDrawListPtr draw, float x, float cy, uint color)
+  {
+    float cx = x + ButtonWidth * 0.5f;
+    draw.AddLine(new Vector2(cx - 5f, cy - 5f), new Vector2(cx + 5f, cy + 5f), color, 1.2f);
+    draw.AddLine(new Vector2(cx + 5f, cy - 5f), new Vector2(cx - 5f, cy + 5f), color, 1.2f);
+  }
+}

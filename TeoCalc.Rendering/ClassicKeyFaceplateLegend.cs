@@ -28,13 +28,34 @@ public static class ClassicKeyFaceplateLegend
 
   private static KeyFaceplateEntry? TryGetEntry(string modelId, int keyIndex)
   {
-    if (!Cache.TryGetValue(modelId, out Dictionary<int, KeyFaceplateEntry>? entries))
+    foreach (string id in CandidateModelIds(modelId))
     {
-      entries = Load(modelId);
-      Cache[modelId] = entries;
+      if (!Cache.TryGetValue(id, out Dictionary<int, KeyFaceplateEntry>? entries))
+      {
+        entries = Load(id);
+        Cache[id] = entries;
+      }
+
+      if (entries.TryGetValue(keyIndex, out KeyFaceplateEntry? entry))
+      {
+        return entry;
+      }
     }
 
-    return entries.TryGetValue(keyIndex, out KeyFaceplateEntry? entry) ? entry : null;
+    return null;
+  }
+
+  private static IEnumerable<string> CandidateModelIds(string modelId)
+  {
+    yield return modelId;
+    if (modelId.StartsWith("HP-", StringComparison.OrdinalIgnoreCase))
+    {
+      yield return modelId["HP-".Length..];
+    }
+    else if (!modelId.StartsWith("HP", StringComparison.OrdinalIgnoreCase))
+    {
+      yield return "HP-" + modelId;
+    }
   }
 
   private static Dictionary<int, KeyFaceplateEntry> Load(string modelId)

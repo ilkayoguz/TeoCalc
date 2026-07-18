@@ -7,7 +7,7 @@ namespace TeoCalc.Rendering;
 
 /// <summary>
 /// Faceplate fonts loaded as <b>additional</b> ImGui fonts after the default UI font.
-/// <see cref="ImGui.GetFont"/> stays the small default; use <see cref="SansBold"/> only on the faceplate.
+/// Font pointers are stored per ImGui context so launcher + calculator windows can coexist.
 /// </summary>
 public static class CalcFaceplateFonts
 {
@@ -16,18 +16,26 @@ public static class CalcFaceplateFonts
   /// <summary>Baked size for <c>LEDcharset_class.TTF</c> (Panamatik HP Classic LED Set).</summary>
   public const float LedDisplayLoadPx = 48f;
 
-  private static ImFontPtr _sansBold;
-  private static ImFontPtr _mathItalic;
-  private static ImFontPtr _arial;
-  private static ImFontPtr _arialBold;
-  private static ImFontPtr _ledDisplay;
-  private static bool _sansReady;
-  private static bool _mathReady;
-  private static bool _arialReady;
-  private static bool _arialBoldReady;
-  private static bool _ledReady;
+  private readonly record struct FontSet(
+    ImFontPtr SansBold,
+    ImFontPtr MathItalic,
+    ImFontPtr Arial,
+    ImFontPtr ArialBold,
+    ImFontPtr LedDisplay,
+    bool SansReady,
+    bool MathReady,
+    bool ArialReady,
+    bool ArialBoldReady,
+    bool LedReady);
+
+  private static readonly Dictionary<nint, FontSet> ByContext = new();
+
   private static GCHandle _glyphRangeHandle;
+
   private static GCHandle _ledGlyphRangeHandle;
+
+  private static FontSet Current =>
+    ByContext.TryGetValue(ImGui.GetCurrentContext(), out FontSet set) ? set : default;
 
   private static nint FaceplateGlyphRanges
   {
@@ -58,15 +66,15 @@ public static class CalcFaceplateFonts
     }
   }
 
-  public static bool IsReady => _sansReady;
+  public static bool IsReady => Current.SansReady;
 
-  public static bool IsMathReady => _mathReady;
+  public static bool IsMathReady => Current.MathReady;
 
-  public static bool IsArialReady => _arialReady;
+  public static bool IsArialReady => Current.ArialReady;
 
-  public static bool IsArialBoldReady => _arialBoldReady;
+  public static bool IsArialBoldReady => Current.ArialBoldReady;
 
-  public static bool IsLedDisplayReady => _ledReady;
+  public static bool IsLedDisplayReady => Current.LedReady;
 
   public const string PiGlyph = "\u03c0";
 
@@ -74,27 +82,28 @@ public static class CalcFaceplateFonts
 
   public static bool HasPiGlyph(float probeSize = FaceplateLoadPx)
   {
-    if (!_arialReady && !_sansReady)
+    FontSet fonts = Current;
+    if (!fonts.ArialReady && !fonts.SansReady)
     {
       return false;
     }
 
     Vector2 pi = MeasurePi(probeSize);
-    Vector2 reference = _arialReady
+    Vector2 reference = fonts.ArialReady
       ? MeasureArial("n", probeSize)
       : MeasureSans("n", probeSize);
     return pi.X >= reference.X * 0.42f && pi.Y >= reference.Y * 0.55f;
   }
 
-  public static ImFontPtr SansBold => _sansReady ? _sansBold : ImGui.GetFont();
+  public static ImFontPtr SansBold => Current.SansReady ? Current.SansBold : ImGui.GetFont();
 
-  public static ImFontPtr MathItalic => _mathReady ? _mathItalic : ImGui.GetFont();
+  public static ImFontPtr MathItalic => Current.MathReady ? Current.MathItalic : ImGui.GetFont();
 
-  public static ImFontPtr Arial => _arialReady ? _arial : ImGui.GetFont();
+  public static ImFontPtr Arial => Current.ArialReady ? Current.Arial : ImGui.GetFont();
 
-  public static ImFontPtr ArialBold => _arialBoldReady ? _arialBold : Arial;
+  public static ImFontPtr ArialBold => Current.ArialBoldReady ? Current.ArialBold : Arial;
 
-  public static ImFontPtr LedDisplay => _ledReady ? _ledDisplay : ImGui.GetFont();
+  public static ImFontPtr LedDisplay => Current.LedReady ? Current.LedDisplay : ImGui.GetFont();
 
   /// <summary>Silk ImGuiController onConfigureIO hook. Keeps default font first.</summary>
   public static void Configure()
@@ -104,11 +113,17 @@ public static class CalcFaceplateFonts
     io.ConfigFlags |= ImGuiConfigFlags.NavEnableKeyboard;
 
     _ = io.Fonts.AddFontDefault();
-    _sansReady = false;
-    _mathReady = false;
-    _arialReady = false;
-    _arialBoldReady = false;
-    _ledReady = false;
+
+    ImFontPtr sansBold = default;
+    ImFontPtr mathItalic = default;
+    ImFontPtr arial = default;
+    ImFontPtr arialBold = default;
+    ImFontPtr ledDisplay = default;
+    bool sansReady = false;
+    bool mathReady = false;
+    bool arialReady = false;
+    bool arialBoldReady = false;
+    bool ledReady = false;
 
     string? sansPath = ResolveFont("LiberationSans-Bold.ttf");
     string? mathPath = ResolveFont("STIXTwoText-BoldItalic.ttf")
@@ -116,52 +131,67 @@ public static class CalcFaceplateFonts
 
     if (sansPath is not null)
     {
-      _sansBold = io.Fonts.AddFontFromFileTTF(sansPath, FaceplateLoadPx, null, FaceplateGlyphRanges);
+      sansBold = io.Fonts.AddFontFromFileTTF(sansPath, FaceplateLoadPx, null, FaceplateGlyphRanges);
       unsafe
       {
-        _sansReady = _sansBold.NativePtr != null;
+        sansReady = sansBold.NativePtr != null;
       }
     }
 
     if (mathPath is not null)
     {
-      _mathItalic = io.Fonts.AddFontFromFileTTF(mathPath, FaceplateLoadPx);
+      mathItalic = io.Fonts.AddFontFromFileTTF(mathPath, FaceplateLoadPx);
       unsafe
       {
-        _mathReady = _mathItalic.NativePtr != null;
+        mathReady = mathItalic.NativePtr != null;
       }
     }
 
     string? arialPath = ResolveArial();
     if (arialPath is not null)
     {
-      _arial = io.Fonts.AddFontFromFileTTF(arialPath, FaceplateLoadPx, null, FaceplateGlyphRanges);
+      arial = io.Fonts.AddFontFromFileTTF(arialPath, FaceplateLoadPx, null, FaceplateGlyphRanges);
       unsafe
       {
-        _arialReady = _arial.NativePtr != null;
+        arialReady = arial.NativePtr != null;
       }
     }
 
     string? arialBoldPath = ResolveArialBold();
     if (arialBoldPath is not null)
     {
-      _arialBold = io.Fonts.AddFontFromFileTTF(arialBoldPath, FaceplateLoadPx, null, FaceplateGlyphRanges);
+      arialBold = io.Fonts.AddFontFromFileTTF(arialBoldPath, FaceplateLoadPx, null, FaceplateGlyphRanges);
       unsafe
       {
-        _arialBoldReady = _arialBold.NativePtr != null;
+        arialBoldReady = arialBold.NativePtr != null;
       }
     }
 
     string? ledPath = ResolveFont("LEDcharset_class.TTF");
     if (ledPath is not null)
     {
-      _ledDisplay = io.Fonts.AddFontFromFileTTF(ledPath, LedDisplayLoadPx, null, LedDisplayGlyphRanges);
+      ledDisplay = io.Fonts.AddFontFromFileTTF(ledPath, LedDisplayLoadPx, null, LedDisplayGlyphRanges);
       unsafe
       {
-        _ledReady = _ledDisplay.NativePtr != null;
+        ledReady = ledDisplay.NativePtr != null;
       }
     }
+
+    ByContext[ImGui.GetCurrentContext()] = new FontSet(
+      sansBold,
+      mathItalic,
+      arial,
+      arialBold,
+      ledDisplay,
+      sansReady,
+      mathReady,
+      arialReady,
+      arialBoldReady,
+      ledReady);
   }
+
+  public static void UnregisterCurrentContext() =>
+    ByContext.Remove(ImGui.GetCurrentContext());
 
   public static float DrawPiTop(ImDrawListPtr draw, float x, float topY, float size, uint color)
   {
@@ -220,7 +250,7 @@ public static class CalcFaceplateFonts
     ArialBold.CalcTextSizeA(size, float.MaxValue, 0f, text);
 
   public static float ArialBoldWidth(string text, float size) =>
-    IsArialBoldReady || _arialReady ? MeasureArialBold(text, size).X : ImGui.GetFont().CalcTextSizeA(size, float.MaxValue, 0f, text).X;
+    IsArialBoldReady || IsArialReady ? MeasureArialBold(text, size).X : ImGui.GetFont().CalcTextSizeA(size, float.MaxValue, 0f, text).X;
 
   public static float DrawArialBoldTop(ImDrawListPtr draw, string text, float x, float topY, float size, uint color)
   {
@@ -237,7 +267,11 @@ public static class CalcFaceplateFonts
   }
 
   public static FontInkBounds MeasureArialBoldInk(string text, float size) =>
-    MeasureInkBounds(ArialBold, size, IsArialBoldReady || _arialReady, text);
+    MeasureInkBounds(ArialBold, size, IsArialBoldReady || IsArialReady, text);
+
+  /// <summary>Tight painted bounds of LED-font text relative to the draw origin (top-left pen).</summary>
+  public static FontInkBounds MeasureLedInk(string text, float size) =>
+    MeasureInkBounds(LedDisplay, size, IsLedDisplayReady, text);
 
   public static Vector2 ArialBoldTopLeftForBandCenter(Vector2 bandCenter, string text, float size) =>
     ArialBoldTopLeftForBandCenter(bandCenter, text, size, verticalBiasRatio: 0f);
@@ -340,7 +374,7 @@ public static class CalcFaceplateFonts
       return 0f;
     }
 
-    ImFontPtr font = IsArialBoldReady || _arialReady ? ArialBold : ImGui.GetFont();
+    ImFontPtr font = IsArialBoldReady || IsArialReady ? ArialBold : ImGui.GetFont();
     if (text.Length == 1)
     {
       draw.AddText(font, size, new Vector2(leftX, topY), color, text);

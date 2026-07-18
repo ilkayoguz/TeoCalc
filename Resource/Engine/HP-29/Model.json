@@ -18,5 +18,9 @@
     "RomListing": "Firmware/hp29.microcode.mlist",
     "RomMap": "Firmware/hp29.microcode.map.json",
     "HandlerCatalog": "../Woodstock/microcode.handlers.study.json"
+  },
+  "Program": {
+    "MaxSteps": 0,
+    "Vocabulary": "Program/program.vocabulary.json"
   }
 }

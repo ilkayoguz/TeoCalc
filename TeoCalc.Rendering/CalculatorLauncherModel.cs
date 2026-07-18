@@ -94,14 +94,20 @@ public sealed class CalculatorLauncherModel
       return false;
     }
 
-    if (selected.CanOpenTeoCalc)
+    if (!selected.CanOpenTeoCalc)
+    {
+      StatusLine = $"{selected.DisplayName}: {selected.TeoCalcStatus}.";
+      return false;
+    }
+
+    if (CalcExplorerApp.TryOpenModelWindow(selected.TeoCalcModelId, out string status))
     {
       entry = selected;
-      StatusLine = $"Opening {selected.DisplayName} TeoCalc explorer.";
+      StatusLine = status;
       return true;
     }
 
-    StatusLine = $"{selected.DisplayName}: {selected.TeoCalcStatus}.";
+    StatusLine = status;
     return false;
   }
 

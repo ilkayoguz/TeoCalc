@@ -6,10 +6,23 @@ using TeoCalc.Core.Catalog;
 
 namespace TeoCalc.Rendering;
 
-/// <summary>Hand cursor for interactive faceplate regions (keys and slider switches).</summary>
+/// <summary>OS / ImGui cursor hints for faceplate chrome and interactive regions.</summary>
 public static class CalcFaceplatePointer
 {
-  private static bool _wantHand;
+  private static StandardCursor _cursor = StandardCursor.Default;
+
+  /// <summary>True when the mouse is over a key or slider switch (set by the faceplate view).</summary>
+  public static bool IsOverInteractive { get; private set; }
+
+  public static void BeginFrame()
+  {
+    _cursor = StandardCursor.Default;
+    IsOverInteractive = false;
+  }
+
+  public static void RequestHandCursor() => RequestCursor(StandardCursor.Hand);
+
+  public static void RequestCursor(StandardCursor cursor) => _cursor = cursor;
 
   public static void ApplyHandCursorIfHovering(
     Vector2 origin,
@@ -19,9 +32,10 @@ public static class CalcFaceplatePointer
     bool anyKeyHoveredFromImGui,
     bool anySwitchHoveredFromImGui,
     bool powerOn,
-    bool programMode)
+    bool programMode,
+    CalcExplorerSession? session = null)
   {
-    _wantHand = false;
+    _ = programMode;
 
     if (!ImGui.IsWindowHovered(
           ImGuiHoveredFlags.AllowWhenBlockedByActiveItem
@@ -33,16 +47,20 @@ public static class CalcFaceplatePointer
 
     Vector2 mouse = ImGui.GetIO().MousePos;
 
-    if (anySwitchHoveredFromImGui || CalcChassisRenderer.IsMouseOverSwitch(mouse, origin, metrics, powerOn, programMode))
+    bool overSwitch = anySwitchHoveredFromImGui
+      || (session is not null && CalcChassisRenderer.IsMouseOverSwitch(mouse, origin, metrics, session, powerOn));
+    if (overSwitch)
     {
-      _wantHand = true;
+      IsOverInteractive = true;
+      RequestHandCursor();
       ImGui.SetMouseCursor(ImGuiMouseCursor.Hand);
       return;
     }
 
     if (anyKeyHoveredFromImGui || (powerOn && IsMouseOverAnyKey(mouse, origin, metrics, cells, keyChart)))
     {
-      _wantHand = true;
+      IsOverInteractive = true;
+      RequestHandCursor();
       ImGui.SetMouseCursor(ImGuiMouseCursor.Hand);
     }
   }
@@ -50,23 +68,32 @@ public static class CalcFaceplatePointer
   /// <summary>Apply OS cursor after ImGuiController.Render (Silk may overwrite in-frame cursor).</summary>
   public static void ApplyPendingCursor(IInputContext? input)
   {
-    if (_wantHand)
-    {
-      ImGui.SetMouseCursor(ImGuiMouseCursor.Hand);
-    }
+    ImGui.SetMouseCursor(ToImGuiCursor(_cursor));
 
-    if (TryApplySilkCursor(input, _wantHand))
+    if (TryApplySilkCursor(input, _cursor))
     {
       return;
     }
 
     if (OperatingSystem.IsWindows())
     {
-      TryApplyWin32Cursor(_wantHand);
+      TryApplyWin32Cursor(_cursor);
     }
   }
 
-  private static bool TryApplySilkCursor(IInputContext? input, bool hand)
+  private static ImGuiMouseCursor ToImGuiCursor(StandardCursor cursor) => cursor switch
+  {
+    StandardCursor.Hand => ImGuiMouseCursor.Hand,
+    StandardCursor.HResize => ImGuiMouseCursor.ResizeEW,
+    StandardCursor.VResize => ImGuiMouseCursor.ResizeNS,
+    StandardCursor.NwseResize => ImGuiMouseCursor.ResizeNWSE,
+    StandardCursor.NeswResize => ImGuiMouseCursor.ResizeNESW,
+    StandardCursor.ResizeAll => ImGuiMouseCursor.ResizeAll,
+    StandardCursor.NotAllowed => ImGuiMouseCursor.NotAllowed,
+    _ => ImGuiMouseCursor.Arrow,
+  };
+
+  private static bool TryApplySilkCursor(IInputContext? input, StandardCursor standard)
   {
     if (input is null || input.Mice.Count == 0)
     {
@@ -74,14 +101,30 @@ public static class CalcFaceplatePointer
     }
 
     ICursor cursor = input.Mice[0].Cursor;
+    if (!cursor.IsSupported(standard))
+    {
+      return false;
+    }
+
     cursor.Type = CursorType.Standard;
-    cursor.StandardCursor = hand ? StandardCursor.Hand : StandardCursor.Default;
+    cursor.StandardCursor = standard;
     return true;
   }
 
-  private static void TryApplyWin32Cursor(bool hand)
+  private static void TryApplyWin32Cursor(StandardCursor standard)
   {
-    nint handle = LoadCursorW(0, new nint(hand ? 32649 : 32512));
+    int id = standard switch
+    {
+      StandardCursor.Hand => 32649,
+      StandardCursor.HResize => 32644,
+      StandardCursor.VResize => 32645,
+      StandardCursor.NwseResize => 32642,
+      StandardCursor.NeswResize => 32643,
+      StandardCursor.ResizeAll => 32646,
+      StandardCursor.NotAllowed => 32648,
+      _ => 32512,
+    };
+    nint handle = LoadCursorW(0, new nint(id));
     if (handle != 0)
     {
       SetCursor(handle);

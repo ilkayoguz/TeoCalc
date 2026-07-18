@@ -4,7 +4,7 @@ namespace TeoCalc.Rendering.Faceplate;
 
 public static class CalcThemeCatalog
 {
-  public const string DefaultThemeId = "Retro";
+  public const string DefaultThemeId = "Modern";
 
   public static CalcThemePack LoadDefault() => Load(DefaultThemeId);
 

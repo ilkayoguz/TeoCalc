@@ -17,7 +17,7 @@ internal class Program
         return 0;
       }
 
-      return CalcAppHost.Run();
+      return CalcAppHost.Run(args);
     }
     catch (Exception exception)
     {

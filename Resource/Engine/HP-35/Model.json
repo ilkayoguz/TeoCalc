@@ -18,5 +18,9 @@
     "RomListing": "Firmware/hp35.microcode.mlist",
     "RomMap": "Firmware/hp35.microcode.map.json",
     "HandlerCatalog": "../Classic/microcode.handlers.json"
+  },
+  "Program": {
+    "MaxSteps": 0,
+    "Vocabulary": "Program/program.vocabulary.json"
   }
 }

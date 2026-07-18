@@ -4,7 +4,9 @@ public static class CalcFaceplateKeyStyles
 {
   public static CalcButtonStyle StyleForKey(string family, string? modelId, int keyChartIndex) =>
     string.Equals(family, "Woodstock", StringComparison.OrdinalIgnoreCase)
-      || string.Equals(modelId, "HP-21", StringComparison.OrdinalIgnoreCase)
+      || string.Equals(family, "Spice", StringComparison.OrdinalIgnoreCase)
+      || (modelId?.StartsWith("HP-2", StringComparison.OrdinalIgnoreCase) ?? false)
+      || (modelId?.StartsWith("HP-3", StringComparison.OrdinalIgnoreCase) ?? false)
       ? WoodstockStyle(keyChartIndex)
       : CalcButton.StyleForKeyIndex(keyChartIndex);
 

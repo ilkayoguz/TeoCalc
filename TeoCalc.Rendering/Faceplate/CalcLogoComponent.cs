@@ -3,43 +3,102 @@ using ImGuiNET;
 using TeoCalc.Rendering;
 
 namespace TeoCalc.Rendering.Faceplate;
-/// <summary>Footer strip: hp mark on the left, HEWLETT-PACKARD {model.Id} on the right.</summary>
+
+/// <summary>Logo strip: procedural hp mark + HEWLETT-PACKARD caption.</summary>
 public static class CalcLogoComponent
 {
-  public static void Draw(ImDrawListPtr draw, Vector2 stripMin, Vector2 stripMax, CalcModelDefinition model, float scale)
+  public static void Draw(ImDrawListPtr draw, Vector2 stripMin, Vector2 stripMax, CalcModelDefinition model, float scale) =>
+    DrawProceduralStrip(draw, stripMin, stripMax, model, scale);
+
+  private static void DrawProceduralStrip(
+    ImDrawListPtr draw,
+    Vector2 stripMin,
+    Vector2 stripMax,
+    CalcModelDefinition model,
+    float scale)
   {
     float height = stripMax.Y - stripMin.Y;
-    float padX = 8f * scale;
-    uint strip = CalcKeyColorPalette.Resolve(CalcKeyColorPalette.LogoStrip, model);
-    uint markInk = CalcKeyColorPalette.Resolve(CalcKeyColorPalette.LogoMark, model);
+    float width = stripMax.X - stripMin.X;
+    float padX = width * 0.04f;
+
+    uint stripBase = CalcKeyColorPalette.Resolve(CalcKeyColorPalette.LogoStrip, model);
+    uint markMetal = CalcKeyColorPalette.Resolve(CalcKeyColorPalette.LogoMark, model);
     uint captionInk = CalcKeyColorPalette.Resolve(CalcKeyColorPalette.LogoCaption, model);
 
-    draw.AddRectFilled(stripMin, stripMax, strip, 2f * scale);
+    draw.AddRectFilled(stripMin, stripMax, stripBase, 2f * scale);
+    DrawBrushedMetal(draw, stripMin, stripMax, scale, stripBase);
 
-    float textLeft = stripMin.X + padX;
-    if (model.Id == "65" && Hp65FaceplateSvgAssets.TryDrawLogoMark(draw, stripMin, stripMax, scale))
-    {
-      textLeft = stripMin.X + stripMax.Y * 0.95f * (888f / 562f) * 1.4f + padX;
-    }
-    else
-    {
-      float markSize = height * 0.55f;
-      Vector2 markCenter = new(stripMin.X + padX + markSize * 0.5f, (stripMin.Y + stripMax.Y) * 0.5f);
-      draw.AddCircleFilled(markCenter, markSize * 0.5f, markInk);
-      draw.AddText(
-        ImGui.GetFont(),
-        markSize * 0.45f,
-        markCenter - new Vector2(markSize * 0.22f, markSize * 0.2f),
-        0xFFFFFFFFu,
-        "hp");
-    }
+    float logoRight = DrawMonochromeHpLogo(draw, stripMin, stripMax, scale, markMetal);
 
-    string caption = model.LogoCaption;
-    float fontSize = height * 0.38f;
-    Vector2 textSize = ImGui.GetFont().CalcTextSizeA(fontSize, float.MaxValue, 0f, caption);
-    Vector2 textPos = new(
-      stripMax.X - padX - textSize.X,
-      stripMin.Y + (height - textSize.Y) * 0.5f);
-    draw.AddText(ImGui.GetFont(), fontSize, textPos, captionInk, caption);
+    float dividerX = logoRight + padX * 0.35f;
+    draw.AddLine(
+      new Vector2(dividerX, stripMin.Y + height * 0.14f),
+      new Vector2(dividerX, stripMax.Y - height * 0.14f),
+      Darken(captionInk, 0.15f, 0x88),
+      scale);
+
+    CalcChassisRenderer.DrawBrandPlateText(
+      draw,
+      dividerX + padX * 0.45f,
+      stripMin,
+      stripMax,
+      model.LogoCaption,
+      captionInk,
+      width * 0.03f);
+  }
+
+  private static float DrawMonochromeHpLogo(
+    ImDrawListPtr draw,
+    Vector2 stripMin,
+    Vector2 stripMax,
+    float scale,
+    uint markMetal)
+  {
+    float height = stripMax.Y - stripMin.Y;
+    float padX = (stripMax.X - stripMin.X) * 0.04f;
+    float markSize = height * 0.76f;
+    Vector2 center = new(stripMin.X + padX + markSize * 0.5f, (stripMin.Y + stripMax.Y) * 0.5f);
+    float radius = markSize * 0.5f;
+
+    uint rim = Darken(markMetal, 0.22f);
+    uint face = Lighten(markMetal, 0.18f);
+    uint hpInk = Darken(markMetal, 0.42f);
+
+    draw.AddCircleFilled(center, radius + scale * 0.8f, rim);
+    draw.AddCircleFilled(center, radius, face);
+
+    float fontSize = markSize * 0.36f;
+    ImFontPtr font = CalcFaceplateFonts.IsArialBoldReady ? CalcFaceplateFonts.ArialBold : ImGui.GetFont();
+    Vector2 textSize = font.CalcTextSizeA(fontSize, float.MaxValue, 0f, "hp");
+    draw.AddText(font, fontSize, center - textSize * 0.5f, hpInk, "hp");
+
+    return center.X + radius;
+  }
+
+  private static void DrawBrushedMetal(ImDrawListPtr draw, Vector2 stripMin, Vector2 stripMax, float scale, uint baseColor)
+  {
+    float height = stripMax.Y - stripMin.Y;
+    int lines = (int)Math.Clamp(height / (1.0f * scale), 16, 40);
+    for (int line = 0; line < lines; line++)
+    {
+      float y = stripMin.Y + line / (float)Math.Max(1, lines - 1) * height;
+      uint color = line % 2 == 0 ? 0x38FFFFFFu : 0x28000000u;
+      draw.AddLine(new Vector2(stripMin.X, y), new Vector2(stripMax.X, y), color, scale * 0.35f);
+    }
+  }
+
+  private static uint Lighten(uint color, float amount, byte alpha = 0xFF) =>
+    MixColor(color, 0xFFFFFFFF, amount, alpha);
+
+  private static uint Darken(uint color, float amount, byte alpha = 0xFF) =>
+    MixColor(color, 0xFF000000, amount, alpha);
+
+  private static uint MixColor(uint color, uint target, float amount, byte alpha)
+  {
+    amount = Math.Clamp(amount, 0f, 1f);
+    byte r = (byte)(((color >> 16) & 0xFF) + ((((target >> 16) & 0xFF) - ((color >> 16) & 0xFF)) * amount));
+    byte g = (byte)(((color >> 8) & 0xFF) + ((((target >> 8) & 0xFF) - ((color >> 8) & 0xFF)) * amount));
+    byte b = (byte)((color & 0xFF) + (((target & 0xFF) - (color & 0xFF)) * amount));
+    return ((uint)alpha << 24) | ((uint)r << 16) | ((uint)g << 8) | b;
   }
 }
