@@ -6,7 +6,8 @@ namespace TeoCalc.Rendering.Faceplate;
 
 /// <summary>
 /// HP Modern body geometry. Band width follows the key grid (keys flush with display/switch);
-/// logo band height from <see cref="CalcLogoPanelComponent.HeightRef"/>.
+/// card-reader models insert <see cref="CalcCardSlotComponent"/> under the switch panel;
+/// logo band height from <see cref="CalcLogoPanelComponent.HeightRef"/> (window chrome).
 /// </summary>
 public static class Calc00dBodyLayout
 {
@@ -69,6 +70,9 @@ public static class Calc00dBodyLayout
 
     IReadOnlyList<FaceplateCell> cells = CalcFaceplateLayout.GetPhysicalCells(family, modelId);
     IReadOnlyList<CalcSwitchSpec> switches = CalcSwitchCatalog.ForModel(model);
+    bool hasCardSlot = CalcCardSlotComponent.ModelHasCardSlot(model.Id)
+      || CalcCardSlotComponent.ModelHasCardSlot(modelId);
+
     CalcKeyPanelComponent.PanelMetrics keyMetrics = CalcKeyPanelComponent.Measure(cells);
 
     float bandLeft = FacePadXRef;
@@ -84,7 +88,25 @@ public static class Calc00dBodyLayout
       bandWidth,
       display.Y + display.Height);
 
-    float keypadTop = switchSlot.Y + switchSlot.Height + CalcKeyPanelComponent.GapBelowSwitchRef;
+    RectF? cardSlot = null;
+    float keypadTop;
+    if (hasCardSlot)
+    {
+      cardSlot = CalcCardSlotComponent.ResolveSlotRef(
+        bandLeft,
+        bandWidth,
+        switchSlot.Y + switchSlot.Height);
+      // Pull keypad up by its top gutter so A–E sit close under the legend frame
+      // (same trick as GapBelowSwitchRef when there is no card strip).
+      keypadTop = cardSlot.Value.Y + cardSlot.Value.Height
+        + CalcCardSlotComponent.GapAboveKeypadRef
+        - CalcKeyPanelComponent.GutterRef;
+    }
+    else
+    {
+      keypadTop = switchSlot.Y + switchSlot.Height + CalcKeyPanelComponent.GapBelowSwitchRef;
+    }
+
     RectF keypad = CalcKeyPanelComponent.ResolveSlotRef(bandLeft, keypadTop, keyMetrics);
     Dictionary<int, RectF> keySlots = CalcKeyPanelComponent.BuildKeySlots(keypad, cells, keyMetrics);
 
@@ -107,7 +129,7 @@ public static class Calc00dBodyLayout
       SwitchSlot = switchSlot,
       KeypadSlot = keypad,
       LogoSlot = logo,
-      CardSlotBand = null,
+      CardSlotBand = cardSlot,
       SwitchRowLift = 0f,
       SwitchLabelY = switchRowY,
       OnOffSwitchCenter = onOff,

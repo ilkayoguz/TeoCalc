@@ -256,22 +256,14 @@ public static class CalcKeyComponent
       ? CalcFaceplateTypography.GoldShift(scale)
       : CalcFaceplateTypography.GoldShift(scale) * 0.92f;
 
-    Vector2 textSize = CalcFaceplateFonts.IsArialBoldReady || CalcFaceplateFonts.IsArialReady
-      ? CalcFaceplateFonts.MeasureArialBold(text, fontSize)
-      : ImGui.GetFont().CalcTextSizeA(fontSize, float.MaxValue, 0f, text);
-
-    float x = slotMin.X + ((slotMax.X - slotMin.X) - textSize.X) * 0.5f;
+    // CapFace / ENTER-row gold already use vector glyphs for √ / →; CapAbove must too
+    // (Arial Bold atlas is Latin-1 + π only, so those codepoints become "?").
+    HpClassicFaceplateGlyphs.LabelSize textSize = HpClassicFaceplateGlyphs.MeasureBodyLabel(text, fontSize);
+    float x = slotMin.X + ((slotMax.X - slotMin.X) - textSize.Width) * 0.5f;
     float y = above
-      ? capEdgeY - textSize.Y - scale * 1.2f
+      ? capEdgeY - textSize.Height - scale * 1.2f
       : capEdgeY + scale * 1.2f;
 
-    if (CalcFaceplateFonts.IsArialBoldReady || CalcFaceplateFonts.IsArialReady)
-    {
-      CalcFaceplateFonts.DrawArialBoldTop(draw, text, x, y, fontSize, ink);
-    }
-    else
-    {
-      draw.AddText(ImGui.GetFont(), fontSize, new Vector2(x, y), ink, text);
-    }
+    HpClassicFaceplateGlyphs.DrawBodyLabel(draw, new Vector2(x, y), text, fontSize, ink, scale);
   }
 }

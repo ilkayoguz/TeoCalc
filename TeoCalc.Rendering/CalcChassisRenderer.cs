@@ -103,7 +103,12 @@ public static class CalcChassisRenderer
   public static void DrawCardSlotLabels(ImDrawListPtr draw, Vector2 origin, CalcChassisMetrics metrics) =>
     DrawCardSlots(draw, origin, metrics, paintChrome: false);
 
-  public static void DrawCardSlots(ImDrawListPtr draw, Vector2 origin, CalcChassisMetrics metrics, bool paintChrome)
+  public static void DrawCardSlots(
+    ImDrawListPtr draw,
+    Vector2 origin,
+    CalcChassisMetrics metrics,
+    bool paintChrome,
+    IReadOnlyList<string>? labels = null)
   {
     if (!metrics.Layout.HasCardSlots)
     {
@@ -111,20 +116,17 @@ public static class CalcChassisRenderer
     }
 
     RectF band = metrics.CardSlotBandRect(origin);
+    if (CalcModernBody.IsActive)
+    {
+      CalcCardSlotComponent.Draw(draw, band, metrics, origin, labels);
+      return;
+    }
+
     float bandInsetY = metrics.Scale * 0.8f;
     float baseFont = (band.Height - bandInsetY * 2f) / 1.15f;
     float fontSize = baseFont * 2f * 0.7f;
     float slotHeight = band.Height * 0.38f;
     float slotY = band.Y + band.Height * 0.52f;
-
-    float maxLabelHeight = 0f;
-    for (int column = 0; column < CalcFaceplateLayout.Columns; column++)
-    {
-      maxLabelHeight = MathF.Max(
-        maxLabelHeight,
-        HpClassicFaceplateGlyphs.MeasureCardSlotLabel(column, fontSize).Height);
-    }
-
     float labelCenterY = band.Y + band.Height * 0.20f;
 
     if (!paintChrome)
@@ -157,10 +159,9 @@ public static class CalcChassisRenderer
       float slotLeft = cellX + slotInsetX;
       float slotRight = cellX + cellWidth - slotInsetX;
       float centerX = (slotLeft + slotRight) * 0.5f;
-      float centerY = labelCenterY;
       Vector2 drawCenter = HpClassicFaceplateGlyphs.CardSlotLabelDrawCenter(
         column,
-        new Vector2(centerX, centerY),
+        new Vector2(centerX, labelCenterY),
         fontSize,
         metrics.Scale);
       HpClassicFaceplateGlyphs.DrawCardSlotLabel(

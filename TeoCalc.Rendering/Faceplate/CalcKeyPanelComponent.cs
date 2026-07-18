@@ -74,9 +74,12 @@ public static class CalcKeyPanelComponent
   public static float RowPitch(PanelMetrics metrics) =>
     metrics.LabelAbove + metrics.CapHeight + metrics.LabelBelow;
 
-  public static PanelMetrics Measure(IReadOnlyList<FaceplateCell> cells)
+  public static PanelMetrics Measure(
+    IReadOnlyList<FaceplateCell> cells,
+    int skipTopRows = 0,
+    bool includeTopGutter = true)
   {
-    int rows = CountRows(cells);
+    int rows = Math.Max(0, CountRows(cells) - Math.Max(0, skipTopRows));
     int cols = CountColumns(cells);
     float g = GutterRef;
     float cellW = PreferredCellWidthRef;
@@ -85,7 +88,10 @@ public static class CalcKeyPanelComponent
     float below = LabelBelowRef;
     float rowH = above + capH + below;
     float width = cols * cellW + (cols - 1) * g;
-    float height = g * 2f + rows * rowH + (rows - 1) * g;
+    float topGutter = includeTopGutter ? g : 0f;
+    float height = rows == 0
+      ? 0f
+      : topGutter + g + rows * rowH + (rows - 1) * g;
     return new PanelMetrics(width, height, cellW, rowH, capH, above, below, g, cols);
   }
 
@@ -94,8 +100,14 @@ public static class CalcKeyPanelComponent
 
   /// <summary>
   /// Full-width rows keep column geometry; shorter rows are justified L→R across the band.
+  /// <paramref name="skipTopRows"/> omits leading rows (e.g. A–E owned by the card plate).
   /// </summary>
-  public static Dictionary<int, RectF> BuildKeySlots(RectF panel, IReadOnlyList<FaceplateCell> cells, PanelMetrics metrics)
+  public static Dictionary<int, RectF> BuildKeySlots(
+    RectF panel,
+    IReadOnlyList<FaceplateCell> cells,
+    PanelMetrics metrics,
+    int skipTopRows = 0,
+    bool includeTopGutter = true)
   {
     Dictionary<int, RectF> slots = new();
     if (cells.Count == 0)
@@ -105,12 +117,19 @@ public static class CalcKeyPanelComponent
 
     float g = metrics.Gutter;
     float rowPitch = RowPitch(metrics);
-    float originY = panel.Y + g;
+    float originY = panel.Y + (includeTopGutter ? g : 0f);
+    int skip = Math.Max(0, skipTopRows);
 
     foreach (IGrouping<int, FaceplateCell> rowGroup in cells.GroupBy(cell => cell.Row).OrderBy(group => group.Key))
     {
+      int visualRow = rowGroup.Key - skip;
+      if (visualRow < 0)
+      {
+        continue;
+      }
+
       List<FaceplateCell> rowCells = rowGroup.OrderBy(cell => cell.Column).ToList();
-      float rowY = originY + rowGroup.Key * (rowPitch + g);
+      float rowY = originY + visualRow * (rowPitch + g);
       PlaceRow(slots, rowCells, panel.X, rowY, panel.Width, metrics, g);
     }
 

@@ -126,6 +126,28 @@ public sealed class CalcBodyLayoutTests
   }
 
   [TestMethod]
+  public void Modern00d_Hp65_CardSlot_IsLegendFrameAboveAE()
+  {
+    CalcBodyLayout hp65 = Calc00dBodyLayout.Resolve("Classic", "65", CalcModelCatalog.Hp65);
+    Assert.IsTrue(hp65.HasCardSlots);
+    Assert.IsNotNull(hp65.CardSlotBand);
+    RectF card = hp65.CardSlotBand!.Value;
+
+    Assert.AreEqual(hp65.DisplaySlot.X, card.X, 0.01f);
+    Assert.AreEqual(hp65.DisplaySlot.Width, card.Width, 0.01f);
+    Assert.AreEqual(CalcLogoPanelComponent.HeightRef, card.Height, 0.01f);
+    Assert.AreEqual(CalcCardSlotComponent.HeightRef, card.Height, 0.01f);
+
+    Assert.IsTrue(hp65.TryGetKeySlot(0, out RectF keyA));
+    Assert.IsGreaterThanOrEqualTo(card.Y + card.Height, keyA.Y);
+    // Flush under the frame (gutter cancelled): A–E slot top ≈ card bottom.
+    Assert.AreEqual(card.Y + card.Height, keyA.Y, 0.05f);
+
+    CalcBodyLayout hp55 = Calc00dBodyLayout.Resolve("Classic", "55", CalcModelCatalog.Resolve("HP-55"));
+    Assert.IsFalse(hp55.HasCardSlots);
+  }
+
+  [TestMethod]
   public void Modern00d_KeyPanel_ColumnGridAlignsWithBand()
   {
     CalcBodyLayout hp65 = Calc00dBodyLayout.Resolve("Classic", "65", CalcModelCatalog.Hp65);

@@ -59,6 +59,11 @@ public static class CalcFaceplateView
     bool powerOn = session.PowerOn;
 
     CalcChassisRenderer.DrawSliderSwitches(draw, origin, metrics, session);
+    if (metrics.Layout.HasCardSlots && CalcModernBody.IsActive)
+    {
+      CalcChassisRenderer.DrawCardSlots(draw, origin, metrics, paintChrome: true);
+    }
+
     CalcChassisRenderer.SwitchPointerState switchPointer =
       CalcChassisRenderer.HandleSwitchPointers(origin, metrics, session, powerOn);
     bool anySwitchHovered = switchPointer.Hovered;

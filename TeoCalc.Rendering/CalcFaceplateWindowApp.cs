@@ -354,8 +354,8 @@ public sealed class CalcFaceplateHost : IDisposable
   /// <summary>
   /// Unified calc chrome at window level: outer bead frame (2q black → 1q gray →
   /// 1q light-gray, fixed px, rounded to match the DWM corners), a fixed-height
-  /// dark-gray top band with rounded top corners, the inner body fill, then a
-  /// fixed-height bottom logo band (mirrors the top band) with rounded bottom corners.
+  /// top title band (same fill as the switch panel) with rounded top corners, the
+  /// inner body fill, then a fixed-height bottom logo band with rounded bottom corners.
   /// </summary>
   private void DrawUnifiedChrome(ImDrawListPtr draw, System.Numerics.Vector2 display)
   {
@@ -375,7 +375,7 @@ public sealed class CalcFaceplateHost : IDisposable
     FillRoundedRect(draw, cursor, radius, Calc00dWireStyle.InnerBodyFill);
 
     RectF band = new(cursor.X, cursor.Y, cursor.Width, TopBandHeight);
-    draw.AddRectFilled(band.Min, band.Max, Calc00dWireStyle.DarkGrayBandFill, radius, ImDrawFlags.RoundCornersTop);
+    draw.AddRectFilled(band.Min, band.Max, Calc00dWireStyle.SwitchPanelFill, radius, ImDrawFlags.RoundCornersTop);
 
     // Fixed-height bottom logo band mirroring the top title bar: inside the bead frame,
     // rounded bottom corners, filled with the brushed-aluminum hp logo plate.
