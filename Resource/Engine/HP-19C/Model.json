@@ -5,7 +5,7 @@
   "DisplayName": "HP-19C",
   "Family": "HP19C",
   "Hardware": {
-    "ButtonCount": 40,
+    "ButtonCount": 32,
     "RamBytes": 448,
     "RegisterDigits": 14,
     "ProgramRamBase": 0,
@@ -15,5 +15,10 @@
     "MaxSteps": 0,
     "Vocabulary": "Program/program.vocabulary.json"
   },
-  "Firmware": {}
+  "Firmware": {},
+  "Faceplate": {
+    "BodyLayoutId": "00d",
+    "ThemeId": "Modern",
+    "ShortId": "19C"
+  }
 }

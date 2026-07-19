@@ -132,6 +132,15 @@ public static class CalcFaceplateLayout
       }
     }
 
+    if (string.Equals(family, "HP19C", StringComparison.OrdinalIgnoreCase))
+    {
+      string? hp19 = Hp19CLabelFromChar(key.Char);
+      if (hp19 is not null)
+      {
+        return hp19;
+      }
+    }
+
     string? faceplate = PrimaryLabelFromChar(key.Char);
     if (faceplate is not null)
     {
@@ -237,6 +246,22 @@ public static class CalcFaceplateLayout
       "/" => "\u00f7", // Operator-row classic ÷
       "=" => "=",
       "." => ".",
+      _ => null,
+    };
+
+  /// <summary>
+  /// HP-19C CapFace legends. Chart chars stay for firmware; printed labels differ from Classic.
+  /// </summary>
+  private static string? Hp19CLabelFromChar(string charValue) =>
+    charValue switch
+    {
+      "y" => "x\u2194y",
+      "d" => "R\u2193",
+      "b" => "GSB",
+      "o" => "GTO",
+      "t" => "SST",
+      "e" => "\u03a3+",
+      "p" => "PRx",
       _ => null,
     };
 

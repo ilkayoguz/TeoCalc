@@ -11,6 +11,12 @@ public static class CalcFaceplateKeyStyles
       return keyChartIndex == 24 ? CalcButtonStyle.Orange : CalcButtonStyle.Black;
     }
 
+    if (string.Equals(family, "HP19C", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(modelId, "HP-19C", StringComparison.OrdinalIgnoreCase))
+    {
+      return Hp19CStyle(keyChartIndex);
+    }
+
     if (string.Equals(family, "Woodstock", StringComparison.OrdinalIgnoreCase)
         || string.Equals(family, "Spice", StringComparison.OrdinalIgnoreCase)
         || (modelId?.StartsWith("HP-2", StringComparison.OrdinalIgnoreCase) ?? false)
@@ -21,6 +27,19 @@ public static class CalcFaceplateKeyStyles
 
     return CalcButton.StyleForKeyIndex(keyChartIndex);
   }
+
+  /// <summary>HP-19C: black top/side, white digit pad, orange f, blue g.</summary>
+  private static CalcButtonStyle Hp19CStyle(int keyChartIndex) =>
+    keyChartIndex switch
+    {
+      5 => CalcButtonStyle.Orange,
+      11 => CalcButtonStyle.Blue,
+      12 or 13 or 14 or 15 => CalcButtonStyle.White,
+      18 or 19 or 20 or 21 => CalcButtonStyle.White,
+      24 or 25 or 26 or 27 => CalcButtonStyle.White,
+      30 or 31 or 32 or 33 => CalcButtonStyle.White,
+      _ => CalcButtonStyle.Black,
+    };
 
   private static CalcButtonStyle WoodstockStyle(int keyChartIndex) =>
     keyChartIndex switch

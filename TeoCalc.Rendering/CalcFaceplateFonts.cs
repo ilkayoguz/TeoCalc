@@ -269,6 +269,10 @@ public static class CalcFaceplateFonts
   public static FontInkBounds MeasureArialBoldInk(string text, float size) =>
     MeasureInkBounds(ArialBold, size, IsArialBoldReady || IsArialReady, text);
 
+  /// <summary>Tight painted bounds for math-italic text relative to the <see cref="DrawMathTop"/> origin.</summary>
+  public static FontInkBounds MeasureMathInk(string text, float size) =>
+    MeasureInkBounds(MathItalic, size, IsMathReady, text);
+
   /// <summary>Tight painted bounds of LED-font text relative to the draw origin (top-left pen).</summary>
   public static FontInkBounds MeasureLedInk(string text, float size) =>
     MeasureInkBounds(LedDisplay, size, IsLedDisplayReady, text);

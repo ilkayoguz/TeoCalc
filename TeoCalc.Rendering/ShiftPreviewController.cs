@@ -41,6 +41,16 @@ public sealed class ShiftPreviewController
       return mode == ShiftPreviewMode.Gold ? 24 : -1; // Δ
     }
 
+    if (IsHp19C(family))
+    {
+      return mode switch
+      {
+        ShiftPreviewMode.Gold => 5,  // f
+        ShiftPreviewMode.Blue => 11, // g
+        _ => -1,
+      };
+    }
+
     return mode switch
     {
       ShiftPreviewMode.Gold => 10,
@@ -57,6 +67,11 @@ public sealed class ShiftPreviewController
       return keyChartIndex == 24; // Δ
     }
 
+    if (IsHp19C(family))
+    {
+      return keyChartIndex is 5 or 11;
+    }
+
     return keyChartIndex is 10 or 11 or 14;
   }
 
@@ -66,6 +81,16 @@ public sealed class ShiftPreviewController
     {
       // Owner's Guide: press Δ then the key whose yellow legend you want.
       return keyChartIndex == 24 ? ShiftPreviewMode.Gold : ShiftPreviewMode.None;
+    }
+
+    if (IsHp19C(family))
+    {
+      return keyChartIndex switch
+      {
+        5 => ShiftPreviewMode.Gold,
+        11 => ShiftPreviewMode.Blue,
+        _ => ShiftPreviewMode.None,
+      };
     }
 
     return keyChartIndex switch
@@ -79,4 +104,7 @@ public sealed class ShiftPreviewController
 
   private static bool IsHp01(string? family) =>
     string.Equals(family, "HP01", StringComparison.OrdinalIgnoreCase);
+
+  private static bool IsHp19C(string? family) =>
+    string.Equals(family, "HP19C", StringComparison.OrdinalIgnoreCase);
 }
