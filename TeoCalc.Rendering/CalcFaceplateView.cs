@@ -167,7 +167,7 @@ public static class CalcFaceplateView
         }
 
         ProgramKeyEntry key = session.Vocabulary.KeyChart[cell.KeyChartIndex];
-        // KeyCode 0 = blank chart slot. Empty CapFace is allowed (HP-21 blue g prefix).
+        // KeyCode 0 = blank chart slot. Empty CapFace is allowed (HP-21 blue g / HP-22 gold f).
         if (key.KeyCode == 0)
         {
           continue;
@@ -195,7 +195,7 @@ public static class CalcFaceplateView
           session.Model.Family,
           session.Model.Model,
           cell.KeyChartIndex);
-        PreviewVisual preview = ApplyShiftPreview(visual, shiftPreview, style);
+        PreviewVisual preview = ApplyShiftPreview(visual, shiftPreview, style, session.Model.Model);
         CalcButtonKind kind = CalcFaceplateLayout.ButtonKindForKey(key, cell, session.Model.Family);
         CalcKeyVisual keyVisual = BuildKeyVisual(
           preview,
@@ -266,6 +266,7 @@ public static class CalcFaceplateView
           item.Cell.KeyChartIndex,
           shiftPreview,
           session.Model.Family,
+          session.Model.Model,
           metrics.Scale);
 
         if (ImGui.IsItemHovered() && calcInputActive && powerOn)
@@ -294,17 +295,21 @@ public static class CalcFaceplateView
     int keyChartIndex,
     ShiftPreviewMode mode,
     string? family,
+    string? modelId,
     float scale)
   {
     if (mode == ShiftPreviewMode.None
-        || keyChartIndex != ShiftPreviewController.IndicatorKeyIndex(mode, family))
+        || keyChartIndex != ShiftPreviewController.IndicatorKeyIndex(mode, family, modelId))
     {
       return;
     }
 
-    uint color = mode == ShiftPreviewMode.Blue
-      ? CalcChassisPalette.BlueLabel
-      : CalcChassisPalette.GoldLabel;
+    uint color = mode switch
+    {
+      ShiftPreviewMode.Blue => CalcChassisPalette.BlueLabel,
+      ShiftPreviewMode.Black => CalcChassisPalette.KeyCapDarkText,
+      _ => CalcChassisPalette.GoldLabel,
+    };
     float inset = scale * 2.2f;
     float rounding = scale * 7f;
     float thickness = MathF.Max(scale * 1.6f, 2.2f);
@@ -331,33 +336,72 @@ public static class CalcFaceplateView
   private static uint WithAlpha(uint color, byte alpha) =>
     (color & 0x00FFFFFFu) | ((uint)alpha << 24);
 
-  private static PreviewVisual ApplyShiftPreview(HpCalcKeyVisual visual, ShiftPreviewMode mode, CalcButtonStyle style)
+  private static PreviewVisual ApplyShiftPreview(
+    HpCalcKeyVisual visual,
+    ShiftPreviewMode mode,
+    CalcButtonStyle style,
+    string? modelId)
   {
     return mode switch
     {
       ShiftPreviewMode.Blue when !string.IsNullOrEmpty(visual.BlueShift) => new(
-        visual.BlueShift,
+        ComposeBluePreviewFace(visual),
         visual.GoldShift,
+        visual.GoldShiftRight,
         visual.Primary,
-        CalcKeyLabelPalette.BlueOnCap(style),
+        visual.BlackShift,
+        CalcKeyLabelPalette.GShiftPreviewFaceInk(style, modelId),
         CalcKeyLabelPalette.SkirtOnCap(style),
         null),
+      ShiftPreviewMode.Black when !string.IsNullOrEmpty(visual.BlackShift) => new(
+        visual.BlackShift,
+        visual.GoldShift,
+        visual.GoldShiftRight,
+        visual.BlueShift,
+        visual.Primary,
+        CalcKeyLabelPalette.PrimaryOnCap(style),
+        CalcKeyLabelPalette.SkirtOnCap(style),
+        null),
+      // Dual CapAbove (GoldRight) collapses during gold preview — face shows left gold legend.
       ShiftPreviewMode.Gold when !string.IsNullOrEmpty(visual.GoldShift) => new(
         visual.GoldShift,
         visual.Primary,
+        null,
         visual.BlueShift,
+        visual.BlackShift,
         CalcKeyLabelPalette.GoldOnCap(style),
         null,
         CalcKeyLabelPalette.PrimaryOnCap(style)),
       ShiftPreviewMode.GoldInverse when !string.IsNullOrEmpty(visual.GoldInverseShift) => new(
         visual.GoldInverseShift,
         visual.Primary,
+        null,
         visual.BlueShift,
+        visual.BlackShift,
         CalcKeyLabelPalette.GoldOnCap(style),
         null,
         CalcKeyLabelPalette.PrimaryOnCap(style)),
-      _ => new(visual.Primary, visual.GoldShift, visual.BlueShift, null, null, null),
+      _ => new(
+        visual.Primary,
+        visual.GoldShift,
+        visual.GoldShiftRight,
+        visual.BlueShift,
+        visual.BlackShift,
+        null,
+        null,
+        null),
     };
+  }
+
+  private static string ComposeBluePreviewFace(HpCalcKeyVisual visual)
+  {
+    if (!string.IsNullOrEmpty(visual.GoldShift)
+        && CalcCapAboveComposite.IsSpaceSavingInverse(visual.GoldShift, visual.BlueShift))
+    {
+      return CalcCapAboveComposite.ComposeInversePreviewFace(visual.GoldShift, visual.BlueShift!);
+    }
+
+    return visual.BlueShift!;
   }
 
   private static CalcKeyVisual BuildKeyVisual(
@@ -373,17 +417,53 @@ public static class CalcFaceplateView
       string.Equals(model.DisplayName, "HP-65", StringComparison.OrdinalIgnoreCase)
       || string.Equals(model.DisplayName, "HP-67", StringComparison.OrdinalIgnoreCase)
       || model.Id is "65" or "67";
+    bool gOnCapAbove = CalcModifierPlacement.PrimaryAnchor(model, CalcModifierKey.G) == CalcLabelAnchor.CapAbove;
+    bool dualCapAbove = gOnCapAbove
+      && !string.IsNullOrEmpty(preview.GoldOnBody)
+      && !string.IsNullOrEmpty(preview.BlueOnSkirt);
+    bool spaceSavingInverse = dualCapAbove
+      && CalcCapAboveComposite.IsSpaceSavingInverse(preview.GoldOnBody, preview.BlueOnSkirt);
+    bool splitDualCapAbove = dualCapAbove && !spaceSavingInverse;
     if (!string.IsNullOrEmpty(preview.GoldOnBody)
       && (!classicEnterRow
         || !CalcEnterRowLabels.IsEnterRowKey(keyChartIndex)
         || shiftPreview is ShiftPreviewMode.Gold or ShiftPreviewMode.GoldInverse))
     {
-      annotations.Add(CalcModifierPlacement.Annotate(model, CalcModifierKey.F, preview.GoldOnBody));
+      CalcLabelAlign goldAlign = splitDualCapAbove || !string.IsNullOrEmpty(preview.GoldOnBodyRight)
+        ? CalcLabelAlign.Left
+        : CalcLabelAlign.Center;
+      annotations.Add(CalcModifierPlacement.Annotate(
+        model,
+        CalcModifierKey.F,
+        preview.GoldOnBody,
+        align: goldAlign));
+    }
+
+    if (!string.IsNullOrEmpty(preview.GoldOnBodyRight)
+      && (!classicEnterRow
+        || !CalcEnterRowLabels.IsEnterRowKey(keyChartIndex)
+        || shiftPreview is ShiftPreviewMode.Gold or ShiftPreviewMode.GoldInverse))
+    {
+      annotations.Add(CalcModifierPlacement.Annotate(
+        model,
+        CalcModifierKey.F,
+        preview.GoldOnBodyRight,
+        align: CalcLabelAlign.Right));
     }
 
     if (!string.IsNullOrEmpty(preview.BlueOnSkirt))
     {
-      annotations.Add(CalcModifierPlacement.Annotate(model, CalcModifierKey.G, preview.BlueOnSkirt));
+      CalcLabelAlign blueAlign = splitDualCapAbove ? CalcLabelAlign.Right : CalcLabelAlign.Center;
+      annotations.Add(CalcModifierPlacement.Annotate(
+        model,
+        CalcModifierKey.G,
+        preview.BlueOnSkirt,
+        align: blueAlign));
+    }
+
+    if (!string.IsNullOrEmpty(preview.BlackOnSkirt))
+    {
+      annotations.Add(CalcModifierPlacement.Annotate(model, CalcModifierKey.H, preview.BlackOnSkirt));
     }
 
     return new CalcKeyVisual
@@ -393,7 +473,10 @@ public static class CalcFaceplateView
       Kind = kind,
       Annotations = annotations,
       CapFaceInkOverride = preview.FaceInk,
-      CapSkirtInkOverride = preview.SkirtInk,
+      CapSkirtInkOverride = preview.SkirtInk
+        ?? (!string.IsNullOrEmpty(preview.BlackOnSkirt)
+          ? CalcKeyLabelPalette.HShiftSkirtInk(style)
+          : null),
       CapAboveInkOverride = preview.GoldBodyInk,
     };
   }
@@ -401,11 +484,12 @@ public static class CalcFaceplateView
   private readonly record struct PreviewVisual(
     string Face,
     string? GoldOnBody,
+    string? GoldOnBodyRight,
     string? BlueOnSkirt,
+    string? BlackOnSkirt,
     uint? FaceInk,
     uint? SkirtInk,
     uint? GoldBodyInk);
-
   private static RectF ResolveDisplayRect(Vector2 origin, CalcChassisMetrics metrics)
   {
     if (!CalcModernBody.IsActive)

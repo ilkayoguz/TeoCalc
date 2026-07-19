@@ -130,7 +130,7 @@ public sealed class Hp21FaceplateLegendTests
   public void KeyColors_BluePrefixAndWhitePad()
   {
     Assert.AreEqual(CalcButtonStyle.Blue, CalcFaceplateKeyStyles.StyleForKey("Woodstock", "HP-21", 4));
-    Assert.AreEqual(CalcButtonStyle.Grey, CalcFaceplateKeyStyles.StyleForKey("Woodstock", "HP-21", 10));
+    Assert.AreEqual(CalcButtonStyle.Black, CalcFaceplateKeyStyles.StyleForKey("Woodstock", "HP-21", 10));
     Assert.AreEqual(CalcButtonStyle.White, CalcFaceplateKeyStyles.StyleForKey("Woodstock", "HP-21", 16));
     Assert.AreEqual(CalcButtonStyle.Black, CalcFaceplateKeyStyles.StyleForKey("Woodstock", "HP-21", 0));
   }

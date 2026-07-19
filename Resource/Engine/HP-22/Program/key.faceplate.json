@@ -1,0 +1,26 @@
+{
+  "Format": "TeoCalc.KeyFaceplate",
+  "SchemaVersion": 1,
+  "Model": "HP-22",
+  "Source": "HP-22 Owner's Handbook / Finseth hp22a — CapAbove=f (gold); blank CapFace on gold f; ENTER↑; financial n/i/PMT/PV/FV",
+  "Keys": {
+    "0":  { "Gold": "12x" },
+    "1":  { "Gold": "12\u00f7" },
+    "2":  { "Gold": "ACC" },
+    "3":  { "Gold": "INT" },
+    "4":  { "Gold": "BAL" },
+    "5":  { "Gold": "L.R." },
+    "6":  { "Gold": "y\u0302" },
+    "7":  { "Gold": "x\u0305" },
+    "8":  { "Gold": "s" },
+    "10": { "Gold": "RESET" },
+    "12": { "Gold": "%\u03a3" },
+    "13": { "Gold": "\u0394%" },
+    "14": { "Gold": "CLEAR" },
+    "15": { "Gold": "ln" },
+    "20": { "Gold": "e^x" },
+    "25": { "Gold": "y^x" },
+    "30": { "Gold": "\u221ax" },
+    "33": { "Gold": "\u03a3-" }
+  }
+}

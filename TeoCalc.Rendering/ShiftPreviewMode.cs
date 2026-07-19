@@ -6,4 +6,6 @@ public enum ShiftPreviewMode
   Gold,
   GoldInverse,
   Blue,
+  /// <summary>HP-34C h-shift preview.</summary>
+  Black,
 }

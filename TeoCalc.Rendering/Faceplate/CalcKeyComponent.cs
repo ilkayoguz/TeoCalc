@@ -28,10 +28,33 @@ public sealed class CalcKeyVisual
     CalcModelDefinition? model = null)
   {
     CalcModelDefinition bindings = model ?? CalcModelCatalog.Hp65;
+    bool gOnCapAbove = CalcModifierPlacement.PrimaryAnchor(bindings, CalcModifierKey.G) == CalcLabelAnchor.CapAbove;
+    bool dualCapAbove = gOnCapAbove
+      && !string.IsNullOrEmpty(legacy.GoldShift)
+      && !string.IsNullOrEmpty(legacy.BlueShift);
+    bool spaceSavingInverse = dualCapAbove
+      && CalcCapAboveComposite.IsSpaceSavingInverse(legacy.GoldShift, legacy.BlueShift);
+    bool splitDualCapAbove = dualCapAbove && !spaceSavingInverse;
     List<CalcKeyAnnotation> annotations = [];
     if (!string.IsNullOrEmpty(legacy.GoldShift))
     {
-      annotations.Add(CalcModifierPlacement.Annotate(bindings, CalcModifierKey.F, legacy.GoldShift));
+      CalcLabelAlign goldAlign = splitDualCapAbove || !string.IsNullOrEmpty(legacy.GoldShiftRight)
+        ? CalcLabelAlign.Left
+        : CalcLabelAlign.Center;
+      annotations.Add(CalcModifierPlacement.Annotate(
+        bindings,
+        CalcModifierKey.F,
+        legacy.GoldShift,
+        align: goldAlign));
+    }
+
+    if (!string.IsNullOrEmpty(legacy.GoldShiftRight))
+    {
+      annotations.Add(CalcModifierPlacement.Annotate(
+        bindings,
+        CalcModifierKey.F,
+        legacy.GoldShiftRight,
+        align: CalcLabelAlign.Right));
     }
 
     if (!string.IsNullOrEmpty(legacy.GoldInverseShift))
@@ -45,7 +68,17 @@ public sealed class CalcKeyVisual
 
     if (!string.IsNullOrEmpty(legacy.BlueShift))
     {
-      annotations.Add(CalcModifierPlacement.Annotate(bindings, CalcModifierKey.G, legacy.BlueShift));
+      CalcLabelAlign blueAlign = splitDualCapAbove ? CalcLabelAlign.Right : CalcLabelAlign.Center;
+      annotations.Add(CalcModifierPlacement.Annotate(
+        bindings,
+        CalcModifierKey.G,
+        legacy.BlueShift,
+        align: blueAlign));
+    }
+
+    if (!string.IsNullOrEmpty(legacy.BlackShift))
+    {
+      annotations.Add(CalcModifierPlacement.Annotate(bindings, CalcModifierKey.H, legacy.BlackShift));
     }
 
     return new CalcKeyVisual
@@ -54,6 +87,9 @@ public sealed class CalcKeyVisual
       CapStyle = capStyle,
       Kind = kind,
       Annotations = annotations,
+      CapSkirtInkOverride = !string.IsNullOrEmpty(legacy.BlackShift)
+        ? CalcKeyLabelPalette.HShiftSkirtInk(capStyle)
+        : null,
     };
   }
 }
@@ -171,6 +207,15 @@ public static class CalcKeyComponent
     bool forcePressed = false,
     bool interactive = true)
   {
+    bool drewSpaceSavingInverse = TryDrawSpaceSavingInverseCapAbove(
+      draw,
+      visual,
+      model,
+      slotMin,
+      slotMax,
+      capMin.Y,
+      scale);
+
     foreach (CalcKeyAnnotation annotation in visual.Annotations)
     {
       if (string.IsNullOrEmpty(annotation.Text))
@@ -180,14 +225,38 @@ public static class CalcKeyComponent
 
       if (annotation.Anchor == CalcLabelAnchor.CapAbove)
       {
+        if (drewSpaceSavingInverse
+            && annotation.Modifier is CalcModifierKey.F or CalcModifierKey.G)
+        {
+          continue;
+        }
+
         uint ink = visual.CapAboveInkOverride
           ?? CalcFaceplateTheme.ResolveAnnotation(annotation.Modifier, annotation.Anchor, model);
-        DrawBodyBandLabel(draw, annotation.Text, slotMin, slotMax, capMin.Y, above: true, ink, scale);
+        DrawBodyBandLabel(
+          draw,
+          annotation.Text,
+          slotMin,
+          slotMax,
+          capMin.Y,
+          above: true,
+          ink,
+          scale,
+          annotation.Align);
       }
       else if (annotation.Anchor == CalcLabelAnchor.CapBelow)
       {
         uint ink = CalcFaceplateTheme.ResolveAnnotation(annotation.Modifier, annotation.Anchor, model);
-        DrawBodyBandLabel(draw, annotation.Text, slotMin, slotMax, capMax.Y, above: false, ink, scale);
+        DrawBodyBandLabel(
+          draw,
+          annotation.Text,
+          slotMin,
+          slotMax,
+          capMax.Y,
+          above: false,
+          ink,
+          scale,
+          annotation.Align);
       }
     }
 
@@ -207,9 +276,11 @@ public static class CalcKeyComponent
     uint? skirtInk = visual.CapSkirtInkOverride;
     if (skirtInk is null && skirtAnnotation is { } skirt)
     {
-      skirtInk = CalcModernBody.IsActive
-        ? CalcKeyLabelPalette.SkirtLabelInk(skirt.Text, visual.CapStyle)
-        : CalcFaceplateTheme.ResolveAnnotation(skirt.Modifier, skirt.Anchor, model);
+      skirtInk = skirt.Modifier == CalcModifierKey.H
+        ? CalcKeyLabelPalette.HShiftSkirtInk(visual.CapStyle)
+        : CalcModernBody.IsActive
+          ? CalcKeyLabelPalette.SkirtLabelInk(skirt.Text, visual.CapStyle, model.Id)
+          : CalcFaceplateTheme.ResolveAnnotation(skirt.Modifier, skirt.Anchor, model);
     }
 
     return CalcButton.Draw(
@@ -247,6 +318,65 @@ public static class CalcKeyComponent
     return null;
   }
 
+  private static CalcKeyAnnotation? FindCapAbove(CalcKeyVisual visual, CalcModifierKey modifier)
+  {
+    foreach (CalcKeyAnnotation annotation in visual.Annotations)
+    {
+      if (annotation.Anchor == CalcLabelAnchor.CapAbove
+          && annotation.Modifier == modifier
+          && !string.IsNullOrEmpty(annotation.Text))
+      {
+        return annotation;
+      }
+    }
+
+    return null;
+  }
+
+  /// <summary>
+  /// HP-34C trig CapAbove: gold base (COS) + blue superscript −1 as one centered dual-ink unit.
+  /// </summary>
+  private static bool TryDrawSpaceSavingInverseCapAbove(
+    ImDrawListPtr draw,
+    CalcKeyVisual visual,
+    CalcModelDefinition model,
+    Vector2 slotMin,
+    Vector2 slotMax,
+    float capEdgeY,
+    float scale)
+  {
+    CalcKeyAnnotation? gold = FindCapAbove(visual, CalcModifierKey.F);
+    CalcKeyAnnotation? blue = FindCapAbove(visual, CalcModifierKey.G);
+    if (gold is null || blue is null
+        || !CalcCapAboveComposite.IsSpaceSavingInverse(gold.Value.Text, blue.Value.Text))
+    {
+      return false;
+    }
+
+    float fontSize = CalcFaceplateTypography.GoldShift(scale);
+    HpClassicFaceplateGlyphs.LabelSize baseSize =
+      HpClassicFaceplateGlyphs.MeasureBodyLabel(gold.Value.Text, fontSize);
+    float gap = fontSize * 0.04f;
+    float superW = HpClassicFaceplateGlyphs.MeasureInverseSuffixWidth(fontSize);
+    float totalW = baseSize.Width + gap + superW;
+    float x = slotMin.X + ((slotMax.X - slotMin.X) - totalW) * 0.5f;
+    float y = capEdgeY - baseSize.Height - scale * 1.2f;
+
+    uint goldInk = visual.CapAboveInkOverride
+      ?? CalcFaceplateTheme.ResolveAnnotation(CalcModifierKey.F, CalcLabelAnchor.CapAbove, model);
+    uint blueInk = CalcFaceplateTheme.ResolveAnnotation(CalcModifierKey.G, CalcLabelAnchor.CapAbove, model);
+
+    HpClassicFaceplateGlyphs.DrawBodyLabel(draw, new Vector2(x, y), gold.Value.Text, fontSize, goldInk, scale);
+    HpClassicFaceplateGlyphs.DrawInverseSuffix(
+      draw,
+      x + baseSize.Width + gap,
+      y,
+      fontSize,
+      blueInk,
+      scale);
+    return true;
+  }
+
   private static void DrawBodyBandLabel(
     ImDrawListPtr draw,
     string text,
@@ -255,7 +385,8 @@ public static class CalcKeyComponent
     float capEdgeY,
     bool above,
     uint ink,
-    float scale)
+    float scale,
+    CalcLabelAlign align = CalcLabelAlign.Center)
   {
     float fontSize = above
       ? CalcFaceplateTypography.GoldShift(scale)
@@ -264,7 +395,13 @@ public static class CalcKeyComponent
     // CapFace / ENTER-row gold already use vector glyphs for √ / →; CapAbove must too
     // (Arial Bold atlas is Latin-1 + π only, so those codepoints become "?").
     HpClassicFaceplateGlyphs.LabelSize textSize = HpClassicFaceplateGlyphs.MeasureBodyLabel(text, fontSize);
-    float x = slotMin.X + ((slotMax.X - slotMin.X) - textSize.Width) * 0.5f;
+    float inset = scale * 3f;
+    float x = align switch
+    {
+      CalcLabelAlign.Left => slotMin.X + inset,
+      CalcLabelAlign.Right => slotMax.X - inset - textSize.Width,
+      _ => slotMin.X + ((slotMax.X - slotMin.X) - textSize.Width) * 0.5f,
+    };
     float y = above
       ? capEdgeY - textSize.Height - scale * 1.2f
       : capEdgeY + scale * 1.2f;

@@ -9,6 +9,10 @@ public readonly record struct HpCalcKeyVisual(
   string? GoldShift = null,
   string? BlueShift = null,
   string? GoldInverseShift = null,
+  /// <summary>Optional second CapAbove gold legend (right-aligned; e.g. HP-31E ENTER PREFIX).</summary>
+  string? GoldShiftRight = null,
+  /// <summary>HP-34C h-shift CapSkirt (black ink).</summary>
+  string? BlackShift = null,
   FaceplateLabelStyle LabelStyle = FaceplateLabelStyle.Normal);
 
 public static class HpCalcKeyRenderer

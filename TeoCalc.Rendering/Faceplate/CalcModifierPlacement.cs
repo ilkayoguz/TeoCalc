@@ -14,6 +14,14 @@ public static class CalcModifierPlacement
     new(CalcModifierKey.G, CalcLabelAnchor.CapSkirt, CalcKeyColorPalette.ModifierGOnCapSkirt),
   ];
 
+  /// <summary>HP-34C: f CapAbove left (gold), g CapAbove right (blue), h CapSkirt (black).</summary>
+  public static IReadOnlyList<CalcModifierAnnotationStyle> SpiceFgh { get; } =
+  [
+    new(CalcModifierKey.F, CalcLabelAnchor.CapAbove, CalcKeyColorPalette.ModifierFOnCapAbove),
+    new(CalcModifierKey.G, CalcLabelAnchor.CapAbove, CalcKeyColorPalette.ModifierGOnCapSkirt),
+    new(CalcModifierKey.H, CalcLabelAnchor.CapSkirt, CalcKeyColorPalette.ModifierHOnCapFace),
+  ];
+
   public static IReadOnlyList<CalcModifierAnnotationStyle> StylesOrDefault(CalcModelDefinition model) =>
     model.AnnotationStyles.Count > 0 ? model.AnnotationStyles : ClassicFg;
 
@@ -87,6 +95,7 @@ public static class CalcModifierPlacement
     CalcModelDefinition model,
     CalcModifierKey modifier,
     string text,
-    CalcLabelAnchor? requestedAnchor = null) =>
-    new(modifier, ResolveAnchor(model, modifier, requestedAnchor), text);
+    CalcLabelAnchor? requestedAnchor = null,
+    CalcLabelAlign align = CalcLabelAlign.Center) =>
+    new(modifier, ResolveAnchor(model, modifier, requestedAnchor), text, align);
 }

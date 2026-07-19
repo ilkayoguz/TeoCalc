@@ -1,0 +1,32 @@
+{
+  "Format": "TeoCalc.KeyFaceplate",
+  "SchemaVersion": 1,
+  "Model": "HP-27",
+  "Source": "HP-27 Owner's Handbook / Finseth hp27a / Wikimedia 27new.jpg — CapAbove=f (gold); CapSkirt=g (blue ink); CapFace letters on f/g; olive function keys",
+  "Keys": {
+    "0":  { "Gold": "FIX", "Blue": "L.R." },
+    "1":  { "Gold": "SCI", "Blue": "s" },
+    "2":  { "Gold": "ENG", "Blue": "\u0394%" },
+    "5":  { "Gold": "n", "Blue": "r" },
+    "6":  { "Gold": "i", "Blue": "VAR" },
+    "7":  { "Gold": "PMT", "Blue": "N.D." },
+    "8":  { "Gold": "PV", "Blue": "NPV" },
+    "9":  { "Gold": "FV", "Blue": "IRR" },
+    "10": { "Gold": "PREFIX", "Blue": "RESET" },
+    "12": { "Gold": "\u03a3", "Blue": "DEG" },
+    "13": { "Gold": "REG", "Blue": "RAD" },
+    "14": { "Gold": "STK", "Blue": "GRD" },
+    "16": { "Gold": "ln", "Blue": "e^x" },
+    "17": { "Gold": "log", "Blue": "10^x" },
+    "18": { "Gold": "\u2192R", "Blue": "\u2192P" },
+    "21": { "Gold": "sin", "Blue": "sin^-1" },
+    "22": { "Gold": "cos", "Blue": "cos^-1" },
+    "23": { "Gold": "tan", "Blue": "tan^-1" },
+    "26": { "Gold": "H.MS+", "Blue": "H.MS-" },
+    "27": { "Gold": "\u221ax", "Blue": "x\u00b2" },
+    "28": { "Gold": "n!", "Blue": "1/x" },
+    "31": { "Gold": "\u2192H.MS", "Blue": "\u2192H" },
+    "32": { "Gold": "LST X", "Blue": "\u03c0" },
+    "33": { "Gold": "\u03a3-", "Blue": "%\u03a3" }
+  }
+}

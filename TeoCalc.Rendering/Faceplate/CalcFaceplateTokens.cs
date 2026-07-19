@@ -47,6 +47,9 @@ public static class CalcFaceplateTokens
   public const string KeyBlueTopColor = "KeyBlueTopColor";
   public const string KeyBlueFaceColor = "KeyBlueFaceColor";
   public const string KeyBlueSkirtColor = "KeyBlueSkirtColor";
+  public const string KeyOliveTopColor = "KeyOliveTopColor";
+  public const string KeyOliveFaceColor = "KeyOliveFaceColor";
+  public const string KeyOliveSkirtColor = "KeyOliveSkirtColor";
   public const string KeyTextColor = "KeyTextColor";
   public const string KeyCapDarkTextColor = "KeyCapDarkTextColor";
   public const string KeyCapBezelColor = "KeyCapBezelColor";
@@ -103,6 +106,9 @@ public static class CalcFaceplateTokens
     KeyBlueTopColor,
     KeyBlueFaceColor,
     KeyBlueSkirtColor,
+    KeyOliveTopColor,
+    KeyOliveFaceColor,
+    KeyOliveSkirtColor,
     KeyTextColor,
     KeyCapDarkTextColor,
     KeyCapBezelColor,

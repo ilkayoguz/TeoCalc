@@ -11,6 +11,8 @@ public enum CalcButtonStyle
   White,
   Orange,
   Blue,
+  /// <summary>HP-27 Woodstock rows 1–3 function keys (olive khaki).</summary>
+  Olive,
 }
 
 /// <summary>HP key cap — procedural Key2 geometry; labels drawn at runtime.</summary>
@@ -246,7 +248,7 @@ public static class CalcButton
     bool leftAlign,
     uint? inkOverride)
   {
-    // Blank CapFace is intentional (HP-21 blue g prefix) — do not invent ÷ art.
+    // Blank CapFace is intentional (HP-21 blue g / HP-22 gold f) — do not invent ÷ art.
     if (string.IsNullOrEmpty(text) && kind != CalcButtonKind.OperatorColon)
     {
       return;

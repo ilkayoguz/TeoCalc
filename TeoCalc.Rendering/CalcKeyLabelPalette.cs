@@ -21,8 +21,27 @@ public static class CalcKeyLabelPalette
       ? BlueOnSkirt
       : SkirtBlueDark;
 
-  public static uint SkirtLabelInk(string? label, CalcButtonStyle style)
+  /// <summary>HP-27 prints g-shift legends in black ink (g prefix key is black, not blue).</summary>
+  public static bool UsesBlackGShiftSkirtInk(string? modelId) =>
+    string.Equals(modelId, "HP-27", StringComparison.OrdinalIgnoreCase)
+    || string.Equals(modelId, "27", StringComparison.OrdinalIgnoreCase);
+
+  /// <summary>
+  /// HP-34C h CapSkirt: light ink on black/blue keys, dark ink on white/orange (same contrast as CapFace).
+  /// Do not force KeyCapDarkText — that is black-on-black on Spice black keys.
+  /// </summary>
+  public static uint HShiftSkirtInk(CalcButtonStyle style) => SkirtOnCap(style);
+
+  public static uint SkirtLabelInk(string? label, CalcButtonStyle style) =>
+    SkirtLabelInk(label, style, modelId: null);
+
+  public static uint SkirtLabelInk(string? label, CalcButtonStyle style, string? modelId)
   {
+    if (UsesBlackGShiftSkirtInk(modelId))
+    {
+      return CalcChassisPalette.KeyCapDarkText;
+    }
+
     if (IsProgramRowComparisonLabel(label))
     {
       return style is CalcButtonStyle.Black or CalcButtonStyle.Blue
@@ -34,6 +53,10 @@ public static class CalcKeyLabelPalette
       ? BlueOnSkirt
       : SkirtBlueDark;
   }
+
+  /// <summary>CapFace ink when a g-shift label is promoted during blue shift preview.</summary>
+  public static uint GShiftPreviewFaceInk(CalcButtonStyle style, string? modelId) =>
+    UsesBlackGShiftSkirtInk(modelId) ? CalcChassisPalette.KeyCapDarkText : BlueOnCap(style);
 
   // CapSkirt font stays smaller than CapFace; mild per-label ticks only.
   private const float SkirtScaleBase = 1.0f;
@@ -72,7 +95,7 @@ public static class CalcKeyLabelPalette
     || (label is not null && label.Length <= 4 && HpClassicFaceplateGlyphs.IsPlainArialSkirtLabel(label));
 
   public static bool IsProgramRowComparisonLabel(string? label) =>
-    label is "x\u2260y" or "x\u2264y" or "x=y" or "x>y";
+    label is "x\u2260y" or "x\u2264y" or "x\u2265y" or "x=y" or "x>y";
 
   public static uint PrimaryOnCap(CalcButtonStyle style) =>
     style switch
@@ -80,6 +103,7 @@ public static class CalcKeyLabelPalette
       CalcButtonStyle.Blue => CalcChassisPalette.KeyCapDarkText,
       CalcButtonStyle.Black => CalcChassisPalette.KeyText,
       CalcButtonStyle.White => CalcChassisPalette.KeyCapDarkText,
+      CalcButtonStyle.Olive => CalcChassisPalette.KeyCapDarkText,
       _ => CalcChassisPalette.KeyCapDarkText,
     };
 

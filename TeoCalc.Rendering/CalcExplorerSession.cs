@@ -526,7 +526,7 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
 
   public void PressKey(int keyChartIndex, byte keyCode)
   {
-    ShiftPreview.HandleKeyPress(keyChartIndex, Model.Family);
+    ShiftPreview.HandleKeyPress(keyChartIndex, Model.Family, Model.Model);
     PressKey(new FirmwareKeyCommand(keyChartIndex, keyCode));
   }
 

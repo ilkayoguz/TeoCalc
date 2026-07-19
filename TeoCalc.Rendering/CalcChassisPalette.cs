@@ -98,6 +98,12 @@ public static class CalcChassisPalette
 
   public static uint KeyBlueSkirt => T(CalcFaceplateTokens.KeyBlueSkirtColor);
 
+  public static uint KeyOliveTop => T(CalcFaceplateTokens.KeyOliveTopColor);
+
+  public static uint KeyOliveFace => T(CalcFaceplateTokens.KeyOliveFaceColor);
+
+  public static uint KeyOliveSkirt => T(CalcFaceplateTokens.KeyOliveSkirtColor);
+
   public static uint KeyText => T(CalcFaceplateTokens.KeyTextColor);
 
   public static uint KeyCapDarkText => T(CalcFaceplateTokens.KeyCapDarkTextColor);

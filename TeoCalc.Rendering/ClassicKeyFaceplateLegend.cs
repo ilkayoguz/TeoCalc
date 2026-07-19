@@ -28,6 +28,8 @@ public static class ClassicKeyFaceplateLegend
       entry?.Gold,
       entry?.Blue,
       entry?.GoldInverse,
+      entry?.GoldRight,
+      entry?.Black,
       labelStyle);
   }
 
@@ -53,6 +55,12 @@ public static class ClassicKeyFaceplateLegend
   private static IEnumerable<string> CandidateModelIds(string modelId)
   {
     yield return modelId;
+    string engineId = CalcModelIds.ToEngineId(modelId);
+    if (!string.Equals(engineId, modelId, StringComparison.OrdinalIgnoreCase))
+    {
+      yield return engineId;
+    }
+
     if (modelId.StartsWith("HP-", StringComparison.OrdinalIgnoreCase))
     {
       yield return modelId["HP-".Length..];
@@ -61,11 +69,21 @@ public static class ClassicKeyFaceplateLegend
     {
       yield return "HP-" + modelId;
     }
+
+    if (engineId.StartsWith("HP-", StringComparison.OrdinalIgnoreCase)
+        && !string.Equals(engineId, modelId, StringComparison.OrdinalIgnoreCase))
+    {
+      yield return engineId["HP-".Length..];
+    }
   }
 
   private static Dictionary<int, KeyFaceplateEntry> Load(string modelId)
   {
-    string path = Path.Combine(TeoCalcPaths.ResourcePath("Engine"), modelId, "Program", "key.faceplate.json");
+    string path = Path.Combine(
+      TeoCalcPaths.ResourcePath("Engine"),
+      CalcModelIds.ToEngineId(modelId),
+      "Program",
+      "key.faceplate.json");
     if (!File.Exists(path))
     {
       return [];
@@ -111,5 +129,13 @@ public static class ClassicKeyFaceplateLegend
 
     [JsonPropertyName("GoldInverse")]
     public string? GoldInverse { get; init; }
+
+    /// <summary>Second CapAbove gold legend, drawn right-aligned (HP-31E ENTER: PREFIX).</summary>
+    [JsonPropertyName("GoldRight")]
+    public string? GoldRight { get; init; }
+
+    /// <summary>HP-34C h-shift CapSkirt (black).</summary>
+    [JsonPropertyName("Black")]
+    public string? Black { get; init; }
   }
 }

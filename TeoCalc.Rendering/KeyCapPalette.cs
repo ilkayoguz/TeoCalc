@@ -26,6 +26,10 @@ public readonly record struct KeyCapPalette(uint Top, uint Face, uint Skirt)
         Tone(CalcChassisPalette.KeyCapBlueHighlight, bump, drop),
         Tone(CalcChassisPalette.KeyCapBlueFace, drop),
         Tone(CalcChassisPalette.KeyBlueSkirt, skirtDrop)),
+      CalcButtonStyle.Olive => Pack(
+        Tone(CalcChassisPalette.KeyOliveTop, bump, drop),
+        Tone(CalcChassisPalette.KeyOliveFace, drop),
+        Tone(CalcChassisPalette.KeyOliveSkirt, skirtDrop)),
       _ => Pack(
         Tone(CalcChassisPalette.KeyBlackTop, bump, drop),
         Tone(CalcChassisPalette.KeyBlackFace, drop),

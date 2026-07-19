@@ -11,6 +11,8 @@ public static class CalcModelIds
     ["HP-29C"] = "HP-29",
     ["HP-31E"] = "HP-31",
     ["HP-32E"] = "HP-32",
+    ["HP-33C"] = "HP-33",
+    ["HP-33E"] = "HP-33",
     ["HP-34C"] = "HP-34",
     ["HP-37E"] = "HP-37",
     ["HP-38E"] = "HP-38",

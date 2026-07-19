@@ -14,7 +14,7 @@ public static class HpCalcModelCatalog
     "HP-29C",
     "HP-31E",
     "HP-32E",
-    "HP-33",
+    "HP-33C",
     "HP-34C",
     "HP-35",
     "HP-37E",

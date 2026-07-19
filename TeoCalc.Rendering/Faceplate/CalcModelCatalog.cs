@@ -40,7 +40,9 @@ public static class CalcModelCatalog
       ? theme
       : CalcThemeCatalog.DefaultThemeId;
 
-    _ = engineModelId;
+    string engineId = CalcModelIds.ToEngineId(engineModelId ?? catalogId);
+    bool hp34 = string.Equals(engineId, "HP-34", StringComparison.OrdinalIgnoreCase)
+      || string.Equals(catalogId, "HP-34C", StringComparison.OrdinalIgnoreCase);
 
     return new CalcModelDefinition
     {
@@ -48,8 +50,10 @@ public static class CalcModelCatalog
       DisplayName = catalogId,
       ThemeId = themeId,
       BodyLayoutId = bodyLayoutId,
-      ModifierKeys = [CalcModifierKey.F, CalcModifierKey.G],
-      AnnotationStyles = CalcModifierPlacement.ClassicFg,
+      ModifierKeys = hp34
+        ? [CalcModifierKey.F, CalcModifierKey.G, CalcModifierKey.H]
+        : [CalcModifierKey.F, CalcModifierKey.G],
+      AnnotationStyles = hp34 ? CalcModifierPlacement.SpiceFgh : CalcModifierPlacement.ClassicFg,
     };
   }
 
