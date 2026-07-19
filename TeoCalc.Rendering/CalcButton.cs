@@ -246,6 +246,12 @@ public static class CalcButton
     bool leftAlign,
     uint? inkOverride)
   {
+    // Blank CapFace is intentional (HP-21 blue g prefix) — do not invent ÷ art.
+    if (string.IsNullOrEmpty(text) && kind != CalcButtonKind.OperatorColon)
+    {
+      return;
+    }
+
     uint ink = inkOverride ?? CalcKeyLabelPalette.PrimaryOnCap(style);
 
     if (kind == CalcButtonKind.EnterWide)
@@ -276,13 +282,18 @@ public static class CalcButton
     float scale,
     uint ink)
   {
+    if (string.IsNullOrEmpty(text))
+    {
+      return;
+    }
+
     if (text == "\u00b7")
     {
       DrawKeyFaceDot(draw, faceMin, faceMax, scale, ink);
       return;
     }
 
-    if (IsDivideFaceLabel(text))
+    if (text is "\u00f7")
     {
       DrawFaceCenteredOperatorColon(draw, faceMin, faceMax, scale, ink);
       return;

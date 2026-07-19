@@ -106,7 +106,11 @@ public static class CalcFaceplateLayout
     && modelId.ToUpperInvariant() is "HP-35" or "HP-45" or "HP-55" or "HP-70"
       or "35" or "45" or "55" or "70";
 
-  public static string LabelForKey(ProgramKeyEntry key, ProgramVocabulary? vocabulary, string? family = null)
+  public static string LabelForKey(
+    ProgramKeyEntry key,
+    ProgramVocabulary? vocabulary,
+    string? family = null,
+    string? modelId = null)
   {
     if (key.KeyCode == 0)
     {
@@ -116,7 +120,7 @@ public static class CalcFaceplateLayout
     if (string.Equals(family, "Woodstock", StringComparison.OrdinalIgnoreCase)
         || string.Equals(family, "Spice", StringComparison.OrdinalIgnoreCase))
     {
-      string? woodstock = WoodstockLabelFromChar(key.Char);
+      string? woodstock = WoodstockLabelFromChar(key.Char, modelId);
       if (woodstock is not null)
       {
         return woodstock;
@@ -205,8 +209,28 @@ public static class CalcFaceplateLayout
     };
   }
 
-  private static string? WoodstockLabelFromChar(string charValue) =>
-    charValue switch
+  private static string? WoodstockLabelFromChar(string charValue, string? modelId = null)
+  {
+    bool hp21 = string.Equals(modelId, "HP-21", StringComparison.OrdinalIgnoreCase)
+      || string.Equals(modelId, "21", StringComparison.OrdinalIgnoreCase);
+
+    // HP-21 Owner's Handbook: blank CapFace on blue prefix; DSP (not R/S); CLx spelling.
+    if (hp21)
+    {
+      string? hp21Label = charValue switch
+      {
+        "g" => string.Empty,
+        " " => "DSP",
+        "\b" => "CLx",
+        _ => null,
+      };
+      if (hp21Label is not null)
+      {
+        return hp21Label;
+      }
+    }
+
+    return charValue switch
     {
       "k" => "1/x",
       "i" => "SIN",
@@ -221,6 +245,7 @@ public static class CalcFaceplateLayout
       "%" => "%",
       _ => null,
     };
+  }
 
   /// <summary>
   /// HP-01 face legends (Owner's Guide keyboard summary).

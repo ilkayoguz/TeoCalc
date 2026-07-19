@@ -51,6 +51,12 @@ public sealed class ShiftPreviewController
       };
     }
 
+    if (IsWoodstock(family))
+    {
+      // HP-21: single blue prefix at chart index 4 (blank CapFace).
+      return mode == ShiftPreviewMode.Blue ? 4 : -1;
+    }
+
     return mode switch
     {
       ShiftPreviewMode.Gold => 10,
@@ -70,6 +76,11 @@ public sealed class ShiftPreviewController
     if (IsHp19C(family))
     {
       return keyChartIndex is 5 or 11;
+    }
+
+    if (IsWoodstock(family))
+    {
+      return keyChartIndex == 4;
     }
 
     return keyChartIndex is 10 or 11 or 14;
@@ -93,6 +104,11 @@ public sealed class ShiftPreviewController
       };
     }
 
+    if (IsWoodstock(family))
+    {
+      return keyChartIndex == 4 ? ShiftPreviewMode.Blue : ShiftPreviewMode.None;
+    }
+
     return keyChartIndex switch
     {
       10 => ShiftPreviewMode.Gold,
@@ -107,4 +123,8 @@ public sealed class ShiftPreviewController
 
   private static bool IsHp19C(string? family) =>
     string.Equals(family, "HP19C", StringComparison.OrdinalIgnoreCase);
+
+  private static bool IsWoodstock(string? family) =>
+    string.Equals(family, "Woodstock", StringComparison.OrdinalIgnoreCase)
+    || string.Equals(family, "Spice", StringComparison.OrdinalIgnoreCase);
 }

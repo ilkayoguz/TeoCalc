@@ -1,0 +1,24 @@
+{
+  "Format": "TeoCalc.KeyFaceplate",
+  "SchemaVersion": 1,
+  "Model": "HP-21",
+  "Source": "HP-21 Owner's Handbook / Finseth hp21a — CapSkirt=g (blue); no gold f; blank CapFace on g; DSP not R/S",
+  "Keys": {
+    "0":  { "Blue": "y^x" },
+    "1":  { "Blue": "SIN^-1" },
+    "2":  { "Blue": "COS^-1" },
+    "3":  { "Blue": "TAN^-1" },
+    "5":  { "Blue": "\u2192R" },
+    "6":  { "Blue": "\u2192P" },
+    "7":  { "Blue": "LN" },
+    "8":  { "Blue": "LOG" },
+    "9":  { "Blue": "10^x" },
+    "12": { "Blue": "\u221ax" },
+    "13": { "Blue": "\u03c0" },
+    "14": { "Blue": "CLR" },
+    "15": { "Blue": "M-" },
+    "20": { "Blue": "M+" },
+    "25": { "Blue": "M\u00d7" },
+    "30": { "Blue": "M\u00f7" }
+  }
+}

@@ -167,12 +167,8 @@ public static class CalcFaceplateView
         }
 
         ProgramKeyEntry key = session.Vocabulary.KeyChart[cell.KeyChartIndex];
-        if (key.KeyCode == 0 || string.IsNullOrEmpty(ClassicKeyFaceplateLegend.Resolve(
-              session.Model.Model,
-              session.Model.Family,
-              key,
-              session.Vocabulary,
-              cell.LabelStyle).Primary))
+        // KeyCode 0 = blank chart slot. Empty CapFace is allowed (HP-21 blue g prefix).
+        if (key.KeyCode == 0)
         {
           continue;
         }

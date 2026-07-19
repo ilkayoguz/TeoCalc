@@ -16,7 +16,7 @@ public static class ClassicKeyFaceplateLegend
     ProgramVocabulary vocabulary,
     FaceplateLabelStyle labelStyle)
   {
-    string primary = CalcFaceplateLayout.LabelForKey(key, vocabulary, family);
+    string primary = CalcFaceplateLayout.LabelForKey(key, vocabulary, family, modelId);
     // HP-65 A–E (indices 10–14) use CalcEnterRowLabels / card-slot overlays instead of JSON gold.
     // Other models (e.g. HP-01 operator-row gold DW/21/…) must still load those indices.
     bool skipJsonForClassicAe =

@@ -116,7 +116,7 @@ public static class HpClassicFaceplateGlyphs
       return MeasureKeyFaceMultiply(fontSize * 1.22f);
     }
 
-    if (text == "CLX")
+    if (text is "CLX" or "CLx")
     {
       return new(
         PlainGlyphWidth("CL", fontSize) + MathGlyphWidth("X", fontSize),
@@ -221,7 +221,7 @@ public static class HpClassicFaceplateGlyphs
     int i = 0;
     while (i < text.Length)
     {
-      if (TryConsume(text, ref i, "CLX", out _))
+      if (TryConsumeClX(text, ref i, out _))
       {
         float w = PlainGlyphWidth("CL", fontSize) + MathGlyphWidth("X", fontSize);
         Vector2 xDim = MathGlyphSize("X", fontSize * 1.05f);
@@ -698,7 +698,7 @@ public static class HpClassicFaceplateGlyphs
     int i = 0;
     while (i < text.Length)
     {
-      if (TryConsume(text, ref i, "CLX", out _))
+      if (TryConsumeClX(text, ref i, out _))
       {
         x += DrawPrefixCapitalMathX(
           draw, x, y, fontSize, color, scale, "CL", bold, keyFaceArialBold, skirtArial, skirtBand, bandAlign, rowMidY, useRowMid, bandMode);
@@ -1785,7 +1785,7 @@ public static class HpClassicFaceplateGlyphs
     return w;
   }
 
-  /// <summary>CLX / PRx: plain prefix + capital math-italic X (same family as x in x&lt;0).</summary>
+  /// <summary>CLX / CLx / PRx: plain prefix + capital math-italic X (same family as x in x&lt;0).</summary>
   private static float DrawPrefixCapitalMathX(
     ImDrawListPtr draw,
     float x,
@@ -2367,7 +2367,7 @@ public static class HpClassicFaceplateGlyphs
     int i = 0;
     while (i < text.Length)
     {
-      if (TryConsume(text, ref i, "CLX", out _)) { width += PlainGlyphWidth("CL", fontSize) + MathGlyphWidth("X", fontSize); continue; }
+      if (TryConsumeClX(text, ref i, out _)) { width += PlainGlyphWidth("CL", fontSize) + MathGlyphWidth("X", fontSize); continue; }
       if (TryConsume(text, ref i, "PRx", out _)) { width += PlainGlyphWidth("PR", fontSize) + MathGlyphWidth("X", fontSize); continue; }
       if (TryConsume(text, ref i, "x\u2194y", out _)) { width += MeasureXExchangeYWidth(fontSize, widen: true); continue; }
       if (TryConsume(text, ref i, "x\u2260y", out _)) { width += fontSize * 2.05f; continue; }
@@ -2520,6 +2520,7 @@ public static class HpClassicFaceplateGlyphs
   private static bool IsPlainArialKeyFaceLabel(string text) =>
     text is not "\u00d7"
     and not "CLX"
+    and not "CLx"
     and not "PRx"
     and not "f\u207b\u00b9"
     and not "f⁻¹"
@@ -2631,6 +2632,7 @@ public static class HpClassicFaceplateGlyphs
       || tail.StartsWith("OCT\u2192")
       || tail.StartsWith("LST X")
       || tail.StartsWith("CLX")
+      || tail.StartsWith("CLx")
       || tail.StartsWith("PRx")
       || (tail.Length == 1 && tail[0] == 'i')
       || tail.StartsWith("f\u207b\u00b9")
@@ -2667,6 +2669,25 @@ public static class HpClassicFaceplateGlyphs
     }
 
     _ = pattern;
+    return false;
+  }
+
+  /// <summary>CLX and HP-21 handbook CLx — same plain CL + capital math-italic X.</summary>
+  private static bool TryConsumeClX(string text, ref int index, out string _)
+  {
+    if (TryConsume(text, ref index, "CLX", out _))
+    {
+      _ = string.Empty;
+      return true;
+    }
+
+    if (TryConsume(text, ref index, "CLx", out _))
+    {
+      _ = string.Empty;
+      return true;
+    }
+
+    _ = string.Empty;
     return false;
   }
 }
