@@ -21,24 +21,26 @@ public static class CalcChassisRenderer
   {
     float plateHeight = plateMax.Y - plateMin.Y;
     float plateWidth = plateMax.X - plateMin.X;
-    float textLeft = textLeftArg;
-    float textRight = plateMax.X - MathF.Max(textRightMargin, plateWidth * 0.03f);
+    float zoneLeft = textLeftArg;
+    float zoneRight = plateMax.X - MathF.Max(textRightMargin, plateWidth * 0.03f);
     uint ink = color ?? CalcChassisPalette.FooterText;
 
-    float fontSize = plateHeight * 0.52f;
-    CalcFaceplateFonts.FontInkBounds inkBounds = CalcFaceplateFonts.MeasureArialBoldInk(brandLine, fontSize);
-    float bottomPad = plateHeight * 0.10f;
-    float y = plateMax.Y - bottomPad - inkBounds.Height;
-
+    float fontSize = plateHeight * 0.42f;
     if (CalcFaceplateFonts.IsArialBoldReady || CalcFaceplateFonts.IsArialReady)
     {
-      CalcFaceplateFonts.DrawArialBoldStretchedToWidth(draw, brandLine, textLeft, textRight, y, fontSize, ink);
+      CalcFaceplateFonts.FontInkBounds inkBounds = CalcFaceplateFonts.MeasureArialBoldInk(brandLine, fontSize);
+      float width = CalcFaceplateFonts.MeasureArialBold(brandLine, fontSize).X;
+      float x = (zoneLeft + zoneRight - width) * 0.5f;
+      float plateMidY = (plateMin.Y + plateMax.Y) * 0.5f;
+      float y = plateMidY - inkBounds.InkMidY;
+      CalcFaceplateFonts.DrawArialBoldTop(draw, brandLine, x, y, fontSize, ink);
       return;
     }
 
     Vector2 measure = ImGui.GetFont().CalcTextSizeA(fontSize, float.MaxValue, 0f, brandLine);
-    float fallbackY = plateMax.Y - bottomPad - measure.Y;
-    draw.AddText(ImGui.GetFont(), fontSize, new Vector2(textLeft, fallbackY), ink, brandLine);
+    float fallbackX = (zoneLeft + zoneRight - measure.X) * 0.5f;
+    float fallbackY = (plateMin.Y + plateMax.Y - measure.Y) * 0.5f;
+    draw.AddText(ImGui.GetFont(), fontSize, new Vector2(fallbackX, fallbackY), ink, brandLine);
   }
 
   private static Vector2 MeasureBrandArial(string text, float fontSize) =>
@@ -46,8 +48,8 @@ public static class CalcChassisRenderer
       ? CalcFaceplateFonts.MeasureArialBold(text, fontSize)
       : ImGui.GetFont().CalcTextSizeA(fontSize, float.MaxValue, 0f, text);
 
-  /// <summary>Card-slot function labels only — no chrome; Body.svg owns panel color.</summary>
-  public static void DrawPanamatikDisplay(
+  /// <summary>Classic LED / seven-segment display surface.</summary>
+  public static void DrawLedDisplay(
     ImDrawListPtr draw,
     RectF display,
     bool programMode,
@@ -66,6 +68,16 @@ public static class CalcChassisRenderer
       ledText);
   }
 
+  [Obsolete("Use DrawLedDisplay.")]
+  public static void DrawPanamatikDisplay(
+    ImDrawListPtr draw,
+    RectF display,
+    bool programMode,
+    float scale,
+    bool displayLit,
+    string? ledText = null) =>
+    DrawLedDisplay(draw, display, programMode, scale, displayLit, ledText);
+
   public static void DrawDisplayDigits(
     ImDrawListPtr draw,
     RectF display,
@@ -75,7 +87,7 @@ public static class CalcChassisRenderer
     bool displayLit,
     string? ledText = null)
   {
-    DrawPanamatikDisplay(draw, display, programMode, scale, displayLit, ledText);
+    DrawLedDisplay(draw, display, programMode, scale, displayLit, ledText);
   }
 
   public static void DrawSegmentedDisplay(

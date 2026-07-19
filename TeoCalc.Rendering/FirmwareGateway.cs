@@ -1,4 +1,5 @@
 using TeoCalc.Core.Engine.Classic;
+using TeoCalc.Core.Firmware;
 
 namespace TeoCalc.Rendering;
 
@@ -284,48 +285,3 @@ public sealed class FirmwareGateway : ICalcFirmwareGateway
     }
   }
 }
-
-public sealed record FirmwareDisplaySnapshot(
-  string Text,
-  bool Visible,
-  bool BlankPulse,
-  long Revision,
-  long StepCount,
-  int ProgramCounter);
-
-public sealed record FirmwareDisplayChangedEventArgs(FirmwareDisplaySnapshot Snapshot)
-{
-  public string Text => Snapshot.Text;
-
-  public bool Visible => Snapshot.Visible;
-}
-
-public readonly record struct FirmwareKeyCommand(int KeyChartIndex, byte KeyCode);
-
-public sealed record FirmwareKeyStateChangedEventArgs(FirmwareKeyCommand? Key, bool Held);
-
-public sealed record FirmwareKeyProcessedEventArgs(
-  FirmwareKeyCommand Key,
-  string DisplayText,
-  bool DisplayVisible);
-
-public sealed record FirmwareBatchSnapshot(
-  int StepCount,
-  int ProgramCounter,
-  ushort Status,
-  byte KeyBuffer,
-  string? LastHandlerId,
-  bool KeyLineHeld,
-  FirmwareKeyCommand? ActiveKey,
-  FirmwareDisplaySnapshot? Display,
-  byte Rom,
-  byte Grp,
-  byte P,
-  ClassicCpuFlags Flags,
-  int BranchOffset,
-  ClassicKeyInputState KeyInputState,
-  bool KeyAvailable,
-  int KeysToRomAddressCount,
-  int BufferToRomAddressCount);
-
-public sealed record FirmwareBatchCompletedEventArgs(FirmwareBatchSnapshot Snapshot);

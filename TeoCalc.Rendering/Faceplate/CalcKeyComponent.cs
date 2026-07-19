@@ -18,6 +18,9 @@ public sealed class CalcKeyVisual
 
   public uint? CapSkirtInkOverride { get; init; }
 
+  /// <summary>When set (e.g. shift preview swapped primary onto CapAbove), overrides theme gold/blue ink.</summary>
+  public uint? CapAboveInkOverride { get; init; }
+
   public static CalcKeyVisual FromLegacy(
     HpCalcKeyVisual legacy,
     CalcButtonStyle capStyle,
@@ -102,7 +105,8 @@ public static class CalcKeyRowLayout
 
 public static class CalcKeyComponent
 {
-  private const float AboveBandScale = 0.72f;
+  // Reserve nearly full GoldShift height so CapAbove glyphs are not clipped.
+  private const float AboveBandScale = 1.05f;
 
   private const float BelowBandScale = 0.42f;
 
@@ -176,7 +180,8 @@ public static class CalcKeyComponent
 
       if (annotation.Anchor == CalcLabelAnchor.CapAbove)
       {
-        uint ink = CalcFaceplateTheme.ResolveAnnotation(annotation.Modifier, annotation.Anchor, model);
+        uint ink = visual.CapAboveInkOverride
+          ?? CalcFaceplateTheme.ResolveAnnotation(annotation.Modifier, annotation.Anchor, model);
         DrawBodyBandLabel(draw, annotation.Text, slotMin, slotMax, capMin.Y, above: true, ink, scale);
       }
       else if (annotation.Anchor == CalcLabelAnchor.CapBelow)

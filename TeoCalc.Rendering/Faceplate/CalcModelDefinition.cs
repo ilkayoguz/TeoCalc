@@ -22,5 +22,9 @@ public sealed class CalcModelDefinition
   public IReadOnlyDictionary<string, string> PaletteOverrides { get; init; }
     = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
-  public string LogoCaption => $"HEWLETT-PACKARD {Id}";
+  /// <summary>Center brand caption on the logo plate (natural width, not stretched).</summary>
+  public string LogoCaption => "Teo \u00A9 2026";
+
+  /// <summary>Right-side product id on the logo plate (e.g. T-65).</summary>
+  public string ProductLabel => $"T-{Id}";
 }

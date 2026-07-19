@@ -29,7 +29,7 @@ public static class CalcKeyPanelComponent
   public const float PreferredCellWidthRef = 88f;
 
   /// <summary>TopLabel band above the cap (f / CapAbove).</summary>
-  public const float LabelAboveRef = 12f;
+  public const float LabelAboveRef = 14f;
 
   /// <summary>BottomLabel band below the cap (CapBelow only). CapSkirt is inside the cap.</summary>
   public const float LabelBelowRef = 0f;

@@ -1,0 +1,15 @@
+{
+  "Format": "TeoCalc.KeyFaceplate",
+  "SchemaVersion": 1,
+  "Model": "HP-01",
+  "Source": "HP-01 Owner's Guide — Keyboard Summary (shift/Δ legends above operator row)",
+  "Keys": {
+    "14": { "Gold": "DW" },
+    "15": { "Gold": "21" },
+    "16": { "Gold": "-/+" },
+    "17": { "Gold": "\u2194" },
+    "18": { "Gold": "T\u2192" },
+    "19": { "Gold": "\u2192T" },
+    "20": { "Gold": "\u0251" }
+  }
+}

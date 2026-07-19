@@ -258,9 +258,12 @@ internal sealed class SvgRasterCache : IDisposable
     }
 
     SKPicture picture = slot.Svg.Picture;
-    SKRect viewBox = isInlineContent
-      ? ResolveViewBoxFromText(pathOrContent, picture.CullRect)
-      : ResolveViewBox(pathOrContent, picture.CullRect);
+    // Prefer CullRect — that is the coordinate space SKSvg baked into the picture.
+    SKRect viewBox = picture.CullRect.Width > 0f && picture.CullRect.Height > 0f
+      ? picture.CullRect
+      : isInlineContent
+        ? ResolveViewBoxFromText(pathOrContent, picture.CullRect)
+        : ResolveViewBox(pathOrContent, picture.CullRect);
     if (viewBox.Width <= 0f || viewBox.Height <= 0f)
     {
       return false;
@@ -269,6 +272,7 @@ internal sealed class SvgRasterCache : IDisposable
     using SKBitmap bitmap = new(slot.RasterWidth, slot.RasterHeight, SKColorType.Rgba8888, SKAlphaType.Premul);
     using SKCanvas canvas = new(bitmap);
     canvas.Clear(SKColors.Transparent);
+    canvas.SetMatrix(SKMatrix.CreateIdentity());
 
     float scaleX = slot.RasterWidth / viewBox.Width;
     float scaleY = slot.RasterHeight / viewBox.Height;
@@ -299,7 +303,20 @@ internal sealed class SvgRasterCache : IDisposable
     float y = float.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture);
     float width = float.Parse(match.Groups[3].Value, CultureInfo.InvariantCulture);
     float height = float.Parse(match.Groups[4].Value, CultureInfo.InvariantCulture);
-    return new SKRect(x, y, x + width, y + height);
+    SKRect fileViewBox = new(x, y, x + width, y + height);
+
+    // SKSvg bakes width/height into Picture space. When that diverges from the
+    // file viewBox (e.g. width="600" viewBox="0 0 32 32"), CullRect is the
+    // coordinate system DrawPicture actually uses — prefer it.
+    if (cullRect.Width > 0f
+        && cullRect.Height > 0f
+        && (MathF.Abs(cullRect.Width - fileViewBox.Width) > 0.5f
+            || MathF.Abs(cullRect.Height - fileViewBox.Height) > 0.5f))
+    {
+      return cullRect;
+    }
+
+    return fileViewBox;
   }
 
   private static SKRect ResolveViewBox(string path, SKRect cullRect)

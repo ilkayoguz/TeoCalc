@@ -7,6 +7,7 @@ using Silk.NET.OpenGL;
 using Silk.NET.OpenGL.Extensions.ImGui;
 using Silk.NET.Windowing;
 using TeoCalc.Core;
+using TeoCalc.Game.Explorer;
 using TeoCalc.Rendering.Faceplate;
 
 namespace TeoCalc.Rendering;
@@ -49,6 +50,8 @@ public sealed class CalcFaceplateHost : IDisposable
   private static int _cascade;
 
   private readonly CalcExplorerSession _session;
+
+  private readonly CalcExplorerPresenter _explorerPresenter;
 
   private readonly float _aspect;
 
@@ -95,10 +98,14 @@ public sealed class CalcFaceplateHost : IDisposable
   private CalcFaceplateHost(CalcExplorerSession session, float aspect, IWindow window)
   {
     _session = session;
+    _explorerPresenter = new CalcExplorerPresenter(session);
     _aspect = aspect;
     _window = window;
     Wire();
   }
+
+  /// <summary>Passive explorer VM kept in sync by <see cref="CalcExplorerPresenter"/>.</summary>
+  public CalcExplorerViewModel ExplorerViewModel => _explorerPresenter.ViewModel;
 
   public IWindow NativeWindow => _window;
 
@@ -115,8 +122,8 @@ public sealed class CalcFaceplateHost : IDisposable
       return null;
     }
 
-    CalcFaceplateThemeState.ApplyForModel(CalcModelCatalog.Resolve(session.Model.Model));
-    CalcModelDefinition faceplateModel = CalcModelCatalog.Resolve(session.Model.Model);
+    CalcFaceplateThemeState.ApplyForModel(CalcModelCatalog.Resolve(session.Model));
+    CalcModelDefinition faceplateModel = CalcModelCatalog.Resolve(session.Model);
     CalcBodyLayout bodyLayout = CalcBodyLayoutCatalog.ResolveForFaceplate(
       faceplateModel,
       session.Model.Family,
@@ -226,7 +233,7 @@ public sealed class CalcFaceplateHost : IDisposable
       double time = _window.Time;
       float delta = _lastFrameTime > 0d ? (float)(time - _lastFrameTime) : 0.016f;
       _lastFrameTime = time;
-      _session.Tick(delta);
+      _explorerPresenter.Tick(delta);
       _window.MakeCurrent();
       _controller?.Update(delta);
     };
@@ -387,7 +394,7 @@ public sealed class CalcFaceplateHost : IDisposable
     draw.AddRectFilled(logoBand.Min, logoBand.Max, Calc00dWireStyle.DarkGrayBandFill, radius, ImDrawFlags.RoundCornersBottom);
 
     float logoScale = LogoBandHeight / CalcLogoPanelComponent.HeightRef;
-    CalcModelDefinition model = CalcModelCatalog.Resolve(_session.Model.Model);
+    CalcModelDefinition model = CalcModelCatalog.Resolve(_session.Model);
     CalcLogoPanelComponent.Draw(draw, logoBand, logoScale, model);
   }
 

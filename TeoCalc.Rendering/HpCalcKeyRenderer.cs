@@ -3,6 +3,7 @@ using ImGuiNET;
 
 namespace TeoCalc.Rendering;
 
+/// <summary>Legacy key legend DTO — prefer <see cref="Faceplate.CalcKeyVisual"/> / <see cref="Faceplate.CalcKeyComponent"/>.</summary>
 public readonly record struct HpCalcKeyVisual(
   string Primary,
   string? GoldShift = null,

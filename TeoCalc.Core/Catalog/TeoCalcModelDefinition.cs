@@ -23,6 +23,10 @@ public sealed class TeoCalcModelDefinition
   [JsonPropertyName("Firmware")]
   public TeoCalcModelFirmware Firmware { get; init; } = new();
 
+  /// <summary>Optional faceplate/UI metadata; when absent, Rendering applies family heuristics.</summary>
+  [JsonPropertyName("Faceplate")]
+  public TeoCalcModelFaceplate? Faceplate { get; init; }
+
   public static TeoCalcModelDefinition Load(string path)
   {
     string json = File.ReadAllText(path);
@@ -76,4 +80,18 @@ public sealed class TeoCalcModelFirmware
 
   [JsonPropertyName("HandlerCatalog")]
   public string HandlerCatalog { get; init; } = "";
+}
+
+public sealed class TeoCalcModelFaceplate
+{
+  /// <summary>Runtime body layout id (canonical Modern geometry is <c>00d</c>).</summary>
+  [JsonPropertyName("BodyLayoutId")]
+  public string BodyLayoutId { get; init; } = "00d";
+
+  [JsonPropertyName("ThemeId")]
+  public string ThemeId { get; init; } = "Modern";
+
+  /// <summary>Optional override for logo-strip short id (defaults from model id).</summary>
+  [JsonPropertyName("ShortId")]
+  public string? ShortId { get; init; }
 }

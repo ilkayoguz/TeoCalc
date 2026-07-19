@@ -758,6 +758,60 @@ public static class HpClassicFaceplateGlyphs
         continue;
       }
 
+      // HP-01 shift legends: -/+, T▸, ◂T, stacked ↔, ∆, single-story ɑ (AM)
+      if (TryConsume(text, ref i, "-/+", out _))
+      {
+        float drawY = useRowMid ? rowMidY - fontSize * 0.5f : y;
+        x += DrawMinusSlashPlus(draw, x, drawY, fontSize, color, scale, bandMode || useRowMid);
+        continue;
+      }
+
+      if (TryConsume(text, ref i, "T\u2192", out _))
+      {
+        float drawY = useRowMid ? rowMidY - fontSize * 0.5f : y;
+        x += DrawPlainRun(draw, "T", x, drawY, fontSize, color, bold, keyFaceArialBold, skirtArial, skirtBand, bandAlign, rowMidY, useRowMid);
+        x += fontSize * 0.22f;
+        x += DrawPlayTriangle(draw, x, drawY, fontSize, color, bandMode || useRowMid, pointRight: true);
+        continue;
+      }
+
+      if (TryConsume(text, ref i, "\u2192T", out _))
+      {
+        float drawY = useRowMid ? rowMidY - fontSize * 0.5f : y;
+        x += DrawPlayTriangle(draw, x, drawY, fontSize, color, bandMode || useRowMid, pointRight: false);
+        x += fontSize * 0.22f;
+        x += DrawPlainRun(draw, "T", x, drawY, fontSize, color, bold, keyFaceArialBold, skirtArial, skirtBand, bandAlign, rowMidY, useRowMid);
+        continue;
+      }
+
+      if (TryConsume(text, ref i, "\u2194", out _))
+      {
+        float drawY = useRowMid ? rowMidY - fontSize * 0.5f : y;
+        x += DrawStackedExchangeArrows(draw, x, drawY, fontSize, color, scale, bandMode || useRowMid);
+        continue;
+      }
+
+      if (TryConsume(text, ref i, "\u2206", out _) || TryConsume(text, ref i, "∆", out _))
+      {
+        float drawY = useRowMid ? rowMidY - fontSize * 0.5f : y;
+        x += DrawDeltaTriangle(draw, x, drawY, fontSize, color, bandMode || useRowMid);
+        continue;
+      }
+
+      if (TryConsume(text, ref i, "\u00f7", out _))
+      {
+        float drawY = useRowMid ? rowMidY - fontSize * 0.5f : y;
+        x += DrawDivisionObelus(draw, x, drawY, fontSize, color, scale, bandMode || useRowMid);
+        continue;
+      }
+
+      if (TryConsume(text, ref i, "\u0251", out _))
+      {
+        float drawY = useRowMid ? rowMidY - fontSize * 0.5f : y;
+        x += DrawSingleStoryA(draw, x, drawY, fontSize, color, bandMode || useRowMid);
+        continue;
+      }
+
       if (TryConsume(text, ref i, "R\u2192P", out _))
       {
         float drawY = useRowMid ? rowMidY - fontSize * 0.5f : y;
@@ -1296,6 +1350,213 @@ public static class HpClassicFaceplateGlyphs
     return w + fontSize * 0.04f;
   }
 
+  private static float DrawArrowLeft(ImDrawListPtr draw, float x, float y, float fontSize, uint color, float scale, bool bandMode = false)
+  {
+    float w = fontSize * 0.58f;
+    float midY = bandMode ? y + fontSize * 0.5f : y - fontSize * 0.2f;
+    DrawSvgArrow(draw, new Vector2(x + w * 0.5f, midY), fontSize * 0.62f, ArrowDirection.Left, color);
+    return w + fontSize * 0.04f;
+  }
+
+  /// <summary>HP-01 exchange legend ↔: stacked arrows with longer shafts (right on top, left below).</summary>
+  private static float DrawStackedExchangeArrows(
+    ImDrawListPtr draw,
+    float x,
+    float y,
+    float fontSize,
+    uint color,
+    float scale,
+    bool bandMode = false)
+  {
+    float midY = bandMode ? y + fontSize * 0.5f : y + fontSize * 0.38f;
+    float w = fontSize * 0.98f;
+    float arrowLen = fontSize * 0.78f;
+    float gap = fontSize * 0.14f;
+    float cx = x + w * 0.5f;
+    float topCy = midY - fontSize * 0.22f - gap * 0.5f;
+    float botCy = midY + fontSize * 0.22f + gap * 0.5f;
+    DrawLongShaftArrow(draw, new Vector2(cx, topCy), arrowLen, color, pointRight: true);
+    DrawLongShaftArrow(draw, new Vector2(cx, botCy), arrowLen, color, pointRight: false);
+    return w;
+  }
+
+  /// <summary>Horizontal arrow with a longer shaft than <see cref="DrawSvgArrow"/> (~2:1 shaft:head).</summary>
+  private static void DrawLongShaftArrow(ImDrawListPtr draw, Vector2 center, float length, uint color, bool pointRight)
+  {
+    float head = length * 0.30f;
+    float shaft = length * 0.70f;
+    float shaftHalfH = MathF.Max(1.1f, length * 0.085f);
+    float headHalfH = length * 0.26f;
+    float tipX = pointRight ? center.X + length * 0.5f : center.X - length * 0.5f;
+    float shaftTipX = pointRight ? tipX - head : tipX + head;
+    float shaftBackX = pointRight ? shaftTipX - shaft : shaftTipX + shaft;
+    float left = MathF.Min(shaftBackX, shaftTipX);
+    float right = MathF.Max(shaftBackX, shaftTipX);
+    draw.AddRectFilled(
+      new Vector2(left, center.Y - shaftHalfH),
+      new Vector2(right, center.Y + shaftHalfH),
+      color);
+    if (pointRight)
+    {
+      draw.AddTriangleFilled(
+        new Vector2(tipX, center.Y),
+        new Vector2(shaftTipX, center.Y - headHalfH),
+        new Vector2(shaftTipX, center.Y + headHalfH),
+        color);
+    }
+    else
+    {
+      draw.AddTriangleFilled(
+        new Vector2(tipX, center.Y),
+        new Vector2(shaftTipX, center.Y - headHalfH),
+        new Vector2(shaftTipX, center.Y + headHalfH),
+        color);
+    }
+  }
+
+  /// <summary>Filled play-style triangle (HP-01 T▸ / ◂T legends).</summary>
+  private static float DrawPlayTriangle(
+    ImDrawListPtr draw,
+    float x,
+    float y,
+    float fontSize,
+    uint color,
+    bool bandMode,
+    bool pointRight)
+  {
+    float w = fontSize * 0.42f;
+    float h = fontSize * 0.55f;
+    float midY = bandMode ? y + fontSize * 0.5f : y + fontSize * 0.4f;
+    float top = midY - h * 0.5f;
+    float bottom = midY + h * 0.5f;
+    if (pointRight)
+    {
+      draw.AddTriangleFilled(
+        new Vector2(x + w, midY),
+        new Vector2(x, top),
+        new Vector2(x, bottom),
+        color);
+    }
+    else
+    {
+      draw.AddTriangleFilled(
+        new Vector2(x, midY),
+        new Vector2(x + w, top),
+        new Vector2(x + w, bottom),
+        color);
+    }
+
+    return w;
+  }
+
+  /// <summary>Aligned -/+: minus was optically low when drawn as Arial text.</summary>
+  private static float DrawMinusSlashPlus(
+    ImDrawListPtr draw,
+    float x,
+    float y,
+    float fontSize,
+    uint color,
+    float scale,
+    bool bandMode)
+  {
+    float midY = bandMode ? y + fontSize * 0.5f : y + fontSize * 0.4f;
+    float stroke = MathF.Max(1.25f, fontSize * 0.11f);
+    float startX = x;
+
+    float minusW = fontSize * 0.30f;
+    draw.AddLine(new Vector2(x, midY), new Vector2(x + minusW, midY), color, stroke);
+    x += minusW + fontSize * 0.05f;
+
+    float slashHalf = fontSize * 0.28f;
+    float slashW = fontSize * 0.22f;
+    draw.AddLine(
+      new Vector2(x, midY + slashHalf),
+      new Vector2(x + slashW, midY - slashHalf),
+      color,
+      stroke);
+    x += slashW + fontSize * 0.05f;
+
+    float plusS = fontSize * 0.34f;
+    draw.AddLine(new Vector2(x, midY), new Vector2(x + plusS, midY), color, stroke);
+    draw.AddLine(
+      new Vector2(x + plusS * 0.5f, midY - plusS * 0.5f),
+      new Vector2(x + plusS * 0.5f, midY + plusS * 0.5f),
+      color,
+      stroke);
+    x += plusS;
+
+    return x - startX;
+  }
+
+  /// <summary>HP-01 shift/store key face: ∆</summary>
+  private static float DrawDeltaTriangle(ImDrawListPtr draw, float x, float y, float fontSize, uint color, bool bandMode = false)
+  {
+    float w = fontSize * 0.72f;
+    float h = fontSize * 0.62f;
+    float midY = bandMode ? y + fontSize * 0.5f : y + fontSize * 0.35f;
+    float top = midY - h * 0.55f;
+    float bottom = midY + h * 0.45f;
+    float cx = x + w * 0.5f;
+    draw.AddTriangleFilled(
+      new Vector2(cx, top),
+      new Vector2(x + w * 0.08f, bottom),
+      new Vector2(x + w * 0.92f, bottom),
+      color);
+    return w;
+  }
+
+  /// <summary>Colon-obelus ÷ for CapAbove / composite runs (matches key-face divide art).</summary>
+  private static float DrawDivisionObelus(
+    ImDrawListPtr draw,
+    float x,
+    float y,
+    float fontSize,
+    uint color,
+    float scale,
+    bool bandMode = false)
+  {
+    float w = fontSize * 0.55f;
+    float midY = bandMode ? y + fontSize * 0.5f : y + fontSize * 0.4f;
+    float h = fontSize * 0.72f;
+    float dotR = MathF.Max(1.2f, fontSize * 0.09f);
+    float lineW = w * 0.85f;
+    float stroke = MathF.Max(1.1f, scale * 0.95f);
+    draw.AddCircleFilled(new Vector2(x + w * 0.5f, midY - h * 0.34f), dotR, color);
+    draw.AddLine(
+      new Vector2(x + (w - lineW) * 0.5f, midY),
+      new Vector2(x + (w + lineW) * 0.5f, midY),
+      color,
+      stroke);
+    draw.AddCircleFilled(new Vector2(x + w * 0.5f, midY + h * 0.34f), dotR, color);
+    return w;
+  }
+
+  /// <summary>Single-story ɑ (HP-01 AM legend) — stem slightly taller than bowl, no q tail.</summary>
+  private static float DrawSingleStoryA(
+    ImDrawListPtr draw,
+    float x,
+    float y,
+    float fontSize,
+    uint color,
+    bool bandMode = false)
+  {
+    float w = fontSize * 0.56f;
+    float midY = bandMode ? y + fontSize * 0.5f : y + fontSize * 0.4f;
+    float stroke = MathF.Max(1.35f, fontSize * 0.11f);
+    float r = fontSize * 0.22f;
+    float cx = x + w * 0.38f;
+    float bowlCy = midY;
+    float stemX = cx + r * 0.95f;
+    float stemHalf = r * 1.22f; // a bit taller than the bowl; still no descender
+    draw.AddCircle(new Vector2(cx, bowlCy), r, color, 20, stroke);
+    draw.AddLine(
+      new Vector2(stemX, bowlCy - stemHalf),
+      new Vector2(stemX, bowlCy + stemHalf),
+      color,
+      stroke);
+    return w;
+  }
+
   private static float MeasureArrowTextWidth(string text, float fontSize) =>
     fontSize * 0.62f + fontSize * 0.1f + PlainGlyphWidth(text, fontSize);
 
@@ -1814,6 +2075,17 @@ public static class HpClassicFaceplateGlyphs
       if (TryConsume(text, ref i, "e^x", out _)) { width += MeasurePowerLabelWidth("e", fontSize); continue; }
       if (TryConsume(text, ref i, "10^x", out _)) { width += MeasurePowerLabelWidth("10", fontSize); continue; }
       if (TryConsume(text, ref i, "1/x", out _)) { width += MeasureInverseXWidth(fontSize); continue; }
+      if (TryConsume(text, ref i, "-/+", out _)) { width += fontSize * 0.95f; continue; }
+      if (TryConsume(text, ref i, "T\u2192", out _) || TryConsume(text, ref i, "\u2192T", out _))
+      {
+        width += fontSize * 0.55f + fontSize * 0.22f + fontSize * 0.42f;
+        continue;
+      }
+
+      if (TryConsume(text, ref i, "\u2194", out _)) { width += fontSize * 0.98f; continue; }
+      if (TryConsume(text, ref i, "\u2206", out _) || TryConsume(text, ref i, "∆", out _)) { width += fontSize * 0.72f; continue; }
+      if (TryConsume(text, ref i, "\u00f7", out _)) { width += fontSize * 0.55f; continue; }
+      if (TryConsume(text, ref i, "\u0251", out _)) { width += fontSize * 0.56f; continue; }
       if (TryConsume(text, ref i, "R\u2192P", out _) || TryConsume(text, ref i, "P\u2192R", out _)) { width += MeasureArrowBetweenTextWidth("R", "P", fontSize); continue; }
       if (TryConsume(text, ref i, "R\u2191", out _)) { width += MeasureRArrowWidth(fontSize, down: false); continue; }
       if (TryConsume(text, ref i, "R\u2193", out _)) { width += MeasureRArrowWidth(fontSize, down: true); continue; }
@@ -1925,6 +2197,11 @@ public static class HpClassicFaceplateGlyphs
     || text.Contains('\u2191')
     || text.Contains('\u2193')
     || text.Contains('\u2194')
+    || text.Contains('\u2206')
+    || text.Contains('∆')
+    || text.Contains('\u00f7')
+    || text.Contains('\u0251')
+    || text.Contains("-/+")
     || text.Contains('\u2260')
     || text.Contains('\u2264')
     || text.Contains('=')
@@ -1949,6 +2226,14 @@ public static class HpClassicFaceplateGlyphs
       || tail.StartsWith("e^x")
       || tail.StartsWith("10^x")
       || tail.StartsWith("1/x")
+      || tail.StartsWith("-/+")
+      || tail.StartsWith("T\u2192")
+      || tail.StartsWith("\u2192T")
+      || tail.StartsWith("\u2194")
+      || tail.StartsWith("\u2206")
+      || tail.StartsWith("∆")
+      || tail.StartsWith("\u00f7")
+      || tail.StartsWith("\u0251")
       || tail.StartsWith("R\u2192P")
       || tail.StartsWith("P\u2192R")
       || tail.StartsWith("R\u2191")

@@ -1,11 +1,11 @@
 using System.Numerics;
 using ImGuiNET;
 using Silk.NET.OpenGL;
-using TeoCalc.Core;
+using TeoCalc.Rendering.Faceplate;
 
 namespace TeoCalc.Rendering;
 
-/// <summary>HP-65 faceplate SVG assets: Body, HpLogo, KeyCap variants.</summary>
+/// <summary>Faceplate SVG assets (Body, logo, key caps) resolved via <see cref="FaceplateAssetPaths"/>.</summary>
 public static class Hp65FaceplateSvgAssets
 {
   private static readonly SvgRasterCache Cache = new();
@@ -15,11 +15,11 @@ public static class Hp65FaceplateSvgAssets
 
   private const int LogoSvgRevision = 2;
 
-  private static string AssetsRoot => TeoCalcPaths.ResourcePath("Engine/HP-65/Assets");
+  private static string AssetsRoot => FaceplateAssetPaths.ResolveAssetsRoot("HP-65");
 
-  private static string BodyPath => Path.Combine(AssetsRoot, "Body.svg");
+  private static string BodyPath => FaceplateAssetPaths.ResolveFile("HP-65", "Body.svg");
 
-  private static string LogoPath => Path.Combine(AssetsRoot, "HpLogo.svg");
+  private static string LogoPath => FaceplateAssetPaths.ResolveFile("HP-65", "HpLogo.svg");
 
   public static bool IsReady => Cache.IsInitialized && File.Exists(BodyPath);
 
@@ -68,9 +68,17 @@ public static class Hp65FaceplateSvgAssets
       }
     }
 
+    // Modern window chrome draws the full Teo | caption | T-xx plate; classic SVG path
+    // keeps a simple non-stretched center caption for the embedded brand plate.
     float textMargin = (plateMax.X - plateMin.X) * 0.025f;
     float textLeft = logoMax.X + textMargin;
-    CalcChassisRenderer.DrawBrandPlateText(draw, textLeft, plateMin, plateMax, "HEWLETT-PACKARD 65", textRightMargin: textMargin);
+    CalcChassisRenderer.DrawBrandPlateText(
+      draw,
+      textLeft,
+      plateMin,
+      plateMax,
+      "Teo \u00A9 2026",
+      textRightMargin: textMargin);
   }
 
   public static bool TryDrawLogoMark(ImDrawListPtr draw, Vector2 stripMin, Vector2 stripMax, float scale) =>

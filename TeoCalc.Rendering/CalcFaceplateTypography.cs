@@ -9,11 +9,12 @@ public static class CalcFaceplateTypography
   public static float CardSlot(float scale) =>
     Ref(31f, scale, 2.9f);
 
+  // CapAbove gold legends — closer to key-face size (was ~9.5 / too timid vs 14–16 face).
   public static float GoldShift(float scale) =>
-    Ref(9.5f, scale, 1.05f);
+    Ref(12.25f, scale, 1.28f);
 
   public static float GoldShiftSmall(float scale) =>
-    Ref(8.5f, scale, 0.98f);
+    Ref(10.5f, scale, 1.12f);
 
   public static float KeyPrimary(float scale) =>
     Ref(14.5f, scale, 1.34f);

@@ -146,18 +146,21 @@ public static class CalcFaceplateLayout
     return key.Char;
   }
 
-  public static CalcButtonKind ButtonKindForKey(ProgramKeyEntry key, FaceplateCell cell)
+  public static CalcButtonKind ButtonKindForKey(ProgramKeyEntry key, FaceplateCell cell, string? family = null)
   {
     if (cell.ColSpan >= 2 && key.Char == "\r")
     {
       return CalcButtonKind.EnterWide;
     }
 
-    return key.Char switch
+    // Chart char "/" is the divide key — Classic + HP-01 operator-row use colon-obelus art.
+    // HP-01 date slash is a different chart char (";") labeled "/".
+    if (key.Char == "/")
     {
-      "/" => CalcButtonKind.OperatorColon,
-      _ => CalcButtonKind.Standard,
-    };
+      return CalcButtonKind.OperatorColon;
+    }
+
+    return CalcButtonKind.Standard;
   }
 
   private static string? PrimaryLabelFromChar(string charValue)
@@ -210,22 +213,30 @@ public static class CalcFaceplateLayout
       _ => null,
     };
 
+  /// <summary>
+  /// HP-01 face legends (Owner's Guide keyboard summary).
+  /// Panamatik <c>Char</c> codes stay for firmware/chart binding; this maps them to printed labels.
+  /// Grid: R 0 1 2 3 4 S / . 5 6 7 8 9 C / : + - × ÷ = p / D / A Δ M % T
+  /// </summary>
   private static string? Hp01LabelFromChar(string charValue) =>
     charValue switch
     {
       "R" => "R",
       "S" => "S",
-      "P" => "P",
+      "P" => "p", // PM
       "D" => "D",
       "T" => "T",
-      "A" => "ALM",
-      "M" => "MEM",
-      "C" => "CLK",
-      "a" => "a",
-      "d" => "d",
+      "A" => "A", // Alarm
+      "M" => "M", // Memory
+      "C" => "%", // Percent (Panamatik chart char C at index 26)
+      "a" => "C", // Clear (Panamatik chart char a at index 13)
+      "d" => "\u2206", // Shift / store (∆)
       ":" => ":",
-      ";" => ";",
+      ";" => "/", // Date field separator (row 4 slash)
+      "*" => "\u00d7",
+      "/" => "\u00f7", // Operator-row classic ÷
       "=" => "=",
+      "." => ".",
       _ => null,
     };
 

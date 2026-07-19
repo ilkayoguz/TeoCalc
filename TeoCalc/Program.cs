@@ -1,4 +1,5 @@
 using TeoCalc.Core;
+using TeoCalc.Panamatik;
 using TeoCalc.Rendering;
 
 namespace TeoCalc;
@@ -10,10 +11,15 @@ internal class Program
   {
     try
     {
+      CalcFirmwareBootstrap.UseEmulatorAdapter();
+
       if (args.Length > 0 && args[0].Equals("models", StringComparison.OrdinalIgnoreCase))
       {
         foreach (string model in HpCalcModelCatalog.SupportedModels)
+        {
           Console.WriteLine(model);
+        }
+
         return 0;
       }
 

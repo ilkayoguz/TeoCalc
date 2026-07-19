@@ -18,7 +18,7 @@ internal static class BodySvgRects
   public static bool TryGetRect(string elementId, out RectF rect)
   {
     rect = default;
-    string path = TeoCalcPaths.ResourcePath("Engine/HP-65/Assets/Body.svg");
+    string path = Faceplate.FaceplateAssetPaths.ResolveFile("HP-65", "Body.svg");
     if (!File.Exists(path))
     {
       return false;

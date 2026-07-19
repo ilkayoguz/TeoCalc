@@ -5,7 +5,7 @@
   "DisplayName": "HP-01",
   "Family": "HP01",
   "Hardware": {
-    "ButtonCount": 40,
+    "ButtonCount": 28,
     "RamBytes": 448,
     "RegisterDigits": 14,
     "ProgramRamBase": 0,
@@ -15,5 +15,10 @@
     "MaxSteps": 0,
     "Vocabulary": "Program/program.vocabulary.json"
   },
-  "Firmware": {}
+  "Firmware": {},
+  "Faceplate": {
+    "BodyLayoutId": "00d",
+    "ThemeId": "Modern",
+    "ShortId": "01"
+  }
 }

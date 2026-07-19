@@ -1,6 +1,7 @@
 using ImGuiNET;
 using System.Numerics;
 using TeoCalc.Core.Catalog;
+using TeoCalc.Core.Firmware;
 using TeoCalc.Rendering.Faceplate;
 
 namespace TeoCalc.Rendering;
@@ -11,7 +12,7 @@ public static class CalcFaceplateView
   {
     if (!session.SupportsFaceplate || session.Vocabulary is null)
     {
-      PanamatikDisplayOnlyView.Draw(session);
+      LedDisplayOnlyView.Draw(session);
       return;
     }
 
@@ -19,7 +20,7 @@ public static class CalcFaceplateView
     ImGui.PushStyleVar(ImGuiStyleVar.ItemSpacing, System.Numerics.Vector2.Zero);
 
     System.Numerics.Vector2 available = availableOverride ?? ImGui.GetContentRegionAvail();
-    CalcModelDefinition faceplateModel = CalcModelCatalog.Resolve(session.Model.Model);
+    CalcModelDefinition faceplateModel = CalcModelCatalog.Resolve(session.Model);
     CalcBodyLayout bodyLayout = CalcBodyLayoutCatalog.ResolveForFaceplate(
       faceplateModel,
       session.Model.Family,
@@ -70,7 +71,7 @@ public static class CalcFaceplateView
     bool switchClickHandled = switchPointer.ClickHandled;
 
     FirmwareDisplaySnapshot displaySnapshot = session.DisplaySnapshot;
-    CalcChassisRenderer.DrawPanamatikDisplay(
+    CalcChassisRenderer.DrawLedDisplay(
       draw,
       display,
       session.ProgramMode,
@@ -188,7 +189,8 @@ public static class CalcFaceplateView
           key,
           session.Vocabulary,
           cell.LabelStyle);
-        if (CalcEnterRowLabels.GoldLabelForKey(cell.KeyChartIndex) is { } enterRowGold)
+        if (string.Equals(session.Model.Family, "Classic", StringComparison.OrdinalIgnoreCase)
+            && CalcEnterRowLabels.GoldLabelForKey(cell.KeyChartIndex) is { } enterRowGold)
         {
           visual = visual with { GoldShift = enterRowGold, GoldInverseShift = enterRowGold };
         }
@@ -198,7 +200,7 @@ public static class CalcFaceplateView
           session.Model.Model,
           cell.KeyChartIndex);
         PreviewVisual preview = ApplyShiftPreview(visual, shiftPreview, style);
-        CalcButtonKind kind = CalcFaceplateLayout.ButtonKindForKey(key, cell);
+        CalcButtonKind kind = CalcFaceplateLayout.ButtonKindForKey(key, cell, session.Model.Family);
         CalcKeyVisual keyVisual = BuildKeyVisual(
           preview,
           style,
@@ -262,7 +264,13 @@ public static class CalcFaceplateView
           session.PressKey(item.Cell.KeyChartIndex, (byte)item.Key.KeyCode);
         }
 
-        DrawShiftPreviewIndicator(draw, item.KeyRect, item.Cell.KeyChartIndex, shiftPreview, metrics.Scale);
+        DrawShiftPreviewIndicator(
+          draw,
+          item.KeyRect,
+          item.Cell.KeyChartIndex,
+          shiftPreview,
+          session.Model.Family,
+          metrics.Scale);
 
         if (ImGui.IsItemHovered() && calcInputActive && powerOn)
         {
@@ -289,9 +297,11 @@ public static class CalcFaceplateView
     RectF keyRect,
     int keyChartIndex,
     ShiftPreviewMode mode,
+    string? family,
     float scale)
   {
-    if (mode == ShiftPreviewMode.None || keyChartIndex != ShiftPreviewKeyIndex(mode))
+    if (mode == ShiftPreviewMode.None
+        || keyChartIndex != ShiftPreviewController.IndicatorKeyIndex(mode, family))
     {
       return;
     }
@@ -321,15 +331,6 @@ public static class CalcFaceplateView
         MathF.Max(scale * 0.9f, 1.2f));
     }
   }
-
-  private static int ShiftPreviewKeyIndex(ShiftPreviewMode mode) =>
-    mode switch
-    {
-      ShiftPreviewMode.Gold => 10,
-      ShiftPreviewMode.GoldInverse => 11,
-      ShiftPreviewMode.Blue => 14,
-      _ => -1,
-    };
 
   private static uint WithAlpha(uint color, byte alpha) =>
     (color & 0x00FFFFFFu) | ((uint)alpha << 24);
@@ -372,8 +373,13 @@ public static class CalcFaceplateView
     CalcModelDefinition model)
   {
     List<CalcKeyAnnotation> annotations = [];
+    bool classicEnterRow =
+      string.Equals(model.DisplayName, "HP-65", StringComparison.OrdinalIgnoreCase)
+      || string.Equals(model.DisplayName, "HP-67", StringComparison.OrdinalIgnoreCase)
+      || model.Id is "65" or "67";
     if (!string.IsNullOrEmpty(preview.GoldOnBody)
-      && (!CalcEnterRowLabels.IsEnterRowKey(keyChartIndex)
+      && (!classicEnterRow
+        || !CalcEnterRowLabels.IsEnterRowKey(keyChartIndex)
         || shiftPreview is ShiftPreviewMode.Gold or ShiftPreviewMode.GoldInverse))
     {
       annotations.Add(CalcModifierPlacement.Annotate(model, CalcModifierKey.F, preview.GoldOnBody));
@@ -392,6 +398,7 @@ public static class CalcFaceplateView
       Annotations = annotations,
       CapFaceInkOverride = preview.FaceInk,
       CapSkirtInkOverride = preview.SkirtInk,
+      CapAboveInkOverride = preview.GoldBodyInk,
     };
   }
 

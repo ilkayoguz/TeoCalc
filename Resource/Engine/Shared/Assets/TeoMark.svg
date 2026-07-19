@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     width="32" height="32" viewBox="0 0 32 32" preserveAspectRatio="xMidYMid meet">
+  <!-- Teo mark — geometry/color from Teo/Resources/SVG/Teo.svg.
+       width/height must match viewBox so Svg.Skia CullRect aligns with ResolveViewBox. -->
+  <g fill="#6444C4" transform="translate(0, 2) scale(1, 1.15) translate(0, -6)">
+    <path d="M 14.00 9.50 L 8.25 9.20 C 3.59 8.98 2.00 8.54 2.00 7.45 C 2.00 6.25 4.55 6.00 16.00 6.00 C 27.45 6.00 30.00 6.25 30.00 7.45 C 30.00 8.55 28.35 8.98 24.25 9.20 L 18.00 9.50 Z"/>
+    <path d="M 12.29 22.75 L 12.00 13.50 L 7.75 13.19 C 4.79 12.98 2.00 12.43 2.00 11.39 C 2.00 10.21 5.18 9.96 9.75 10.20 L 15.00 10.50 L 15.28 21.25 C 15.52 28.25 15.32 30.00 14.07 30.00 C 12.87 30.00 12.52 28.17 12.29 22.75 Z"/>
+    <path transform="translate(32, 0) scale(-1, 1)"
+          d="M 12.29 22.75 L 12.00 13.50 L 7.75 13.19 C 4.79 12.98 2.00 12.43 2.00 11.39 C 2.00 10.21 5.18 9.96 9.75 10.20 L 15.00 10.50 L 15.28 21.25 C 15.52 28.25 15.32 30.00 14.07 30.00 C 12.87 30.00 12.52 28.17 12.29 22.75 Z"/>
+  </g>
+</svg>

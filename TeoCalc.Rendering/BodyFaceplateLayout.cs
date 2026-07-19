@@ -131,7 +131,7 @@ public static class BodyFaceplateLayout
 
   private static void Load()
   {
-    string path = TeoCalcPaths.ResourcePath("Engine/HP-65/Assets/faceplate-d03-layout.json");
+    string path = Faceplate.FaceplateAssetPaths.ResolveFile("HP-65", "faceplate-d03-layout.json");
     if (!File.Exists(path))
     {
       throw new FileNotFoundException("Body faceplate layout missing.", path);

@@ -17,7 +17,12 @@ public static class ClassicKeyFaceplateLegend
     FaceplateLabelStyle labelStyle)
   {
     string primary = CalcFaceplateLayout.LabelForKey(key, vocabulary, family);
-    KeyFaceplateEntry? entry = key.Index is >= 10 and <= 14 ? null : TryGetEntry(modelId, key.Index);
+    // HP-65 A–E (indices 10–14) use CalcEnterRowLabels / card-slot overlays instead of JSON gold.
+    // Other models (e.g. HP-01 operator-row gold DW/21/…) must still load those indices.
+    bool skipJsonForClassicAe =
+      string.Equals(family, "Classic", StringComparison.OrdinalIgnoreCase)
+      && key.Index is >= 10 and <= 14;
+    KeyFaceplateEntry? entry = skipJsonForClassicAe ? null : TryGetEntry(modelId, key.Index);
     return new HpCalcKeyVisual(
       primary,
       entry?.Gold,

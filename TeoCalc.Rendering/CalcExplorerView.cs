@@ -1,5 +1,6 @@
 using ImGuiNET;
 using TeoCalc.Core.Catalog;
+using TeoCalc.Core.Firmware;
 using TeoCalc.Rendering.Faceplate;
 
 namespace TeoCalc.Rendering;
@@ -48,7 +49,7 @@ public static class CalcExplorerView
   {
     ImGui.TextUnformatted(session.Model.DisplayName);
     ImGui.SameLine();
-    ImGui.TextDisabled("(Panamatik engine)");
+    ImGui.TextDisabled("(emulator)");
     ImGui.PushStyleColor(ImGuiCol.ChildBg, 0);
     ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, System.Numerics.Vector2.Zero);
     ImGui.BeginChild("calculator", new System.Numerics.Vector2(0, 0), ImGuiChildFlags.Border);
@@ -119,7 +120,7 @@ public static class CalcExplorerView
 
     ImGui.SameLine();
     ImGui.TextDisabled(
-      $"Engine=Panamatik  PC={session.LastBatch.ProgramCounter:X4}  ROM={session.LastBatch.Rom}  steps={session.LastBatch.StepCount}");
+      $"Engine=Firmware  PC={session.LastBatch.ProgramCounter:X4}  ROM={session.LastBatch.Rom}  steps={session.LastBatch.StepCount}");
   }
 
   private static void DrawFirmwareInspector(CalcExplorerSession session)
@@ -218,7 +219,7 @@ public static class CalcExplorerView
     }
     else
     {
-      ImGui.TextDisabled("Program listing will follow Panamatik act_ram in a later phase.");
+      ImGui.TextDisabled("Program listing will follow emulator RAM in a later phase.");
       ImGui.TextDisabled($"Max steps: {session.Model.Program.MaxSteps}");
     }
 

@@ -76,7 +76,7 @@ public static class Calc00dWireStyle
   /// <summary>Brushed aluminum plate — bright horizontal center.</summary>
   public const uint LogoStripCenter = 0xFFD8D8D8;
 
-  /// <summary>HEWLETT-PACKARD caption ink.</summary>
+  /// <summary>Teo logo-plate caption ink.</summary>
   public const uint LogoCaptionInk = 0xFF2E2E2E;
 
   /// <summary>Switch legend ink — cream/white on faceplate (classic HP legend).</summary>
@@ -84,14 +84,18 @@ public static class Calc00dWireStyle
 
   public const uint SwitchKnobEdge = 0xFF4A4A4A;
 
-  public const uint LogoDivider = 0xFF464646;
+  /// <summary>Logo-plate groove — slightly darker than aluminum center (embedded, low contrast).</summary>
+  public const uint LogoDivider = 0xFFB4B4B4;
+
+  /// <summary>Logo-plate groove highlight — slightly lighter than aluminum center.</summary>
+  public const uint LogoDividerHighlight = 0xFFE2E2E2;
 
   /// <summary>Knurl ridge spacing on switch knobs (~3px in 00d.png).</summary>
   public const float SwitchKnurlPitchRef = 3f;
 
   public const float SwitchKnobEdgeWidthRef = 1.5f;
 
-  public const float LogoDividerWidthRef = 2.5f;
+  public const float LogoDividerWidthRef = 1.25f;
 
   public const float SwitchTrackWidthRefPx = 80f;
 

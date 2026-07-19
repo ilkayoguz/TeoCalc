@@ -1,6 +1,7 @@
 using TeoCalc.Core;
 using TeoCalc.Core.Catalog;
 using TeoCalc.Core.Engine.Classic;
+using TeoCalc.Core.Firmware;
 using TeoCalc.Rendering;
 
 namespace TeoCalc.Core.Tests;

@@ -1,0 +1,96 @@
+using TeoCalc.Core.Engine.Classic;
+
+namespace TeoCalc.Core.Firmware;
+
+/// <summary>UI/session boundary for calculator firmware (ClassicCpu or emulator adapter).</summary>
+public interface ICalcFirmwareGateway
+{
+  event EventHandler<FirmwareDisplayChangedEventArgs>? DisplayChanged;
+
+  event EventHandler<FirmwareKeyProcessedEventArgs>? KeyProcessed;
+
+  event EventHandler<FirmwareKeyStateChangedEventArgs>? KeyStateChanged;
+
+  event EventHandler<FirmwareBatchCompletedEventArgs>? BatchCompleted;
+
+  bool PowerOn { get; set; }
+
+  bool ProgramMode { get; }
+
+  string DisplayText { get; }
+
+  FirmwareDisplaySnapshot DisplaySnapshot { get; }
+
+  FirmwareBatchSnapshot LastBatch { get; }
+
+  FirmwareKeyCommand? ActiveKey { get; }
+
+  bool KeyLineHeld { get; }
+
+  void PowerOnResume();
+
+  void PowerOff();
+
+  bool IsDisplayVisible();
+
+  void EndDisplayFrame();
+
+  void SetProgramMode(bool programMode);
+
+  void ToggleProgramMode();
+
+  void Tick(float deltaSeconds);
+
+  void Step();
+
+  void KeyDown(FirmwareKeyCommand key);
+
+  void KeyUp(FirmwareKeyCommand? key = null);
+
+  void SetKeyLineHeld(bool held);
+}
+
+public sealed record FirmwareDisplaySnapshot(
+  string Text,
+  bool Visible,
+  bool BlankPulse,
+  long Revision,
+  long StepCount,
+  int ProgramCounter);
+
+public sealed record FirmwareDisplayChangedEventArgs(FirmwareDisplaySnapshot Snapshot)
+{
+  public string Text => Snapshot.Text;
+
+  public bool Visible => Snapshot.Visible;
+}
+
+public readonly record struct FirmwareKeyCommand(int KeyChartIndex, byte KeyCode);
+
+public sealed record FirmwareKeyStateChangedEventArgs(FirmwareKeyCommand? Key, bool Held);
+
+public sealed record FirmwareKeyProcessedEventArgs(
+  FirmwareKeyCommand Key,
+  string DisplayText,
+  bool DisplayVisible);
+
+public sealed record FirmwareBatchSnapshot(
+  int StepCount,
+  int ProgramCounter,
+  ushort Status,
+  byte KeyBuffer,
+  string? LastHandlerId,
+  bool KeyLineHeld,
+  FirmwareKeyCommand? ActiveKey,
+  FirmwareDisplaySnapshot? Display,
+  byte Rom,
+  byte Grp,
+  byte P,
+  ClassicCpuFlags Flags,
+  int BranchOffset,
+  ClassicKeyInputState KeyInputState,
+  bool KeyAvailable,
+  int KeysToRomAddressCount,
+  int BufferToRomAddressCount);
+
+public sealed record FirmwareBatchCompletedEventArgs(FirmwareBatchSnapshot Snapshot);

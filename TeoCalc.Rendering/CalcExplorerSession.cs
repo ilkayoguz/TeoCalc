@@ -1,21 +1,20 @@
 using TeoCalc.Core;
 using TeoCalc.Core.Catalog;
 using TeoCalc.Core.Engine.Classic;
-using TeoCalc.Panamatik;
+using TeoCalc.Core.Firmware;
+using TeoCalc.Game.Explorer;
 using TeoCalc.Rendering.Faceplate;
 
 namespace TeoCalc.Rendering;
 
-/// <summary>Panamatik emulator timer, press_key, and ShowDisplay orchestration for all models.</summary>
-public sealed class CalcExplorerSession : IDisposable
+/// <summary>Firmware timer, key, and display orchestration for all models via <see cref="ICalcFirmwareGateway"/>.</summary>
+public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
 {
   private static readonly string[] ExplorerModels = HpCalcModelCatalog.SupportedModels
-    .Select(MapCatalogModelToExplorer)
+    .Select(CalcModelIds.ToEngineId)
     .ToArray();
 
-  private PanamatikFirmwareGateway? _firmware;
-
-  private IPanamatikEngine? _panamatikEngine;
+  private ICalcFirmwareGateway? _firmware;
 
   private FirmwareDisplaySnapshot _displaySnapshot =
     new(string.Empty, Visible: false, BlankPulse: false, Revision: 0, StepCount: 0, ProgramCounter: 0);
@@ -51,7 +50,7 @@ public sealed class CalcExplorerSession : IDisposable
   public CalcExplorerSession(string engineRoot)
   {
     EngineRoot = engineRoot;
-    ModelIndex = Array.FindIndex(ExplorerModels, id => id == MapCatalogModelToExplorer(HpCalcModelCatalog.PriorityModel));
+    ModelIndex = Array.FindIndex(ExplorerModels, id => id == CalcModelIds.ToEngineId(HpCalcModelCatalog.PriorityModel));
     if (ModelIndex < 0)
     {
       ModelIndex = 0;
@@ -60,13 +59,17 @@ public sealed class CalcExplorerSession : IDisposable
     LoadModel(ModelIndex);
   }
 
-  public bool UsesPanamatikEngine => _panamatikEngine is not null;
+  public bool UsesFirmwareGateway => _firmware is not null;
 
   public string EngineRoot { get; }
 
   public string[] Models => ExplorerModels;
 
   public int ModelIndex { get; private set; }
+
+  public string DisplayName => Model.DisplayName;
+
+  public string EngineModelId => ExplorerModels[Math.Clamp(ModelIndex, 0, ExplorerModels.Length - 1)];
 
   public TeoCalcModelDefinition Model { get; private set; } = null!;
 
@@ -429,19 +432,17 @@ public sealed class CalcExplorerSession : IDisposable
 
   public void LoadModel(int index)
   {
-    DisposePanamatikEngine();
+    DisposeFirmware();
 
     ModelIndex = Math.Clamp(index, 0, ExplorerModels.Length - 1);
     string explorerModelId = ExplorerModels[ModelIndex];
-    string panamatikModelId = MapExplorerModelToPanamatik(explorerModelId);
-    string engineModelFolder = MapExplorerModelToEngineFolder(explorerModelId);
+    string engineModelFolder = CalcModelIds.ToEngineId(explorerModelId);
     string modelPath = Path.Combine(EngineRoot, engineModelFolder, "Model.json");
     Model = File.Exists(modelPath)
       ? TeoCalcModelDefinition.Load(modelPath)
       : CreatePlaceholderModel(explorerModelId);
 
-    _panamatikEngine = PanamatikEngineFactory.Create(panamatikModelId);
-    _firmware = new PanamatikFirmwareGateway(_panamatikEngine);
+    _firmware = CalcFirmwareGatewayLocator.CreateGateway(engineModelFolder);
     _firmware.DisplayChanged += OnFirmwareDisplayChanged;
     _firmware.BatchCompleted += OnFirmwareBatchCompleted;
     _faceplateSwitchIndices = [];
@@ -483,19 +484,9 @@ public sealed class CalcExplorerSession : IDisposable
     _keyboardKeyHeld = false;
     ShiftPreview.Reset();
 
-    CalcModelDefinition faceplateModel = CalcModelCatalog.Resolve(Model.DisplayName);
+    CalcModelDefinition faceplateModel = CalcModelCatalog.Resolve(Model, engineModelFolder);
     CalcFaceplateThemeState.ApplyForModel(faceplateModel);
-    LoadWarnings = BuildLoadWarnings(explorerModelId, engineModelFolder, panamatikModelId);
-  }
-
-  private static List<string> BuildLoadWarnings(
-    string explorerModelId,
-    string engineModelFolder,
-    string panamatikModelId)
-  {
-    List<string> warnings = [];
-    warnings.AddRange(PanamatikEngineFactory.GetAssetWarnings(panamatikModelId));
-    return warnings;
+    LoadWarnings = [.. CalcFirmwareGatewayLocator.AssetWarnings(engineModelFolder)];
   }
 
   public void Tick(float deltaSeconds) =>
@@ -513,19 +504,21 @@ public sealed class CalcExplorerSession : IDisposable
   }
 
   public void Dispose() =>
-    DisposePanamatikEngine();
+    DisposeFirmware();
 
-  private void DisposePanamatikEngine()
+  private void DisposeFirmware()
   {
     if (_firmware is not null)
     {
       _firmware.DisplayChanged -= OnFirmwareDisplayChanged;
       _firmware.BatchCompleted -= OnFirmwareBatchCompleted;
-      _firmware.Dispose();
+      if (_firmware is IDisposable disposable)
+      {
+        disposable.Dispose();
+      }
+
       _firmware = null;
     }
-
-    _panamatikEngine = null;
   }
 
   public void ResetCpu() =>
@@ -533,7 +526,7 @@ public sealed class CalcExplorerSession : IDisposable
 
   public void PressKey(int keyChartIndex, byte keyCode)
   {
-    ShiftPreview.HandleKeyPress(keyChartIndex);
+    ShiftPreview.HandleKeyPress(keyChartIndex, Model.Family);
     PressKey(new FirmwareKeyCommand(keyChartIndex, keyCode));
   }
 
@@ -556,51 +549,12 @@ public sealed class CalcExplorerSession : IDisposable
     {
       Model = modelId,
       DisplayName = modelId,
-      Family = InferFamily(modelId),
+      Family = CalcModelIds.InferFamily(modelId),
       Program = new TeoCalcModelProgram
       {
         Vocabulary = "Program/program.vocabulary.json",
       },
     };
-
-  private static string InferFamily(string modelId) =>
-    modelId.ToUpperInvariant() switch
-    {
-      "HP-01" => "HP01",
-      "HP-19C" => "HP19C",
-      "HP-67" => "Classic",
-      "HP-35" or "HP-45" or "HP-55" or "HP-65" or "HP-70" or "HP-80" => "Classic",
-      var id when id.StartsWith("HP-3", StringComparison.Ordinal) && id is not "HP-35" => "Spice",
-      var id when id.StartsWith("HP-2", StringComparison.Ordinal) => "Woodstock",
-      _ => "Panamatik",
-    };
-
-  private static string MapCatalogModelToExplorer(string catalogModelId) =>
-    catalogModelId switch
-    {
-      "HP-29C" => "HP-29",
-      "HP-31E" => "HP-31",
-      "HP-32E" => "HP-32",
-      "HP-34C" => "HP-34",
-      "HP-37E" => "HP-37",
-      "HP-38E" => "HP-38",
-      _ => catalogModelId,
-    };
-
-  private static string MapExplorerModelToPanamatik(string explorerModelId) =>
-    explorerModelId switch
-    {
-      "HP-29" => "HP-29",
-      "HP-31" => "HP-31",
-      "HP-32" => "HP-32",
-      "HP-34" => "HP-34",
-      "HP-37" => "HP-37",
-      "HP-38" => "HP-38",
-      _ => explorerModelId,
-    };
-
-  private static string MapExplorerModelToEngineFolder(string explorerModelId) =>
-    explorerModelId;
 
   private static MicrocodeCrossRefCatalog? LoadCrossRefIfPresent(string path) =>
     File.Exists(path) ? MicrocodeCrossRefCatalog.Load(path) : null;

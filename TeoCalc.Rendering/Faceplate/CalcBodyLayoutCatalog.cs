@@ -1,8 +1,11 @@
+using TeoCalc.Core.Catalog;
+
 namespace TeoCalc.Rendering.Faceplate;
 
 public static class CalcBodyLayoutCatalog
 {
-  public const string DefaultLayoutId = Hp65CalcBodyLayout.LayoutId;
+  /// <summary>Canonical Modern geometry; Retro SVG layouts remain available by explicit id.</summary>
+  public const string DefaultLayoutId = Calc00dBodyLayout.LayoutId;
 
   private static readonly Dictionary<string, CalcBodyLayout> GeometryCache = new(StringComparer.OrdinalIgnoreCase);
   private static readonly Dictionary<string, CalcBodyLayout> ModelCache = new(StringComparer.OrdinalIgnoreCase);
@@ -15,14 +18,18 @@ public static class CalcBodyLayoutCatalog
       return cached;
     }
 
-    CalcBodyLayout geometry = ResolveGeometry(model.BodyLayoutId, model.DisplayName);
+    CalcBodyLayout geometry =
+      string.Equals(model.BodyLayoutId, Calc00dBodyLayout.LayoutId, StringComparison.OrdinalIgnoreCase)
+        ? Calc00dBodyLayout.Resolve(CalcModelIds.InferFamily(model.DisplayName), model.Id, model)
+        : ResolveGeometry(model.BodyLayoutId, model.DisplayName);
+
     CalcBodyLayout withSwitches = geometry.WithSwitches(CalcSwitchCatalog.ForModel(model));
     ModelCache[modelKey] = withSwitches;
     return withSwitches;
   }
 
   public static CalcBodyLayout ResolveForFaceplate(CalcModelDefinition model, string family, string modelId) =>
-    CalcModernBody.IsActive
+    CalcModernBody.IsActive || string.Equals(model.BodyLayoutId, Calc00dBodyLayout.LayoutId, StringComparison.OrdinalIgnoreCase)
       ? Calc00dBodyLayout.Resolve(family, modelId, model)
       : Resolve(model);
 
@@ -39,6 +46,10 @@ public static class CalcBodyLayoutCatalog
 
     CalcBodyLayout loaded = layoutId.ToLowerInvariant() switch
     {
+      Calc00dBodyLayout.LayoutId => Calc00dBodyLayout.Resolve(
+        CalcModelIds.InferFamily(displayName ?? "HP-65"),
+        CalcModelIds.ToShortId(displayName ?? "HP-65"),
+        CalcModelCatalog.Resolve(displayName ?? "HP-65")),
       CalcPrototypeBodyLayout.LayoutId => CalcPrototypeBodyLayout.Instance,
       Hp65CalcBodyLayout.LayoutId => Hp65CalcBodyLayout.Instance,
       Hp21CalcBodyLayout.LayoutId => Hp21CalcBodyLayout.Instance,

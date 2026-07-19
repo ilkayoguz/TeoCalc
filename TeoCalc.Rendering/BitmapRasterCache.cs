@@ -1,11 +1,12 @@
 using System.Numerics;
+using System.Runtime.InteropServices;
 using ImGuiNET;
 using Silk.NET.OpenGL;
 using SkiaSharp;
 
 namespace TeoCalc.Rendering;
 
-/// <summary>Rasterizes bitmap files (PNG) to OpenGL textures for ImGui.</summary>
+/// <summary>Rasterizes bitmap files (PNG/ICO) to OpenGL textures for ImGui.</summary>
 internal sealed class BitmapRasterCache : IDisposable
 {
   private readonly Dictionary<string, Slot> _slots = new(StringComparer.OrdinalIgnoreCase);
@@ -24,21 +25,25 @@ internal sealed class BitmapRasterCache : IDisposable
     _gl = gl;
   }
 
+  /// <summary>
+  /// Draws <paramref name="path"/> into <paramref name="min"/>..<paramref name="max"/>.
+  /// When <paramref name="useSourceResolution"/> is true, the texture keeps the file's
+  /// native pixel size (better for small ICO/PNG marks scaled by ImGui).
+  /// </summary>
   public bool TryDraw(
     ImDrawListPtr draw,
     Vector2 min,
     Vector2 max,
     string path,
-    int revision = 0)
+    int revision = 0,
+    bool useSourceResolution = false)
   {
     if (_gl is null || !File.Exists(path))
     {
       return false;
     }
 
-    int rasterWidth = Math.Max(1, (int)MathF.Ceiling(max.X - min.X));
-    int rasterHeight = Math.Max(1, (int)MathF.Ceiling(max.Y - min.Y));
-    Slot? slot = EnsureSlot(path, rasterWidth, rasterHeight, revision);
+    Slot? slot = EnsureSlot(path, revision, useSourceResolution, displayMin: min, displayMax: max);
     if (slot is null || !TryRasterize(slot, path, out byte[] rgba))
     {
       return false;
@@ -63,7 +68,12 @@ internal sealed class BitmapRasterCache : IDisposable
     _gl = null;
   }
 
-  private Slot? EnsureSlot(string path, int rasterWidth, int rasterHeight, int revision)
+  private Slot? EnsureSlot(
+    string path,
+    int revision,
+    bool useSourceResolution,
+    Vector2 displayMin,
+    Vector2 displayMax)
   {
     if (_gl is null)
     {
@@ -71,7 +81,10 @@ internal sealed class BitmapRasterCache : IDisposable
     }
 
     DateTime stamp = File.GetLastWriteTimeUtc(path);
-    string key = $"{path}|{rasterWidth}x{rasterHeight}|v{revision}";
+    string key = useSourceResolution
+      ? $"{path}|native|v{revision}"
+      : $"{path}|{MathF.Ceiling(displayMax.X - displayMin.X)}x{MathF.Ceiling(displayMax.Y - displayMin.Y)}|v{revision}";
+
     if (_slots.TryGetValue(key, out Slot? existing) && existing.SourceStamp == stamp)
     {
       return existing;
@@ -83,6 +96,25 @@ internal sealed class BitmapRasterCache : IDisposable
       _slots.Remove(key);
     }
 
+    int rasterWidth;
+    int rasterHeight;
+    if (useSourceResolution)
+    {
+      using SKBitmap? probe = SKBitmap.Decode(path);
+      if (probe is null)
+      {
+        return null;
+      }
+
+      rasterWidth = Math.Max(1, probe.Width);
+      rasterHeight = Math.Max(1, probe.Height);
+    }
+    else
+    {
+      rasterWidth = Math.Max(1, (int)MathF.Ceiling(displayMax.X - displayMin.X));
+      rasterHeight = Math.Max(1, (int)MathF.Ceiling(displayMax.Y - displayMin.Y));
+    }
+
     uint texture = _gl.GenTexture();
     Slot slot = new(texture, stamp, rasterWidth, rasterHeight);
     _slots[key] = slot;
@@ -92,21 +124,45 @@ internal sealed class BitmapRasterCache : IDisposable
   private static bool TryRasterize(Slot slot, string path, out byte[] rgba)
   {
     rgba = [];
-    using SKBitmap? bitmap = SKBitmap.Decode(path);
-    if (bitmap is null)
+    using SKBitmap? decoded = SKBitmap.Decode(path);
+    if (decoded is null)
     {
       return false;
     }
 
-    using SKBitmap scaled = bitmap.Resize(new SKImageInfo(slot.RasterWidth, slot.RasterHeight), SKSamplingOptions.Default);
-    if (scaled is null)
+    using SKBitmap rgbaSource = decoded.ColorType == SKColorType.Rgba8888
+      ? decoded.Copy()!
+      : decoded.Copy(SKColorType.Rgba8888)!;
+    if (rgbaSource is null)
     {
       return false;
     }
 
-    rgba = new byte[slot.RasterWidth * slot.RasterHeight * 4];
-    System.Runtime.InteropServices.Marshal.Copy(scaled.GetPixels(), rgba, 0, rgba.Length);
-    return true;
+    SKBitmap upload = rgbaSource;
+    SKBitmap? scaled = null;
+    try
+    {
+      if (rgbaSource.Width != slot.RasterWidth || rgbaSource.Height != slot.RasterHeight)
+      {
+        scaled = rgbaSource.Resize(
+          new SKImageInfo(slot.RasterWidth, slot.RasterHeight, SKColorType.Rgba8888, SKAlphaType.Premul),
+          new SKSamplingOptions(SKCubicResampler.Mitchell));
+        if (scaled is null)
+        {
+          return false;
+        }
+
+        upload = scaled;
+      }
+
+      rgba = new byte[slot.RasterWidth * slot.RasterHeight * 4];
+      Marshal.Copy(upload.GetPixels(), rgba, 0, rgba.Length);
+      return true;
+    }
+    finally
+    {
+      scaled?.Dispose();
+    }
   }
 
   private void Upload(Slot slot, byte[] rgba)

@@ -4,7 +4,7 @@ using TeoCalc.Rendering;
 
 namespace TeoCalc.Rendering.Faceplate;
 
-/// <summary>Logo strip: procedural hp mark + HEWLETT-PACKARD caption.</summary>
+/// <summary>Logo strip: brand mark + Teo caption.</summary>
 public static class CalcLogoComponent
 {
   public static void Draw(ImDrawListPtr draw, Vector2 stripMin, Vector2 stripMax, CalcModelDefinition model, float scale) =>

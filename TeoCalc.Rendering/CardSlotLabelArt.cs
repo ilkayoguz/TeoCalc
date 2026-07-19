@@ -1,6 +1,6 @@
 using System.Numerics;
 using ImGuiNET;
-using TeoCalc.Core;
+using TeoCalc.Rendering.Faceplate;
 
 namespace TeoCalc.Rendering;
 
@@ -18,7 +18,8 @@ public static class CardSlotLabelArt
     ("label-x-exchange-y.svg", 72f, 1.05f),
   ];
 
-  private static string AssetsRoot => Path.Combine(TeoCalcPaths.ResourcePath("Engine/HP-65/Assets"), "CardSlot");
+  private static string AssetsRoot =>
+    Path.Combine(FaceplateAssetPaths.ResolveAssetsRoot("HP-65"), "CardSlot");
 
   public static bool IsReady =>
     Hp65FaceplateSvgAssets.CanDrawCardSlotLabels && Labels.All(label => File.Exists(PathFor(label.File)));

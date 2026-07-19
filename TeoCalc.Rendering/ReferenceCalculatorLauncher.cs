@@ -11,7 +11,7 @@ public static class ReferenceCalculatorLauncher
       if (reference.ExecutablePath is not null && File.Exists(reference.ExecutablePath))
       {
         Start(reference.ExecutablePath, Path.GetDirectoryName(reference.ExecutablePath)!);
-        status = $"Opening {reference.ModelId} Panamatik reference.";
+        status = $"Opening {reference.ModelId} reference emulator.";
         return true;
       }
 
@@ -21,7 +21,7 @@ public static class ReferenceCalculatorLauncher
           "dotnet",
           Path.GetDirectoryName(reference.ProjectPath)!,
           $"run --project \"{reference.ProjectPath}\" -c Debug");
-        status = $"Building and opening {reference.ModelId} Panamatik reference.";
+        status = $"Building and opening {reference.ModelId} reference emulator.";
         return true;
       }
 

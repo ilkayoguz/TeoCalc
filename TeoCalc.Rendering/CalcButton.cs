@@ -254,7 +254,9 @@ public static class CalcButton
       return;
     }
 
-    if (kind == CalcButtonKind.OperatorColon)
+    // OperatorColon is the ÷ key's art style — only when the face still shows divide.
+    // Shift preview may put T→ / other legends on this cap; those must use the text path.
+    if (kind == CalcButtonKind.OperatorColon && IsDivideFaceLabel(text))
     {
       DrawFaceCenteredOperatorColon(draw, cap.FaceBand.Min, cap.FaceBand.Max, scale, ink);
       return;
@@ -262,6 +264,9 @@ public static class CalcButton
 
     DrawFaceCenteredKeyLabel(draw, text, cap.FaceBand.Min, cap.FaceBand.Max, scale, ink);
   }
+
+  private static bool IsDivideFaceLabel(string text) =>
+    string.IsNullOrEmpty(text) || text is "\u00f7";
 
   private static void DrawFaceCenteredKeyLabel(
     ImDrawListPtr draw,
@@ -274,6 +279,12 @@ public static class CalcButton
     if (text == "\u00b7")
     {
       DrawKeyFaceDot(draw, faceMin, faceMax, scale, ink);
+      return;
+    }
+
+    if (IsDivideFaceLabel(text))
+    {
+      DrawFaceCenteredOperatorColon(draw, faceMin, faceMax, scale, ink);
       return;
     }
 

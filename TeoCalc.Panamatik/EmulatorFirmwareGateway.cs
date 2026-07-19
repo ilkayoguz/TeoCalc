@@ -1,10 +1,10 @@
 using TeoCalc.Core.Engine.Classic;
-using TeoCalc.Panamatik;
+using TeoCalc.Core.Firmware;
 
-namespace TeoCalc.Rendering;
+namespace TeoCalc.Panamatik;
 
-/// <summary>Routes TeoCalc UI through original Panamatik emulator engines.</summary>
-public sealed class PanamatikFirmwareGateway : ICalcFirmwareGateway, IDisposable
+/// <summary>Routes TeoCalc UI through headless emulator engines in this adapter assembly.</summary>
+public sealed class EmulatorFirmwareGateway : ICalcFirmwareGateway, IDisposable
 {
   private const float RunTickSeconds = 0.05f;
 
@@ -17,7 +17,7 @@ public sealed class PanamatikFirmwareGateway : ICalcFirmwareGateway, IDisposable
   private bool _keyLineHeld;
   private FirmwareKeyCommand? _activeKey;
 
-  public PanamatikFirmwareGateway(IPanamatikEngine engine)
+  public EmulatorFirmwareGateway(IPanamatikEngine engine)
   {
     _engine = engine;
     SetDisplayState(string.Empty, blankPulse: false);
@@ -46,7 +46,7 @@ public sealed class PanamatikFirmwareGateway : ICalcFirmwareGateway, IDisposable
       ProgramCounter: 0,
       Status: 0,
       KeyBuffer: 0,
-      LastHandlerId: "Panamatik.Engine",
+      LastHandlerId: "Emulator.Engine",
       KeyLineHeld: false,
       ActiveKey: null,
       Display: null,
@@ -206,7 +206,7 @@ public sealed class PanamatikFirmwareGateway : ICalcFirmwareGateway, IDisposable
       snapshot.ProgramCounter,
       snapshot.Status,
       snapshot.KeyBuffer,
-      "Panamatik.Engine",
+      "Emulator.Engine",
       _keyLineHeld,
       _activeKey,
       DisplaySnapshot,
