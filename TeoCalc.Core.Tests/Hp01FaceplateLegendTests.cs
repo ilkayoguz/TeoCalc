@@ -26,7 +26,7 @@ public sealed class Hp01FaceplateLegendTests
     for (int i = 0; i < expected.Length; i++)
     {
       ProgramKeyEntry key = vocabulary.KeyChart[i];
-      string label = CalcFaceplateLayout.LabelForKey(key, vocabulary, "HP01");
+      string label = CalcFaceplateLayout.LabelForKey(key, vocabulary, "HP01", "HP-01");
       Assert.AreEqual(expected[i], label, $"Index {i} (char '{key.Char}')");
     }
   }

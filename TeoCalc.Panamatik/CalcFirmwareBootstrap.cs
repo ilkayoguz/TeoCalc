@@ -15,14 +15,14 @@ public static class CalcFirmwareBootstrap
 
   private static ICalcFirmwareGateway CreateGateway(string catalogOrEngineId)
   {
-    string engineId = CalcModelIds.ToEngineId(catalogOrEngineId);
-    IPanamatikEngine engine = PanamatikEngineFactory.Create(engineId);
+    CalcModelIdentity identity = CalcModelIds.Resolve(catalogOrEngineId);
+    IPanamatikEngine engine = PanamatikEngineFactory.Create(identity.EngineId);
     return new EmulatorFirmwareGateway(engine);
   }
 
   private static bool IsSupported(string catalogOrEngineId) =>
-    PanamatikEngineFactory.IsSupported(CalcModelIds.ToEngineId(catalogOrEngineId));
+    PanamatikEngineFactory.IsSupported(CalcModelIds.Resolve(catalogOrEngineId).EngineId);
 
   private static IReadOnlyList<string> GetAssetWarnings(string catalogOrEngineId) =>
-    PanamatikEngineFactory.GetAssetWarnings(CalcModelIds.ToEngineId(catalogOrEngineId));
+    PanamatikEngineFactory.GetAssetWarnings(CalcModelIds.Resolve(catalogOrEngineId).EngineId);
 }

@@ -94,4 +94,19 @@ public sealed class TeoCalcModelFaceplate
   /// <summary>Optional override for logo-strip short id (defaults from model id).</summary>
   [JsonPropertyName("ShortId")]
   public string? ShortId { get; init; }
+
+  /// <summary>
+  /// Named modifier→slot pack id (e.g. ClassicFg, SpiceFgh, ClassicHp67Fgh, None).
+  /// Semantic only — no px/pt.
+  /// </summary>
+  [JsonPropertyName("AnnotationStyleId")]
+  public string? AnnotationStyleId { get; init; }
+
+  /// <summary>Named switch bank id (e.g. Classic65, WoodstockPrgm, PowerOnly).</summary>
+  [JsonPropertyName("SwitchBankId")]
+  public string? SwitchBankId { get; init; }
+
+  /// <summary>When set, overrides card-slot presence for the body layout.</summary>
+  [JsonPropertyName("HasCardSlot")]
+  public bool? HasCardSlot { get; init; }
 }

@@ -4,14 +4,14 @@ public static class PanamatikEngineFactory
 {
   public static bool TryCreate(string teoCalcModelId, out IPanamatikEngine? engine)
   {
-    if (!TryResolveBinding(teoCalcModelId, out string? sourceFolderId, out Type? formType))
+    if (!PanamatikEngineRegistry.TryGet(teoCalcModelId, out PanamatikEngineBinding binding))
     {
       engine = null;
       return false;
     }
 
-    string modelDirectory = ResolveModelDirectory(sourceFolderId);
-    engine = new PanamatikFormEngine(teoCalcModelId, modelDirectory, formType);
+    string modelDirectory = ResolveModelDirectory(binding.SourceFolderId);
+    engine = new PanamatikFormEngine(teoCalcModelId, modelDirectory, binding.FormType);
     return true;
   }
 
@@ -26,7 +26,7 @@ public static class PanamatikEngineFactory
   }
 
   public static bool IsSupported(string teoCalcModelId) =>
-    TryResolveBinding(teoCalcModelId, out _, out _);
+    PanamatikEngineRegistry.TryGet(teoCalcModelId, out _);
 
   internal static string ResolveModelDirectory(string sourceFolderId)
   {
@@ -42,136 +42,18 @@ public static class PanamatikEngineFactory
 
   public static IReadOnlyList<string> GetAssetWarnings(string teoCalcModelId)
   {
-    if (!TryResolveBinding(teoCalcModelId, out string sourceFolderId, out _))
+    if (!PanamatikEngineRegistry.TryGet(teoCalcModelId, out PanamatikEngineBinding binding))
     {
       return [];
     }
 
     List<string> warnings = [];
-    string directory = ResolveModelDirectory(sourceFolderId);
-    string? kml = ResolveKmlFileName(teoCalcModelId);
-    if (kml is not null && !File.Exists(Path.Combine(directory, kml)))
+    string directory = ResolveModelDirectory(binding.SourceFolderId);
+    if (!File.Exists(Path.Combine(directory, binding.KmlFileName)))
     {
-      warnings.Add($"Panamatik keyboard layout '{kml}' is missing from {directory}.");
+      warnings.Add($"Panamatik keyboard layout '{binding.KmlFileName}' is missing from {directory}.");
     }
 
     return warnings;
-  }
-
-  private static string? ResolveKmlFileName(string teoCalcModelId) =>
-    teoCalcModelId.ToUpperInvariant() switch
-    {
-      "HP-01" => "hp01.kml",
-      "HP-19C" => "hp19C.kml",
-      "HP-21" => "hp21.kml",
-      "HP-22" => "hp22.kml",
-      "HP-25" => "hp25.kml",
-      "HP-27" => "hp27.kml",
-      "HP-29" => "hp29.kml",
-      "HP-31" => "hp31.kml",
-      "HP-32" => "hp32.kml",
-      "HP-33" => "hp33.kml",
-      "HP-34" => "hp34.kml",
-      "HP-35" => "hp35.kml",
-      "HP-37" => "hp37.kml",
-      "HP-38" => "hp38.kml",
-      "HP-45" => "hp45.kml",
-      "HP-55" => "hp55.kml",
-      "HP-65" => "hp65.kml",
-      "HP-67" => "hp67.kml",
-      "HP-70" => "hp70.kml",
-      "HP-80" => "hp80.kml",
-      _ => null,
-    };
-
-  private static bool TryResolveBinding(string teoCalcModelId, out string sourceFolderId, out Type formType)
-  {
-    switch (teoCalcModelId.ToUpperInvariant())
-    {
-      case "HP-01":
-        sourceFolderId = "HP01";
-        formType = typeof(global::Panamatik.Calc.HP01.HP01);
-        return true;
-      case "HP-19C":
-        sourceFolderId = "HP19";
-        formType = typeof(global::Panamatik.Calc.HP19.HP19C);
-        return true;
-      case "HP-21":
-        sourceFolderId = "HP21";
-        formType = typeof(global::Panamatik.Calc.HP21.HP25);
-        return true;
-      case "HP-22":
-        sourceFolderId = "HP22";
-        formType = typeof(global::Panamatik.Calc.HP22.HP25);
-        return true;
-      case "HP-25":
-        sourceFolderId = "HP25";
-        formType = typeof(global::Panamatik.Calc.HP25.HP25);
-        return true;
-      case "HP-27":
-        sourceFolderId = "HP27";
-        formType = typeof(global::Panamatik.Calc.HP27.HP25);
-        return true;
-      case "HP-29":
-        sourceFolderId = "HP29";
-        formType = typeof(global::Panamatik.Calc.HP29.HP25);
-        return true;
-      case "HP-31":
-        sourceFolderId = "HP31";
-        formType = typeof(global::Panamatik.Calc.HP31.HPSpice);
-        return true;
-      case "HP-32":
-        sourceFolderId = "HP32";
-        formType = typeof(global::Panamatik.Calc.HP32.HPSpice);
-        return true;
-      case "HP-33":
-        sourceFolderId = "HP33";
-        formType = typeof(global::Panamatik.Calc.HP33.HPSpice);
-        return true;
-      case "HP-34":
-        sourceFolderId = "HP34";
-        formType = typeof(global::Panamatik.Calc.HP34.HPSpice);
-        return true;
-      case "HP-35":
-        sourceFolderId = "HP35";
-        formType = typeof(global::Panamatik.Calc.HP35.HPClassic);
-        return true;
-      case "HP-37":
-        sourceFolderId = "HP37";
-        formType = typeof(global::Panamatik.Calc.HP37.HPSpice);
-        return true;
-      case "HP-38":
-        sourceFolderId = "HP38";
-        formType = typeof(global::Panamatik.Calc.HP38.HPSpice);
-        return true;
-      case "HP-45":
-        sourceFolderId = "HP45";
-        formType = typeof(global::Panamatik.Calc.HP45.HPClassic);
-        return true;
-      case "HP-55":
-        sourceFolderId = "HP55";
-        formType = typeof(global::Panamatik.Calc.HP55.HPClassic);
-        return true;
-      case "HP-65":
-        sourceFolderId = "HP65";
-        formType = typeof(global::Panamatik.Calc.HP65.HPClassic);
-        return true;
-      case "HP-67":
-        sourceFolderId = "HP67";
-        formType = typeof(global::Panamatik.Calc.HP67.HP67);
-        return true;
-      case "HP-70":
-        sourceFolderId = "HP70";
-        formType = typeof(global::Panamatik.Calc.HP70.HPClassic);
-        return true;
-      case "HP-80":
-        sourceFolderId = "HP80";
-        formType = typeof(global::Panamatik.Calc.HP80.HPClassic);
-        return true;
-      default:
-        sourceFolderId = string.Empty;
-        formType = typeof(object);
-        return false;
-    }
   }
 }

@@ -68,6 +68,24 @@
     "LogoStripColor": "#B0AEA8",
     "LabelOnDarkSurfaceColor": "#F4F4F8",
     "LabelOnLightCapColor": "#12100E",
-    "LabelOnDarkCapColor": "#E8E8E8"
+    "LabelOnDarkCapColor": "#E8E8E8",
+    "ChromeBlackFitilColor": "#080808",
+    "ChromeBlackFitilShineColor": "#2A2A2A",
+    "ChromeDarkGrayBandColor": "#323232",
+    "ChromeGrayFitilColor": "#464646",
+    "ChromeGrayFitilShineColor": "#646464",
+    "ChromeLightGrayFitilColor": "#545454",
+    "ChromeLightGrayFitilShineColor": "#7E7E7E",
+    "ChromeInnerBodyColor": "#585858",
+    "ChromeSwitchPanelColor": "#4C4C4C",
+    "ChromeDisplayBandColor": "#282828",
+    "ChromeSwitchTrackColor": "#141414",
+    "ChromeSwitchKnobColor": "#2A2A2A",
+    "ChromeSwitchKnobEdgeColor": "#4A4A4A",
+    "ChromeLogoStripColor": "#C8C8C8",
+    "ChromeLogoStripEdgeColor": "#8E8E8E",
+    "ChromeLogoStripCenterColor": "#D8D8D8",
+    "ChromeLogoDividerColor": "#B4B4B4",
+    "ChromeLogoDividerHighlightColor": "#E2E2E2"
   }
 }

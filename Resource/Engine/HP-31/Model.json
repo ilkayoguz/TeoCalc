@@ -7,7 +7,12 @@
   "Family": "Spice",
   "FamilyConfig": "../Spice/Family.json",
   "Faceplate": {
-    "ShortId": "31E"
+    "ShortId": "31E",
+    "BodyLayoutId": "00d",
+    "ThemeId": "Modern",
+    "AnnotationStyleId": "ClassicFg",
+    "SwitchBankId": "PowerOnly",
+    "HasCardSlot": false
   },
   "Hardware": {
     "ButtonCount": 40,

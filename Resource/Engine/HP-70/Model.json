@@ -22,5 +22,13 @@
     "RomListing": "Firmware/hp70.microcode.mlist",
     "RomMap": "Firmware/hp70.microcode.map.json",
     "HandlerCatalog": "../Classic/microcode.handlers.json"
+  },
+  "Faceplate": {
+    "BodyLayoutId": "00d",
+    "ThemeId": "Modern",
+    "ShortId": "70",
+    "AnnotationStyleId": "None",
+    "SwitchBankId": "PowerOnly",
+    "HasCardSlot": false
   }
 }

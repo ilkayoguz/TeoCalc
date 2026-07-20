@@ -26,6 +26,9 @@
   "Faceplate": {
     "BodyLayoutId": "00d",
     "ThemeId": "Modern",
-    "ShortId": "65"
+    "ShortId": "65",
+    "AnnotationStyleId": "ClassicFg",
+    "SwitchBankId": "Classic65",
+    "HasCardSlot": true
   }
 }

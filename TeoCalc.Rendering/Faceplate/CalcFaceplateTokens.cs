@@ -69,6 +69,26 @@ public static class CalcFaceplateTokens
   public const string LabelOnLightCapColor = "LabelOnLightCapColor";
   public const string LabelOnDarkCapColor = "LabelOnDarkCapColor";
 
+  // 00d chrome (geometry stays in Calc00dWireStyle; colors live in theme packs).
+  public const string ChromeBlackFitilColor = "ChromeBlackFitilColor";
+  public const string ChromeBlackFitilShineColor = "ChromeBlackFitilShineColor";
+  public const string ChromeDarkGrayBandColor = "ChromeDarkGrayBandColor";
+  public const string ChromeGrayFitilColor = "ChromeGrayFitilColor";
+  public const string ChromeGrayFitilShineColor = "ChromeGrayFitilShineColor";
+  public const string ChromeLightGrayFitilColor = "ChromeLightGrayFitilColor";
+  public const string ChromeLightGrayFitilShineColor = "ChromeLightGrayFitilShineColor";
+  public const string ChromeInnerBodyColor = "ChromeInnerBodyColor";
+  public const string ChromeSwitchPanelColor = "ChromeSwitchPanelColor";
+  public const string ChromeDisplayBandColor = "ChromeDisplayBandColor";
+  public const string ChromeSwitchTrackColor = "ChromeSwitchTrackColor";
+  public const string ChromeSwitchKnobColor = "ChromeSwitchKnobColor";
+  public const string ChromeSwitchKnobEdgeColor = "ChromeSwitchKnobEdgeColor";
+  public const string ChromeLogoStripColor = "ChromeLogoStripColor";
+  public const string ChromeLogoStripEdgeColor = "ChromeLogoStripEdgeColor";
+  public const string ChromeLogoStripCenterColor = "ChromeLogoStripCenterColor";
+  public const string ChromeLogoDividerColor = "ChromeLogoDividerColor";
+  public const string ChromeLogoDividerHighlightColor = "ChromeLogoDividerHighlightColor";
+
   public static IReadOnlyList<string> All { get; } =
   [
     FrameColor,
@@ -136,5 +156,23 @@ public static class CalcFaceplateTokens
     LabelOnDarkSurfaceColor,
     LabelOnLightCapColor,
     LabelOnDarkCapColor,
+    ChromeBlackFitilColor,
+    ChromeBlackFitilShineColor,
+    ChromeDarkGrayBandColor,
+    ChromeGrayFitilColor,
+    ChromeGrayFitilShineColor,
+    ChromeLightGrayFitilColor,
+    ChromeLightGrayFitilShineColor,
+    ChromeInnerBodyColor,
+    ChromeSwitchPanelColor,
+    ChromeDisplayBandColor,
+    ChromeSwitchTrackColor,
+    ChromeSwitchKnobColor,
+    ChromeSwitchKnobEdgeColor,
+    ChromeLogoStripColor,
+    ChromeLogoStripEdgeColor,
+    ChromeLogoStripCenterColor,
+    ChromeLogoDividerColor,
+    ChromeLogoDividerHighlightColor,
   ];
 }

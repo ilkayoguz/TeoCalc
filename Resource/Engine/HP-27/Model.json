@@ -22,5 +22,13 @@
   "Program": {
     "MaxSteps": 0,
     "Vocabulary": "Program/program.vocabulary.json"
+  },
+  "Faceplate": {
+    "BodyLayoutId": "00d",
+    "ThemeId": "Modern",
+    "ShortId": "27",
+    "AnnotationStyleId": "ClassicFg",
+    "SwitchBankId": "PowerOnly",
+    "HasCardSlot": false
   }
 }

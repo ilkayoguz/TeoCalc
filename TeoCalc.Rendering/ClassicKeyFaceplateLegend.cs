@@ -2,6 +2,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using TeoCalc.Core;
 using TeoCalc.Core.Catalog;
+using TeoCalc.Rendering.Faceplate;
 
 namespace TeoCalc.Rendering;
 
@@ -16,22 +17,40 @@ public static class ClassicKeyFaceplateLegend
     ProgramVocabulary vocabulary,
     FaceplateLabelStyle labelStyle)
   {
-    string primary = CalcFaceplateLayout.LabelForKey(key, vocabulary, family, modelId);
     // HP-65 A–E card-slot overlays skip JSON gold on the f/h/STO/RCL/g row (10–14).
     // HP-67 uses CapAbove/CapSkirt JSON on that row (f,g,STO,RCL,h) and must not skip.
-    bool skipJsonForClassicAe =
+    bool skipJsonShiftForClassicAe =
       IsHp65(modelId)
       && key.Index is >= 10 and <= 14;
-    KeyFaceplateEntry? entry = skipJsonForClassicAe ? null : TryGetEntry(modelId, key.Index);
+    KeyFaceplateEntry? entry = TryGetEntry(modelId, key.Index);
+
+    // Prefer CapFace from JSON when present so Resolve does not recurse through LabelForKey ladders.
+    string primary = entry?.CapFace is not null
+      ? entry.CapFace
+      : CalcFaceplateLayout.LabelForKey(key, vocabulary, family, modelId);
+
     return new HpCalcKeyVisual(
       primary,
-      entry?.Gold,
-      entry?.Blue,
-      entry?.GoldInverse,
-      entry?.GoldRight,
-      entry?.Black,
+      skipJsonShiftForClassicAe ? null : entry?.Gold,
+      skipJsonShiftForClassicAe ? null : entry?.Blue,
+      skipJsonShiftForClassicAe ? null : entry?.GoldInverse,
+      skipJsonShiftForClassicAe ? null : entry?.GoldRight,
+      skipJsonShiftForClassicAe ? null : entry?.Black,
       labelStyle);
   }
+
+  public static bool TryGetStyle(string modelId, int keyIndex, out CalcButtonStyle style)
+  {
+    style = default;
+    KeyFaceplateEntry? entry = TryGetEntry(modelId, keyIndex);
+    return entry is not null && CalcKeyStyleResolver.TryParse(entry.Style, out style);
+  }
+
+  public static KeyFaceplateEntry? TryGetEntryPublic(string modelId, int keyIndex) =>
+    TryGetEntry(modelId, keyIndex);
+
+  /// <summary>Invalidate cache after migrating faceplate JSON on disk.</summary>
+  public static void ClearCache() => Cache.Clear();
 
   private static bool IsHp65(string modelId) =>
     string.Equals(modelId, "HP-65", StringComparison.OrdinalIgnoreCase)
@@ -123,8 +142,14 @@ public static class ClassicKeyFaceplateLegend
     public Dictionary<string, KeyFaceplateEntry>? Keys { get; init; }
   }
 
-  private sealed class KeyFaceplateEntry
+  public sealed class KeyFaceplateEntry
   {
+    [JsonPropertyName("CapFace")]
+    public string? CapFace { get; init; }
+
+    [JsonPropertyName("Style")]
+    public string? Style { get; init; }
+
     [JsonPropertyName("Gold")]
     public string? Gold { get; init; }
 

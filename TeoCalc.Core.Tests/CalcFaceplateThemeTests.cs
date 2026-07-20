@@ -35,6 +35,16 @@ public sealed class CalcFaceplateThemeTests
   }
 
   [TestMethod]
+  public void ModernTheme_Resolves_ChromeTokens()
+  {
+    CalcFaceplateTheme.SetTheme(CalcThemeCatalog.LoadDefault());
+    uint fitil = CalcFaceplateTheme.Resolve(CalcFaceplateTokens.ChromeBlackFitilColor);
+    uint body = Calc00dWireStyle.InnerBodyFill;
+    Assert.AreNotEqual(0u, fitil);
+    Assert.AreEqual(body, CalcChassisPalette.ChromeInnerBody);
+  }
+
+  [TestMethod]
   public void CalcKeyVisual_FromLegacy_Maps_ShiftLabels()
   {
     HpCalcKeyVisual legacy = new()

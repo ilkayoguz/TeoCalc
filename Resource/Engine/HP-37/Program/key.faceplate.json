@@ -1,26 +1,166 @@
 {
   "Format": "TeoCalc.KeyFaceplate",
-  "SchemaVersion": 1,
+  "SchemaVersion": 2,
   "Model": "HP-37",
   "Source": "HP-37E Owner's Handbook / Finseth hp37e — CapAbove=f (gold only, no blue g); CapFace f at index 9; financial n/i/PV/PMT/FV; STO RCL % %T; ENTER row CHS x↔y CLX (no EEX); Σ+ CapFace; CLEAR CapAbove CL FIN + CL ALL (AMORT on ENTER, R↓ on x↔y)",
   "Keys": {
-    "0":  { "Gold": "12x" },
-    "1":  { "Gold": "12\u00f7" },
-    "2":  { "Gold": "1/x" },
-    "3":  { "Gold": "\u221ax" },
-    "4":  { "Gold": "y^x" },
-    "5":  { "Gold": "e^x" },
-    "6":  { "Gold": "LN" },
-    "7":  { "Gold": "\u0394%" },
-    "8":  { "Gold": "PRICE" },
-    "10": { "Gold": "AMORT" },
-    "12": { "Gold": "CL FIN" },
-    "13": { "Gold": "R\u2193" },
-    "14": { "Gold": "CL ALL" },
-    "15": { "Gold": "x\u0305" },
-    "20": { "Gold": "s" },
-    "25": { "Gold": "y\u0302,r" },
-    "30": { "Gold": "n!" },
-    "33": { "Gold": "\u03a3-" }
+    "0": {
+      "Gold": "12x",
+      "CapFace": "n",
+      "Style": "Black"
+    },
+    "1": {
+      "Gold": "12÷",
+      "CapFace": "i",
+      "Style": "Black"
+    },
+    "2": {
+      "Gold": "1/x",
+      "CapFace": "PV",
+      "Style": "Black"
+    },
+    "3": {
+      "Gold": "√x",
+      "CapFace": "PMT",
+      "Style": "Black"
+    },
+    "4": {
+      "Gold": "y^x",
+      "CapFace": "FV",
+      "Style": "Black"
+    },
+    "5": {
+      "Gold": "e^x",
+      "CapFace": "STO",
+      "Style": "Black"
+    },
+    "6": {
+      "Gold": "LN",
+      "CapFace": "RCL",
+      "Style": "Black"
+    },
+    "7": {
+      "Gold": "Δ%",
+      "CapFace": "%",
+      "Style": "Black"
+    },
+    "8": {
+      "Gold": "PRICE",
+      "CapFace": "%T",
+      "Style": "Black"
+    },
+    "10": {
+      "Gold": "AMORT",
+      "CapFace": "ENTER",
+      "Style": "Black"
+    },
+    "12": {
+      "Gold": "CL FIN",
+      "CapFace": "CHS",
+      "Style": "Black"
+    },
+    "13": {
+      "Gold": "R↓",
+      "CapFace": "x↔y",
+      "Style": "Black"
+    },
+    "14": {
+      "Gold": "CL ALL",
+      "CapFace": "CLX",
+      "Style": "Black"
+    },
+    "15": {
+      "Gold": "x̅",
+      "CapFace": "-",
+      "Style": "White"
+    },
+    "20": {
+      "Gold": "s",
+      "CapFace": "+",
+      "Style": "White"
+    },
+    "25": {
+      "Gold": "ŷ,r",
+      "CapFace": "×",
+      "Style": "White"
+    },
+    "30": {
+      "Gold": "n!",
+      "CapFace": "÷",
+      "Style": "White"
+    },
+    "33": {
+      "Gold": "Σ-",
+      "CapFace": "Σ+",
+      "Style": "White"
+    },
+    "9": {
+      "CapFace": "f",
+      "Style": "Orange"
+    },
+    "11": {
+      "CapFace": "ENTER",
+      "Style": "Black"
+    },
+    "16": {
+      "CapFace": "7",
+      "Style": "White"
+    },
+    "17": {
+      "CapFace": "8",
+      "Style": "White"
+    },
+    "18": {
+      "CapFace": "9",
+      "Style": "White"
+    },
+    "19": {
+      "CapFace": "",
+      "Style": "White"
+    },
+    "21": {
+      "CapFace": "4",
+      "Style": "White"
+    },
+    "22": {
+      "CapFace": "5",
+      "Style": "White"
+    },
+    "23": {
+      "CapFace": "6",
+      "Style": "White"
+    },
+    "24": {
+      "CapFace": "",
+      "Style": "White"
+    },
+    "26": {
+      "CapFace": "1",
+      "Style": "White"
+    },
+    "27": {
+      "CapFace": "2",
+      "Style": "White"
+    },
+    "28": {
+      "CapFace": "3",
+      "Style": "White"
+    },
+    "29": {
+      "CapFace": "",
+      "Style": "White"
+    },
+    "31": {
+      "CapFace": "0",
+      "Style": "White"
+    },
+    "32": {
+      "CapFace": "·",
+      "Style": "White"
+    },
+    "34": {
+      "CapFace": "",
+      "Style": "Black"
+    }
   }
 }

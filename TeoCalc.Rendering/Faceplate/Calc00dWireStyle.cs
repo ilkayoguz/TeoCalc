@@ -1,9 +1,12 @@
+using TeoCalc.Rendering;
+
 namespace TeoCalc.Rendering.Faceplate;
 
 /// <summary>
 /// Outer chrome from Catalog/Documents/00d.png (687×1176).
 /// Outside→in: black 1q fitil → dark-gray band → black 1q fitil → gray 1q fitil → light-gray 1q fitil → body.
 /// A fitil is a 3D bead: outer crest is brighter (specular), not a separate thin white stroke.
+/// Geometry scale constants stay here; colors resolve from the active theme palette.
 /// </summary>
 public static class Calc00dWireStyle
 {
@@ -37,58 +40,57 @@ public static class Calc00dWireStyle
 
   public const float LogoStripRadiusRef = 3f;
 
-  public const uint BlackFitilFill = 0xFF080808;
+  public static uint BlackFitilFill => CalcChassisPalette.ChromeBlackFitil;
 
-  public const uint BlackFitilShine = 0xFF2A2A2A;
+  public static uint BlackFitilShine => CalcChassisPalette.ChromeBlackFitilShine;
 
-  public const uint DarkGrayBandFill = 0xFF323232;
+  public static uint DarkGrayBandFill => CalcChassisPalette.ChromeDarkGrayBand;
 
-  public const uint GrayFitilFill = 0xFF464646;
+  public static uint GrayFitilFill => CalcChassisPalette.ChromeGrayFitil;
 
-  public const uint GrayFitilShine = 0xFF646464;
+  public static uint GrayFitilShine => CalcChassisPalette.ChromeGrayFitilShine;
 
-  public const uint LightGrayFitilFill = 0xFF545454;
+  public static uint LightGrayFitilFill => CalcChassisPalette.ChromeLightGrayFitil;
 
-  /// <summary>Bright crest of the last fitil (~RGB 126) — the “white” reflection, not a line.</summary>
-  public const uint LightGrayFitilShine = 0xFF7E7E7E;
+  /// <summary>Bright crest of the last fitil — the “white” reflection, not a line.</summary>
+  public static uint LightGrayFitilShine => CalcChassisPalette.ChromeLightGrayFitilShine;
 
   /// <summary>Inner body, slightly lighter than the last fitil body.</summary>
-  public const uint InnerBodyFill = 0xFF585858;
+  public static uint InnerBodyFill => CalcChassisPalette.ChromeInnerBody;
 
   /// <summary>Switch panel well — slightly recessed vs inner body.</summary>
-  public const uint SwitchPanelFill = 0xFF4C4C4C;
+  public static uint SwitchPanelFill => CalcChassisPalette.ChromeSwitchPanel;
 
-  /// <summary>Display dark-gray band — RGB(40,40,40).</summary>
-  public const uint DisplayBandFill = 0xFF282828;
+  /// <summary>Display dark-gray band.</summary>
+  public static uint DisplayBandFill => CalcChassisPalette.ChromeDisplayBand;
 
-  /// <summary>RGB(40,11,13) — ImGui ABGR.</summary>
-  public const uint DisplayGlassFill = 0xFF0D0B28;
+  public static uint DisplayGlassFill => CalcChassisPalette.DisplayGlass;
 
-  public const uint SwitchTrackFill = 0xFF141414;
+  public static uint SwitchTrackFill => CalcChassisPalette.ChromeSwitchTrack;
 
-  public const uint SwitchKnobFill = 0xFF2A2A2A;
+  public static uint SwitchKnobFill => CalcChassisPalette.ChromeSwitchKnob;
 
-  public const uint LogoStripFill = 0xFFC8C8C8;
+  public static uint LogoStripFill => CalcChassisPalette.ChromeLogoStrip;
 
   /// <summary>Brushed aluminum plate — darker left/right edges.</summary>
-  public const uint LogoStripEdge = 0xFF8E8E8E;
+  public static uint LogoStripEdge => CalcChassisPalette.ChromeLogoStripEdge;
 
   /// <summary>Brushed aluminum plate — bright horizontal center.</summary>
-  public const uint LogoStripCenter = 0xFFD8D8D8;
+  public static uint LogoStripCenter => CalcChassisPalette.ChromeLogoStripCenter;
 
   /// <summary>Teo logo-plate caption ink.</summary>
-  public const uint LogoCaptionInk = 0xFF2E2E2E;
+  public static uint LogoCaptionInk => CalcChassisPalette.LogoCaption;
 
   /// <summary>Switch legend ink — cream/white on faceplate (classic HP legend).</summary>
-  public const uint SwitchLabelInk = 0xFFF5F0E8;
+  public static uint SwitchLabelInk => CalcChassisPalette.SwitchLabel;
 
-  public const uint SwitchKnobEdge = 0xFF4A4A4A;
+  public static uint SwitchKnobEdge => CalcChassisPalette.ChromeSwitchKnobEdge;
 
   /// <summary>Logo-plate groove — slightly darker than aluminum center (embedded, low contrast).</summary>
-  public const uint LogoDivider = 0xFFB4B4B4;
+  public static uint LogoDivider => CalcChassisPalette.ChromeLogoDivider;
 
   /// <summary>Logo-plate groove highlight — slightly lighter than aluminum center.</summary>
-  public const uint LogoDividerHighlight = 0xFFE2E2E2;
+  public static uint LogoDividerHighlight => CalcChassisPalette.ChromeLogoDividerHighlight;
 
   /// <summary>Knurl ridge spacing on switch knobs (~3px in 00d.png).</summary>
   public const float SwitchKnurlPitchRef = 3f;

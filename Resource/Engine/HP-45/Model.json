@@ -22,5 +22,13 @@
     "RomListing": "Firmware/hp45.microcode.mlist",
     "RomMap": "Firmware/hp45.microcode.map.json",
     "HandlerCatalog": "../Classic/microcode.handlers.json"
+  },
+  "Faceplate": {
+    "BodyLayoutId": "00d",
+    "ThemeId": "Modern",
+    "ShortId": "45",
+    "AnnotationStyleId": "ClassicGoldOnly",
+    "SwitchBankId": "PowerOnly",
+    "HasCardSlot": false
   }
 }

@@ -1,6 +1,6 @@
 {
   "Format": "TeoCalc.KeyFaceplate",
-  "SchemaVersion": 1,
+  "SchemaVersion": 2,
   "Model": "HP-80",
   "Source": "HP-80 Owner's Handbook / Finseth hp80a / HP Journal May 1973 — CapFace primary (SAVE not ENTER); CapAbove=gold f only (yellow); gold blank CapFace at index 5; financial CapAbove YTM/INTR/BOND/Δ%/DATE/√x/→Σ/CLEAR/Σ-; COMPUTE bracket spans TL…SOD (indices 7–8)",
   "ClearBracket": {
@@ -10,14 +10,174 @@
     "Text": "COMPUTE"
   },
   "Keys": {
-    "1":  { "Gold": "YTM" },
-    "2":  { "Gold": "INTR" },
-    "3":  { "Gold": "BOND" },
-    "6":  { "Gold": "\u0394%" },
-    "9":  { "Gold": "DATE" },
-    "13": { "Gold": "\u221ax" },
-    "14": { "Gold": "\u2192\u03a3" },
-    "19": { "Gold": "CLEAR" },
-    "38": { "Gold": "\u03a3-" }
+    "1": {
+      "Gold": "YTM",
+      "CapFace": "i",
+      "Style": "Black"
+    },
+    "2": {
+      "Gold": "INTR",
+      "CapFace": "PMT",
+      "Style": "Black"
+    },
+    "3": {
+      "Gold": "BOND",
+      "CapFace": "PV",
+      "Style": "Black"
+    },
+    "6": {
+      "Gold": "Δ%",
+      "CapFace": "%",
+      "Style": "Cement"
+    },
+    "9": {
+      "Gold": "DATE",
+      "CapFace": "DAY",
+      "Style": "Cement"
+    },
+    "13": {
+      "Gold": "√x",
+      "CapFace": "y^x",
+      "Style": "Cement"
+    },
+    "14": {
+      "Gold": "→Σ",
+      "CapFace": "x̅",
+      "Style": "Cement"
+    },
+    "19": {
+      "Gold": "CLEAR",
+      "CapFace": "CL X",
+      "Style": "LightGrey"
+    },
+    "38": {
+      "Gold": "Σ-",
+      "CapFace": "Σ+",
+      "Style": "White"
+    },
+    "0": {
+      "CapFace": "n",
+      "Style": "Black"
+    },
+    "4": {
+      "CapFace": "FV",
+      "Style": "Black"
+    },
+    "5": {
+      "CapFace": "",
+      "Style": "Orange"
+    },
+    "7": {
+      "CapFace": "TL",
+      "Style": "Cement"
+    },
+    "8": {
+      "CapFace": "SOD",
+      "Style": "Cement"
+    },
+    "10": {
+      "CapFace": "x↔y",
+      "Style": "LightGrey"
+    },
+    "11": {
+      "CapFace": "R↓",
+      "Style": "LightGrey"
+    },
+    "12": {
+      "CapFace": "STO",
+      "Style": "LightGrey"
+    },
+    "15": {
+      "CapFace": "SAVE",
+      "Style": "LightGrey"
+    },
+    "16": {
+      "CapFace": "SAVE",
+      "Style": "Black"
+    },
+    "17": {
+      "CapFace": "RCL",
+      "Style": "LightGrey"
+    },
+    "18": {
+      "CapFace": "CHS",
+      "Style": "LightGrey"
+    },
+    "20": {
+      "CapFace": "-",
+      "Style": "LightGrey"
+    },
+    "21": {
+      "CapFace": "7",
+      "Style": "White"
+    },
+    "22": {
+      "CapFace": "8",
+      "Style": "White"
+    },
+    "23": {
+      "CapFace": "9",
+      "Style": "White"
+    },
+    "24": {
+      "CapFace": "",
+      "Style": "Black"
+    },
+    "25": {
+      "CapFace": "+",
+      "Style": "LightGrey"
+    },
+    "26": {
+      "CapFace": "4",
+      "Style": "White"
+    },
+    "27": {
+      "CapFace": "5",
+      "Style": "White"
+    },
+    "28": {
+      "CapFace": "6",
+      "Style": "White"
+    },
+    "29": {
+      "CapFace": "",
+      "Style": "Black"
+    },
+    "30": {
+      "CapFace": "×",
+      "Style": "LightGrey"
+    },
+    "31": {
+      "CapFace": "1",
+      "Style": "White"
+    },
+    "32": {
+      "CapFace": "2",
+      "Style": "White"
+    },
+    "33": {
+      "CapFace": "3",
+      "Style": "White"
+    },
+    "34": {
+      "CapFace": "",
+      "Style": "Black"
+    },
+    "35": {
+      "CapFace": "÷",
+      "Style": "LightGrey"
+    },
+    "36": {
+      "CapFace": "0",
+      "Style": "White"
+    },
+    "37": {
+      "CapFace": "·",
+      "Style": "White"
+    },
+    "39": {
+      "CapFace": "",
+      "Style": "Black"
+    }
   }
 }

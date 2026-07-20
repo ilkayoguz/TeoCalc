@@ -1,40 +1,250 @@
 {
   "Format": "TeoCalc.KeyFaceplate",
-  "SchemaVersion": 1,
+  "SchemaVersion": 2,
   "Model": "HP-67",
   "Source": "HP-67 Owner's Handbook / Finseth hp67a — CapFace primary; CapBelow left=f (gold), CapBelow right=g (blue); CapSkirt=h (black ink always); no CapAbove; f/g/h CapFace at 10/11/14; A–E CapBelow a–e; trig CapBelow space-saving Gold=SIN/COS/TAN + Blue=^-1; digits 1–3 CapBelow dual-ink R→/←P D→/←R H→/←H.MS (HP-55 arrow stack); ENTER CapBelow W/DATA / CapSkirt DEG (not HP-65 PREFIX/STK)",
   "Keys": {
-    "0":  { "Gold": "a" },
-    "1":  { "Gold": "b" },
-    "2":  { "Gold": "c" },
-    "3":  { "Gold": "d" },
-    "4":  { "Gold": "e" },
-    "5":  { "Gold": "x\u0305", "Blue": "s", "Black": "\u03a3-" },
-    "6":  { "Gold": "GSB", "Blue": "f", "Black": "RTN" },
-    "7":  { "Gold": "FIX", "Blue": "SCI", "Black": "ENG" },
-    "8":  { "Gold": "RND", "Black": "X\u2194I" },
-    "9":  { "Gold": "LBL", "Blue": "f", "Black": "BST" },
-    "12": { "Gold": "DSZ", "Blue": "DSZ(i)", "Black": "STI" },
-    "13": { "Gold": "ISZ", "Blue": "ISZ(i)", "Black": "RCI" },
-    "15": { "Gold": "W/DATA", "Blue": "MERGE", "Black": "DEG" },
-    "17": { "Gold": "P\u2194S", "Black": "RAD" },
-    "18": { "Gold": "CL REG", "Black": "GRD" },
-    "19": { "Gold": "CL PRGM", "Black": "DEL" },
-    "20": { "Gold": "x=0", "Blue": "x=y", "Black": "SF" },
-    "21": { "Gold": "LN", "Blue": "e^x", "Black": "x\u2194y" },
-    "22": { "Gold": "LOG", "Blue": "10^x", "Black": "R\u2193" },
-    "23": { "Gold": "\u221ax", "Blue": "x\u00b2", "Black": "R\u2191" },
-    "25": { "Gold": "x\u22600", "Blue": "x\u2260y", "Black": "CF" },
-    "26": { "Gold": "SIN", "Blue": "^-1", "Black": "1/x" },
-    "27": { "Gold": "COS", "Blue": "^-1", "Black": "y^x" },
-    "28": { "Gold": "TAN", "Blue": "^-1", "Black": "ABS" },
-    "30": { "Gold": "x<0", "Blue": "x\u2264y", "Black": "F?" },
-    "31": { "Gold": "R\u2192", "Blue": "\u2190P", "Black": "PAUSE" },
-    "32": { "Gold": "D\u2192", "Blue": "\u2190R", "Black": "\u03c0" },
-    "33": { "Gold": "H\u2192", "Blue": "\u2190H.MS", "Black": "REG" },
-    "35": { "Gold": "x>0", "Blue": "x>y", "Black": "n!" },
-    "36": { "Gold": "%", "Blue": "%CH", "Black": "LST X" },
-    "37": { "Gold": "INT", "Blue": "FRAC", "Black": "H.MS+" },
-    "38": { "Gold": "-x-", "Blue": "STK", "Black": "SPACE" }
+    "0": {
+      "Gold": "a",
+      "CapFace": "A",
+      "Style": "Olive"
+    },
+    "1": {
+      "Gold": "b",
+      "CapFace": "B",
+      "Style": "Olive"
+    },
+    "2": {
+      "Gold": "c",
+      "CapFace": "C",
+      "Style": "Olive"
+    },
+    "3": {
+      "Gold": "d",
+      "CapFace": "D",
+      "Style": "Olive"
+    },
+    "4": {
+      "Gold": "e",
+      "CapFace": "E",
+      "Style": "Olive"
+    },
+    "5": {
+      "Gold": "x̅",
+      "Blue": "s",
+      "Black": "Σ-",
+      "CapFace": "Σ+",
+      "Style": "Olive"
+    },
+    "6": {
+      "Gold": "GSB",
+      "Blue": "f",
+      "Black": "RTN",
+      "CapFace": "GTO",
+      "Style": "Olive"
+    },
+    "7": {
+      "Gold": "FIX",
+      "Blue": "SCI",
+      "Black": "ENG",
+      "CapFace": "DSP",
+      "Style": "Olive"
+    },
+    "8": {
+      "Gold": "RND",
+      "Black": "X↔I",
+      "CapFace": "(i)",
+      "Style": "Olive"
+    },
+    "9": {
+      "Gold": "LBL",
+      "Blue": "f",
+      "Black": "BST",
+      "CapFace": "SST",
+      "Style": "Olive"
+    },
+    "12": {
+      "Gold": "DSZ",
+      "Blue": "DSZ(i)",
+      "Black": "STI",
+      "CapFace": "STO",
+      "Style": "Olive"
+    },
+    "13": {
+      "Gold": "ISZ",
+      "Blue": "ISZ(i)",
+      "Black": "RCI",
+      "CapFace": "RCL",
+      "Style": "Olive"
+    },
+    "15": {
+      "Gold": "W/DATA",
+      "Blue": "MERGE",
+      "Black": "DEG",
+      "CapFace": "ENTER",
+      "Style": "Olive"
+    },
+    "17": {
+      "Gold": "P↔S",
+      "Black": "RAD",
+      "CapFace": "CHS",
+      "Style": "Olive"
+    },
+    "18": {
+      "Gold": "CL REG",
+      "Black": "GRD",
+      "CapFace": "EEX",
+      "Style": "Olive"
+    },
+    "19": {
+      "Gold": "CL PRGM",
+      "Black": "DEL",
+      "CapFace": "CL X",
+      "Style": "Olive"
+    },
+    "20": {
+      "Gold": "x=0",
+      "Blue": "x=y",
+      "Black": "SF",
+      "CapFace": "-",
+      "Style": "Olive"
+    },
+    "21": {
+      "Gold": "LN",
+      "Blue": "e^x",
+      "Black": "x↔y",
+      "CapFace": "7",
+      "Style": "White"
+    },
+    "22": {
+      "Gold": "LOG",
+      "Blue": "10^x",
+      "Black": "R↓",
+      "CapFace": "8",
+      "Style": "White"
+    },
+    "23": {
+      "Gold": "√x",
+      "Blue": "x²",
+      "Black": "R↑",
+      "CapFace": "9",
+      "Style": "White"
+    },
+    "25": {
+      "Gold": "x≠0",
+      "Blue": "x≠y",
+      "Black": "CF",
+      "CapFace": "+",
+      "Style": "Olive"
+    },
+    "26": {
+      "Gold": "SIN",
+      "Blue": "^-1",
+      "Black": "1/x",
+      "CapFace": "4",
+      "Style": "White"
+    },
+    "27": {
+      "Gold": "COS",
+      "Blue": "^-1",
+      "Black": "y^x",
+      "CapFace": "5",
+      "Style": "White"
+    },
+    "28": {
+      "Gold": "TAN",
+      "Blue": "^-1",
+      "Black": "ABS",
+      "CapFace": "6",
+      "Style": "White"
+    },
+    "30": {
+      "Gold": "x<0",
+      "Blue": "x≤y",
+      "Black": "F?",
+      "CapFace": "×",
+      "Style": "Olive"
+    },
+    "31": {
+      "Gold": "R→",
+      "Blue": "←P",
+      "Black": "PAUSE",
+      "CapFace": "1",
+      "Style": "White"
+    },
+    "32": {
+      "Gold": "D→",
+      "Blue": "←R",
+      "Black": "π",
+      "CapFace": "2",
+      "Style": "White"
+    },
+    "33": {
+      "Gold": "H→",
+      "Blue": "←H.MS",
+      "Black": "REG",
+      "CapFace": "3",
+      "Style": "White"
+    },
+    "35": {
+      "Gold": "x>0",
+      "Blue": "x>y",
+      "Black": "n!",
+      "CapFace": "÷",
+      "Style": "Olive"
+    },
+    "36": {
+      "Gold": "%",
+      "Blue": "%CH",
+      "Black": "LST X",
+      "CapFace": "0",
+      "Style": "White"
+    },
+    "37": {
+      "Gold": "INT",
+      "Blue": "FRAC",
+      "Black": "H.MS+",
+      "CapFace": "·",
+      "Style": "White"
+    },
+    "38": {
+      "Gold": "-x-",
+      "Blue": "STK",
+      "Black": "SPACE",
+      "CapFace": "R/S",
+      "Style": "White"
+    },
+    "10": {
+      "CapFace": "f",
+      "Style": "Orange"
+    },
+    "11": {
+      "CapFace": "g",
+      "Style": "Blue"
+    },
+    "14": {
+      "CapFace": "h",
+      "Style": "Black"
+    },
+    "16": {
+      "CapFace": "ENTER",
+      "Style": "Olive"
+    },
+    "24": {
+      "CapFace": "",
+      "Style": "Olive"
+    },
+    "29": {
+      "CapFace": "",
+      "Style": "Olive"
+    },
+    "34": {
+      "CapFace": "",
+      "Style": "Olive"
+    },
+    "39": {
+      "CapFace": "",
+      "Style": "Olive"
+    }
   }
 }

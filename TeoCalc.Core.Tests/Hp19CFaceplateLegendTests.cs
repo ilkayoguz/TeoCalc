@@ -55,7 +55,7 @@ public sealed class Hp19CFaceplateLegendTests
     {
       Assert.AreEqual(
         label,
-        CalcFaceplateLayout.LabelForKey(vocabulary.KeyChart[index], vocabulary, "HP19C"),
+        CalcFaceplateLayout.LabelForKey(vocabulary.KeyChart[index], vocabulary, "HP19C", "HP-19C"),
         $"Index {index}");
     }
   }

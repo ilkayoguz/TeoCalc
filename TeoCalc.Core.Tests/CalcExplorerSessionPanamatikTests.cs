@@ -420,7 +420,7 @@ public sealed class CalcExplorerSessionPanamatikTests
     Assert.AreEqual(keyCode, batch.ActiveKey?.KeyCode);
     Assert.IsTrue(batch.StepCount > 0);
     Assert.IsNotNull(batch.Display);
-    Assert.AreEqual("Panamatik.Engine", batch.LastHandlerId);
+    Assert.AreEqual("Emulator.Engine", batch.LastHandlerId);
     Assert.IsTrue(batch.ProgramCounter > 0);
 
     Assert.IsTrue(batch.KeysToRomAddressCount >= 0);

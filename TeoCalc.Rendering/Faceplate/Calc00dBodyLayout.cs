@@ -70,8 +70,8 @@ public static class Calc00dBodyLayout
 
     IReadOnlyList<FaceplateCell> cells = CalcFaceplateLayout.GetPhysicalCells(family, modelId);
     IReadOnlyList<CalcSwitchSpec> switches = CalcSwitchCatalog.ForModel(model);
-    bool hasCardSlot = CalcCardSlotComponent.ModelHasCardSlot(model.Id)
-      || CalcCardSlotComponent.ModelHasCardSlot(modelId);
+    bool hasCardSlot = CalcCardSlotComponent.ModelHasCardSlot(model)
+      || CalcCardSlotComponent.HeuristicHasCardSlot(modelId);
 
     int clearRow = CalcBracketLegendComponent.FindBracketRow(cells, modelId);
     float clearGutterExtra = clearRow >= 0 ? CalcBracketLegendComponent.GutterExtraAboveRef : 0f;

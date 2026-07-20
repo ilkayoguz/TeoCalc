@@ -22,5 +22,13 @@
     "RomListing": "Firmware/hp55.microcode.mlist",
     "RomMap": "Firmware/hp55.microcode.map.json",
     "HandlerCatalog": "../Classic/microcode.handlers.json"
+  },
+  "Faceplate": {
+    "BodyLayoutId": "00d",
+    "ThemeId": "Modern",
+    "ShortId": "55",
+    "AnnotationStyleId": "ClassicDualCapAbove",
+    "SwitchBankId": "Classic55",
+    "HasCardSlot": false
   }
 }

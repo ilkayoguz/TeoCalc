@@ -22,5 +22,13 @@
     "RomListing": "Firmware/hp80.microcode.mlist",
     "RomMap": "Firmware/hp80.microcode.map.json",
     "HandlerCatalog": "../Classic/microcode.handlers.json"
+  },
+  "Faceplate": {
+    "BodyLayoutId": "00d",
+    "ThemeId": "Modern",
+    "ShortId": "80",
+    "AnnotationStyleId": "ClassicGoldOnly",
+    "SwitchBankId": "PowerOnly",
+    "HasCardSlot": false
   }
 }

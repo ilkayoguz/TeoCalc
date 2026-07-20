@@ -128,5 +128,45 @@ public static class CalcChassisPalette
 
   public static uint KeyCapBezel => T(CalcFaceplateTokens.KeyCapBezelColor);
 
+  public static uint LogoCaption => T(CalcFaceplateTokens.LogoCaptionColor);
+
+  public static uint LogoStrip => T(CalcFaceplateTokens.LogoStripColor);
+
+  public static uint ChromeBlackFitil => T(CalcFaceplateTokens.ChromeBlackFitilColor);
+
+  public static uint ChromeBlackFitilShine => T(CalcFaceplateTokens.ChromeBlackFitilShineColor);
+
+  public static uint ChromeDarkGrayBand => T(CalcFaceplateTokens.ChromeDarkGrayBandColor);
+
+  public static uint ChromeGrayFitil => T(CalcFaceplateTokens.ChromeGrayFitilColor);
+
+  public static uint ChromeGrayFitilShine => T(CalcFaceplateTokens.ChromeGrayFitilShineColor);
+
+  public static uint ChromeLightGrayFitil => T(CalcFaceplateTokens.ChromeLightGrayFitilColor);
+
+  public static uint ChromeLightGrayFitilShine => T(CalcFaceplateTokens.ChromeLightGrayFitilShineColor);
+
+  public static uint ChromeInnerBody => T(CalcFaceplateTokens.ChromeInnerBodyColor);
+
+  public static uint ChromeSwitchPanel => T(CalcFaceplateTokens.ChromeSwitchPanelColor);
+
+  public static uint ChromeDisplayBand => T(CalcFaceplateTokens.ChromeDisplayBandColor);
+
+  public static uint ChromeSwitchTrack => T(CalcFaceplateTokens.ChromeSwitchTrackColor);
+
+  public static uint ChromeSwitchKnob => T(CalcFaceplateTokens.ChromeSwitchKnobColor);
+
+  public static uint ChromeSwitchKnobEdge => T(CalcFaceplateTokens.ChromeSwitchKnobEdgeColor);
+
+  public static uint ChromeLogoStrip => T(CalcFaceplateTokens.ChromeLogoStripColor);
+
+  public static uint ChromeLogoStripEdge => T(CalcFaceplateTokens.ChromeLogoStripEdgeColor);
+
+  public static uint ChromeLogoStripCenter => T(CalcFaceplateTokens.ChromeLogoStripCenterColor);
+
+  public static uint ChromeLogoDivider => T(CalcFaceplateTokens.ChromeLogoDividerColor);
+
+  public static uint ChromeLogoDividerHighlight => T(CalcFaceplateTokens.ChromeLogoDividerHighlightColor);
+
   private static uint T(string token) => CalcFaceplateTheme.Resolve(token);
 }

@@ -32,7 +32,10 @@ public static class CalcCardSlotComponent
 
   public static readonly string[] NoCardLabels = CalcFaceplateLayout.CardSlotLabels;
 
-  public static bool ModelHasCardSlot(string modelId)
+  public static bool ModelHasCardSlot(string modelId) =>
+    HeuristicHasCardSlot(modelId);
+
+  public static bool HeuristicHasCardSlot(string modelId)
   {
     string id = modelId.Trim();
     if (id.StartsWith("HP-", StringComparison.OrdinalIgnoreCase))
@@ -42,6 +45,9 @@ public static class CalcCardSlotComponent
 
     return id is "65" or "67";
   }
+
+  public static bool ModelHasCardSlot(CalcModelDefinition model) =>
+    model.HasCardSlot ?? HeuristicHasCardSlot(model.Id);
 
   public static RectF ResolveSlotRef(float bandLeft, float bandWidth, float switchBottom) =>
     new(bandLeft, switchBottom + GapBelowSwitchRef, bandWidth, HeightRef);

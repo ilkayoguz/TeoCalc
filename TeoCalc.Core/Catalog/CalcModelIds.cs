@@ -18,6 +18,24 @@ public static class CalcModelIds
     ["HP-38E"] = "HP-38",
   };
 
+  /// <summary>
+  /// Build catalog/engine/short/product/family identity once.
+  /// <paramref name="catalogOrEngineId"/> is the launcher / open id when known (e.g. HP-31E).
+  /// </summary>
+  public static CalcModelIdentity Resolve(string catalogOrEngineId, string? family = null)
+  {
+    string catalogId = string.IsNullOrWhiteSpace(catalogOrEngineId)
+      ? string.Empty
+      : catalogOrEngineId.Trim();
+    string engineId = ToEngineId(catalogId);
+    string shortId = ToShortId(catalogId);
+    string productLabel = ToProductLabel(catalogId);
+    string resolvedFamily = !string.IsNullOrWhiteSpace(family)
+      ? family.Trim()
+      : InferFamily(catalogId);
+    return new CalcModelIdentity(catalogId, engineId, shortId, productLabel, resolvedFamily);
+  }
+
   /// <summary>Maps a catalog / display id to the engine folder and emulator binding id.</summary>
   public static string ToEngineId(string catalogOrEngineId)
   {
@@ -32,20 +50,17 @@ public static class CalcModelIds
   }
 
   /// <summary>Product label for UI (e.g. T-65 from HP-65 / HP-29C → T-29C short form via numeric id).</summary>
-  public static string ToProductLabel(string catalogOrEngineId)
-  {
-    string id = catalogOrEngineId.Trim();
-    if (id.StartsWith("HP-", StringComparison.OrdinalIgnoreCase))
-    {
-      id = id[3..];
-    }
-
-    return $"T-{id}";
-  }
+  public static string ToProductLabel(string catalogOrEngineId) =>
+    $"T-{ToShortId(catalogOrEngineId)}";
 
   /// <summary>Short id for faceplate logo strip (65, 29C, 31E, …).</summary>
   public static string ToShortId(string catalogOrEngineId)
   {
+    if (string.IsNullOrWhiteSpace(catalogOrEngineId))
+    {
+      return catalogOrEngineId;
+    }
+
     string id = catalogOrEngineId.Trim();
     if (id.StartsWith("HP-", StringComparison.OrdinalIgnoreCase))
     {

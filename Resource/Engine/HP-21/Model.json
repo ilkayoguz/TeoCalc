@@ -22,5 +22,13 @@
     "RomListing": "Firmware/hp21.microcode.mlist",
     "RomMap": "Firmware/hp21.microcode.map.json",
     "HandlerCatalog": "../Woodstock/microcode.handlers.study.json"
+  },
+  "Faceplate": {
+    "BodyLayoutId": "00d",
+    "ThemeId": "Modern",
+    "ShortId": "21",
+    "AnnotationStyleId": "ClassicFg",
+    "SwitchBankId": "WoodstockAngle",
+    "HasCardSlot": false
   }
 }

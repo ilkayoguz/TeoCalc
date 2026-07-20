@@ -25,7 +25,7 @@ public sealed class CalcBodyLayoutTests
   public void ModelCatalog_Resolves_Hp65BodyLayout()
   {
     CalcBodyLayout layout = CalcBodyLayoutCatalog.Resolve(CalcModelCatalog.Hp65);
-    Assert.AreEqual(Hp65CalcBodyLayout.LayoutId, layout.Id);
+    Assert.AreEqual(Calc00dBodyLayout.LayoutId, layout.Id);
   }
 
   [TestMethod]
@@ -56,7 +56,8 @@ public sealed class CalcBodyLayoutTests
   {
     CalcModelDefinition model = CalcModelCatalog.Hp21;
     CalcBodyLayout layout = CalcBodyLayoutCatalog.Resolve(model);
-    Assert.AreEqual(Hp21CalcBodyLayout.LayoutId, layout.Id);
+    Assert.AreEqual(Calc00dBodyLayout.LayoutId, layout.Id);
+    Assert.AreEqual(CalcSwitchLabels.WoodstockAngle, layout.SwitchLabels);
   }
 
   [TestMethod]

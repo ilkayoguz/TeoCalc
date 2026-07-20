@@ -7,7 +7,12 @@
   "Family": "Woodstock",
   "FamilyConfig": "../Woodstock/Family.json",
   "Faceplate": {
-    "ShortId": "29C"
+    "ShortId": "29C",
+    "BodyLayoutId": "00d",
+    "ThemeId": "Modern",
+    "AnnotationStyleId": "ClassicFg",
+    "SwitchBankId": "WoodstockPrgm",
+    "HasCardSlot": false
   },
   "Hardware": {
     "ButtonCount": 40,

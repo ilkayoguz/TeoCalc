@@ -54,13 +54,67 @@ public static class CalcSwitchCatalog
     CalcSwitchSpec.Power(initialIndex: 0),
   ];
 
-  public static IReadOnlyList<CalcSwitchSpec> ForModel(CalcModelDefinition model) =>
-    ForModelId(model.Id, model.DisplayName);
+  public static IReadOnlyList<CalcSwitchSpec> ForModel(CalcModelDefinition model)
+  {
+    if (!string.IsNullOrWhiteSpace(model.SwitchBankId)
+        && TryBank(model.SwitchBankId, out IReadOnlyList<CalcSwitchSpec> fromId))
+    {
+      return fromId;
+    }
+
+    return ForModelId(model.Id, model.DisplayName);
+  }
 
   public static IReadOnlyList<CalcSwitchSpec> ForModelId(string modelId, string? displayName = null)
   {
     string id = NormalizeId(modelId, displayName);
+    return ForNormalizedId(id);
+  }
+
+  public static string HeuristicBankId(string shortId, string? displayName = null)
+  {
+    string id = NormalizeId(shortId, displayName);
     return id switch
+    {
+      "65" or "67" => "Classic65",
+      "55" => "Classic55",
+      "19" or "19C" => "Classic19C",
+      "21" => "WoodstockAngle",
+      "22" or "37" or "37E" => "FinancialBeginEnd",
+      "38" or "38E" or "38C" => "FinancialDateBeginEnd",
+      "25" or "25C" or "29" or "29C" or "33" or "33C" or "33E"
+        or "34" or "34C" => "WoodstockPrgm",
+      "35" or "45" or "70" or "80" or "27"
+        or "31" or "31E" or "32" or "32E" or "01" => "PowerOnly",
+      _ => "Classic65",
+    };
+  }
+
+  public static bool TryBank(string? bankId, out IReadOnlyList<CalcSwitchSpec> bank)
+  {
+    bank = [];
+    if (string.IsNullOrWhiteSpace(bankId))
+    {
+      return false;
+    }
+
+    bank = bankId.Trim() switch
+    {
+      "Classic65" => Classic65,
+      "WoodstockPrgm" => WoodstockPrgm,
+      "WoodstockAngle" => WoodstockAngle,
+      "FinancialBeginEnd" => FinancialBeginEnd,
+      "FinancialDateBeginEnd" => FinancialDateBeginEnd,
+      "Classic55" => Classic55,
+      "Classic19C" => Classic19C,
+      "PowerOnly" => PowerOnly,
+      _ => [],
+    };
+    return bank.Count > 0 || string.Equals(bankId, "PowerOnly", StringComparison.OrdinalIgnoreCase);
+  }
+
+  private static IReadOnlyList<CalcSwitchSpec> ForNormalizedId(string id) =>
+    id switch
     {
       "65" or "67" => Classic65,
       "55" => Classic55,
@@ -74,7 +128,6 @@ public static class CalcSwitchCatalog
         or "31" or "31E" or "32" or "32E" or "01" => PowerOnly,
       _ => Classic65,
     };
-  }
 
   private static string NormalizeId(string modelId, string? displayName)
   {

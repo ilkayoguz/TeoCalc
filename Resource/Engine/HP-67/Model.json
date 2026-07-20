@@ -17,5 +17,13 @@
     "MaxSteps": 100,
     "Vocabulary": "Program/program.vocabulary.json"
   },
-  "Firmware": {}
+  "Firmware": {},
+  "Faceplate": {
+    "BodyLayoutId": "00d",
+    "ThemeId": "Modern",
+    "ShortId": "67",
+    "AnnotationStyleId": "ClassicHp67Fgh",
+    "SwitchBankId": "Classic65",
+    "HasCardSlot": true
+  }
 }

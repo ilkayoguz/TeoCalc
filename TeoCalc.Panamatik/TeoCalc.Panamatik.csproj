@@ -12,6 +12,7 @@
   <ItemGroup>
     <Compile Include="IPanamatikEngine.cs" />
     <Compile Include="PanamatikEngineFactory.cs" />
+    <Compile Include="PanamatikEngineRegistry.cs" />
     <Compile Include="PanamatikFormEngine.cs" />
     <Compile Include="EmulatorFirmwareGateway.cs" />
     <Compile Include="CalcFirmwareBootstrap.cs" />
