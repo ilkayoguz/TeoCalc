@@ -84,18 +84,16 @@ public abstract class ActFirmwareGatewayBase<TCpu> : CalcFirmwareGatewayBase
     string? lastHandlerId = null;
     for (int step = 0; step < steps; step++)
     {
-      lastHandlerId = Cpu.Step().HandlerId;
-
-      // Panamatik HeadlessRunTimerBatch status pulse.
-      Cpu.State.Status |= 32;
-      if (!ProgramMode)
+      if (PulseStatusBeforeStep)
       {
-        Cpu.State.Status |= 8;
+        ApplyBatchStatusPulse();
       }
 
-      if (KeyLineHeld)
+      lastHandlerId = Cpu.Step().HandlerId;
+
+      if (!PulseStatusBeforeStep)
       {
-        Cpu.State.Status |= 0x8000;
+        ApplyBatchStatusPulse();
       }
     }
 
@@ -116,7 +114,28 @@ public abstract class ActFirmwareGatewayBase<TCpu> : CalcFirmwareGatewayBase
     RaiseBatchCompleted();
   }
 
-  private void RefreshDisplayFromCpu()
+  /// <summary>When true, status pulses run before each Step (HP-19C timer1_Tick order).</summary>
+  protected virtual bool PulseStatusBeforeStep => false;
+
+  /// <summary>
+  /// Panamatik HeadlessRunTimerBatch status pulse (Woodstock/Spice).
+  /// HP-67 omits the continuous S3/S5 pulses — override accordingly.
+  /// </summary>
+  protected virtual void ApplyBatchStatusPulse()
+  {
+    Cpu!.State.Status |= 32;
+    if (!ProgramMode)
+    {
+      Cpu.State.Status |= 8;
+    }
+
+    if (KeyLineHeld)
+    {
+      Cpu.State.Status |= 0x8000;
+    }
+  }
+
+  protected void RefreshDisplayFromCpu()
   {
     if (Cpu is null || !PowerOn)
     {

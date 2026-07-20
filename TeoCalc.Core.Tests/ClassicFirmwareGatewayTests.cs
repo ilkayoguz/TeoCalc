@@ -38,10 +38,18 @@ public sealed class ClassicFirmwareGatewayTests
   }
 
   [TestMethod]
-  public void Bootstrap_Routes_Hp67_To_EmulatorAdapter()
+  public void Bootstrap_Routes_Hp67_To_Hp67FirmwareGateway()
   {
     ICalcFirmwareGateway gateway = CalcFirmwareGatewayLocator.CreateGateway("HP-67");
-    Assert.IsInstanceOfType(gateway, typeof(EmulatorFirmwareGateway));
+    Assert.IsInstanceOfType(gateway, typeof(Hp67FirmwareGateway));
+  }
+
+  [TestMethod]
+  public void Bootstrap_Routes_Hp67BE_To_Hp67FirmwareGateway()
+  {
+    Assert.AreEqual("HP-67", CalcModelIds.ToEngineId("HP-67BE"));
+    ICalcFirmwareGateway gateway = CalcFirmwareGatewayLocator.CreateGateway("HP-67BE");
+    Assert.IsInstanceOfType(gateway, typeof(Hp67FirmwareGateway));
   }
 
   [TestMethod]
@@ -104,9 +112,11 @@ public sealed class ClassicFirmwareGatewayTests
   }
 
   [TestMethod]
-  public void EmulatorGateway_Batch_ClassicDiagnosticsNull()
+  public void EmulatorGateway_Batch_ClassicDiagnosticsNull_Hp01()
   {
-    ICalcFirmwareGateway gateway = CalcFirmwareGatewayLocator.CreateGateway("HP-67");
+    // HP-01 stays on the emulator adapter (ACThp01 opcode table ≠ ActCpuBase).
+    ICalcFirmwareGateway gateway = CalcFirmwareGatewayLocator.CreateGateway("HP-01");
+    Assert.IsInstanceOfType(gateway, typeof(EmulatorFirmwareGateway));
     gateway.PowerOnResume();
     Assert.IsNull(gateway.LastBatch.Classic);
   }
@@ -124,7 +134,7 @@ public sealed class ClassicFirmwareGatewayTests
   }
 
   [TestMethod]
-  public void IsNativeClassicPilot_ExcludesWoodstockAndDeferredClassic()
+  public void IsNativeClassicPilot_ExcludesWoodstockSpiceAndHp67()
   {
     Assert.IsFalse(CalcFirmwareBootstrap.IsNativeClassicPilot("HP-25"));
     Assert.IsFalse(CalcFirmwareBootstrap.IsNativeClassicPilot("HP-67"));

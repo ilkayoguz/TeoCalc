@@ -16,6 +16,7 @@ public static class CalcModelIds
     ["HP-34C"] = "HP-34",
     ["HP-37E"] = "HP-37",
     ["HP-38E"] = "HP-38",
+    ["HP-67BE"] = "HP-67",
   };
 
   /// <summary>
@@ -99,8 +100,8 @@ public static class CalcModelIds
     return modelId switch
     {
       "HP-01" => "HP01",
-      "HP-19C" => "HP19C",
-      "HP-67" => "Classic",
+      "HP-19C" => "Hp19",
+      "HP-67" => "Hp67",
       "HP-35" or "HP-45" or "HP-55" or "HP-65" or "HP-70" or "HP-80" => "Classic",
       var id when id.StartsWith("HP-3", StringComparison.Ordinal) && id is not "HP-35" => "Spice",
       var id when id.StartsWith("HP-2", StringComparison.Ordinal) => "Woodstock",

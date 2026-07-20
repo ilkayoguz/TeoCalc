@@ -3,19 +3,24 @@
   "SchemaVersion": 1,
   "Model": "HP-19C",
   "DisplayName": "HP-19C",
-  "Family": "HP19C",
+  "Family": "Hp19",
   "Hardware": {
     "ButtonCount": 32,
     "RamBytes": 448,
     "RegisterDigits": 14,
     "ProgramRamBase": 0,
-    "RomWordCount": 1024
+    "RomWordCount": 5120
   },
   "Program": {
     "MaxSteps": 0,
     "Vocabulary": "Program/program.vocabulary.json"
   },
-  "Firmware": {},
+  "Firmware": {
+    "RomBinary": "Firmware/hp19c.microcode.bin",
+    "RomListing": "Firmware/hp19c.microcode.mlist",
+    "RomMap": "Firmware/hp19c.microcode.map.json",
+    "HandlerCatalog": "../Act/microcode.handlers.json"
+  },
   "Faceplate": {
     "BodyLayoutId": "00d",
     "ThemeId": "Modern",

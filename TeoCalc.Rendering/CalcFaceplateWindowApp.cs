@@ -108,6 +108,12 @@ public sealed class CalcFaceplateHost : IDisposable
 
   private Vector2D<int> _dragStartWindowSize;
 
+  private bool _cardPanelOpen;
+
+  private bool _printerPanelOpen;
+
+  private readonly List<string> _printerLog = [];
+
   private CalcFaceplateHost(CalcExplorerSession session, float aspect, IWindow window, string catalogModelId, bool ownsGl)
   {
     _session = session;
@@ -372,6 +378,7 @@ public sealed class CalcFaceplateHost : IDisposable
             MathF.Max(1f, display.Y - BandTop - LogoBandHeight - BeadInset)));
         HandleTitleAction(titleAction);
         HandleFramelessChrome();
+        DrawCapabilityPanels(hasCardSlot, hasPrinter);
 
         ImGui.End();
         ImGui.PopStyleColor();
@@ -503,8 +510,24 @@ public sealed class CalcFaceplateHost : IDisposable
         RequestClose();
         break;
       case CalcWindowTitlePanelComponent.TitleAction.OpenCard:
+        if (ResolveCapabilityIcons().HasCardSlot)
+        {
+          _cardPanelOpen = !_cardPanelOpen;
+        }
+
+        break;
       case CalcWindowTitlePanelComponent.TitleAction.OpenPrinter:
-        // Capability panels deferred — title-bar icons are stubs for now.
+        if (ResolveCapabilityIcons().HasPrinter)
+        {
+          _printerPanelOpen = !_printerPanelOpen;
+          if (_printerPanelOpen
+              && string.Equals(_session.Model.Model, "HP-19C", StringComparison.OrdinalIgnoreCase)
+              && _printerLog.Count == 0)
+          {
+            _printerLog.Add("Printer ready.");
+          }
+        }
+
         break;
     }
   }
@@ -515,6 +538,55 @@ public sealed class CalcFaceplateHost : IDisposable
     return (
       CalcCardSlotComponent.ModelHasCardSlot(model),
       model.HasPrinter == true);
+  }
+
+  private void DrawCapabilityPanels(bool hasCardSlot, bool hasPrinter)
+  {
+    if (hasCardSlot && _cardPanelOpen)
+    {
+      ImGui.SetNextWindowSize(new System.Numerics.Vector2(280f, 160f), ImGuiCond.FirstUseEver);
+      ImGui.SetNextWindowPos(
+        new System.Numerics.Vector2(BeadInset + 12f, BandTop + 12f),
+        ImGuiCond.FirstUseEver);
+      if (ImGui.Begin("Card", ref _cardPanelOpen, ImGuiWindowFlags.NoCollapse))
+      {
+        ImGui.TextWrapped("Card reader — load / save program card (placeholder).");
+        ImGui.Separator();
+        ImGui.TextDisabled("Load card…");
+        ImGui.TextDisabled("Save card…");
+      }
+
+      ImGui.End();
+    }
+
+    if (hasPrinter && _printerPanelOpen)
+    {
+      ImGui.SetNextWindowSize(new System.Numerics.Vector2(300f, 220f), ImGuiCond.FirstUseEver);
+      ImGui.SetNextWindowPos(
+        new System.Numerics.Vector2(BeadInset + 12f, BandTop + 12f),
+        ImGuiCond.FirstUseEver);
+      if (ImGui.Begin("Printer", ref _printerPanelOpen, ImGuiWindowFlags.NoCollapse))
+      {
+        if (ImGui.BeginChild("##printer-log", System.Numerics.Vector2.Zero, ImGuiChildFlags.None))
+        {
+          if (_printerLog.Count == 0)
+          {
+            ImGui.TextDisabled("(empty)");
+          }
+          else
+          {
+            foreach (string line in _printerLog)
+            {
+              ImGui.TextUnformatted(line);
+            }
+          }
+        }
+
+        ImGui.EndChild();
+      }
+
+      ImGui.End();
+    }
   }
 
   private void HandleFramelessChrome()

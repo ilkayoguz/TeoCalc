@@ -17,7 +17,7 @@
     "RomBinary": "Firmware/hp25.microcode.bin",
     "RomListing": "Firmware/hp25.microcode.mlist",
     "RomMap": "Firmware/hp25.microcode.map.json",
-    "HandlerCatalog": "../Woodstock/microcode.handlers.json"
+    "HandlerCatalog": "../Act/microcode.handlers.json"
   },
   "Program": {
     "MaxSteps": 0,

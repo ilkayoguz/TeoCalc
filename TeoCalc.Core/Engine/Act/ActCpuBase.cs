@@ -3,7 +3,7 @@ using TeoCalc.Core.Engine;
 
 namespace TeoCalc.Core.Engine.Act;
 
-/// <summary>Shared ACT-family CPU body (Woodstock / Spice). Mirrors Panamatik HP25/HPSpice.</summary>
+/// <summary>Shared ACT-family CPU body (Woodstock / Spice / HP-67 / HP-19C). Mirrors Panamatik HP25/HPSpice.</summary>
 public abstract class ActCpuBase : CpuBase, IActCpu
 {
   private static readonly byte[] PSetMap =
@@ -84,13 +84,13 @@ public abstract class ActCpuBase : CpuBase, IActCpu
 
   private MicrocodeHandlerEntry ExecuteCycle()
   {
-    int address = State.ResolveFetchAddress();
+    int address = ResolveOpcodeFetchAddress();
     if (address < 0 || address >= Rom.WordCount)
     {
       throw new InvalidOperationException($"ROM address out of range: {address:X4}");
     }
 
-    ushort opcode = Rom.ReadWord(address);
+    ushort opcode = TransformFetchedOpcode(Rom.ReadWord(address));
     if ((State.Flags & ActCpuFlags.Carry) != 0)
     {
       State.Flags |= ActCpuFlags.PrevCarry;
@@ -115,7 +115,7 @@ public abstract class ActCpuBase : CpuBase, IActCpu
         State.InstructionState = ActInstructionState.Norm;
         if ((State.Flags & ActCpuFlags.PrevCarry) == 0)
         {
-          State.ProgramCounter = (ushort)((State.ProgramCounter & 0xFC00) | opcode);
+          ApplyBranchTarget(opcode);
         }
 
         break;
@@ -123,7 +123,7 @@ public abstract class ActCpuBase : CpuBase, IActCpu
         alias = "op_rom_selftest";
         if (opcode == 1060)
         {
-          State.Flags ^= ActCpuFlags.Bank;
+          ToggleBank();
         }
 
         if ((State.ProgramCounter & 0x3FF) == 0)
@@ -135,10 +135,7 @@ public abstract class ActCpuBase : CpuBase, IActCpu
         break;
     }
 
-    if ((opcode & 0x3D0) != 464)
-    {
-      State.Flags &= ~ActCpuFlags.PCarry;
-    }
+    AfterCycle(opcode);
 
     MicrocodeHandlerEntry handler = Handlers.ResolveByPanamatikAlias(alias);
     State.LastOpcode = opcode;
@@ -146,7 +143,20 @@ public abstract class ActCpuBase : CpuBase, IActCpu
     return handler;
   }
 
-  private static string ResolveNormAlias(ushort opcode) =>
+  /// <summary>ROM fetch address after bank side effects (override for HP-67 / HP-19C remaps).</summary>
+  protected virtual int ResolveOpcodeFetchAddress() =>
+    State.ResolveFetchAddress();
+
+  /// <summary>Optional opcode transform before decode (HP-19C XORs 3040).</summary>
+  protected virtual ushort TransformFetchedOpcode(ushort opcode) =>
+    opcode;
+
+  /// <summary>Decode norm-state opcode to Panamatik alias.</summary>
+  protected virtual string ResolveNormAlias(ushort opcode) =>
+    ResolveStandardNormAlias(opcode);
+
+  /// <summary>Woodstock/Spice/HP-67 low-bit decode tables.</summary>
+  protected static string ResolveStandardNormAlias(ushort opcode) =>
     ((byte)opcode & 3) switch
     {
       0 => ((byte)opcode & 0xC) switch
@@ -162,6 +172,25 @@ public abstract class ActCpuBase : CpuBase, IActCpu
       2 => "op_arith",
       _ => "op_goto",
     };
+
+  protected virtual void ApplyBranchTarget(ushort opcode) =>
+    State.ProgramCounter = (ushort)((State.ProgramCounter & 0xFC00) | opcode);
+
+  protected virtual void AfterCycle(ushort opcode)
+  {
+    if ((opcode & 0x3D0) != 464)
+    {
+      State.Flags &= ~ActCpuFlags.PCarry;
+    }
+  }
+
+  protected virtual void ToggleBank() =>
+    State.Flags ^= ActCpuFlags.Bank;
+
+  /// <summary>HP-19C sets INCP on every <c>op_inc_p</c>; Woodstock does not.</summary>
+  protected virtual void OnIncP()
+  {
+  }
 
   private void Execute(string alias, ushort opcode)
   {
@@ -231,6 +260,7 @@ public abstract class ActCpuBase : CpuBase, IActCpu
           State.Flags |= ActCpuFlags.PCarry;
         }
 
+        OnIncP();
         break;
       case "op_load_constant":
         State.Registers.C[State.P] = (byte)(opcode >> 6);
@@ -319,7 +349,7 @@ public abstract class ActCpuBase : CpuBase, IActCpu
         break;
       }
       case "op_bank_switch":
-        State.Flags ^= ActCpuFlags.Bank;
+        ToggleBank();
         break;
       case "op_rom_selftest":
         State.InstructionState = ActInstructionState.SelfTest;

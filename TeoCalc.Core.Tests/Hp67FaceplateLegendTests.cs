@@ -23,13 +23,13 @@ public sealed class Hp67FaceplateLegendTests
   }
 
   [TestMethod]
-  public void Family_IsClassic_ProductLabel_T67()
+  public void Family_IsHp67_ProductLabel_T67()
   {
-    Assert.AreEqual("Classic", CalcModelIds.InferFamily("HP-67"));
+    Assert.AreEqual("Hp67", CalcModelIds.InferFamily("HP-67"));
     Assert.AreEqual("T-67", CalcModelIds.ToProductLabel("HP-67"));
     TeoCalcModelDefinition model = TeoCalcModelDefinition.Load(
       TeoCalcPaths.ResourcePath("Engine/HP-67/Model.json"));
-    Assert.AreEqual("Classic", model.Family);
+    Assert.AreEqual("Hp67", model.Family);
   }
 
   [TestMethod]

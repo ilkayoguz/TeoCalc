@@ -1,6 +1,8 @@
 using TeoCalc.Core;
 using TeoCalc.Core.Catalog;
 using TeoCalc.Core.Engine.Classic;
+using TeoCalc.Core.Engine.Hp19;
+using TeoCalc.Core.Engine.Hp67;
 using TeoCalc.Core.Engine.Spice;
 using TeoCalc.Core.Engine.Woodstock;
 using TeoCalc.Core.Firmware;
@@ -9,18 +11,23 @@ namespace TeoCalc.Panamatik;
 
 /// <summary>
 /// Wires firmware backends into <see cref="CalcFirmwareGatewayLocator"/>.
-/// ROM-ready Classic, Woodstock, and Spice family models use native gateways;
-/// other models keep the temporary emulator adapter.
+/// ROM-ready Classic, Woodstock, Spice, HP-67, and HP-19C models use native gateways;
+/// other models (including HP-01 — different ACT opcode table) keep the emulator adapter.
 /// </summary>
 public static class CalcFirmwareBootstrap
 {
   /// <summary>
   /// True when the model is Classic-family and ROM/handler assets are present
-  /// (HP-35/45/55/65/70/80 today; HP-67 deferred until ROM-ready).
+  /// (HP-35/45/55/65/70/80). HP-67 is ACT ISA — see <see cref="IsNativeHp67Pilot"/>.
   /// </summary>
   public static bool IsNativeClassicPilot(string catalogOrEngineId)
   {
     string engineId = NormalizeEngineId(CalcModelIds.Resolve(catalogOrEngineId));
+    if (string.Equals(engineId, "HP-67", StringComparison.OrdinalIgnoreCase))
+    {
+      return false;
+    }
+
     return NativeFamilyAssetsExist(engineId, "Classic");
   }
 
@@ -42,6 +49,20 @@ public static class CalcFirmwareBootstrap
   {
     string engineId = NormalizeEngineId(CalcModelIds.Resolve(catalogOrEngineId));
     return NativeFamilyAssetsExist(engineId, "Spice");
+  }
+
+  /// <summary>True when HP-67 ACT ROM/handler assets are present.</summary>
+  public static bool IsNativeHp67Pilot(string catalogOrEngineId)
+  {
+    string engineId = NormalizeEngineId(CalcModelIds.Resolve(catalogOrEngineId));
+    return NativeFamilyAssetsExist(engineId, "Hp67");
+  }
+
+  /// <summary>True when HP-19C ACT ROM/handler assets are present.</summary>
+  public static bool IsNativeHp19Pilot(string catalogOrEngineId)
+  {
+    string engineId = NormalizeEngineId(CalcModelIds.Resolve(catalogOrEngineId));
+    return NativeFamilyAssetsExist(engineId, "Hp19");
   }
 
   public static void UseEmulatorAdapter()
@@ -69,6 +90,17 @@ public static class CalcFirmwareBootstrap
       return CreateNativeSpiceGateway(NormalizeEngineId(identity));
     }
 
+    if (IsNativeHp67Pilot(catalogOrEngineId))
+    {
+      return CreateNativeHp67Gateway(NormalizeEngineId(identity));
+    }
+
+    if (IsNativeHp19Pilot(catalogOrEngineId))
+    {
+      return CreateNativeHp19Gateway(NormalizeEngineId(identity));
+    }
+
+    // HP-01: ROM exported but native deferred (ACThp01 opcode table ≠ ActCpuBase).
     IPanamatikEngine engine = PanamatikEngineFactory.Create(identity.EngineId);
     return new EmulatorFirmwareGateway(engine);
   }
@@ -117,11 +149,35 @@ public static class CalcFirmwareBootstrap
     return gateway;
   }
 
+  private static Hp67FirmwareGateway CreateNativeHp67Gateway(string engineId)
+  {
+    string engineRoot = TeoCalcPaths.ResourcePath("Engine");
+    string modelPath = Path.Combine(engineRoot, engineId, "Model.json");
+    TeoCalcModelDefinition model = TeoCalcModelDefinition.Load(modelPath);
+    Hp67Cpu cpu = Hp67CpuFactory.Create(model, engineRoot);
+    Hp67FirmwareGateway gateway = new();
+    gateway.AttachCpu(cpu);
+    return gateway;
+  }
+
+  private static Hp19FirmwareGateway CreateNativeHp19Gateway(string engineId)
+  {
+    string engineRoot = TeoCalcPaths.ResourcePath("Engine");
+    string modelPath = Path.Combine(engineRoot, engineId, "Model.json");
+    TeoCalcModelDefinition model = TeoCalcModelDefinition.Load(modelPath);
+    Hp19Cpu cpu = Hp19CpuFactory.Create(model, engineRoot);
+    Hp19FirmwareGateway gateway = new();
+    gateway.AttachCpu(cpu);
+    return gateway;
+  }
+
   private static bool IsSupported(string catalogOrEngineId)
   {
     if (IsNativeClassicPilot(catalogOrEngineId)
         || IsNativeWoodstockPilot(catalogOrEngineId)
-        || IsNativeSpicePilot(catalogOrEngineId))
+        || IsNativeSpicePilot(catalogOrEngineId)
+        || IsNativeHp67Pilot(catalogOrEngineId)
+        || IsNativeHp19Pilot(catalogOrEngineId))
     {
       return true;
     }
@@ -133,7 +189,9 @@ public static class CalcFirmwareBootstrap
   {
     if (IsNativeClassicPilot(catalogOrEngineId)
         || IsNativeWoodstockPilot(catalogOrEngineId)
-        || IsNativeSpicePilot(catalogOrEngineId))
+        || IsNativeSpicePilot(catalogOrEngineId)
+        || IsNativeHp67Pilot(catalogOrEngineId)
+        || IsNativeHp19Pilot(catalogOrEngineId))
     {
       return [];
     }

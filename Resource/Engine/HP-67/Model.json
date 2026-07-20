@@ -4,20 +4,25 @@
   "Model": "HP-67",
   "DisplayName": "HP-67",
   "Inherits": "Classic",
-  "Family": "Classic",
+  "Family": "Hp67",
   "FamilyConfig": "../Classic/Family.json",
   "Hardware": {
     "ButtonCount": 40,
     "RamBytes": 448,
     "RegisterDigits": 14,
     "ProgramRamBase": 112,
-    "RomWordCount": 4096
+    "RomWordCount": 5120
   },
   "Program": {
     "MaxSteps": 100,
     "Vocabulary": "Program/program.vocabulary.json"
   },
-  "Firmware": {},
+  "Firmware": {
+    "RomBinary": "Firmware/hp67.microcode.bin",
+    "RomListing": "Firmware/hp67.microcode.mlist",
+    "RomMap": "Firmware/hp67.microcode.map.json",
+    "HandlerCatalog": "../Act/microcode.handlers.json"
+  },
   "Faceplate": {
     "BodyLayoutId": "00d",
     "ThemeId": "Modern",

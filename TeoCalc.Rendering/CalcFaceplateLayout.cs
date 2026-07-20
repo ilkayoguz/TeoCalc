@@ -62,7 +62,9 @@ public static class CalcFaceplateLayout
   public static IReadOnlyList<FaceplateCell> GetPhysicalCells(string family, string? modelId = null)
   {
     if (string.Equals(modelId, "HP-65", StringComparison.OrdinalIgnoreCase)
-        || string.Equals(family, "Classic", StringComparison.OrdinalIgnoreCase))
+        || string.Equals(modelId, "HP-67", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(family, "Classic", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(family, "Hp67", StringComparison.OrdinalIgnoreCase))
     {
       return ClassicPhysicalCells;
     }
@@ -81,7 +83,8 @@ public static class CalcFaceplateLayout
     }
 
     if (string.Equals(modelId, "HP-19C", StringComparison.OrdinalIgnoreCase)
-        || string.Equals(family, "HP19C", StringComparison.OrdinalIgnoreCase))
+        || string.Equals(family, "HP19C", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(family, "Hp19", StringComparison.OrdinalIgnoreCase))
     {
       return Hp19CFaceplateLayout.PhysicalCells;
     }
