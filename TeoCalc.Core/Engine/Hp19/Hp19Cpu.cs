@@ -7,31 +7,73 @@ namespace TeoCalc.Core.Engine.Hp19;
 /// <summary>HP-19C CPU (ACT ISA variant via <see cref="ActCpuBase"/>; Panamatik ACThp19C).</summary>
 public sealed class Hp19Cpu : ActCpuBase
 {
+  private static readonly char[] Digits =
+  [
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+    '.', '-', '+', '*', ' ', 'F',
+  ];
+
+  private static readonly char[] AlphaChars =
+  [
+    'N', 'Y', '=', '0', 'L', 'M', '?', '1', 'G', '1',
+    '>', '2', 'O', 'H', '?', '3', 'P', '?', 'X', '4',
+    'R', 'F', 'Z', '5', 'S', '?', 'x', '6', 'T', '?',
+    '#', '7', '%', '?', '?', '8', '$', 'x', '<', '9',
+    'A', '$', '$', '.', 'B', '$', '/', '-', 'C', '$',
+    '?', '+', 'D', '$', ' ', '*', 'E', 'e', ' ', ' ',
+    'I', 'i', 'x', '#',
+  ];
+
   /// <summary>Panamatik <c>DefaultRAM</c> continuous-memory seed at register address 0x2E (offset 322).</summary>
   private static readonly byte[] DefaultRamSeed = [0, 2, 64, 40, 52, 73, 3];
-
-  /// <summary>
-  /// Panamatik HP-19C <c>op_fcn_0000</c>: no <c>op_rom_selftest</c>; print slots are alpha/num.
-  /// </summary>
-  private static readonly string[] Op0000Hp19 =
-  [
-    "op_nop", "op_keys_to_rom_addr", "op_sel_rom", "op_unknown", "op_crc_test_motor_on", "op_keys_to_a", "op_sel_rom", "op_unknown", "op_unknown", "op_a_to_rom_addr",
-    "op_sel_rom", "op_crc_motor_on", "op_crc_test_f1", "op_display_reset_twf", "op_sel_rom", "op_crc_motor_off", "op_crc_set_f2", "op_binary", "op_sel_rom", "op_unknown",
-    "op_crc_test_f2", "op_circulate_a_left", "op_sel_rom", "op_crc_test_card_in", "op_crc_set_f3", "op_dec_p", "op_sel_rom", "op_unknown", "op_crc_test_f3", "op_inc_p",
-    "op_sel_rom", "op_crc_test_prot", "op_crc_set_f4", "op_return", "op_sel_rom", "op_bank_switch", "op_crc_test_f4", "op_pik_home", "op_sel_rom", "op_c_to_addr",
-    "op_crc_set_f0", "op_pik_cr", "op_sel_rom", "op_clear_data_regs", "op_crc_clear_f0", "op_pik_keys", "op_sel_rom", "op_c_to_data", "op_crc_set_f1", "op_pik_c4",
-    "op_sel_rom", "op_unknown", "op_crc_clear_f1", "op_pik_d4", "op_sel_rom", "op_unknown", "op_unknown", "op_pik_e4", "op_sel_rom", "op_pik_print_alpha",
-    "op_crc_write_prot", "op_pik_print_num", "op_sel_rom", "op_nop",
-  ];
 
   /// <summary>Panamatik <c>act_switch</c> cold-start value (ON / run position).</summary>
   private byte _powerSwitch = 4;
 
   private bool _buttonPressed;
 
+  private readonly char[] _printBuffer = new char[32];
+
+  private int _printCharCount;
+
+  private int _motorRunning;
+
+  private readonly List<string> _printLines = [];
+
   public Hp19Cpu(IMicrocodeRom rom, MicrocodeHandlerCatalog handlers)
     : base(rom, handlers)
   {
+  }
+
+  /// <summary>Emitted printer lines (newest last), matching Panamatik printer strip.</summary>
+  public IReadOnlyList<string> PrintLines => _printLines;
+
+  public void ClearPrintLines() =>
+    _printLines.Clear();
+
+  public void AppendTestPrint(string line)
+  {
+    ArgumentNullException.ThrowIfNull(line);
+    _printLines.Add(line);
+  }
+
+  /// <summary>Queue C-register characters into the print buffer and flush as one line (tests / diagnostics).</summary>
+  public void PrintAndFlushCRegister(bool alpha)
+  {
+    AppendCRegisterToPrintBuffer(alpha);
+    FlushPrintBuffer();
+  }
+
+  /// <summary>
+  /// Panamatik timer motor countdown; call once per instruction slot before <see cref="CpuBase.Step"/>.
+  /// When the motor finishes, flushes the print character buffer as one line.
+  /// </summary>
+  public void TickPrinterMotor()
+  {
+    if (_motorRunning != 0 && --_motorRunning == 0)
+    {
+      FlushPrintBuffer();
+    }
   }
 
   public override void Reset()
@@ -40,6 +82,9 @@ public sealed class Hp19Cpu : ActCpuBase
     _powerSwitch = 4;
     _buttonPressed = false;
     SuppressNextStatusPulse = false;
+    _printCharCount = 0;
+    _motorRunning = 0;
+    _printLines.Clear();
     SeedDefaultRam();
   }
 
@@ -64,9 +109,6 @@ public sealed class Hp19Cpu : ActCpuBase
     int remapped = (opcode & ~3) | (((byte)opcode & 3) ^ 2);
     return ResolveStandardNormAlias((ushort)remapped);
   }
-
-  protected override string ResolveOp0000Alias(ushort opcode) =>
-    Op0000Hp19[opcode >> 4];
 
   protected override void ApplyBranchTarget(ushort opcode) =>
     State.ProgramCounter = (ushort)((State.ProgramCounter & 0xFC00) | (opcode ^ 2));
@@ -129,20 +171,96 @@ public sealed class Hp19Cpu : ActCpuBase
   /// <summary>Panamatik <c>op_pik_home</c> with motor idle: set S3 and suppress next timer S3 pulse.</summary>
   protected override void OnPikHome()
   {
-    State.Status |= 8;
+    if (_motorRunning == 0 || _motorRunning > 900)
+    {
+      State.Status |= 8;
+    }
+    else
+    {
+      State.Status &= 65527;
+    }
+
     SuppressNextStatusPulse = true;
   }
 
-  /// <summary>Panamatik <c>op_pik_cr</c> with empty print buffer: set S3 and suppress next timer S3 pulse.</summary>
+  /// <summary>Panamatik <c>op_pik_cr</c>: start print motor; S3 when buffer has room.</summary>
   protected override void OnPikCr()
   {
-    State.Status |= 8;
+    if (_motorRunning == 0)
+    {
+      _motorRunning = 1000;
+    }
+
+    if (_printCharCount < 21)
+    {
+      State.Status |= 8;
+    }
+    else
+    {
+      State.Status &= 65527;
+    }
+
+    SuppressNextStatusPulse = true;
+  }
+
+  protected override void OnPikPrint(bool alpha)
+  {
+    AppendCRegisterToPrintBuffer(alpha);
     SuppressNextStatusPulse = true;
   }
 
   /// <summary>Latch a key-press edge for <c>op_pik_keys</c> (Panamatik <c>buttonpressed</c>).</summary>
   public void NotifyButtonPressed() =>
     _buttonPressed = true;
+
+  private void AppendCRegisterToPrintBuffer(bool alpha)
+  {
+    if (alpha)
+    {
+      for (int i = 0; i < 9; i++)
+      {
+        int wordIndex = i * 6 / 4;
+        int low = State.Registers.C[wordIndex] & 0xF;
+        int high = State.Registers.C[wordIndex + 1] & 0xF;
+        int code = (i & 1) != 0
+          ? (low >> 2) | (high << 2)
+          : (low | (high << 4)) & 0x3F;
+        if (code >= 63 || _printCharCount >= _printBuffer.Length)
+        {
+          break;
+        }
+
+        _printBuffer[_printCharCount++] = AlphaChars[code];
+      }
+
+      return;
+    }
+
+    for (int i = 0; i < 13; i++)
+    {
+      int digit = State.Registers.C[i];
+      if (digit >= 15 || _printCharCount >= _printBuffer.Length)
+      {
+        break;
+      }
+
+      _printBuffer[_printCharCount++] = Digits[digit];
+    }
+  }
+
+  private void FlushPrintBuffer()
+  {
+    char[] chars = new char[_printCharCount];
+    int write = 0;
+    while (_printCharCount > 0)
+    {
+      _printCharCount--;
+      chars[write++] = _printBuffer[_printCharCount];
+    }
+
+    _printCharCount = 0;
+    _printLines.Add(new string(chars));
+  }
 
   private void SeedDefaultRam()
   {

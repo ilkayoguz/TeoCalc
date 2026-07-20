@@ -27,6 +27,12 @@ public interface ICalcFirmwareGateway
 
   bool KeyLineHeld { get; }
 
+  /// <summary>True when this gateway can import/export a Classic program card snapshot.</summary>
+  bool SupportsCardProgram { get; }
+
+  /// <summary>Live printer strip lines (empty when the model has no printer).</summary>
+  IReadOnlyList<string> PrintLines { get; }
+
   void PowerOnResume();
 
   void PowerOff();
@@ -48,6 +54,14 @@ public interface ICalcFirmwareGateway
   void KeyUp(FirmwareKeyCommand? key = null);
 
   void SetKeyLineHeld(bool held);
+
+  bool TryExportCardProgram(out byte[] programCodes, out double[] registers);
+
+  bool TryImportCardProgram(IReadOnlyList<byte> programCodes, IReadOnlyList<double> registers);
+
+  void ClearPrintLines();
+
+  void AppendTestPrint(string line);
 }
 
 public sealed record FirmwareDisplaySnapshot(

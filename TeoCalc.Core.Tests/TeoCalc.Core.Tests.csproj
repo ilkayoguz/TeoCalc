@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TeoCalc.Core\TeoCalc.Core.csproj" />
+    <ProjectReference Include="..\TeoCalc.Formats\TeoCalc.Formats.csproj" />
     <ProjectReference Include="..\TeoCalc.Panamatik\TeoCalc.Panamatik.csproj" />
     <ProjectReference Include="..\TeoCalc.Rendering\TeoCalc.Rendering.csproj" />
   </ItemGroup>

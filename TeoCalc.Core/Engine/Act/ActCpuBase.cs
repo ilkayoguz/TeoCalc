@@ -26,7 +26,7 @@ public abstract class ActCpuBase : CpuBase, IActCpu
     "op_crc_test_f2", "op_circulate_a_left", "op_sel_rom", "op_crc_test_card_in", "op_crc_set_f3", "op_dec_p", "op_sel_rom", "op_unknown", "op_crc_test_f3", "op_inc_p",
     "op_sel_rom", "op_crc_test_prot", "op_crc_set_f4", "op_return", "op_sel_rom", "op_bank_switch", "op_crc_test_f4", "op_pik_home", "op_sel_rom", "op_c_to_addr",
     "op_crc_set_f0", "op_pik_cr", "op_sel_rom", "op_clear_data_regs", "op_crc_clear_f0", "op_pik_keys", "op_sel_rom", "op_c_to_data", "op_crc_set_f1", "op_pik_c4",
-    "op_sel_rom", "op_rom_selftest", "op_crc_clear_f1", "op_pik_d4", "op_sel_rom", "op_unknown", "op_unknown", "op_pik_e4", "op_sel_rom", "op_unknown",
+    "op_sel_rom", "op_rom_selftest", "op_crc_clear_f1", "op_pik_d4", "op_sel_rom", "op_unknown", "op_unknown", "op_pik_e4", "op_sel_rom", "op_pik_print_alpha",
     "op_crc_write_prot", "op_pik_print", "op_sel_rom", "op_nop",
   ];
 
@@ -221,6 +221,12 @@ public abstract class ActCpuBase : CpuBase, IActCpu
   {
   }
 
+  /// <summary>HP-19C <c>op_pik_print</c> / <c>op_pik_print_alpha</c>; default no-op.</summary>
+  protected virtual void OnPikPrint(bool alpha)
+  {
+    _ = alpha;
+  }
+
   /// <summary>When true, HP-19C gateway skips the next continuous S3 pulse (Panamatik <c>pikinstruction</c>).</summary>
   public bool SuppressNextStatusPulse { get; set; }
 
@@ -249,10 +255,14 @@ public abstract class ActCpuBase : CpuBase, IActCpu
       case "op_pik_c4":
       case "op_pik_d4":
       case "op_pik_e4":
-      case "op_pik_print":
-      case "op_pik_print_alpha":
-      case "op_pik_print_num":
       case "op_rom_addr_to_buffer":
+        break;
+      case "op_pik_print":
+      case "op_pik_print_num":
+        OnPikPrint(alpha: false);
+        break;
+      case "op_pik_print_alpha":
+        OnPikPrint(alpha: true);
         break;
       case "op_binary":
         State.Base = 16;

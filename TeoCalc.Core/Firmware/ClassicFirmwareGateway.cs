@@ -17,12 +17,38 @@ public sealed class ClassicFirmwareGateway : CalcFirmwareGatewayBase
 
   public override bool ProgramMode => _programMode;
 
+  public override bool SupportsCardProgram => Cpu is not null;
+
   public void AttachCpu(ClassicCpu? cpu)
   {
     Cpu = cpu;
     _programMode = false;
     _ioStepsUntilNext = 0;
     ResetSessionState();
+  }
+
+  public override bool TryExportCardProgram(out byte[] programCodes, out double[] registers)
+  {
+    if (Cpu is null)
+    {
+      programCodes = [];
+      registers = [];
+      return false;
+    }
+
+    ClassicCardProgramIo.Export(Cpu, out programCodes, out registers);
+    return true;
+  }
+
+  public override bool TryImportCardProgram(IReadOnlyList<byte> programCodes, IReadOnlyList<double> registers)
+  {
+    if (Cpu is null)
+    {
+      return false;
+    }
+
+    ClassicCardProgramIo.Import(Cpu, programCodes, registers);
+    return true;
   }
 
   public override bool IsDisplayVisible() =>

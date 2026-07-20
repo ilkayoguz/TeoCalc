@@ -112,7 +112,11 @@ public sealed class CalcFaceplateHost : IDisposable
 
   private bool _printerPanelOpen;
 
-  private readonly List<string> _printerLog = [];
+  private string _cardPathBuffer = CalcCardPanelComponent.DefaultCardsDirectory()
+    + Path.DirectorySeparatorChar
+    + "program.hp65";
+
+  private string _cardStatusMessage = string.Empty;
 
   private CalcFaceplateHost(CalcExplorerSession session, float aspect, IWindow window, string catalogModelId, bool ownsGl)
   {
@@ -521,10 +525,9 @@ public sealed class CalcFaceplateHost : IDisposable
         {
           _printerPanelOpen = !_printerPanelOpen;
           if (_printerPanelOpen
-              && string.Equals(_session.Model.Model, "HP-19C", StringComparison.OrdinalIgnoreCase)
-              && _printerLog.Count == 0)
+              && _session.PrintLines.Count == 0)
           {
-            _printerLog.Add("Printer ready.");
+            _session.AppendTestPrint("Printer ready.");
           }
         }
 
@@ -544,48 +547,36 @@ public sealed class CalcFaceplateHost : IDisposable
   {
     if (hasCardSlot && _cardPanelOpen)
     {
-      ImGui.SetNextWindowSize(new System.Numerics.Vector2(280f, 160f), ImGuiCond.FirstUseEver);
       ImGui.SetNextWindowPos(
         new System.Numerics.Vector2(BeadInset + 12f, BandTop + 12f),
         ImGuiCond.FirstUseEver);
-      if (ImGui.Begin("Card", ref _cardPanelOpen, ImGuiWindowFlags.NoCollapse))
-      {
-        ImGui.TextWrapped("Card reader — load / save program card (placeholder).");
-        ImGui.Separator();
-        ImGui.TextDisabled("Load card…");
-        ImGui.TextDisabled("Save card…");
-      }
-
-      ImGui.End();
+      CalcCardPanelComponent.Draw(
+        ref _cardPanelOpen,
+        ref _cardPathBuffer,
+        ref _cardStatusMessage,
+        _session.SupportsCardProgram,
+        path =>
+        {
+          _ = _session.TryLoadCardProgram(path, out string? error);
+          return error;
+        },
+        path =>
+        {
+          _ = _session.TrySaveCardProgram(path, out string? error);
+          return error;
+        });
     }
 
     if (hasPrinter && _printerPanelOpen)
     {
-      ImGui.SetNextWindowSize(new System.Numerics.Vector2(300f, 220f), ImGuiCond.FirstUseEver);
       ImGui.SetNextWindowPos(
         new System.Numerics.Vector2(BeadInset + 12f, BandTop + 12f),
         ImGuiCond.FirstUseEver);
-      if (ImGui.Begin("Printer", ref _printerPanelOpen, ImGuiWindowFlags.NoCollapse))
-      {
-        if (ImGui.BeginChild("##printer-log", System.Numerics.Vector2.Zero, ImGuiChildFlags.None))
-        {
-          if (_printerLog.Count == 0)
-          {
-            ImGui.TextDisabled("(empty)");
-          }
-          else
-          {
-            foreach (string line in _printerLog)
-            {
-              ImGui.TextUnformatted(line);
-            }
-          }
-        }
-
-        ImGui.EndChild();
-      }
-
-      ImGui.End();
+      CalcPrinterPanelComponent.Draw(
+        ref _printerPanelOpen,
+        _session.PrintLines,
+        onTestPrint: () => _session.AppendTestPrint($"Test {DateTime.Now:HH:mm:ss}"),
+        onClear: () => _session.ClearPrintLines());
     }
   }
 

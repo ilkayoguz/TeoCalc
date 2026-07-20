@@ -1,6 +1,8 @@
 using TeoCalc.Core;
 using TeoCalc.Core.Catalog;
+using TeoCalc.Core.Engine.Classic;
 using TeoCalc.Core.Firmware;
+using TeoCalc.Formats;
 using TeoCalc.Game.Explorer;
 using TeoCalc.Rendering.Faceplate;
 
@@ -537,6 +539,78 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
     _mouseKeyHeld = true;
     _firmware?.KeyDown(key);
   }
+
+  public bool SupportsCardProgram =>
+    _firmware?.SupportsCardProgram == true;
+
+  public IReadOnlyList<string> PrintLines =>
+    _firmware?.PrintLines ?? [];
+
+  public bool TrySaveCardProgram(string path, out string? error)
+  {
+    error = null;
+    if (_firmware is null || !_firmware.SupportsCardProgram)
+    {
+      error = "Card program I/O is not available for this model.";
+      return false;
+    }
+
+    if (!_firmware.TryExportCardProgram(out byte[] codes, out double[] registers))
+    {
+      error = "Failed to export program memory.";
+      return false;
+    }
+
+    try
+    {
+      Hp65CardSnapshot snapshot = new(codes, registers);
+      Hp65CardProgramFormat.WriteFile(
+        path,
+        snapshot,
+        code => ClassicCardProgramIo.FormatMnemonic(Vocabulary, code));
+      return true;
+    }
+    catch (Exception ex)
+    {
+      error = ex.Message;
+      return false;
+    }
+  }
+
+  public bool TryLoadCardProgram(string path, out string? error)
+  {
+    error = null;
+    if (_firmware is null || !_firmware.SupportsCardProgram)
+    {
+      error = "Card program I/O is not available for this model.";
+      return false;
+    }
+
+    try
+    {
+      Hp65CardSnapshot snapshot = Hp65CardProgramFormat.ReadFile(
+        path,
+        mnemonic => ClassicCardProgramIo.ResolveMnemonic(Vocabulary, mnemonic));
+      if (!_firmware.TryImportCardProgram(snapshot.ProgramCodes, snapshot.Registers))
+      {
+        error = "Failed to import program memory.";
+        return false;
+      }
+
+      return true;
+    }
+    catch (Exception ex)
+    {
+      error = ex.Message;
+      return false;
+    }
+  }
+
+  public void ClearPrintLines() =>
+    _firmware?.ClearPrintLines();
+
+  public void AppendTestPrint(string line) =>
+    _firmware?.AppendTestPrint(line);
 
   private static TeoCalcModelDefinition CreatePlaceholderModel(string modelId) =>
     new()

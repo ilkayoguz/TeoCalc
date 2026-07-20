@@ -10,6 +10,15 @@ public sealed class Hp19FirmwareGateway : ActFirmwareGatewayBase<Hp19Cpu>
 {
   protected override bool PulseStatusBeforeStep => true;
 
+  public override IReadOnlyList<string> PrintLines =>
+    Cpu?.PrintLines ?? [];
+
+  public override void ClearPrintLines() =>
+    Cpu?.ClearPrintLines();
+
+  public override void AppendTestPrint(string line) =>
+    Cpu?.AppendTestPrint(line);
+
   protected override void ApplyBatchStatusPulse()
   {
     if (Cpu is null)
@@ -28,6 +37,9 @@ public sealed class Hp19FirmwareGateway : ActFirmwareGatewayBase<Hp19Cpu>
     }
 
     Cpu.SuppressNextStatusPulse = false;
+
+    // Panamatik timer decrements MotorRunning before each instruction.
+    Cpu.TickPrinterMotor();
 
     if (KeyLineHeld)
     {

@@ -58,6 +58,10 @@ public sealed class EmulatorFirmwareGateway : ICalcFirmwareGateway, IDisposable
 
   public bool KeyLineHeld => _keyLineHeld;
 
+  public bool SupportsCardProgram => false;
+
+  public IReadOnlyList<string> PrintLines => [];
+
   public void PowerOnResume()
   {
     PowerOn = true;
@@ -162,6 +166,27 @@ public sealed class EmulatorFirmwareGateway : ICalcFirmwareGateway, IDisposable
 
     KeyStateChanged?.Invoke(this, new FirmwareKeyStateChangedEventArgs(_activeKey, held));
   }
+
+  public bool TryExportCardProgram(out byte[] programCodes, out double[] registers)
+  {
+    programCodes = [];
+    registers = [];
+    return false;
+  }
+
+  public bool TryImportCardProgram(IReadOnlyList<byte> programCodes, IReadOnlyList<double> registers)
+  {
+    _ = programCodes;
+    _ = registers;
+    return false;
+  }
+
+  public void ClearPrintLines()
+  {
+  }
+
+  public void AppendTestPrint(string line) =>
+    _ = line;
 
   public void Dispose() =>
     _engine.Dispose();
