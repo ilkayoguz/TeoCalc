@@ -23,9 +23,31 @@ public sealed class ClassicFirmwareGatewayTests
   }
 
   [TestMethod]
-  public void Bootstrap_Routes_OtherModel_To_EmulatorAdapter()
+  [DataRow("HP-35")]
+  [DataRow("HP-45")]
+  [DataRow("HP-55")]
+  [DataRow("HP-65")]
+  [DataRow("HP-70")]
+  [DataRow("HP-80")]
+  [DataRow("35")]
+  [DataRow("65")]
+  public void Bootstrap_Routes_RomReadyClassic_To_ClassicFirmwareGateway(string modelId)
+  {
+    ICalcFirmwareGateway gateway = CalcFirmwareGatewayLocator.CreateGateway(modelId);
+    Assert.IsInstanceOfType<ClassicFirmwareGateway>(gateway, modelId);
+  }
+
+  [TestMethod]
+  public void Bootstrap_Routes_Hp25_To_EmulatorAdapter()
   {
     ICalcFirmwareGateway gateway = CalcFirmwareGatewayLocator.CreateGateway("HP-25");
+    Assert.IsInstanceOfType(gateway, typeof(EmulatorFirmwareGateway));
+  }
+
+  [TestMethod]
+  public void Bootstrap_Routes_Hp67_To_EmulatorAdapter()
+  {
+    ICalcFirmwareGateway gateway = CalcFirmwareGatewayLocator.CreateGateway("HP-67");
     Assert.IsInstanceOfType(gateway, typeof(EmulatorFirmwareGateway));
   }
 
@@ -74,11 +96,37 @@ public sealed class ClassicFirmwareGatewayTests
   }
 
   [TestMethod]
-  public void IsNativeClassicPilot_Only_Hp65()
+  public void ClassicGateway_Batch_PopulatesClassicDiagnostics()
   {
-    Assert.IsTrue(CalcFirmwareBootstrap.IsNativeClassicPilot("HP-65"));
-    Assert.IsTrue(CalcFirmwareBootstrap.IsNativeClassicPilot("65"));
-    Assert.IsFalse(CalcFirmwareBootstrap.IsNativeClassicPilot("HP-35"));
+    ClassicFirmwareGateway gateway = (ClassicFirmwareGateway)CreatePilotGateway();
+    gateway.PowerOnResume();
+    Assert.IsNotNull(gateway.LastBatch.Classic);
+  }
+
+  [TestMethod]
+  public void EmulatorGateway_Batch_ClassicDiagnosticsNull()
+  {
+    ICalcFirmwareGateway gateway = CalcFirmwareGatewayLocator.CreateGateway("HP-25");
+    gateway.PowerOnResume();
+    Assert.IsNull(gateway.LastBatch.Classic);
+  }
+
+  [TestMethod]
+  [DataRow("HP-35")]
+  [DataRow("HP-45")]
+  [DataRow("HP-55")]
+  [DataRow("HP-65")]
+  [DataRow("HP-70")]
+  [DataRow("HP-80")]
+  public void IsNativeClassicPilot_RomReadyClassicModels(string modelId)
+  {
+    Assert.IsTrue(CalcFirmwareBootstrap.IsNativeClassicPilot(modelId), modelId);
+  }
+
+  [TestMethod]
+  public void IsNativeClassicPilot_ExcludesWoodstockAndDeferredClassic()
+  {
     Assert.IsFalse(CalcFirmwareBootstrap.IsNativeClassicPilot("HP-25"));
+    Assert.IsFalse(CalcFirmwareBootstrap.IsNativeClassicPilot("HP-67"));
   }
 }

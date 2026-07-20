@@ -353,12 +353,16 @@ public sealed class CalcFaceplateHost : IDisposable
         System.Numerics.Vector2 display = ImGui.GetIO().DisplaySize;
         DrawUnifiedChrome(ImGui.GetWindowDrawList(), display);
 
+        (bool hasCardSlot, bool hasPrinter) = ResolveCapabilityIcons();
         CalcWindowTitlePanelComponent.TitleAction titleAction =
           CalcWindowTitlePanelComponent.Draw(
             _fittedToWorkArea,
             BeadInset,
             TopBandHeight,
-            display.X - BeadInset);
+            display.X - BeadInset,
+            BeadInset,
+            hasCardSlot,
+            hasPrinter);
 
         ImGui.SetCursorPos(new System.Numerics.Vector2(BandSide, BandTop));
         CalcFaceplateView.Draw(
@@ -498,18 +502,34 @@ public sealed class CalcFaceplateHost : IDisposable
       case CalcWindowTitlePanelComponent.TitleAction.Close:
         RequestClose();
         break;
+      case CalcWindowTitlePanelComponent.TitleAction.OpenCard:
+      case CalcWindowTitlePanelComponent.TitleAction.OpenPrinter:
+        // Capability panels deferred — title-bar icons are stubs for now.
+        break;
     }
+  }
+
+  private (bool HasCardSlot, bool HasPrinter) ResolveCapabilityIcons()
+  {
+    CalcModelDefinition model = CalcModelCatalog.Resolve(_session.Model, _catalogModelId);
+    return (
+      CalcCardSlotComponent.ModelHasCardSlot(model),
+      model.HasPrinter == true);
   }
 
   private void HandleFramelessChrome()
   {
     System.Numerics.Vector2 display = ImGui.GetIO().DisplaySize;
     System.Numerics.Vector2 mouse = ImGui.GetIO().MousePos;
+    (bool hasCardSlot, bool hasPrinter) = ResolveCapabilityIcons();
     bool overButtons = CalcWindowTitlePanelComponent.IsOverButtons(
       mouse,
       BeadInset,
       TopBandHeight,
-      display.X - BeadInset);
+      display.X - BeadInset,
+      BeadInset,
+      hasCardSlot,
+      hasPrinter);
     bool onTitleStrip = mouse.Y >= 0f && mouse.Y <= BandTop;
 
     // A double-click on the calc's top bar always toggles maximize/restore.

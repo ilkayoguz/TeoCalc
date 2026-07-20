@@ -53,12 +53,7 @@ public sealed class ClassicFirmwareGateway : ICalcFirmwareGateway
       Rom: 0,
       Grp: 0,
       P: 0,
-      Flags: ClassicCpuFlags.None,
-      BranchOffset: 0,
-      KeyInputState: ClassicKeyInputState.Idle,
-      KeyAvailable: false,
-      KeysToRomAddressCount: 0,
-      BufferToRomAddressCount: 0);
+      Classic: null);
 
   public FirmwareKeyCommand? ActiveKey => _activeKey;
 
@@ -247,12 +242,13 @@ public sealed class ClassicFirmwareGateway : ICalcFirmwareGateway
       Cpu.State.Rom,
       Cpu.State.Grp,
       Cpu.State.P,
-      Cpu.State.Flags,
-      Cpu.State.BranchOffset,
-      Cpu.State.KeyInputState,
-      Cpu.State.KeyAvailable,
-      keysToRomAddressCount,
-      bufferToRomAddressCount);
+      new ClassicFirmwareDiagnostics(
+        Cpu.State.Flags,
+        Cpu.State.KeyInputState,
+        Cpu.State.BranchOffset,
+        keysToRomAddressCount,
+        bufferToRomAddressCount,
+        Cpu.State.KeyAvailable));
     BatchCompleted?.Invoke(this, new FirmwareBatchCompletedEventArgs(LastBatch));
   }
 

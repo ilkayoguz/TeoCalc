@@ -109,4 +109,8 @@ public sealed class TeoCalcModelFaceplate
   /// <summary>When set, overrides card-slot presence for the body layout.</summary>
   [JsonPropertyName("HasCardSlot")]
   public bool? HasCardSlot { get; init; }
+
+  /// <summary>When set, enables the title-bar printer capability icon (HP-19C).</summary>
+  [JsonPropertyName("HasPrinter")]
+  public bool? HasPrinter { get; init; }
 }

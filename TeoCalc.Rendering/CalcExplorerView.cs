@@ -143,7 +143,7 @@ public static class CalcExplorerView
     ImGui.TextDisabled(
       $"Key: active={keyText} held={(batch.KeyLineHeld ? "yes" : "no")} buffer={batch.KeyBuffer:X2}");
     ImGui.TextDisabled(
-      $"CPU: PC={batch.ProgramCounter:X4} ROM={batch.Grp:X1}{batch.Rom:X1} P={batch.P:X1} F={(byte)batch.Flags:X2} S={batch.Status:X3}");
+      $"CPU: PC={batch.ProgramCounter:X4} ROM={batch.Grp:X1}{batch.Rom:X1} P={batch.P:X1} F={(byte)(batch.Classic?.Flags ?? 0):X2} S={batch.Status:X3}");
     ImGui.TextDisabled($"Engine: {batch.LastHandlerId ?? "-"}");
     if (session.LoadWarnings.Count > 0)
     {

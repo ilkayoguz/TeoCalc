@@ -132,6 +132,7 @@ public static class FaceplateJsonMigrator
       : CalcSwitchCatalog.HeuristicBankId(shortId, catalogId);
     face["HasCardSlot"] = model.Faceplate?.HasCardSlot
       ?? CalcCardSlotComponent.HeuristicHasCardSlot(shortId);
+    face["HasPrinter"] = model.Faceplate?.HasPrinter ?? false;
 
     File.WriteAllText(modelPath, root.ToJsonString(WriteOptions) + Environment.NewLine);
   }

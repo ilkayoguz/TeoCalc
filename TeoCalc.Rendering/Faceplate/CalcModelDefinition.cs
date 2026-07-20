@@ -30,6 +30,9 @@ public sealed class CalcModelDefinition
   /// <summary>Card-slot presence from Model.json when set.</summary>
   public bool? HasCardSlot { get; init; }
 
+  /// <summary>Printer capability from Model.json when set (title-bar icon only).</summary>
+  public bool? HasPrinter { get; init; }
+
   /// <summary>Catalog/engine/short/product/family identity built by <see cref="CalcModelCatalog.Resolve"/>.</summary>
   public CalcModelIdentity? Identity { get; init; }
 

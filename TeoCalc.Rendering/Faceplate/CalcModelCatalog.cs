@@ -15,6 +15,7 @@ public static class CalcModelCatalog
     AnnotationStyleId = CalcAnnotationStyleCatalog.ClassicFgId,
     SwitchBankId = "Classic65",
     HasCardSlot = true,
+    HasPrinter = false,
     Identity = CalcModelIds.Resolve("HP-65", "Classic"),
   };
 
@@ -29,6 +30,7 @@ public static class CalcModelCatalog
     AnnotationStyleId = CalcAnnotationStyleCatalog.ClassicFgId,
     SwitchBankId = "WoodstockAngle",
     HasCardSlot = false,
+    HasPrinter = false,
     Identity = CalcModelIds.Resolve("HP-21", "Woodstock"),
   };
 
@@ -88,6 +90,7 @@ public static class CalcModelCatalog
 
     bool? hasCardSlot = model.Faceplate?.HasCardSlot;
     hasCardSlot ??= CalcCardSlotComponent.HeuristicHasCardSlot(shortId);
+    bool? hasPrinter = model.Faceplate?.HasPrinter;
 
     return new CalcModelDefinition
     {
@@ -100,6 +103,7 @@ public static class CalcModelCatalog
       AnnotationStyleId = annotationStyleId,
       SwitchBankId = switchBankId,
       HasCardSlot = hasCardSlot,
+      HasPrinter = hasPrinter,
       Identity = identity,
     };
   }

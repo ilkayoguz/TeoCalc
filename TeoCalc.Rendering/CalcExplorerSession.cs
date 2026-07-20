@@ -1,6 +1,5 @@
 using TeoCalc.Core;
 using TeoCalc.Core.Catalog;
-using TeoCalc.Core.Engine.Classic;
 using TeoCalc.Core.Firmware;
 using TeoCalc.Game.Explorer;
 using TeoCalc.Rendering.Faceplate;
@@ -32,12 +31,7 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
       Rom: 0,
       Grp: 0,
       P: 0,
-      Flags: ClassicCpuFlags.None,
-      BranchOffset: 0,
-      KeyInputState: ClassicKeyInputState.Idle,
-      KeyAvailable: false,
-      KeysToRomAddressCount: 0,
-      BufferToRomAddressCount: 0);
+      Classic: null);
 
   private bool _mouseKeyHeld;
 

@@ -1,13 +1,12 @@
 using System.Numerics;
 using ImGuiNET;
-using Silk.NET.Input;
 
 namespace TeoCalc.Rendering.Faceplate;
 
 /// <summary>
 /// Window control buttons (Minimize, Maximize/Restore, Close) overlaid on the
 /// top-right of the calculator, whose own top area acts as the drag title bar.
-/// No separate title strip is drawn; the buttons simply float over the faceplate.
+/// Optional model capability icons sit on the left (card / printer stubs).
 /// </summary>
 public static class CalcWindowTitlePanelComponent
 {
@@ -31,20 +30,76 @@ public static class CalcWindowTitlePanelComponent
     Minimize,
     ToggleMaximize,
     Close,
+    OpenCard,
+    OpenPrinter,
   }
 
-  /// <summary>True when the mouse is over the caption buttons within the top band.</summary>
-  public static bool IsOverButtons(Vector2 mouse, float top, float height, float rightEdge) =>
-    mouse.Y >= top
-    && mouse.Y <= top + height
-    && mouse.X >= rightEdge - ButtonsWidth
-    && mouse.X <= rightEdge;
+  public static float CapabilityIconsWidth(bool hasCardSlot, bool hasPrinter)
+  {
+    int count = (hasCardSlot ? 1 : 0) + (hasPrinter ? 1 : 0);
+    return ButtonWidth * count;
+  }
 
-  /// <summary>Draws the caption buttons inside the top band [top, top+height], flush to rightEdge.</summary>
-  public static TitleAction Draw(bool isMaximized, float top, float height, float rightEdge)
+  /// <summary>True when the mouse is over caption or capability buttons within the top band.</summary>
+  public static bool IsOverButtons(
+    Vector2 mouse,
+    float top,
+    float height,
+    float rightEdge,
+    float leftEdge = 0f,
+    bool hasCardSlot = false,
+    bool hasPrinter = false)
+  {
+    if (mouse.Y < top || mouse.Y > top + height)
+    {
+      return false;
+    }
+
+    if (mouse.X >= rightEdge - ButtonsWidth && mouse.X <= rightEdge)
+    {
+      return true;
+    }
+
+    float capWidth = CapabilityIconsWidth(hasCardSlot, hasPrinter);
+    return capWidth > 0f
+      && mouse.X >= leftEdge
+      && mouse.X <= leftEdge + capWidth;
+  }
+
+  /// <summary>
+  /// Draws caption buttons flush to <paramref name="rightEdge"/> and optional
+  /// capability icons flush to <paramref name="leftEdge"/>.
+  /// </summary>
+  public static TitleAction Draw(
+    bool isMaximized,
+    float top,
+    float height,
+    float rightEdge,
+    float leftEdge = 0f,
+    bool hasCardSlot = false,
+    bool hasPrinter = false)
   {
     ImDrawListPtr draw = ImGui.GetForegroundDrawList();
     TitleAction action = TitleAction.None;
+
+    float capX = leftEdge;
+    if (hasCardSlot)
+    {
+      if (Button(draw, "##cap-card", capX, top, height, HoverFill, IconColor, DrawCardIcon))
+      {
+        action = TitleAction.OpenCard;
+      }
+
+      capX += ButtonWidth;
+    }
+
+    if (hasPrinter)
+    {
+      if (Button(draw, "##cap-print", capX, top, height, HoverFill, IconColor, DrawPrinterIcon))
+      {
+        action = TitleAction.OpenPrinter;
+      }
+    }
 
     float x0 = rightEdge - ButtonsWidth;
 
@@ -117,5 +172,20 @@ public static class CalcWindowTitlePanelComponent
     float cx = x + ButtonWidth * 0.5f;
     draw.AddLine(new Vector2(cx - 5f, cy - 5f), new Vector2(cx + 5f, cy + 5f), color, 1.2f);
     draw.AddLine(new Vector2(cx + 5f, cy - 5f), new Vector2(cx - 5f, cy + 5f), color, 1.2f);
+  }
+
+  private static void DrawCardIcon(ImDrawListPtr draw, float x, float cy, uint color)
+  {
+    float cx = x + ButtonWidth * 0.5f;
+    draw.AddRect(new Vector2(cx - 7f, cy - 4.5f), new Vector2(cx + 7f, cy + 4.5f), color, 1.5f, ImDrawFlags.None, 1.2f);
+    draw.AddLine(new Vector2(cx - 4f, cy - 1f), new Vector2(cx + 4f, cy - 1f), color, 1.1f);
+  }
+
+  private static void DrawPrinterIcon(ImDrawListPtr draw, float x, float cy, uint color)
+  {
+    float cx = x + ButtonWidth * 0.5f;
+    draw.AddRect(new Vector2(cx - 6f, cy - 2f), new Vector2(cx + 6f, cy + 5f), color, 0f, ImDrawFlags.None, 1.2f);
+    draw.AddRect(new Vector2(cx - 4f, cy - 6f), new Vector2(cx + 4f, cy - 2f), color, 0f, ImDrawFlags.None, 1.2f);
+    draw.AddLine(new Vector2(cx - 3f, cy + 1.5f), new Vector2(cx + 3f, cy + 1.5f), color, 1.1f);
   }
 }

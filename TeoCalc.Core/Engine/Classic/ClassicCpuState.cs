@@ -75,7 +75,7 @@ public sealed class ClassicCpuState
     KeyInputState = ClassicKeyInputState.Idle;
     RamAddress = 0;
     RamSlotSize = 10;
-    ProgramRamBase = DefaultProgramRamBase;
+    // ProgramRamBase is model hardware (set by ClassicCpuFactory); preserve across Reset/PowerOff.
     Registers.ClearAll();
     Array.Clear(Ram);
     ClassicPowerOnDefaults.Apply(this);

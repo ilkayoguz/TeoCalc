@@ -1,4 +1,3 @@
-using TeoCalc.Core.Engine.Classic;
 using TeoCalc.Core.Firmware;
 
 namespace TeoCalc.Panamatik;
@@ -53,12 +52,7 @@ public sealed class EmulatorFirmwareGateway : ICalcFirmwareGateway, IDisposable
       Rom: 0,
       Grp: 0,
       P: 0,
-      Flags: ClassicCpuFlags.None,
-      BranchOffset: 0,
-      KeyInputState: ClassicKeyInputState.Idle,
-      KeyAvailable: false,
-      KeysToRomAddressCount: 0,
-      BufferToRomAddressCount: 0);
+      Classic: null);
 
   public FirmwareKeyCommand? ActiveKey => _activeKey;
 
@@ -213,12 +207,7 @@ public sealed class EmulatorFirmwareGateway : ICalcFirmwareGateway, IDisposable
       snapshot.Rom,
       snapshot.Grp,
       snapshot.P,
-      (ClassicCpuFlags)snapshot.Flags,
-      BranchOffset: 0,
-      KeyInputState: ClassicKeyInputState.Idle,
-      KeyAvailable: false,
-      KeysToRomAddressCount: 0,
-      BufferToRomAddressCount: 0);
+      Classic: null);
     BatchCompleted?.Invoke(this, new FirmwareBatchCompletedEventArgs(LastBatch));
   }
 

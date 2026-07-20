@@ -7,17 +7,25 @@ namespace TeoCalc.Panamatik;
 
 /// <summary>
 /// Wires firmware backends into <see cref="CalcFirmwareGatewayLocator"/>.
-/// Classic pilot (HP-65) uses native <see cref="ClassicFirmwareGateway"/>;
+/// ROM-ready Classic family models use native <see cref="ClassicFirmwareGateway"/>;
 /// other models keep the temporary emulator adapter.
 /// </summary>
 public static class CalcFirmwareBootstrap
 {
-  /// <summary>Engine ids that run on native ClassicCpu (no Panamatik at runtime).</summary>
+  /// <summary>
+  /// True when the model is Classic-family and ROM/handler assets are present
+  /// (HP-35/45/55/65/70/80 today; HP-67 deferred until ROM-ready).
+  /// </summary>
   public static bool IsNativeClassicPilot(string catalogOrEngineId)
   {
     CalcModelIdentity identity = CalcModelIds.Resolve(catalogOrEngineId);
-    return string.Equals(identity.EngineId, "HP-65", StringComparison.OrdinalIgnoreCase)
-      || string.Equals(identity.ShortId, "65", StringComparison.OrdinalIgnoreCase);
+    if (!string.Equals(identity.Family, "Classic", StringComparison.OrdinalIgnoreCase))
+    {
+      return false;
+    }
+
+    string engineId = NormalizeNativeClassicEngineId(identity);
+    return NativeClassicAssetsExist(engineId);
   }
 
   public static void UseEmulatorAdapter()
@@ -39,10 +47,16 @@ public static class CalcFirmwareBootstrap
     return new EmulatorFirmwareGateway(engine);
   }
 
-  private static string NormalizeNativeClassicEngineId(CalcModelIdentity identity) =>
-    string.Equals(identity.ShortId, "65", StringComparison.OrdinalIgnoreCase)
-      ? "HP-65"
-      : identity.EngineId;
+  private static string NormalizeNativeClassicEngineId(CalcModelIdentity identity)
+  {
+    string engineId = identity.EngineId;
+    if (engineId.StartsWith("HP-", StringComparison.OrdinalIgnoreCase))
+    {
+      return engineId;
+    }
+
+    return $"HP-{identity.ShortId}";
+  }
 
   private static ClassicFirmwareGateway CreateNativeClassicGateway(string engineId)
   {
@@ -59,8 +73,7 @@ public static class CalcFirmwareBootstrap
   {
     if (IsNativeClassicPilot(catalogOrEngineId))
     {
-      CalcModelIdentity identity = CalcModelIds.Resolve(catalogOrEngineId);
-      return NativeClassicAssetsExist(NormalizeNativeClassicEngineId(identity));
+      return true;
     }
 
     return PanamatikEngineFactory.IsSupported(CalcModelIds.Resolve(catalogOrEngineId).EngineId);
@@ -70,11 +83,7 @@ public static class CalcFirmwareBootstrap
   {
     if (IsNativeClassicPilot(catalogOrEngineId))
     {
-      CalcModelIdentity identity = CalcModelIds.Resolve(catalogOrEngineId);
-      string engineId = NormalizeNativeClassicEngineId(identity);
-      return NativeClassicAssetsExist(engineId)
-        ? []
-        : [$"Native Classic ROM/handlers missing for {engineId}."];
+      return [];
     }
 
     return PanamatikEngineFactory.GetAssetWarnings(CalcModelIds.Resolve(catalogOrEngineId).EngineId);
@@ -90,6 +99,17 @@ public static class CalcFirmwareBootstrap
     }
 
     TeoCalcModelDefinition model = TeoCalcModelDefinition.Load(modelPath);
+    if (!string.Equals(model.Family, "Classic", StringComparison.OrdinalIgnoreCase))
+    {
+      return false;
+    }
+
+    if (string.IsNullOrWhiteSpace(model.Firmware.RomBinary)
+        || string.IsNullOrWhiteSpace(model.Firmware.HandlerCatalog))
+    {
+      return false;
+    }
+
     string modelDir = Path.Combine(engineRoot, model.Model);
     string romPath = Path.Combine(modelDir, model.Firmware.RomBinary.Replace('/', Path.DirectorySeparatorChar));
     string handlerPath = Path.Combine(modelDir, model.Firmware.HandlerCatalog.Replace('/', Path.DirectorySeparatorChar));

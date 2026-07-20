@@ -74,6 +74,15 @@ public sealed record FirmwareKeyProcessedEventArgs(
   string DisplayText,
   bool DisplayVisible);
 
+/// <summary>ClassicCpu-only batch diagnostics; null on emulator / non-Classic gateways.</summary>
+public sealed record ClassicFirmwareDiagnostics(
+  ClassicCpuFlags Flags,
+  ClassicKeyInputState KeyInputState,
+  int BranchOffset,
+  int KeysToRomAddressCount,
+  int BufferToRomAddressCount,
+  bool KeyAvailable);
+
 public sealed record FirmwareBatchSnapshot(
   int StepCount,
   int ProgramCounter,
@@ -86,11 +95,6 @@ public sealed record FirmwareBatchSnapshot(
   byte Rom,
   byte Grp,
   byte P,
-  ClassicCpuFlags Flags,
-  int BranchOffset,
-  ClassicKeyInputState KeyInputState,
-  bool KeyAvailable,
-  int KeysToRomAddressCount,
-  int BufferToRomAddressCount);
+  ClassicFirmwareDiagnostics? Classic = null);
 
 public sealed record FirmwareBatchCompletedEventArgs(FirmwareBatchSnapshot Snapshot);

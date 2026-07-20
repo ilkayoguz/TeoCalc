@@ -22,6 +22,7 @@
     "ShortId": "19C",
     "AnnotationStyleId": "ClassicFg",
     "SwitchBankId": "Classic19C",
-    "HasCardSlot": false
+    "HasCardSlot": false,
+    "HasPrinter": true
   }
 }

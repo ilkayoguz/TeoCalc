@@ -112,8 +112,8 @@ public sealed class CalcExplorerSessionPanamatikTests
     Console.WriteLine("Display: [" + session.DisplayText.Replace(';', '.') + "]");
     Console.WriteLine("PC: " + session.LastBatch.ProgramCounter.ToString("X4"));
     Console.WriteLine("KeyBuf: " + session.LastBatch.KeyBuffer.ToString("X2"));
-    Console.WriteLine("K2R: " + session.LastBatch.KeysToRomAddressCount);
-    Console.WriteLine("B2R: " + session.LastBatch.BufferToRomAddressCount);
+    Console.WriteLine("K2R: " + (session.LastBatch.Classic?.KeysToRomAddressCount ?? 0));
+    Console.WriteLine("B2R: " + (session.LastBatch.Classic?.BufferToRomAddressCount ?? 0));
     Assert.IsTrue(session.PowerOn);
     Assert.IsTrue(session.DisplayText.Contains('7'),
       "Digit entry display should follow the firmware key-dispatch path.");
@@ -426,7 +426,8 @@ public sealed class CalcExplorerSessionPanamatikTests
     Assert.IsFalse(string.IsNullOrWhiteSpace(batch.LastHandlerId));
     Assert.IsTrue(batch.ProgramCounter > 0);
 
-    Assert.IsTrue(batch.KeysToRomAddressCount >= 0);
-    Assert.IsTrue(batch.BufferToRomAddressCount >= 0);
+    Assert.IsNotNull(batch.Classic);
+    Assert.IsTrue(batch.Classic.KeysToRomAddressCount >= 0);
+    Assert.IsTrue(batch.Classic.BufferToRomAddressCount >= 0);
   }
 }
