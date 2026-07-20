@@ -44,9 +44,27 @@ public static class CalcModelIds
       return catalogOrEngineId;
     }
 
-    return CatalogToEngine.TryGetValue(catalogOrEngineId.Trim(), out string? engineId)
-      ? engineId
-      : catalogOrEngineId.Trim();
+    string id = catalogOrEngineId.Trim();
+    if (CatalogToEngine.TryGetValue(id, out string? mapped))
+    {
+      return mapped;
+    }
+
+    if (id.StartsWith("T-", StringComparison.OrdinalIgnoreCase))
+    {
+      id = "HP-" + id[2..];
+      return CatalogToEngine.TryGetValue(id, out mapped) ? mapped : id;
+    }
+
+    if (!id.StartsWith("HP-", StringComparison.OrdinalIgnoreCase)
+        && id.Length > 0
+        && char.IsDigit(id[0]))
+    {
+      id = "HP-" + id;
+      return CatalogToEngine.TryGetValue(id, out mapped) ? mapped : id;
+    }
+
+    return id;
   }
 
   /// <summary>Product label for UI (e.g. T-65 from HP-65 / HP-29C → T-29C short form via numeric id).</summary>
@@ -65,6 +83,11 @@ public static class CalcModelIds
     if (id.StartsWith("HP-", StringComparison.OrdinalIgnoreCase))
     {
       return id[3..];
+    }
+
+    if (id.StartsWith("T-", StringComparison.OrdinalIgnoreCase))
+    {
+      return id[2..];
     }
 
     return id;

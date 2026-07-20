@@ -17,7 +17,7 @@
     "RomBinary": "Firmware/hp27.microcode.bin",
     "RomListing": "Firmware/hp27.microcode.mlist",
     "RomMap": "Firmware/hp27.microcode.map.json",
-    "HandlerCatalog": "../Woodstock/microcode.handlers.study.json"
+    "HandlerCatalog": "../Woodstock/microcode.handlers.json"
   },
   "Program": {
     "MaxSteps": 0,

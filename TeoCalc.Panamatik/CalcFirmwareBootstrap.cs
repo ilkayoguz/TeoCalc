@@ -1,13 +1,14 @@
 using TeoCalc.Core;
 using TeoCalc.Core.Catalog;
 using TeoCalc.Core.Engine.Classic;
+using TeoCalc.Core.Engine.Woodstock;
 using TeoCalc.Core.Firmware;
 
 namespace TeoCalc.Panamatik;
 
 /// <summary>
 /// Wires firmware backends into <see cref="CalcFirmwareGatewayLocator"/>.
-/// ROM-ready Classic family models use native <see cref="ClassicFirmwareGateway"/>;
+/// ROM-ready Classic and Woodstock family models use native gateways;
 /// other models keep the temporary emulator adapter.
 /// </summary>
 public static class CalcFirmwareBootstrap
@@ -18,14 +19,18 @@ public static class CalcFirmwareBootstrap
   /// </summary>
   public static bool IsNativeClassicPilot(string catalogOrEngineId)
   {
-    CalcModelIdentity identity = CalcModelIds.Resolve(catalogOrEngineId);
-    if (!string.Equals(identity.Family, "Classic", StringComparison.OrdinalIgnoreCase))
-    {
-      return false;
-    }
+    string engineId = NormalizeEngineId(CalcModelIds.Resolve(catalogOrEngineId));
+    return NativeFamilyAssetsExist(engineId, "Classic");
+  }
 
-    string engineId = NormalizeNativeClassicEngineId(identity);
-    return NativeClassicAssetsExist(engineId);
+  /// <summary>
+  /// True when the model is Woodstock-family and ROM/handler assets are present
+  /// (HP-21/22/25/27/29 share one CPU core).
+  /// </summary>
+  public static bool IsNativeWoodstockPilot(string catalogOrEngineId)
+  {
+    string engineId = NormalizeEngineId(CalcModelIds.Resolve(catalogOrEngineId));
+    return NativeFamilyAssetsExist(engineId, "Woodstock");
   }
 
   public static void UseEmulatorAdapter()
@@ -40,14 +45,19 @@ public static class CalcFirmwareBootstrap
     CalcModelIdentity identity = CalcModelIds.Resolve(catalogOrEngineId);
     if (IsNativeClassicPilot(catalogOrEngineId))
     {
-      return CreateNativeClassicGateway(NormalizeNativeClassicEngineId(identity));
+      return CreateNativeClassicGateway(NormalizeEngineId(identity));
+    }
+
+    if (IsNativeWoodstockPilot(catalogOrEngineId))
+    {
+      return CreateNativeWoodstockGateway(NormalizeEngineId(identity));
     }
 
     IPanamatikEngine engine = PanamatikEngineFactory.Create(identity.EngineId);
     return new EmulatorFirmwareGateway(engine);
   }
 
-  private static string NormalizeNativeClassicEngineId(CalcModelIdentity identity)
+  private static string NormalizeEngineId(CalcModelIdentity identity)
   {
     string engineId = identity.EngineId;
     if (engineId.StartsWith("HP-", StringComparison.OrdinalIgnoreCase))
@@ -69,9 +79,20 @@ public static class CalcFirmwareBootstrap
     return gateway;
   }
 
+  private static WoodstockFirmwareGateway CreateNativeWoodstockGateway(string engineId)
+  {
+    string engineRoot = TeoCalcPaths.ResourcePath("Engine");
+    string modelPath = Path.Combine(engineRoot, engineId, "Model.json");
+    TeoCalcModelDefinition model = TeoCalcModelDefinition.Load(modelPath);
+    WoodstockCpu cpu = WoodstockCpuFactory.Create(model, engineRoot);
+    WoodstockFirmwareGateway gateway = new();
+    gateway.AttachCpu(cpu);
+    return gateway;
+  }
+
   private static bool IsSupported(string catalogOrEngineId)
   {
-    if (IsNativeClassicPilot(catalogOrEngineId))
+    if (IsNativeClassicPilot(catalogOrEngineId) || IsNativeWoodstockPilot(catalogOrEngineId))
     {
       return true;
     }
@@ -81,7 +102,7 @@ public static class CalcFirmwareBootstrap
 
   private static IReadOnlyList<string> GetAssetWarnings(string catalogOrEngineId)
   {
-    if (IsNativeClassicPilot(catalogOrEngineId))
+    if (IsNativeClassicPilot(catalogOrEngineId) || IsNativeWoodstockPilot(catalogOrEngineId))
     {
       return [];
     }
@@ -89,7 +110,7 @@ public static class CalcFirmwareBootstrap
     return PanamatikEngineFactory.GetAssetWarnings(CalcModelIds.Resolve(catalogOrEngineId).EngineId);
   }
 
-  private static bool NativeClassicAssetsExist(string engineId)
+  private static bool NativeFamilyAssetsExist(string engineId, string expectedFamily)
   {
     string engineRoot = TeoCalcPaths.ResourcePath("Engine");
     string modelPath = Path.Combine(engineRoot, engineId, "Model.json");
@@ -99,7 +120,7 @@ public static class CalcFirmwareBootstrap
     }
 
     TeoCalcModelDefinition model = TeoCalcModelDefinition.Load(modelPath);
-    if (!string.Equals(model.Family, "Classic", StringComparison.OrdinalIgnoreCase))
+    if (!string.Equals(model.Family, expectedFamily, StringComparison.OrdinalIgnoreCase))
     {
       return false;
     }

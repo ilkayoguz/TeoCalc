@@ -38,16 +38,16 @@ public sealed class ClassicFirmwareGatewayTests
   }
 
   [TestMethod]
-  public void Bootstrap_Routes_Hp25_To_EmulatorAdapter()
+  public void Bootstrap_Routes_Hp67_To_EmulatorAdapter()
   {
-    ICalcFirmwareGateway gateway = CalcFirmwareGatewayLocator.CreateGateway("HP-25");
+    ICalcFirmwareGateway gateway = CalcFirmwareGatewayLocator.CreateGateway("HP-67");
     Assert.IsInstanceOfType(gateway, typeof(EmulatorFirmwareGateway));
   }
 
   [TestMethod]
-  public void Bootstrap_Routes_Hp67_To_EmulatorAdapter()
+  public void Bootstrap_Routes_Hp31_To_EmulatorAdapter()
   {
-    ICalcFirmwareGateway gateway = CalcFirmwareGatewayLocator.CreateGateway("HP-67");
+    ICalcFirmwareGateway gateway = CalcFirmwareGatewayLocator.CreateGateway("HP-31");
     Assert.IsInstanceOfType(gateway, typeof(EmulatorFirmwareGateway));
   }
 
@@ -106,7 +106,7 @@ public sealed class ClassicFirmwareGatewayTests
   [TestMethod]
   public void EmulatorGateway_Batch_ClassicDiagnosticsNull()
   {
-    ICalcFirmwareGateway gateway = CalcFirmwareGatewayLocator.CreateGateway("HP-25");
+    ICalcFirmwareGateway gateway = CalcFirmwareGatewayLocator.CreateGateway("HP-31");
     gateway.PowerOnResume();
     Assert.IsNull(gateway.LastBatch.Classic);
   }
@@ -128,5 +128,6 @@ public sealed class ClassicFirmwareGatewayTests
   {
     Assert.IsFalse(CalcFirmwareBootstrap.IsNativeClassicPilot("HP-25"));
     Assert.IsFalse(CalcFirmwareBootstrap.IsNativeClassicPilot("HP-67"));
+    Assert.IsFalse(CalcFirmwareBootstrap.IsNativeClassicPilot("HP-31"));
   }
 }

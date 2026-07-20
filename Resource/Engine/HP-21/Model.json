@@ -21,7 +21,7 @@
     "RomBinary": "Firmware/hp21.microcode.bin",
     "RomListing": "Firmware/hp21.microcode.mlist",
     "RomMap": "Firmware/hp21.microcode.map.json",
-    "HandlerCatalog": "../Woodstock/microcode.handlers.study.json"
+    "HandlerCatalog": "../Woodstock/microcode.handlers.json"
   },
   "Faceplate": {
     "BodyLayoutId": "00d",
