@@ -192,10 +192,46 @@ public abstract class ActCpuBase : CpuBase, IActCpu
   {
   }
 
+  /// <summary>Woodstock/Spice/HP-67 put the key byte in C[0]; HP-19C uses C[2]/C[1].</summary>
+  protected virtual void LoadKeyBufferIntoC() =>
+    State.Registers.C[0] = State.KeyBuffer;
+
+  /// <summary>Woodstock/Spice/HP-67 load key buffer into A; HP-19C loads the power-switch nibble.</summary>
+  protected virtual void LoadKeysToA()
+  {
+    State.Registers.A[2] = (byte)(State.KeyBuffer >> 4);
+    State.Registers.A[1] = (byte)(State.KeyBuffer & 0xF);
+  }
+
+  /// <summary>HP-19C PIK ops; Woodstock no-ops.</summary>
+  protected virtual void OnPikKeys()
+  {
+  }
+
+  protected virtual void OnPikHome()
+  {
+  }
+
+  protected virtual void OnPikCr()
+  {
+  }
+
+  /// <summary>When true, HP-19C gateway skips the next continuous S3 pulse (Panamatik <c>pikinstruction</c>).</summary>
+  public bool SuppressNextStatusPulse { get; set; }
+
   private void Execute(string alias, ushort opcode)
   {
     switch (alias)
     {
+      case "op_pik_home":
+        OnPikHome();
+        break;
+      case "op_pik_cr":
+        OnPikCr();
+        break;
+      case "op_pik_keys":
+        OnPikKeys();
+        break;
       case "op_nop":
       case "op_unknown":
       case "op_crc_test_motor_on":
@@ -205,13 +241,10 @@ public abstract class ActCpuBase : CpuBase, IActCpu
       case "op_crc_test_card_in":
       case "op_crc_test_prot":
       case "op_display_reset_twf":
-      case "op_pik_home":
-      case "op_pik_cr":
       case "op_pik_c4":
       case "op_pik_d4":
       case "op_pik_e4":
       case "op_pik_print":
-      case "op_pik_keys":
       case "op_rom_addr_to_buffer":
         break;
       case "op_binary":
@@ -286,7 +319,7 @@ public abstract class ActCpuBase : CpuBase, IActCpu
         ActCpuStack.YToA(State.Registers);
         break;
       case "op_register_to_c":
-        ActCpuDataRam.RegisterToCOpcode(State, opcode);
+        ActCpuDataRam.RegisterToCOpcode(State, opcode, LoadKeyBufferIntoC);
         break;
       case "op_c_to_register":
         ActCpuDataRam.CToRegisterOpcode(State, opcode);
@@ -329,8 +362,7 @@ public abstract class ActCpuBase : CpuBase, IActCpu
         State.RomAddress = State.KeyBuffer;
         break;
       case "op_keys_to_a":
-        State.Registers.A[2] = (byte)(State.KeyBuffer >> 4);
-        State.Registers.A[1] = (byte)(State.KeyBuffer & 0xF);
+        LoadKeysToA();
         break;
       case "op_display_off":
         State.Flags &= ~ActCpuFlags.DisplayOn;

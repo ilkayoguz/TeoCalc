@@ -7,9 +7,26 @@ namespace TeoCalc.Core.Engine.Hp19;
 /// <summary>HP-19C CPU (ACT ISA variant via <see cref="ActCpuBase"/>; Panamatik ACThp19C).</summary>
 public sealed class Hp19Cpu : ActCpuBase
 {
+  /// <summary>Panamatik <c>DefaultRAM</c> continuous-memory seed at register address 0x2E (offset 322).</summary>
+  private static readonly byte[] DefaultRamSeed = [0, 2, 64, 40, 52, 73, 3];
+
+  /// <summary>Panamatik <c>act_switch</c> cold-start value (ON / run position).</summary>
+  private byte _powerSwitch = 4;
+
+  private bool _buttonPressed;
+
   public Hp19Cpu(IMicrocodeRom rom, MicrocodeHandlerCatalog handlers)
     : base(rom, handlers)
   {
+  }
+
+  public override void Reset()
+  {
+    base.Reset();
+    _powerSwitch = 4;
+    _buttonPressed = false;
+    SuppressNextStatusPulse = false;
+    SeedDefaultRam();
   }
 
   /// <summary>HP-19C has no bank-OR on fetch; status bit 0 remaps high ROM.</summary>
@@ -39,17 +56,19 @@ public sealed class Hp19Cpu : ActCpuBase
 
   /// <summary>
   /// HP-19C flag layout differs: INCP=0x80 (Woodstock Bank), BANK=0x10 (Woodstock Key).
+  /// Panamatik clears INCP one cycle after op_inc_p; otherwise clears PCARRY.
   /// </summary>
   protected override void AfterCycle(ushort opcode)
   {
     _ = opcode;
     if ((State.Flags & ActCpuFlags.Bank) != 0)
     {
-      State.Flags &= ~ActCpuFlags.Key;
+      // Clear INCP (mapped onto ActCpuFlags.Bank).
+      State.Flags &= ~ActCpuFlags.Bank;
     }
     else
     {
-      State.Flags &= ~ActCpuFlags.Bank;
+      State.Flags &= ~ActCpuFlags.PCarry;
     }
   }
 
@@ -59,4 +78,60 @@ public sealed class Hp19Cpu : ActCpuBase
   protected override void OnIncP() =>
     // HP-19C F.INCP == 0x80 == ActCpuFlags.Bank bit position.
     State.Flags |= ActCpuFlags.Bank;
+
+  /// <summary>Panamatik HP-19C key→C uses C[2]/C[1] (Woodstock uses C[0]).</summary>
+  protected override void LoadKeyBufferIntoC()
+  {
+    State.Registers.C[2] = (byte)(State.KeyBuffer & 0xF);
+    State.Registers.C[1] = (byte)(State.KeyBuffer >> 4);
+  }
+
+  /// <summary>Panamatik HP-19C <c>op_keys_to_a</c> reads <c>act_switch</c>, not the key buffer.</summary>
+  protected override void LoadKeysToA()
+  {
+    State.Registers.A[2] = (byte)(_powerSwitch >> 4);
+    State.Registers.A[1] = (byte)(_powerSwitch & 0xF);
+  }
+
+  /// <summary>Panamatik <c>op_pik_keys</c>: S3 reflects a pending key edge; suppress next timer S3 pulse.</summary>
+  protected override void OnPikKeys()
+  {
+    if (_buttonPressed)
+    {
+      State.Status |= 8;
+      _buttonPressed = false;
+    }
+    else
+    {
+      State.Status &= 65527;
+    }
+
+    SuppressNextStatusPulse = true;
+  }
+
+  /// <summary>Panamatik <c>op_pik_home</c> with motor idle: set S3 and suppress next timer S3 pulse.</summary>
+  protected override void OnPikHome()
+  {
+    State.Status |= 8;
+    SuppressNextStatusPulse = true;
+  }
+
+  /// <summary>Panamatik <c>op_pik_cr</c> with empty print buffer: set S3 and suppress next timer S3 pulse.</summary>
+  protected override void OnPikCr()
+  {
+    State.Status |= 8;
+    SuppressNextStatusPulse = true;
+  }
+
+  /// <summary>Latch a key-press edge for <c>op_pik_keys</c> (Panamatik <c>buttonpressed</c>).</summary>
+  public void NotifyButtonPressed() =>
+    _buttonPressed = true;
+
+  private void SeedDefaultRam()
+  {
+    for (int i = 0; i < DefaultRamSeed.Length; i++)
+    {
+      State.Ram[322 + i] = DefaultRamSeed[i];
+    }
+  }
 }

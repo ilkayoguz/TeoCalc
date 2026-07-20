@@ -2,7 +2,7 @@ namespace TeoCalc.Core.Engine.Act;
 
 internal static class ActCpuDataRam
 {
-  public static void RegisterToC(ActCpuState state, byte addr)
+  public static void RegisterToC(ActCpuState state, byte addr, Action? loadKeyBufferIntoC = null)
   {
     if (addr < 64)
     {
@@ -15,7 +15,14 @@ internal static class ActCpuDataRam
     }
     else if (addr == byte.MaxValue)
     {
-      state.Registers.C[0] = state.KeyBuffer;
+      if (loadKeyBufferIntoC is not null)
+      {
+        loadKeyBufferIntoC();
+      }
+      else
+      {
+        state.Registers.C[0] = state.KeyBuffer;
+      }
     }
   }
 
@@ -45,14 +52,14 @@ internal static class ActCpuDataRam
     CToData(state);
   }
 
-  public static void RegisterToCOpcode(ActCpuState state, ushort opcode)
+  public static void RegisterToCOpcode(ActCpuState state, ushort opcode, Action? loadKeyBufferIntoC = null)
   {
     if (opcode >> 6 != 0)
     {
       state.RamAddress = (byte)((state.RamAddress & 0xF0) + (opcode >> 6));
     }
 
-    RegisterToC(state, state.RamAddress);
+    RegisterToC(state, state.RamAddress, loadKeyBufferIntoC);
   }
 
   public static void ClearDataRegs(ActCpuState state)

@@ -4,7 +4,7 @@ namespace TeoCalc.Core.Firmware;
 
 /// <summary>
 /// HP-19C gateway (ACT variant). Status pulses match Panamatik <c>timer1_Tick</c>
-/// (before each instruction; battery + run-mode bits).
+/// (before each instruction; battery + run-mode bits; skip S3 after PIK ops).
 /// </summary>
 public sealed class Hp19FirmwareGateway : ActFirmwareGatewayBase<Hp19Cpu>
 {
@@ -19,15 +19,25 @@ public sealed class Hp19FirmwareGateway : ActFirmwareGatewayBase<Hp19Cpu>
 
     // batteryok
     Cpu.State.Status |= 32;
-    // Default power-on: act_switch==4 → pulse S3 when status bit0 clear, or when not in PRGM
-    if ((Cpu.State.Status & 1) == 0 || !ProgramMode)
+
+    // Panamatik: skip S3 pulse when previous op set pikinstruction.
+    if (!Cpu.SuppressNextStatusPulse
+        && ((Cpu.State.Status & 1) == 0 || !ProgramMode))
     {
       Cpu.State.Status |= 8;
     }
+
+    Cpu.SuppressNextStatusPulse = false;
 
     if (KeyLineHeld)
     {
       Cpu.State.Status |= 0x8000;
     }
+  }
+
+  protected override void OnKeyDown(FirmwareKeyCommand key)
+  {
+    base.OnKeyDown(key);
+    Cpu?.NotifyButtonPressed();
   }
 }

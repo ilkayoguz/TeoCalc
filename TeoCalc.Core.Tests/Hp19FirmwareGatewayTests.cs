@@ -37,7 +37,7 @@ public sealed class Hp19FirmwareGatewayTests
   }
 
   [TestMethod]
-  public void PowerOnResume_RunsNativeActWithoutPanamatikTypes()
+  public void PowerOnResume_ShowsIdleDisplay_WithoutPanamatikTypes()
   {
     ICalcFirmwareGateway gateway = CreateHp19Gateway();
     Assert.IsInstanceOfType(gateway, typeof(Hp19FirmwareGateway));
@@ -48,9 +48,8 @@ public sealed class Hp19FirmwareGatewayTests
     }
 
     Assert.IsTrue(gateway.PowerOn);
-    // Idle LED still needs further HP-19C arithmetic parity (C-register diverge vs Panamatik);
-    // routing + ACT decode/fetch are covered by factory/bootstrap tests.
-    Assert.IsTrue(((Hp19FirmwareGateway)gateway).Cpu!.StepCount > 0);
+    Assert.IsTrue(gateway.IsDisplayVisible());
+    StringAssert.Contains(gateway.DisplayText, "0");
   }
 
   [TestMethod]
