@@ -3,14 +3,24 @@ using TeoCalc.Core.Engine.Hp01;
 namespace TeoCalc.Core.Firmware;
 
 /// <summary>
-/// HP-01 gateway (ACThp01 ISA). Life-cycle matches <see cref="CalcFirmwareGatewayBase"/>
-/// (0.05s / 200 steps) with Panamatik sleep/time side effects.
+/// HP-01 gateway (ACThp01 ISA). Timer batch matches Panamatik
+/// <c>HeadlessRunTimerBatch</c> / <c>timer1</c> (10ms / 100 steps).
 /// </summary>
 public sealed class Hp01FirmwareGateway : CalcFirmwareGatewayBase
 {
+  /// <summary>Panamatik HP01 <c>timer1.Interval</c>.</summary>
+  private const float Hp01TimerTickSeconds = 0.01f;
+
+  /// <summary>Panamatik HP01 <c>timer1_Tick</c> instruction budget.</summary>
+  private const int Hp01TimerBatchSteps = 100;
+
   public Hp01Cpu? Cpu { get; private set; }
 
   public override bool ProgramMode => false;
+
+  protected override int InstructionStepsPerBatch => Hp01TimerBatchSteps;
+
+  protected override float TimerTickSeconds => Hp01TimerTickSeconds;
 
   public void AttachCpu(Hp01Cpu? cpu)
   {
@@ -36,7 +46,7 @@ public sealed class Hp01FirmwareGateway : CalcFirmwareGatewayBase
       return;
     }
 
-    RunInstructionBatch(KeyRunSteps);
+    RunInstructionBatch(InstructionStepsPerBatch);
   }
 
   protected override bool CanRunBatch() =>
@@ -63,7 +73,7 @@ public sealed class Hp01FirmwareGateway : CalcFirmwareGatewayBase
     Cpu!.PressKey(key.KeyCode);
 
   protected override void OnKeyUp() =>
-    RunInstructionBatch(KeyRunSteps);
+    RunInstructionBatch(InstructionStepsPerBatch);
 
   protected override void RunInstructionBatch(int steps)
   {

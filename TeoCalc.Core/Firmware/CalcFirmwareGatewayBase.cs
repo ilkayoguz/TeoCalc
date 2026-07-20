@@ -7,8 +7,14 @@ namespace TeoCalc.Core.Firmware;
 public abstract class CalcFirmwareGatewayBase : ICalcFirmwareGateway
 {
   protected const int KeyRunSteps = 200;
-  /// <summary>Match Panamatik / emulator timer cadence.</summary>
+  /// <summary>Match Panamatik / emulator timer cadence (most families use 50ms / 200 steps).</summary>
   protected const float RunTickSeconds = 0.05f;
+
+  /// <summary>Instructions executed per timer batch. HP-01 overrides to Panamatik's 100.</summary>
+  protected virtual int InstructionStepsPerBatch => KeyRunSteps;
+
+  /// <summary>Gateway tick quantum. HP-01 overrides to Panamatik's 10ms timer1 interval.</summary>
+  protected virtual float TimerTickSeconds => RunTickSeconds;
 
   private float _runAccumulator;
   private string _displayText = string.Empty;
@@ -53,6 +59,10 @@ public abstract class CalcFirmwareGatewayBase : ICalcFirmwareGateway
 
   public bool KeyLineHeld => _keyLineHeld;
 
+  public virtual bool SupportsCardProgram => false;
+
+  public virtual IReadOnlyList<string> PrintLines => [];
+
   protected float RunAccumulator
   {
     get => _runAccumulator;
@@ -62,7 +72,7 @@ public abstract class CalcFirmwareGatewayBase : ICalcFirmwareGateway
   public void PowerOnResume()
   {
     PowerOn = true;
-    RunInstructionBatch(KeyRunSteps);
+    RunInstructionBatch(InstructionStepsPerBatch);
   }
 
   public virtual void PowerOff()
@@ -91,10 +101,11 @@ public abstract class CalcFirmwareGatewayBase : ICalcFirmwareGateway
     }
 
     _runAccumulator += deltaSeconds;
-    while (_runAccumulator >= RunTickSeconds)
+    float tick = TimerTickSeconds;
+    while (_runAccumulator >= tick)
     {
-      RunInstructionBatch(KeyRunSteps);
-      _runAccumulator -= RunTickSeconds;
+      RunInstructionBatch(InstructionStepsPerBatch);
+      _runAccumulator -= tick;
     }
   }
 
@@ -110,7 +121,7 @@ public abstract class CalcFirmwareGatewayBase : ICalcFirmwareGateway
     _activeKey = key;
     SetKeyLineHeld(true);
     OnKeyDown(key);
-    RunInstructionBatch(KeyRunSteps);
+    RunInstructionBatch(InstructionStepsPerBatch);
     KeyProcessed?.Invoke(this, new FirmwareKeyProcessedEventArgs(key, _displayText, IsDisplayVisible()));
   }
 
@@ -135,6 +146,27 @@ public abstract class CalcFirmwareGatewayBase : ICalcFirmwareGateway
     _keyLineHeld = held;
     KeyStateChanged?.Invoke(this, new FirmwareKeyStateChangedEventArgs(_activeKey, held));
   }
+
+  public virtual bool TryExportCardProgram(out byte[] programCodes, out double[] registers)
+  {
+    programCodes = [];
+    registers = [];
+    return false;
+  }
+
+  public virtual bool TryImportCardProgram(IReadOnlyList<byte> programCodes, IReadOnlyList<double> registers)
+  {
+    _ = programCodes;
+    _ = registers;
+    return false;
+  }
+
+  public virtual void ClearPrintLines()
+  {
+  }
+
+  public virtual void AppendTestPrint(string line) =>
+    _ = line;
 
   protected void ResetSessionState()
   {

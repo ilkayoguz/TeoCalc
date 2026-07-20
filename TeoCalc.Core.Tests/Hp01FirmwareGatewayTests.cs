@@ -1,6 +1,7 @@
 using TeoCalc.Core;
 using TeoCalc.Core.Catalog;
 using TeoCalc.Core.Engine;
+using TeoCalc.Core.Engine.Classic;
 using TeoCalc.Core.Engine.Hp01;
 using TeoCalc.Core.Firmware;
 using TeoCalc.Panamatik;
@@ -12,6 +13,17 @@ public sealed class Hp01FirmwareGatewayTests
 {
   private static ICalcFirmwareGateway CreateHp01Gateway() =>
     CalcFirmwareGatewayLocator.CreateGateway("HP-01");
+
+  private static ProgramVocabulary LoadHp01Vocabulary() =>
+    ProgramVocabulary.Load(TeoCalcPaths.ResourcePath("Engine/HP-01/Program/program.vocabulary.json"));
+
+  private static void Soak(ICalcFirmwareGateway gateway, int ticks, float deltaSeconds = 0.01f)
+  {
+    for (int i = 0; i < ticks; i++)
+    {
+      gateway.Tick(deltaSeconds);
+    }
+  }
 
   [TestMethod]
   [DataRow("HP-01")]
@@ -44,10 +56,8 @@ public sealed class Hp01FirmwareGatewayTests
     ICalcFirmwareGateway gateway = CreateHp01Gateway();
     Assert.IsInstanceOfType(gateway, typeof(Hp01FirmwareGateway));
     gateway.PowerOnResume();
-    for (int i = 0; i < 80; i++)
-    {
-      gateway.Tick(0.05f);
-    }
+    // DisplayCnt≈200 at 10ms; keep soak under the ~2s blank timeout.
+    Soak(gateway, ticks: 80);
 
     Assert.IsTrue(gateway.PowerOn);
     Assert.IsTrue(((Hp01FirmwareGateway)gateway).Cpu!.StepCount > 0);
@@ -57,6 +67,50 @@ public sealed class Hp01FirmwareGatewayTests
     Assert.IsTrue(
       gateway.DisplayText.IndexOfAny(['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ':']) >= 0,
       gateway.DisplayText);
+  }
+
+  [TestMethod]
+  public void KeyDown_Digit_UpdatesDisplayText()
+  {
+    ICalcFirmwareGateway gateway = CreateHp01Gateway();
+    gateway.PowerOnResume();
+    Soak(gateway, ticks: 80);
+
+    ProgramVocabulary vocabulary = LoadHp01Vocabulary();
+    Assert.IsTrue(ClassicProgramInput.TryResolveKeyCode(vocabulary, '7', out byte keyCode));
+    Assert.AreEqual(4, keyCode);
+
+    gateway.KeyDown(new FirmwareKeyCommand(10, keyCode));
+    Soak(gateway, ticks: 20);
+
+    gateway.KeyUp();
+    Soak(gateway, ticks: 20);
+
+    Assert.IsTrue(gateway.IsDisplayVisible(), gateway.DisplayText);
+    StringAssert.Contains(gateway.DisplayText, "7");
+  }
+
+  [TestMethod]
+  public void Tick_Uses_Panamatik_10ms_Timer_For_DisplayHold()
+  {
+    // Panamatik timer1 is 10ms; DisplayCnt after a digit key is 200 ticks (~2s).
+    // Wrong 50ms cadence would still show the digit after only 2s of Tick budget.
+    ICalcFirmwareGateway gateway = CreateHp01Gateway();
+    gateway.PowerOnResume();
+    Soak(gateway, ticks: 80);
+
+    ProgramVocabulary vocabulary = LoadHp01Vocabulary();
+    Assert.IsTrue(ClassicProgramInput.TryResolveKeyCode(vocabulary, '7', out byte keyCode));
+
+    gateway.KeyDown(new FirmwareKeyCommand(10, keyCode));
+    gateway.KeyUp();
+    Assert.IsTrue(gateway.IsDisplayVisible(), gateway.DisplayText);
+    StringAssert.Contains(gateway.DisplayText, "7");
+
+    Soak(gateway, ticks: 210);
+    Assert.IsFalse(
+      gateway.IsDisplayVisible(),
+      $"display should blank after ~2s at 10ms cadence, got '{gateway.DisplayText}'");
   }
 
   [TestMethod]
