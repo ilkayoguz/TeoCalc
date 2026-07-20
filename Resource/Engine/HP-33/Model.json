@@ -25,7 +25,7 @@
     "RomBinary": "Firmware/hp33.microcode.bin",
     "RomListing": "Firmware/hp33.microcode.mlist",
     "RomMap": "Firmware/hp33.microcode.map.json",
-    "HandlerCatalog": "../Spice/microcode.handlers.study.json"
+    "HandlerCatalog": "../Spice/microcode.handlers.json"
   },
   "Program": {
     "MaxSteps": 0,

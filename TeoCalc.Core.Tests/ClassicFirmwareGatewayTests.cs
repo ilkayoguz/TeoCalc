@@ -45,10 +45,10 @@ public sealed class ClassicFirmwareGatewayTests
   }
 
   [TestMethod]
-  public void Bootstrap_Routes_Hp31_To_EmulatorAdapter()
+  public void Bootstrap_Routes_Hp31_To_SpiceFirmwareGateway()
   {
     ICalcFirmwareGateway gateway = CalcFirmwareGatewayLocator.CreateGateway("HP-31");
-    Assert.IsInstanceOfType(gateway, typeof(EmulatorFirmwareGateway));
+    Assert.IsInstanceOfType(gateway, typeof(SpiceFirmwareGateway));
   }
 
   [TestMethod]
@@ -106,7 +106,7 @@ public sealed class ClassicFirmwareGatewayTests
   [TestMethod]
   public void EmulatorGateway_Batch_ClassicDiagnosticsNull()
   {
-    ICalcFirmwareGateway gateway = CalcFirmwareGatewayLocator.CreateGateway("HP-31");
+    ICalcFirmwareGateway gateway = CalcFirmwareGatewayLocator.CreateGateway("HP-67");
     gateway.PowerOnResume();
     Assert.IsNull(gateway.LastBatch.Classic);
   }

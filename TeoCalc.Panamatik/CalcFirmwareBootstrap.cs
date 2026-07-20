@@ -1,6 +1,7 @@
 using TeoCalc.Core;
 using TeoCalc.Core.Catalog;
 using TeoCalc.Core.Engine.Classic;
+using TeoCalc.Core.Engine.Spice;
 using TeoCalc.Core.Engine.Woodstock;
 using TeoCalc.Core.Firmware;
 
@@ -8,7 +9,7 @@ namespace TeoCalc.Panamatik;
 
 /// <summary>
 /// Wires firmware backends into <see cref="CalcFirmwareGatewayLocator"/>.
-/// ROM-ready Classic and Woodstock family models use native gateways;
+/// ROM-ready Classic, Woodstock, and Spice family models use native gateways;
 /// other models keep the temporary emulator adapter.
 /// </summary>
 public static class CalcFirmwareBootstrap
@@ -33,6 +34,16 @@ public static class CalcFirmwareBootstrap
     return NativeFamilyAssetsExist(engineId, "Woodstock");
   }
 
+  /// <summary>
+  /// True when the model is Spice-family and ROM/handler assets are present
+  /// (HP-31/32/33/34/37/38 share one CPU core).
+  /// </summary>
+  public static bool IsNativeSpicePilot(string catalogOrEngineId)
+  {
+    string engineId = NormalizeEngineId(CalcModelIds.Resolve(catalogOrEngineId));
+    return NativeFamilyAssetsExist(engineId, "Spice");
+  }
+
   public static void UseEmulatorAdapter()
   {
     CalcFirmwareGatewayLocator.Create = CreateGateway;
@@ -51,6 +62,11 @@ public static class CalcFirmwareBootstrap
     if (IsNativeWoodstockPilot(catalogOrEngineId))
     {
       return CreateNativeWoodstockGateway(NormalizeEngineId(identity));
+    }
+
+    if (IsNativeSpicePilot(catalogOrEngineId))
+    {
+      return CreateNativeSpiceGateway(NormalizeEngineId(identity));
     }
 
     IPanamatikEngine engine = PanamatikEngineFactory.Create(identity.EngineId);
@@ -90,9 +106,22 @@ public static class CalcFirmwareBootstrap
     return gateway;
   }
 
+  private static SpiceFirmwareGateway CreateNativeSpiceGateway(string engineId)
+  {
+    string engineRoot = TeoCalcPaths.ResourcePath("Engine");
+    string modelPath = Path.Combine(engineRoot, engineId, "Model.json");
+    TeoCalcModelDefinition model = TeoCalcModelDefinition.Load(modelPath);
+    SpiceCpu cpu = SpiceCpuFactory.Create(model, engineRoot);
+    SpiceFirmwareGateway gateway = new();
+    gateway.AttachCpu(cpu);
+    return gateway;
+  }
+
   private static bool IsSupported(string catalogOrEngineId)
   {
-    if (IsNativeClassicPilot(catalogOrEngineId) || IsNativeWoodstockPilot(catalogOrEngineId))
+    if (IsNativeClassicPilot(catalogOrEngineId)
+        || IsNativeWoodstockPilot(catalogOrEngineId)
+        || IsNativeSpicePilot(catalogOrEngineId))
     {
       return true;
     }
@@ -102,7 +131,9 @@ public static class CalcFirmwareBootstrap
 
   private static IReadOnlyList<string> GetAssetWarnings(string catalogOrEngineId)
   {
-    if (IsNativeClassicPilot(catalogOrEngineId) || IsNativeWoodstockPilot(catalogOrEngineId))
+    if (IsNativeClassicPilot(catalogOrEngineId)
+        || IsNativeWoodstockPilot(catalogOrEngineId)
+        || IsNativeSpicePilot(catalogOrEngineId))
     {
       return [];
     }

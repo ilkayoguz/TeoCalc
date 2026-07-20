@@ -1,0 +1,423 @@
+{
+  "Format": "TeoCalc.MicrocodeHandlerCatalog",
+  "SchemaVersion": 1,
+  "CpuFamily": "Spice",
+  "MnemonicLength": 4,
+  "Description": "Dispatch-level microcode handlers. HandlerId maps to TeoCalc.Core SpiceCpu methods (HP-31 reference).",
+  "Handlers": [
+    {
+      "HandlerId": "SpiceCpu.Nop",
+      "Mnemonic": "NOP ",
+      "PanamatikAlias": "op_nop",
+      "Title": "op_nop"
+    },
+    {
+      "HandlerId": "SpiceCpu.Unknown",
+      "Mnemonic": "UNKN",
+      "PanamatikAlias": "op_unknown",
+      "Title": "op_unknown"
+    },
+    {
+      "HandlerId": "SpiceCpu.Jsb",
+      "Mnemonic": "JSB ",
+      "PanamatikAlias": "op_jsb",
+      "Title": "op_jsb"
+    },
+    {
+      "HandlerId": "SpiceCpu.Goto",
+      "Mnemonic": "GOTO",
+      "PanamatikAlias": "op_goto",
+      "Title": "op_goto"
+    },
+    {
+      "HandlerId": "SpiceCpu.Return",
+      "Mnemonic": "RETU",
+      "PanamatikAlias": "op_return",
+      "Title": "op_return"
+    },
+    {
+      "HandlerId": "SpiceCpu.Arith",
+      "Mnemonic": "ARİT",
+      "PanamatikAlias": "op_arith",
+      "Title": "op_arith"
+    },
+    {
+      "HandlerId": "SpiceCpu.SetS",
+      "Mnemonic": "SET_",
+      "PanamatikAlias": "op_set_s",
+      "Title": "op_set_s"
+    },
+    {
+      "HandlerId": "SpiceCpu.TestSEq1",
+      "Mnemonic": "TEST",
+      "PanamatikAlias": "op_test_s_eq_1",
+      "Title": "op_test_s_eq_1"
+    },
+    {
+      "HandlerId": "SpiceCpu.TestSEq0",
+      "Mnemonic": "TEST",
+      "PanamatikAlias": "op_test_s_eq_0",
+      "Title": "op_test_s_eq_0"
+    },
+    {
+      "HandlerId": "SpiceCpu.ClrS",
+      "Mnemonic": "CLR_",
+      "PanamatikAlias": "op_clr_s",
+      "Title": "op_clr_s"
+    },
+    {
+      "HandlerId": "SpiceCpu.ClearS",
+      "Mnemonic": "CLEA",
+      "PanamatikAlias": "op_clear_s",
+      "Title": "op_clear_s"
+    },
+    {
+      "HandlerId": "SpiceCpu.SetP",
+      "Mnemonic": "SET_",
+      "PanamatikAlias": "op_set_p",
+      "Title": "op_set_p"
+    },
+    {
+      "HandlerId": "SpiceCpu.TestPEq",
+      "Mnemonic": "TEST",
+      "PanamatikAlias": "op_test_p_eq",
+      "Title": "op_test_p_eq"
+    },
+    {
+      "HandlerId": "SpiceCpu.TestPNe",
+      "Mnemonic": "TEST",
+      "PanamatikAlias": "op_test_p_ne",
+      "Title": "op_test_p_ne"
+    },
+    {
+      "HandlerId": "SpiceCpu.DelSelRom",
+      "Mnemonic": "DEL_",
+      "PanamatikAlias": "op_del_sel_rom",
+      "Title": "op_del_sel_rom"
+    },
+    {
+      "HandlerId": "SpiceCpu.LoadConstant",
+      "Mnemonic": "LOAD",
+      "PanamatikAlias": "op_load_constant",
+      "Title": "op_load_constant"
+    },
+    {
+      "HandlerId": "SpiceCpu.CToRegister",
+      "Mnemonic": "C_TO",
+      "PanamatikAlias": "op_c_to_register",
+      "Title": "op_c_to_register"
+    },
+    {
+      "HandlerId": "SpiceCpu.RegisterToC",
+      "Mnemonic": "REGİ",
+      "PanamatikAlias": "op_register_to_c",
+      "Title": "op_register_to_c"
+    },
+    {
+      "HandlerId": "SpiceCpu.ClearReg",
+      "Mnemonic": "CLEA",
+      "PanamatikAlias": "op_clear_reg",
+      "Title": "op_clear_reg"
+    },
+    {
+      "HandlerId": "SpiceCpu.DisplayToggle",
+      "Mnemonic": "DİSP",
+      "PanamatikAlias": "op_display_toggle",
+      "Title": "op_display_toggle"
+    },
+    {
+      "HandlerId": "SpiceCpu.DisplayOff",
+      "Mnemonic": "DİSP",
+      "PanamatikAlias": "op_display_off",
+      "Title": "op_display_off"
+    },
+    {
+      "HandlerId": "SpiceCpu.Mx",
+      "Mnemonic": "MX  ",
+      "PanamatikAlias": "op_mx",
+      "Title": "op_mx"
+    },
+    {
+      "HandlerId": "SpiceCpu.StackToA",
+      "Mnemonic": "STAC",
+      "PanamatikAlias": "op_stack_to_a",
+      "Title": "op_stack_to_a"
+    },
+    {
+      "HandlerId": "SpiceCpu.DownRotate",
+      "Mnemonic": "DOWN",
+      "PanamatikAlias": "op_down_rotate",
+      "Title": "op_down_rotate"
+    },
+    {
+      "HandlerId": "SpiceCpu.YToA",
+      "Mnemonic": "Y_TO",
+      "PanamatikAlias": "op_y_to_a",
+      "Title": "op_y_to_a"
+    },
+    {
+      "HandlerId": "SpiceCpu.CToStack",
+      "Mnemonic": "C_TO",
+      "PanamatikAlias": "op_c_to_stack",
+      "Title": "op_c_to_stack"
+    },
+    {
+      "HandlerId": "SpiceCpu.Decimal",
+      "Mnemonic": "DECİ",
+      "PanamatikAlias": "op_decimal",
+      "Title": "op_decimal"
+    },
+    {
+      "HandlerId": "SpiceCpu.Binary",
+      "Mnemonic": "BİNA",
+      "PanamatikAlias": "op_binary",
+      "Title": "op_binary"
+    },
+    {
+      "HandlerId": "SpiceCpu.FToA",
+      "Mnemonic": "F_TO",
+      "PanamatikAlias": "op_f_to_a",
+      "Title": "op_f_to_a"
+    },
+    {
+      "HandlerId": "SpiceCpu.FExchA",
+      "Mnemonic": "F_EX",
+      "PanamatikAlias": "op_f_exch_a",
+      "Title": "op_f_exch_a"
+    },
+    {
+      "HandlerId": "SpiceCpu.KeysToRomAddr",
+      "Mnemonic": "KEYS",
+      "PanamatikAlias": "op_keys_to_rom_addr",
+      "Title": "op_keys_to_rom_addr"
+    },
+    {
+      "HandlerId": "SpiceCpu.KeysToA",
+      "Mnemonic": "KEYS",
+      "PanamatikAlias": "op_keys_to_a",
+      "Title": "op_keys_to_a"
+    },
+    {
+      "HandlerId": "SpiceCpu.SelRom",
+      "Mnemonic": "SEL_",
+      "PanamatikAlias": "op_sel_rom",
+      "Title": "op_sel_rom"
+    },
+    {
+      "HandlerId": "SpiceCpu.AToRomAddr",
+      "Mnemonic": "A_TO",
+      "PanamatikAlias": "op_a_to_rom_addr",
+      "Title": "op_a_to_rom_addr"
+    },
+    {
+      "HandlerId": "SpiceCpu.DecP",
+      "Mnemonic": "DEC_",
+      "PanamatikAlias": "op_dec_p",
+      "Title": "op_dec_p"
+    },
+    {
+      "HandlerId": "SpiceCpu.İncP",
+      "Mnemonic": "İNC_",
+      "PanamatikAlias": "op_inc_p",
+      "Title": "op_inc_p"
+    },
+    {
+      "HandlerId": "SpiceCpu.CirculateALeft",
+      "Mnemonic": "CİRC",
+      "PanamatikAlias": "op_circulate_a_left",
+      "Title": "op_circulate_a_left"
+    },
+    {
+      "HandlerId": "SpiceCpu.CToAddr",
+      "Mnemonic": "C_TO",
+      "PanamatikAlias": "op_c_to_addr",
+      "Title": "op_c_to_addr"
+    },
+    {
+      "HandlerId": "SpiceCpu.CToData",
+      "Mnemonic": "C_TO",
+      "PanamatikAlias": "op_c_to_data",
+      "Title": "op_c_to_data"
+    },
+    {
+      "HandlerId": "SpiceCpu.ClearDataRegs",
+      "Mnemonic": "CLEA",
+      "PanamatikAlias": "op_clear_data_regs",
+      "Title": "op_clear_data_regs"
+    },
+    {
+      "HandlerId": "SpiceCpu.BankSwitch",
+      "Mnemonic": "BANK",
+      "PanamatikAlias": "op_bank_switch",
+      "Title": "op_bank_switch"
+    },
+    {
+      "HandlerId": "SpiceCpu.RomSelftest",
+      "Mnemonic": "ROM_",
+      "PanamatikAlias": "op_rom_selftest",
+      "Title": "op_rom_selftest"
+    },
+    {
+      "HandlerId": "SpiceCpu.CrcTestMotorOn",
+      "Mnemonic": "CRC_",
+      "PanamatikAlias": "op_crc_test_motor_on",
+      "Title": "op_crc_test_motor_on"
+    },
+    {
+      "HandlerId": "SpiceCpu.CrcMotorOn",
+      "Mnemonic": "CRC_",
+      "PanamatikAlias": "op_crc_motor_on",
+      "Title": "op_crc_motor_on"
+    },
+    {
+      "HandlerId": "SpiceCpu.CrcMotorOff",
+      "Mnemonic": "CRC_",
+      "PanamatikAlias": "op_crc_motor_off",
+      "Title": "op_crc_motor_off"
+    },
+    {
+      "HandlerId": "SpiceCpu.CrcTestCardİn",
+      "Mnemonic": "CRC_",
+      "PanamatikAlias": "op_crc_test_card_in",
+      "Title": "op_crc_test_card_in"
+    },
+    {
+      "HandlerId": "SpiceCpu.CrcTestProt",
+      "Mnemonic": "CRC_",
+      "PanamatikAlias": "op_crc_test_prot",
+      "Title": "op_crc_test_prot"
+    },
+    {
+      "HandlerId": "SpiceCpu.CrcWriteProt",
+      "Mnemonic": "CRC_",
+      "PanamatikAlias": "op_crc_write_prot",
+      "Title": "op_crc_write_prot"
+    },
+    {
+      "HandlerId": "SpiceCpu.CrcTestF1",
+      "Mnemonic": "CRC_",
+      "PanamatikAlias": "op_crc_test_f1",
+      "Title": "op_crc_test_f1"
+    },
+    {
+      "HandlerId": "SpiceCpu.CrcTestF2",
+      "Mnemonic": "CRC_",
+      "PanamatikAlias": "op_crc_test_f2",
+      "Title": "op_crc_test_f2"
+    },
+    {
+      "HandlerId": "SpiceCpu.CrcTestF3",
+      "Mnemonic": "CRC_",
+      "PanamatikAlias": "op_crc_test_f3",
+      "Title": "op_crc_test_f3"
+    },
+    {
+      "HandlerId": "SpiceCpu.CrcTestF4",
+      "Mnemonic": "CRC_",
+      "PanamatikAlias": "op_crc_test_f4",
+      "Title": "op_crc_test_f4"
+    },
+    {
+      "HandlerId": "SpiceCpu.CrcSetF0",
+      "Mnemonic": "CRC_",
+      "PanamatikAlias": "op_crc_set_f0",
+      "Title": "op_crc_set_f0"
+    },
+    {
+      "HandlerId": "SpiceCpu.CrcSetF1",
+      "Mnemonic": "CRC_",
+      "PanamatikAlias": "op_crc_set_f1",
+      "Title": "op_crc_set_f1"
+    },
+    {
+      "HandlerId": "SpiceCpu.CrcSetF2",
+      "Mnemonic": "CRC_",
+      "PanamatikAlias": "op_crc_set_f2",
+      "Title": "op_crc_set_f2"
+    },
+    {
+      "HandlerId": "SpiceCpu.CrcSetF3",
+      "Mnemonic": "CRC_",
+      "PanamatikAlias": "op_crc_set_f3",
+      "Title": "op_crc_set_f3"
+    },
+    {
+      "HandlerId": "SpiceCpu.CrcSetF4",
+      "Mnemonic": "CRC_",
+      "PanamatikAlias": "op_crc_set_f4",
+      "Title": "op_crc_set_f4"
+    },
+    {
+      "HandlerId": "SpiceCpu.CrcClearF0",
+      "Mnemonic": "CRC_",
+      "PanamatikAlias": "op_crc_clear_f0",
+      "Title": "op_crc_clear_f0"
+    },
+    {
+      "HandlerId": "SpiceCpu.CrcClearF1",
+      "Mnemonic": "CRC_",
+      "PanamatikAlias": "op_crc_clear_f1",
+      "Title": "op_crc_clear_f1"
+    },
+    {
+      "HandlerId": "SpiceCpu.DisplayResetTwf",
+      "Mnemonic": "DİSP",
+      "PanamatikAlias": "op_display_reset_twf",
+      "Title": "op_display_reset_twf"
+    },
+    {
+      "HandlerId": "SpiceCpu.PikHome",
+      "Mnemonic": "PİK_",
+      "PanamatikAlias": "op_pik_home",
+      "Title": "op_pik_home"
+    },
+    {
+      "HandlerId": "SpiceCpu.PikCr",
+      "Mnemonic": "PİK_",
+      "PanamatikAlias": "op_pik_cr",
+      "Title": "op_pik_cr"
+    },
+    {
+      "HandlerId": "SpiceCpu.PikKeys",
+      "Mnemonic": "PİK_",
+      "PanamatikAlias": "op_pik_keys",
+      "Title": "op_pik_keys"
+    },
+    {
+      "HandlerId": "SpiceCpu.PikC4",
+      "Mnemonic": "PİK_",
+      "PanamatikAlias": "op_pik_c4",
+      "Title": "op_pik_c4"
+    },
+    {
+      "HandlerId": "SpiceCpu.PikD4",
+      "Mnemonic": "PİK_",
+      "PanamatikAlias": "op_pik_d4",
+      "Title": "op_pik_d4"
+    },
+    {
+      "HandlerId": "SpiceCpu.PikE4",
+      "Mnemonic": "PİK_",
+      "PanamatikAlias": "op_pik_e4",
+      "Title": "op_pik_e4"
+    },
+    {
+      "HandlerId": "SpiceCpu.PikPrint",
+      "Mnemonic": "PİK_",
+      "PanamatikAlias": "op_pik_print",
+      "Title": "op_pik_print"
+    },
+    {
+      "HandlerId": "SpiceCpu.RomAddrToBuffer",
+      "Mnemonic": "ROM_",
+      "PanamatikAlias": "op_rom_addr_to_buffer",
+      "Title": "op_rom_addr_to_buffer"
+    },
+    {
+      "HandlerId": "SpiceCpu.BranchTarget",
+      "Mnemonic": "BRAN",
+      "PanamatikAlias": "op_branch_target",
+      "Title": "op_branch_target"
+    }
+  ]
+}

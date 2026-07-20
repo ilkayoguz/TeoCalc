@@ -32,10 +32,10 @@ public sealed class WoodstockFirmwareGatewayTests
   }
 
   [TestMethod]
-  public void Bootstrap_Routes_Hp31_To_EmulatorAdapter()
+  public void Bootstrap_Routes_Hp31_To_SpiceFirmwareGateway()
   {
     ICalcFirmwareGateway gateway = CalcFirmwareGatewayLocator.CreateGateway("HP-31");
-    Assert.IsInstanceOfType(gateway, typeof(EmulatorFirmwareGateway));
+    Assert.IsInstanceOfType(gateway, typeof(SpiceFirmwareGateway));
   }
 
   [TestMethod]
