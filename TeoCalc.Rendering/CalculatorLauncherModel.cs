@@ -26,6 +26,16 @@ public sealed class CalculatorLauncherModel
 
   public IconGridComponent IconGrid => _iconGrid;
 
+  /// <summary>Keep keyboard navigation columns in sync with the drawn grid.</summary>
+  public void EnsureColumnCount(int columns)
+  {
+    columns = Math.Max(1, columns);
+    if (_iconGrid.ColumnCount != columns)
+    {
+      _iconGrid.ColumnCount = columns;
+    }
+  }
+
   public int SelectedIndex
   {
     get => _presenter.ViewModel.SelectedIndex;

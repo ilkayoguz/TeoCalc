@@ -7,6 +7,7 @@ using Silk.NET.OpenGL;
 using Silk.NET.OpenGL.Extensions.ImGui;
 using Silk.NET.Windowing;
 using TeoCalc.Core;
+using TeoCalc.Core.Catalog;
 using TeoCalc.Game.Explorer;
 using TeoCalc.Rendering.Faceplate;
 
@@ -64,6 +65,8 @@ public sealed class CalcFaceplateHost : IDisposable
 
   private readonly IWindow _window;
 
+  private readonly string _catalogModelId;
+
   private GL? _gl;
 
   private IInputContext? _input;
@@ -102,12 +105,13 @@ public sealed class CalcFaceplateHost : IDisposable
 
   private Vector2D<int> _dragStartWindowSize;
 
-  private CalcFaceplateHost(CalcExplorerSession session, float aspect, IWindow window)
+  private CalcFaceplateHost(CalcExplorerSession session, float aspect, IWindow window, string catalogModelId)
   {
     _session = session;
     _explorerPresenter = new CalcExplorerPresenter(session);
     _aspect = aspect;
     _window = window;
+    _catalogModelId = catalogModelId;
     Wire();
   }
 
@@ -129,8 +133,8 @@ public sealed class CalcFaceplateHost : IDisposable
       return null;
     }
 
-    CalcFaceplateThemeState.ApplyForModel(CalcModelCatalog.Resolve(session.Model));
-    CalcModelDefinition faceplateModel = CalcModelCatalog.Resolve(session.Model);
+    CalcFaceplateThemeState.ApplyForModel(CalcModelCatalog.Resolve(session.Model, modelId));
+    CalcModelDefinition faceplateModel = CalcModelCatalog.Resolve(session.Model, modelId);
     CalcBodyLayout bodyLayout = CalcBodyLayoutCatalog.ResolveForFaceplate(
       faceplateModel,
       session.Model.Family,
@@ -139,7 +143,7 @@ public sealed class CalcFaceplateHost : IDisposable
     Vector2D<int> initial = InitialSize(aspect);
 
     WindowOptions options = WindowOptions.Default;
-    options.Title = session.Model.DisplayName;
+    options.Title = CalcModelIds.ToProductLabel(modelId);
     options.Size = initial;
     options.VSync = true;
     options.WindowBorder = WindowBorder.Hidden;
@@ -158,8 +162,8 @@ public sealed class CalcFaceplateHost : IDisposable
     }
 
     IWindow native = Silk.NET.Windowing.Window.Create(options);
-    status = $"Opened {session.Model.DisplayName}.";
-    return new CalcFaceplateHost(session, aspect, native);
+    status = $"Opened {CalcModelIds.ToProductLabel(modelId)}.";
+    return new CalcFaceplateHost(session, aspect, native, modelId);
   }
 
   public void Initialize()
@@ -224,7 +228,7 @@ public sealed class CalcFaceplateHost : IDisposable
         _gl = _window.CreateOpenGL();
         _input = _window.CreateInput();
         _controller = new ImGuiController(_gl, _window, _input, onConfigureIO: CalcFaceplateFonts.Configure);
-        ApplyRoundedCorners(_window.Handle);
+        CalcFramelessShell.ApplyRoundedCorners(_window.Handle);
         // Shared GL context: launcher already owns SVG textures — do not rebind/dispose them here.
         _loaded = true;
       }
@@ -401,7 +405,7 @@ public sealed class CalcFaceplateHost : IDisposable
     draw.AddRectFilled(logoBand.Min, logoBand.Max, Calc00dWireStyle.DarkGrayBandFill, radius, ImDrawFlags.RoundCornersBottom);
 
     float logoScale = LogoBandHeight / CalcLogoPanelComponent.HeightRef;
-    CalcModelDefinition model = CalcModelCatalog.Resolve(_session.Model);
+    CalcModelDefinition model = CalcModelCatalog.Resolve(_session.Model, _catalogModelId);
     CalcLogoPanelComponent.Draw(draw, logoBand, logoScale, model);
   }
 
@@ -939,21 +943,16 @@ public sealed class CalcFaceplateHost : IDisposable
     return width > 0 && height > 0;
   }
 
-  private static void ApplyRoundedCorners(nint hwnd)
-  {
-    if (!OperatingSystem.IsWindows() || hwnd == 0)
-    {
-      return;
-    }
-
-    int preference = DwmWcpRound;
-    _ = DwmSetWindowAttribute(hwnd, DwmwaWindowCornerPreference, ref preference, sizeof(int));
-  }
-
   private static bool TryGetCursorPos(out POINT point)
   {
     point = default;
-    return OperatingSystem.IsWindows() && GetCursorPos(out point);
+    if (!CalcFramelessShell.TryGetCursorPos(out int x, out int y))
+    {
+      return false;
+    }
+
+    point = new POINT { X = x, Y = y };
+    return true;
   }
 
   private enum ResizeZone
@@ -970,8 +969,6 @@ public sealed class CalcFaceplateHost : IDisposable
   }
 
   private const uint SpiGetWorkArea = 0x0030;
-  private const int DwmwaWindowCornerPreference = 33;
-  private const int DwmWcpRound = 2;
 
   [StructLayout(LayoutKind.Sequential)]
   private struct RECT
@@ -991,10 +988,4 @@ public sealed class CalcFaceplateHost : IDisposable
 
   [DllImport("user32.dll", SetLastError = true)]
   private static extern bool SystemParametersInfo(uint uiAction, uint uiParam, ref RECT pvParam, uint fWinIni);
-
-  [DllImport("user32.dll")]
-  private static extern bool GetCursorPos(out POINT lpPoint);
-
-  [DllImport("dwmapi.dll")]
-  private static extern int DwmSetWindowAttribute(nint hwnd, int attr, ref int attrValue, int attrSize);
 }

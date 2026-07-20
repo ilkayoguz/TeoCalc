@@ -2,10 +2,13 @@
   "Format": "TeoCalc.Model",
   "SchemaVersion": 1,
   "Model": "HP-32",
-  "DisplayName": "HP-32",
+  "DisplayName": "HP-32E",
   "Inherits": "Spice",
   "Family": "Spice",
   "FamilyConfig": "../Spice/Family.json",
+  "Faceplate": {
+    "ShortId": "32E"
+  },
   "Hardware": {
     "ButtonCount": 40,
     "RamBytes": 448,

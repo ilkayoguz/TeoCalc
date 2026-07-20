@@ -484,7 +484,7 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
     _keyboardKeyHeld = false;
     ShiftPreview.Reset();
 
-    CalcModelDefinition faceplateModel = CalcModelCatalog.Resolve(Model, engineModelFolder);
+    CalcModelDefinition faceplateModel = CalcModelCatalog.Resolve(Model, explorerModelId);
     CalcFaceplateThemeState.ApplyForModel(faceplateModel);
     LoadWarnings = [.. CalcFirmwareGatewayLocator.AssetWarnings(engineModelFolder)];
   }

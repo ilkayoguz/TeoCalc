@@ -28,7 +28,7 @@
     },
     "Spice": {
       "DisplayName": "HP Spice",
-      "Models": ["HP-31", "HP-32", "HP-33", "HP-33E", "HP-34", "HP-34C", "HP-37", "HP-38"],
+      "Models": ["HP-31E", "HP-32E", "HP-33E", "HP-34C", "HP-37E", "HP-38E"],
       "FamilyConfig": "Resource/Engine/Spice/Family.json",
       "HandlerCatalog": "Resource/Engine/Spice/microcode.handlers.study.json"
     }

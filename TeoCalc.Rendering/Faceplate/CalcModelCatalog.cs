@@ -24,13 +24,21 @@ public static class CalcModelCatalog
     AnnotationStyles = CalcModifierPlacement.ClassicFg,
   };
 
-  /// <summary>Resolve faceplate metadata from engine <see cref="TeoCalcModelDefinition"/> when available.</summary>
-  public static CalcModelDefinition Resolve(TeoCalcModelDefinition model, string? engineModelId = null)
+  /// <summary>
+  /// Resolve faceplate metadata from engine <see cref="TeoCalcModelDefinition"/>.
+  /// <paramref name="catalogOrEngineId"/> is the launcher / open id (e.g. HP-31E) when known —
+  /// product logo label matches that 1:1 with the launcher.
+  /// </summary>
+  public static CalcModelDefinition Resolve(TeoCalcModelDefinition model, string? catalogOrEngineId = null)
   {
-    string catalogId = string.IsNullOrWhiteSpace(model.DisplayName) ? model.Model : model.DisplayName;
+    string modelDisplay = string.IsNullOrWhiteSpace(model.DisplayName) ? model.Model : model.DisplayName;
+    // Prefer the catalog id used to open (T-31E), then Faceplate.ShortId, then Model.json DisplayName.
+    string productSource = !string.IsNullOrWhiteSpace(catalogOrEngineId)
+      ? catalogOrEngineId!
+      : modelDisplay;
     string shortId = model.Faceplate?.ShortId is { Length: > 0 } sid
       ? sid
-      : CalcModelIds.ToShortId(catalogId);
+      : CalcModelIds.ToShortId(productSource);
 
     string bodyLayoutId = model.Faceplate?.BodyLayoutId is { Length: > 0 } layout
       ? layout
@@ -40,7 +48,8 @@ public static class CalcModelCatalog
       ? theme
       : CalcThemeCatalog.DefaultThemeId;
 
-    string engineId = CalcModelIds.ToEngineId(engineModelId ?? catalogId);
+    string engineId = CalcModelIds.ToEngineId(catalogOrEngineId ?? modelDisplay);
+    string catalogId = productSource;
     bool hp34 = string.Equals(engineId, "HP-34", StringComparison.OrdinalIgnoreCase)
       || string.Equals(catalogId, "HP-34C", StringComparison.OrdinalIgnoreCase);
     bool hp35 = string.Equals(engineId, "HP-35", StringComparison.OrdinalIgnoreCase)
