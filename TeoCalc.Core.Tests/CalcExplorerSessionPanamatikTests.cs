@@ -420,7 +420,10 @@ public sealed class CalcExplorerSessionPanamatikTests
     Assert.AreEqual(keyCode, batch.ActiveKey?.KeyCode);
     Assert.IsTrue(batch.StepCount > 0);
     Assert.IsNotNull(batch.Display);
-    Assert.AreEqual("Emulator.Engine", batch.LastHandlerId);
+    Assert.IsFalse(
+      string.Equals(batch.LastHandlerId, "Emulator.Engine", StringComparison.Ordinal),
+      "HP-65 pilot must use native ClassicFirmwareGateway, not Panamatik emulator.");
+    Assert.IsFalse(string.IsNullOrWhiteSpace(batch.LastHandlerId));
     Assert.IsTrue(batch.ProgramCounter > 0);
 
     Assert.IsTrue(batch.KeysToRomAddressCount >= 0);

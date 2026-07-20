@@ -1,13 +1,17 @@
 using TeoCalc.Core.Engine.Classic;
-using TeoCalc.Core.Firmware;
 
-namespace TeoCalc.Rendering;
+namespace TeoCalc.Core.Firmware;
 
-public sealed class FirmwareGateway : ICalcFirmwareGateway
+/// <summary>
+/// Native Classic-family firmware life-cycle (power / key / batch / display).
+/// Mirrors Panamatik Classic timing shape without calling Panamatik at runtime.
+/// </summary>
+public sealed class ClassicFirmwareGateway : ICalcFirmwareGateway
 {
   private const int KeyRunSteps = 200;
   private const int IoStepInterval = 50;
-  private const float RunTickSeconds = 0.01f;
+  /// <summary>Match <see cref="TeoCalc.Panamatik.EmulatorFirmwareGateway"/> timer cadence (Panamatik life-cycle).</summary>
+  private const float RunTickSeconds = 0.05f;
 
   private float _runAccumulator;
   private int _ioStepsUntilNext;
@@ -64,6 +68,7 @@ public sealed class FirmwareGateway : ICalcFirmwareGateway
   {
     Cpu = cpu;
     PowerOn = false;
+    ProgramMode = false;
     _runAccumulator = 0f;
     _ioStepsUntilNext = 0;
     _activeKey = null;

@@ -67,6 +67,9 @@ public sealed class CalcFaceplateHost : IDisposable
 
   private readonly string _catalogModelId;
 
+  /// <summary>False when this window shares the launcher GL context — must not dispose GL.</summary>
+  private readonly bool _ownsGl;
+
   private GL? _gl;
 
   private IInputContext? _input;
@@ -105,13 +108,14 @@ public sealed class CalcFaceplateHost : IDisposable
 
   private Vector2D<int> _dragStartWindowSize;
 
-  private CalcFaceplateHost(CalcExplorerSession session, float aspect, IWindow window, string catalogModelId)
+  private CalcFaceplateHost(CalcExplorerSession session, float aspect, IWindow window, string catalogModelId, bool ownsGl)
   {
     _session = session;
     _explorerPresenter = new CalcExplorerPresenter(session);
     _aspect = aspect;
     _window = window;
     _catalogModelId = catalogModelId;
+    _ownsGl = ownsGl;
     Wire();
   }
 
@@ -163,7 +167,7 @@ public sealed class CalcFaceplateHost : IDisposable
 
     IWindow native = Silk.NET.Windowing.Window.Create(options);
     status = $"Opened {CalcModelIds.ToProductLabel(modelId)}.";
-    return new CalcFaceplateHost(session, aspect, native, modelId);
+    return new CalcFaceplateHost(session, aspect, native, modelId, ownsGl: sharedContext is null);
   }
 
   public void Initialize()
@@ -205,15 +209,78 @@ public sealed class CalcFaceplateHost : IDisposable
 
     _disposed = true;
     _closeRequested = true;
+    TearDownGraphicsAndSession();
+    CloseAndDisposeWindow();
+  }
 
+  /// <summary>
+  /// Fast path for process exit: dispose session/firmware only; skip ImGui/GL/input Dispose
+  /// (GPU teardown stalls exit). Closing handler must not re-run full TearDown afterward.
+  /// </summary>
+  public void DisposeForAppExit()
+  {
+    if (_disposed)
+    {
+      return;
+    }
+
+    _disposed = true;
+    _closeRequested = true;
+    _session.Dispose();
+    _controller = null;
+    _input = null;
+    _gl = null;
+    CloseAndDisposeWindow();
+  }
+
+  private void CloseAndDisposeWindow()
+  {
     if (!_window.IsClosing)
     {
       _window.Close();
     }
 
-    _window.DoEvents();
-    _window.Reset();
-    _window.Dispose();
+    // Avoid Reset()/DoEvents — they pump VSync frames and make app exit feel stalled.
+    try
+    {
+      _window.Dispose();
+    }
+    catch
+    {
+      // Window may already be torn down by the platform.
+    }
+  }
+
+  private void TearDownGraphicsAndSession()
+  {
+    if (_controller is not null)
+    {
+      try
+      {
+        _window.MakeCurrent();
+        _controller.MakeCurrent();
+        CalcFaceplateFonts.UnregisterCurrentContext();
+        _controller.Dispose();
+      }
+      catch
+      {
+        // Window/GL may already be tearing down.
+      }
+
+      _controller = null;
+    }
+
+    _input?.Dispose();
+    _input = null;
+
+    // Shared launcher context must stay alive for launcher ImGui/SVG teardown.
+    if (_ownsGl)
+    {
+      _gl?.Dispose();
+    }
+
+    _gl = null;
+    _session.Dispose();
   }
 
   /// <summary>Close after the current frame — never call <see cref="IWindow.Close"/> during Render.</summary>
@@ -345,27 +412,12 @@ public sealed class CalcFaceplateHost : IDisposable
 
     _window.Closing += () =>
     {
-      if (_controller is not null)
+      // Dispose / DisposeForAppExit own teardown; Closing may fire from Close() during either.
+      // After DisposeForAppExit, _disposed is set so we skip full GPU TearDown.
+      if (!_disposed)
       {
-        try
-        {
-          _window.MakeCurrent();
-          _controller.MakeCurrent();
-          CalcFaceplateFonts.UnregisterCurrentContext();
-        }
-        catch
-        {
-          // Window/GL may already be tearing down.
-        }
+        TearDownGraphicsAndSession();
       }
-
-      _controller?.Dispose();
-      _controller = null;
-      _input?.Dispose();
-      _input = null;
-      _gl?.Dispose();
-      _gl = null;
-      _session.Dispose();
     };
   }
 

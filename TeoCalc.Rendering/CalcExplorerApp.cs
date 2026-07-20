@@ -27,6 +27,8 @@ public static class CalcExplorerApp
 
   private static IWindow? _launcher;
 
+  private static bool _closeLauncherRequested;
+
   private static bool _draggingWindow;
 
   private static bool _dragMoved;
@@ -192,7 +194,7 @@ public static class CalcExplorerApp
       catch (Exception exception)
       {
         FatalErrorDialog.Show(exception, "TeoCalc — Startup Error");
-        _launcher.Close();
+        _closeLauncherRequested = true;
       }
     };
 
@@ -273,7 +275,7 @@ public static class CalcExplorerApp
         }
 
         FatalErrorDialog.Show(exception, "TeoCalc — Render Error");
-        _launcher.Close();
+        _closeLauncherRequested = true;
       }
     };
 
@@ -281,26 +283,16 @@ public static class CalcExplorerApp
 
     _launcher.Closing += () =>
     {
+      // Process exit: release sessions/firmware only. Skip ImGui/SVG/GL Dispose —
+      // DeleteTexture and context teardown stall shutdown for no benefit on exit.
       foreach (CalcFaceplateHost host in OpenCalculators.ToArray())
       {
-        host.Dispose();
+        host.DisposeForAppExit();
       }
 
       OpenCalculators.Clear();
-      if (controller is not null)
-      {
-        controller.MakeCurrent();
-        CalcFaceplateFonts.UnregisterCurrentContext();
-      }
-
-      controller?.Dispose();
       controller = null;
-      input?.Dispose();
       input = null;
-      CalculatorLauncherThumbnail.Dispose();
-      Hp65FaceplateSvgAssets.Dispose();
-      CalcModernSvgAssets.Dispose();
-      gl?.Dispose();
       gl = null;
     };
 
@@ -310,6 +302,11 @@ public static class CalcExplorerApp
     {
       _launcher.DoEvents();
       DrainPendingOpens();
+
+      if (_closeLauncherRequested && !_launcher.IsClosing)
+      {
+        _launcher.Close();
+      }
 
       for (int i = OpenCalculators.Count - 1; i >= 0; i--)
       {
@@ -340,13 +337,20 @@ public static class CalcExplorerApp
 
     foreach (CalcFaceplateHost host in OpenCalculators.ToArray())
     {
-      host.Dispose();
+      host.DisposeForAppExit();
     }
 
     OpenCalculators.Clear();
-    _launcher.DoEvents();
-    _launcher.Reset();
-    _launcher.Dispose();
+    // Skip Reset() — pumps remaining VSync frames and stalls exit.
+    try
+    {
+      _launcher.Dispose();
+    }
+    catch
+    {
+      // Platform may already have released the window.
+    }
+
     _launcher = null;
     return 0;
   }
@@ -369,7 +373,7 @@ public static class CalcExplorerApp
           : WindowState.Maximized;
         break;
       case CalcWindowTitlePanelComponent.TitleAction.Close:
-        _launcher.Close();
+        _closeLauncherRequested = true;
         break;
     }
   }
