@@ -564,7 +564,9 @@ public sealed class CalcFaceplateHost : IDisposable
         {
           _ = _session.TrySaveCardProgram(path, out string? error);
           return error;
-        });
+        },
+        _session.CardProgramExtension,
+        _session.CardProgramCapacity);
     }
 
     if (hasPrinter && _printerPanelOpen)

@@ -1,6 +1,7 @@
 using TeoCalc.Core;
 using TeoCalc.Core.Catalog;
 using TeoCalc.Core.Engine.Classic;
+using TeoCalc.Core.Engine.Hp67;
 using TeoCalc.Core.Firmware;
 using TeoCalc.Formats;
 using TeoCalc.Game.Explorer;
@@ -543,6 +544,16 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
   public bool SupportsCardProgram =>
     _firmware?.SupportsCardProgram == true;
 
+  /// <summary>True when this session uses ACT card packing (.hp67), not Classic (.hp65).</summary>
+  public bool UsesActCardProgram =>
+    _firmware is Hp67FirmwareGateway;
+
+  public string CardProgramExtension =>
+    UsesActCardProgram ? ".hp67" : ".hp65";
+
+  public int CardProgramCapacity =>
+    UsesActCardProgram ? Hp67CardProgramIo.ProgramCapacity : ClassicCardProgramIo.ProgramCapacity;
+
   public IReadOnlyList<string> PrintLines =>
     _firmware?.PrintLines ?? [];
 
@@ -563,6 +574,26 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
 
     try
     {
+      if (_firmware is Hp67FirmwareGateway hp67)
+      {
+        Hp67CardModeSnapshot? mode = null;
+        if (hp67.TryExportCardMode(out Hp67CardMode exported))
+        {
+          mode = new Hp67CardModeSnapshot(
+            exported.Angle,
+            exported.Display,
+            exported.Digits,
+            exported.FlagsHi,
+            exported.FlagsLo);
+        }
+
+        Hp67CardProgramFormat.WriteFile(
+          path,
+          new Hp67CardSnapshot(codes, registers, mode),
+          Hp67CardProgramIo.FormatMnemonic);
+        return true;
+      }
+
       Hp65CardSnapshot snapshot = new(codes, registers);
       Hp65CardProgramFormat.WriteFile(
         path,
@@ -588,6 +619,26 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
 
     try
     {
+      if (_firmware is Hp67FirmwareGateway hp67)
+      {
+        Hp67CardSnapshot actSnapshot = Hp67CardProgramFormat.ReadFile(
+          path,
+          Hp67CardProgramIo.ResolveMnemonic);
+        if (!hp67.TryImportCardProgram(actSnapshot.ProgramCodes, actSnapshot.Registers))
+        {
+          error = "Failed to import program memory.";
+          return false;
+        }
+
+        if (actSnapshot.Mode is { } mode)
+        {
+          _ = hp67.TryImportCardMode(
+            new Hp67CardMode(mode.Angle, mode.Display, mode.Digits, mode.FlagsHi, mode.FlagsLo));
+        }
+
+        return true;
+      }
+
       Hp65CardSnapshot snapshot = Hp65CardProgramFormat.ReadFile(
         path,
         mnemonic => ClassicCardProgramIo.ResolveMnemonic(Vocabulary, mnemonic));

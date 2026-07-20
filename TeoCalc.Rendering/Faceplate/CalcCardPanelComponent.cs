@@ -26,7 +26,9 @@ public static class CalcCardPanelComponent
     ref string statusMessage,
     bool canLoadSave,
     Func<string, string?> loadCard,
-    Func<string, string?> saveCard)
+    Func<string, string?> saveCard,
+    string fileExtension = ".hp65",
+    int programCapacity = ClassicCardProgramIo.ProgramCapacity)
   {
     ImGui.SetNextWindowSize(new System.Numerics.Vector2(360f, 200f), ImGuiCond.FirstUseEver);
     if (!ImGui.Begin("Card", ref open, ImGuiWindowFlags.NoCollapse))
@@ -35,7 +37,8 @@ public static class CalcCardPanelComponent
       return;
     }
 
-    ImGui.TextWrapped("Magnetic card — load / save HP-65 ASCII program (.hp65).");
+    string ext = NormalizeExtension(fileExtension);
+    ImGui.TextWrapped($"Magnetic card — load / save ASCII program ({ext}).");
     ImGui.Separator();
 
     ImGui.SetNextItemWidth(-1f);
@@ -60,12 +63,12 @@ public static class CalcCardPanelComponent
         if (string.IsNullOrWhiteSpace(path))
         {
           Directory.CreateDirectory(DefaultCardsDirectory());
-          path = Path.Combine(DefaultCardsDirectory(), "program.hp65");
+          path = Path.Combine(DefaultCardsDirectory(), $"program{ext}");
           pathBuffer = path;
         }
         else if (!Path.HasExtension(path))
         {
-          path += ".hp65";
+          path += ext;
           pathBuffer = path;
         }
 
@@ -77,7 +80,7 @@ public static class CalcCardPanelComponent
       if (ImGui.Button("Browse…"))
       {
         Directory.CreateDirectory(DefaultCardsDirectory());
-        pathBuffer = Path.Combine(DefaultCardsDirectory(), "program.hp65");
+        pathBuffer = Path.Combine(DefaultCardsDirectory(), $"program{ext}");
         statusMessage = $"Default folder: {DefaultCardsDirectory()}";
       }
     }
@@ -88,7 +91,17 @@ public static class CalcCardPanelComponent
       ImGui.TextWrapped(statusMessage);
     }
 
-    ImGui.TextDisabled($"Format: HP65 PROGRAM/DATA ({ClassicCardProgramIo.ProgramCapacity} steps)");
+    ImGui.TextDisabled($"Format: PROGRAM/DATA ({programCapacity} steps)");
     ImGui.End();
+  }
+
+  private static string NormalizeExtension(string fileExtension)
+  {
+    if (string.IsNullOrWhiteSpace(fileExtension))
+    {
+      return ".hp65";
+    }
+
+    return fileExtension.StartsWith('.') ? fileExtension : "." + fileExtension;
   }
 }
