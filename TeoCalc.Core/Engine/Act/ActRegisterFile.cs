@@ -1,6 +1,6 @@
-namespace TeoCalc.Core.Engine.Woodstock;
+namespace TeoCalc.Core.Engine.Act;
 
-public sealed class WoodstockRegisterFile
+public sealed class ActRegisterFile
 {
   public const int DigitCount = 14;
 

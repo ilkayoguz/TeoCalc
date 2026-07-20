@@ -6,128 +6,40 @@ namespace TeoCalc.Core.Firmware;
 /// Native Classic-family firmware life-cycle (power / key / batch / display).
 /// Mirrors Panamatik Classic timing shape without calling Panamatik at runtime.
 /// </summary>
-public sealed class ClassicFirmwareGateway : ICalcFirmwareGateway
+public sealed class ClassicFirmwareGateway : CalcFirmwareGatewayBase
 {
-  private const int KeyRunSteps = 200;
   private const int IoStepInterval = 50;
-  /// <summary>Match <see cref="TeoCalc.Panamatik.EmulatorFirmwareGateway"/> timer cadence (Panamatik life-cycle).</summary>
-  private const float RunTickSeconds = 0.05f;
 
-  private float _runAccumulator;
   private int _ioStepsUntilNext;
-  private string _displayText = string.Empty;
-  private bool _displayBlankPulse;
-  private bool _keyLineHeld;
-  private long _displayRevision;
-  private FirmwareKeyCommand? _activeKey;
-
-  public event EventHandler<FirmwareDisplayChangedEventArgs>? DisplayChanged;
-
-  public event EventHandler<FirmwareKeyProcessedEventArgs>? KeyProcessed;
-
-  public event EventHandler<FirmwareKeyStateChangedEventArgs>? KeyStateChanged;
-
-  public event EventHandler<FirmwareBatchCompletedEventArgs>? BatchCompleted;
+  private bool _programMode;
 
   public ClassicCpu? Cpu { get; private set; }
 
-  public bool PowerOn { get; set; }
-
-  public bool ProgramMode { get; private set; }
-
-  public string DisplayText => _displayText;
-
-  public FirmwareDisplaySnapshot DisplaySnapshot { get; private set; } =
-    new(string.Empty, Visible: false, BlankPulse: false, Revision: 0, StepCount: 0, ProgramCounter: 0);
-
-  public FirmwareBatchSnapshot LastBatch { get; private set; } =
-    new(
-      StepCount: 0,
-      ProgramCounter: 0,
-      Status: 0,
-      KeyBuffer: 0,
-      LastHandlerId: null,
-      KeyLineHeld: false,
-      ActiveKey: null,
-      Display: null,
-      Rom: 0,
-      Grp: 0,
-      P: 0,
-      Classic: null);
-
-  public FirmwareKeyCommand? ActiveKey => _activeKey;
-
-  public bool KeyLineHeld => _keyLineHeld;
+  public override bool ProgramMode => _programMode;
 
   public void AttachCpu(ClassicCpu? cpu)
   {
     Cpu = cpu;
-    PowerOn = false;
-    ProgramMode = false;
-    _runAccumulator = 0f;
+    _programMode = false;
     _ioStepsUntilNext = 0;
-    _activeKey = null;
-    _keyLineHeld = false;
-    SetDisplayState(string.Empty, blankPulse: false);
+    ResetSessionState();
   }
 
-  public void PowerOnResume()
-  {
-    PowerOn = true;
-    RunInstructionBatch(KeyRunSteps);
-  }
+  public override bool IsDisplayVisible() =>
+    PowerOn && !DisplayBlankPulse && DisplayText.Length > 0;
 
-  public void PowerOff()
-  {
-    if (Cpu is not null)
-    {
-      Cpu.Reset();
-    }
-
-    PowerOn = false;
-    _ioStepsUntilNext = 0;
-    ClearKeyLine();
-    SetDisplayState(string.Empty, blankPulse: false);
-  }
-
-  public bool IsDisplayVisible() =>
-    PowerOn && !_displayBlankPulse && _displayText.Length > 0;
-
-  public void EndDisplayFrame()
-  {
-    _displayBlankPulse = false;
-  }
-
-  public void SetProgramMode(bool programMode)
+  public override void SetProgramMode(bool programMode)
   {
     if (!PowerOn || ProgramMode == programMode)
     {
       return;
     }
 
-    ProgramMode = programMode;
+    _programMode = programMode;
     RunInstructionBatch(KeyRunSteps);
   }
 
-  public void ToggleProgramMode() =>
-    SetProgramMode(!ProgramMode);
-
-  public void Tick(float deltaSeconds)
-  {
-    if (Cpu is null || !PowerOn)
-    {
-      return;
-    }
-
-    _runAccumulator += deltaSeconds;
-    while (_runAccumulator >= RunTickSeconds)
-    {
-      RunInstructionBatch(KeyRunSteps);
-      _runAccumulator -= RunTickSeconds;
-    }
-  }
-
-  public void Step()
+  public override void Step()
   {
     if (Cpu is null)
     {
@@ -138,62 +50,51 @@ public sealed class ClassicFirmwareGateway : ICalcFirmwareGateway
     RefreshDisplayFromCpu();
   }
 
-  public void KeyDown(FirmwareKeyCommand key)
+  public override void PowerOff()
   {
-    if (Cpu is null || !PowerOn)
+    if (Cpu is not null)
     {
-      return;
+      Cpu.Reset();
     }
 
-    _activeKey = key;
-    SetKeyLineHeld(true);
-    Cpu.State.Flags &= ~ClassicCpuFlags.DisplayOn;
+    _ioStepsUntilNext = 0;
+    base.PowerOff();
+  }
+
+  protected override bool CanRunBatch() =>
+    Cpu is not null && PowerOn;
+
+  protected override int CurrentStepCount =>
+    Cpu?.StepCount ?? 0;
+
+  protected override int CurrentProgramCounter =>
+    Cpu?.State.ProgramCounter ?? 0;
+
+  protected override void OnPowerOffCpu()
+  {
+    // Classic PowerOff handled in override above (Reset + io clear).
+  }
+
+  protected override void OnKeyDown(FirmwareKeyCommand key)
+  {
+    Cpu!.State.Flags &= ~ClassicCpuFlags.DisplayOn;
     SetDisplayState(string.Empty, blankPulse: true);
     Cpu.PressKey(key.KeyCode);
-    RunInstructionBatch(KeyRunSteps);
-    KeyProcessed?.Invoke(this, new FirmwareKeyProcessedEventArgs(key, _displayText, IsDisplayVisible()));
   }
 
-  public void KeyUp(FirmwareKeyCommand? key = null)
+  protected override void OnKeyUp()
   {
-    if (key is not null && _activeKey is not null && _activeKey.Value != key.Value)
-    {
-      return;
-    }
-
-    ClearKeyLine();
+    // Classic HeadlessReleaseKey: clear key line only (no batch).
   }
 
-  public void SetKeyLineHeld(bool held)
-  {
-    if (_keyLineHeld == held)
-    {
-      return;
-    }
-
-    _keyLineHeld = held;
-    KeyStateChanged?.Invoke(this, new FirmwareKeyStateChangedEventArgs(_activeKey, held));
-  }
-
-  private void ClearKeyLine()
-  {
-    FirmwareKeyCommand? key = _activeKey;
-    _activeKey = null;
-    if (_keyLineHeld)
-    {
-      _keyLineHeld = false;
-      KeyStateChanged?.Invoke(this, new FirmwareKeyStateChangedEventArgs(key, Held: false));
-    }
-  }
-
-  private void RunInstructionBatch(int steps)
+  protected override void RunInstructionBatch(int steps)
   {
     if (Cpu is null)
     {
       return;
     }
 
-    bool firmwareKeyHeld = _keyLineHeld;
+    bool firmwareKeyHeld = KeyLineHeld;
     string? lastHandlerId = null;
     int keysToRomAddressCount = 0;
     int bufferToRomAddressCount = 0;
@@ -209,7 +110,7 @@ public sealed class ClassicFirmwareGateway : ICalcFirmwareGateway
 
       Cpu.State.ApplyKeyInput();
 
-      if (_keyLineHeld)
+      if (KeyLineHeld)
       {
         Cpu.State.Status |= 1;
       }
@@ -237,7 +138,7 @@ public sealed class ClassicFirmwareGateway : ICalcFirmwareGateway
       Cpu.State.KeyBuffer,
       lastHandlerId,
       firmwareKeyHeld,
-      _activeKey,
+      ActiveKey,
       DisplaySnapshot,
       Cpu.State.Rom,
       Cpu.State.Grp,
@@ -249,7 +150,7 @@ public sealed class ClassicFirmwareGateway : ICalcFirmwareGateway
         keysToRomAddressCount,
         bufferToRomAddressCount,
         Cpu.State.KeyAvailable));
-    BatchCompleted?.Invoke(this, new FirmwareBatchCompletedEventArgs(LastBatch));
+    RaiseBatchCompleted();
   }
 
   private void RefreshDisplayFromCpu()
@@ -266,23 +167,5 @@ public sealed class ClassicFirmwareGateway : ICalcFirmwareGateway
       Cpu.Program.EndState);
 
     SetDisplayState(text, blankPulse: false);
-  }
-
-  private void SetDisplayState(string text, bool blankPulse)
-  {
-    bool changed = _displayText != text || _displayBlankPulse != blankPulse;
-    _displayText = text;
-    _displayBlankPulse = blankPulse;
-    if (changed)
-    {
-      DisplaySnapshot = new FirmwareDisplaySnapshot(
-        text,
-        IsDisplayVisible(),
-        blankPulse,
-        ++_displayRevision,
-        Cpu?.StepCount ?? 0,
-        Cpu?.State.ProgramCounter ?? 0);
-      DisplayChanged?.Invoke(this, new FirmwareDisplayChangedEventArgs(DisplaySnapshot));
-    }
   }
 }

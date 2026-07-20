@@ -3,14 +3,16 @@ using TeoCalc.Core.Catalog;
 using TeoCalc.Core.Engine.Classic;
 using TeoCalc.Rendering;
 
+using TeoCalc.Core.Engine;
+
 namespace TeoCalc.Core.Tests;
 
 [TestClass]
 public sealed class KeyPressDisplayProbeTests
 {
-  private static (ClassicMicrocodeRom Rom, MicrocodeHandlerCatalog Catalog, ProgramVocabulary Vocabulary) LoadModel()
+  private static (MicrocodeRom Rom, MicrocodeHandlerCatalog Catalog, ProgramVocabulary Vocabulary) LoadModel()
   {
-    ClassicMicrocodeRom rom = ClassicMicrocodeRom.LoadBinary(
+    MicrocodeRom rom = MicrocodeRom.LoadBinary(
       TeoCalcPaths.ResourcePath("Engine/HP-65/Firmware/hp65.microcode.bin"));
     MicrocodeHandlerCatalog catalog = MicrocodeHandlerCatalog.Load(
       TeoCalcPaths.ResourcePath("Engine/Classic/microcode.handlers.json"));
@@ -19,7 +21,7 @@ public sealed class KeyPressDisplayProbeTests
     return (rom, catalog, vocabulary);
   }
 
-  private static ClassicCpu WarmCpu(ClassicMicrocodeRom rom, MicrocodeHandlerCatalog catalog, ProgramVocabulary vocabulary)
+  private static ClassicCpu WarmCpu(MicrocodeRom rom, MicrocodeHandlerCatalog catalog, ProgramVocabulary vocabulary)
   {
     ClassicCpu cpu = new(rom, catalog, vocabulary);
     cpu.Reset();
@@ -63,7 +65,7 @@ public sealed class KeyPressDisplayProbeTests
   [TestMethod]
   public void Press7_FirmwareReceivesKeyHeldLine()
   {
-    (ClassicMicrocodeRom rom, MicrocodeHandlerCatalog catalog, ProgramVocabulary vocabulary) = LoadModel();
+    (MicrocodeRom rom, MicrocodeHandlerCatalog catalog, ProgramVocabulary vocabulary) = LoadModel();
     ClassicCpu cpu = WarmCpu(rom, catalog, vocabulary);
 
     ClassicProgramInput.TryResolveKeyCode(vocabulary, '7', out byte keyCode);
@@ -120,7 +122,7 @@ public sealed class KeyPressDisplayProbeTests
   [Ignore("Manual trace probe.")]
   public void Press7_WritesTeoTrace_Probe()
   {
-    (ClassicMicrocodeRom rom, MicrocodeHandlerCatalog catalog, ProgramVocabulary vocabulary) = LoadModel();
+    (MicrocodeRom rom, MicrocodeHandlerCatalog catalog, ProgramVocabulary vocabulary) = LoadModel();
     ClassicCpu cpu = new(rom, catalog, vocabulary);
     cpu.Reset();
     ClassicProgramInput.TryResolveKeyCode(vocabulary, '7', out byte keyCode);
@@ -186,7 +188,7 @@ public sealed class KeyPressDisplayProbeTests
   [TestMethod]
   public void Press7_KeyLineStatusBitMatrix_Probe()
   {
-    (ClassicMicrocodeRom rom, MicrocodeHandlerCatalog catalog, ProgramVocabulary vocabulary) = LoadModel();
+    (MicrocodeRom rom, MicrocodeHandlerCatalog catalog, ProgramVocabulary vocabulary) = LoadModel();
     ClassicProgramInput.TryResolveKeyCode(vocabulary, '7', out byte keyCode);
 
     for (int bit = 0; bit < 12; bit++)

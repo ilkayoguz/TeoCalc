@@ -2,6 +2,8 @@ using TeoCalc.Core;
 using TeoCalc.Core.Catalog;
 using TeoCalc.Core.Engine.Classic;
 
+using TeoCalc.Core.Engine;
+
 namespace TeoCalc.Core.Tests;
 
 [TestClass]
@@ -12,7 +14,7 @@ public sealed class ClassicProgramMemoryTests
 
   private static ClassicCpu CreateCpu()
   {
-    ClassicMicrocodeRom rom = ClassicMicrocodeRom.LoadBinary(
+    MicrocodeRom rom = MicrocodeRom.LoadBinary(
       TeoCalcPaths.ResourcePath("Engine/HP-65/Firmware/hp65.microcode.bin"));
     MicrocodeHandlerCatalog catalog = MicrocodeHandlerCatalog.Load(
       TeoCalcPaths.ResourcePath("Engine/Classic/microcode.handlers.json"));

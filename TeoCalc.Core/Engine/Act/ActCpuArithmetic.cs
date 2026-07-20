@@ -1,7 +1,7 @@
-namespace TeoCalc.Core.Engine.Woodstock;
+namespace TeoCalc.Core.Engine.Act;
 
 /// <summary>Panamatik HP25 field select + arithmetic / register ops.</summary>
-internal static class WoodstockCpuArithmetic
+internal static class ActCpuArithmetic
 {
   public static (byte First, byte Last) ResolveField(ushort opcode, byte p) =>
     (((byte)opcode >> 2) & 7) switch
@@ -16,10 +16,10 @@ internal static class WoodstockCpuArithmetic
       _ => ((byte)3, (byte)13),
     };
 
-  public static void Execute(ushort opcode, WoodstockCpuState state)
+  public static void Execute(ushort opcode, ActCpuState state)
   {
     (byte first, byte last) = ResolveField(opcode, state.P);
-    WoodstockRegisterFile r = state.Registers;
+    ActRegisterFile r = state.Registers;
     switch (opcode >> 5)
     {
       case 0:
@@ -77,42 +77,42 @@ internal static class WoodstockCpuArithmetic
         Subtract(r.C, r.A, r.C, first, last, state);
         break;
       case 18:
-        state.Flags |= WoodstockCpuFlags.Carry;
+        state.Flags |= ActCpuFlags.Carry;
         Subtract(r.A, r.A, null, first, last, state);
         break;
       case 19:
-        state.Flags |= WoodstockCpuFlags.Carry;
+        state.Flags |= ActCpuFlags.Carry;
         Subtract(r.C, r.C, null, first, last, state);
         break;
       case 20:
         Subtract(r.C, null, r.C, first, last, state);
         break;
       case 21:
-        state.Flags |= WoodstockCpuFlags.Carry;
+        state.Flags |= ActCpuFlags.Carry;
         Subtract(r.C, null, r.C, first, last, state);
         break;
       case 22:
-        state.InstructionState = WoodstockInstructionState.Branch;
+        state.InstructionState = ActInstructionState.Branch;
         TestNotEqual(r.B, null, first, last, state);
         break;
       case 23:
-        state.InstructionState = WoodstockInstructionState.Branch;
+        state.InstructionState = ActInstructionState.Branch;
         TestNotEqual(r.C, null, first, last, state);
         break;
       case 24:
-        state.InstructionState = WoodstockInstructionState.Branch;
+        state.InstructionState = ActInstructionState.Branch;
         Subtract(null, r.A, r.C, first, last, state);
         break;
       case 25:
-        state.InstructionState = WoodstockInstructionState.Branch;
+        state.InstructionState = ActInstructionState.Branch;
         Subtract(null, r.A, r.B, first, last, state);
         break;
       case 26:
-        state.InstructionState = WoodstockInstructionState.Branch;
+        state.InstructionState = ActInstructionState.Branch;
         TestEqual(r.A, null, first, last, state);
         break;
       case 27:
-        state.InstructionState = WoodstockInstructionState.Branch;
+        state.InstructionState = ActInstructionState.Branch;
         TestEqual(r.C, null, first, last, state);
         break;
       case 28:
@@ -172,29 +172,29 @@ internal static class WoodstockCpuArithmetic
     }
   }
 
-  private static void Add(byte[] dest, byte[]? src, byte first, byte last, WoodstockCpuState state)
+  private static void Add(byte[] dest, byte[]? src, byte first, byte last, ActCpuState state)
   {
     for (byte i = first; i <= last; i++)
     {
       byte addend = src is null ? (byte)0 : src[i];
-      byte sum = (byte)(dest[i] + addend + ((state.Flags & WoodstockCpuFlags.Carry) != 0 ? 1 : 0));
+      byte sum = (byte)(dest[i] + addend + ((state.Flags & ActCpuFlags.Carry) != 0 ? 1 : 0));
       if (sum >= state.Base)
       {
         sum = (byte)(sum - state.Base);
-        state.Flags |= WoodstockCpuFlags.Carry;
+        state.Flags |= ActCpuFlags.Carry;
       }
       else
       {
-        state.Flags &= ~WoodstockCpuFlags.Carry;
+        state.Flags &= ~ActCpuFlags.Carry;
       }
 
       dest[i] = sum;
     }
   }
 
-  private static void Increment(byte[] dest, byte first, byte last, WoodstockCpuState state)
+  private static void Increment(byte[] dest, byte first, byte last, ActCpuState state)
   {
-    state.Flags |= WoodstockCpuFlags.Carry;
+    state.Flags |= ActCpuFlags.Carry;
     Add(dest, null, first, last, state);
   }
 
@@ -204,21 +204,21 @@ internal static class WoodstockCpuArithmetic
     byte[]? src2,
     byte first,
     byte last,
-    WoodstockCpuState state)
+    ActCpuState state)
   {
     for (byte i = first; i <= last; i++)
     {
       byte left = src is null ? (byte)0 : src[i];
       byte right = src2 is null ? (byte)0 : src2[i];
-      sbyte diff = (sbyte)(left - right - ((state.Flags & WoodstockCpuFlags.Carry) != 0 ? 1 : 0));
+      sbyte diff = (sbyte)(left - right - ((state.Flags & ActCpuFlags.Carry) != 0 ? 1 : 0));
       if (diff < 0)
       {
         diff = (sbyte)(diff + state.Base);
-        state.Flags |= WoodstockCpuFlags.Carry;
+        state.Flags |= ActCpuFlags.Carry;
       }
       else
       {
-        state.Flags &= ~WoodstockCpuFlags.Carry;
+        state.Flags &= ~ActCpuFlags.Carry;
       }
 
       if (dest is not null)
@@ -228,29 +228,29 @@ internal static class WoodstockCpuArithmetic
     }
   }
 
-  private static void TestEqual(byte[] src, byte[]? dest, byte first, byte last, WoodstockCpuState state)
+  private static void TestEqual(byte[] src, byte[]? dest, byte first, byte last, ActCpuState state)
   {
-    state.Flags |= WoodstockCpuFlags.Carry;
+    state.Flags |= ActCpuFlags.Carry;
     for (byte i = first; i <= last; i++)
     {
       byte other = dest is null ? (byte)0 : dest[i];
       if (src[i] != other)
       {
-        state.Flags &= ~WoodstockCpuFlags.Carry;
+        state.Flags &= ~ActCpuFlags.Carry;
         break;
       }
     }
   }
 
-  private static void TestNotEqual(byte[] src, byte[]? dest, byte first, byte last, WoodstockCpuState state)
+  private static void TestNotEqual(byte[] src, byte[]? dest, byte first, byte last, ActCpuState state)
   {
-    state.Flags &= ~WoodstockCpuFlags.Carry;
+    state.Flags &= ~ActCpuFlags.Carry;
     for (byte i = first; i <= last; i++)
     {
       byte other = dest is null ? (byte)0 : dest[i];
       if (src[i] != other)
       {
-        state.Flags |= WoodstockCpuFlags.Carry;
+        state.Flags |= ActCpuFlags.Carry;
         break;
       }
     }

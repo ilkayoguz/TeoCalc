@@ -1,4 +1,5 @@
 using TeoCalc.Core.Catalog;
+using TeoCalc.Core.Engine;
 using TeoCalc.Core.Engine.Spice;
 
 namespace TeoCalc.Core;
@@ -11,7 +12,7 @@ public static class SpiceCpuFactory
     string romPath = Path.Combine(modelDir, model.Firmware.RomBinary.Replace('/', Path.DirectorySeparatorChar));
     string handlerPath = Path.Combine(modelDir, model.Firmware.HandlerCatalog.Replace('/', Path.DirectorySeparatorChar));
 
-    SpiceMicrocodeRom rom = SpiceMicrocodeRom.LoadBinary(romPath);
+    MicrocodeRom rom = MicrocodeRom.LoadBinary(romPath);
     MicrocodeHandlerCatalog handlers = MicrocodeHandlerCatalog.Load(handlerPath);
 
     SpiceCpu cpu = new(rom, handlers);

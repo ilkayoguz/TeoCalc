@@ -1,6 +1,6 @@
-namespace TeoCalc.Core.Engine.Woodstock;
+namespace TeoCalc.Core.Engine.Act;
 
-public sealed class WoodstockCpuState
+public sealed class ActCpuState
 {
   public const int RamBytes = 448;
 
@@ -8,9 +8,9 @@ public sealed class WoodstockCpuState
 
   public byte DelRom { get; set; }
 
-  public WoodstockCpuFlags Flags { get; set; }
+  public ActCpuFlags Flags { get; set; }
 
-  public WoodstockInstructionState InstructionState { get; set; }
+  public ActInstructionState InstructionState { get; set; }
 
   public ushort[] ReturnStack { get; } = new ushort[2];
 
@@ -32,7 +32,7 @@ public sealed class WoodstockCpuState
 
   public byte RomAddress { get; set; }
 
-  public WoodstockRegisterFile Registers { get; } = new();
+  public ActRegisterFile Registers { get; } = new();
 
   public byte[] Ram { get; } = new byte[RamBytes];
 
@@ -44,8 +44,8 @@ public sealed class WoodstockCpuState
   {
     ProgramCounter = 0;
     DelRom = 0;
-    Flags = WoodstockCpuFlags.None;
-    InstructionState = WoodstockInstructionState.Norm;
+    Flags = ActCpuFlags.None;
+    InstructionState = ActInstructionState.Norm;
     ReturnStack[0] = 0;
     ReturnStack[1] = 0;
     StackPointer = 0;
@@ -81,14 +81,14 @@ public sealed class WoodstockCpuState
   public int ResolveFetchAddress()
   {
     int address = ProgramCounter;
-    if ((Flags & WoodstockCpuFlags.Bank) == 0)
+    if ((Flags & ActCpuFlags.Bank) == 0)
     {
       return address;
     }
 
     if (address < 1024)
     {
-      Flags &= ~WoodstockCpuFlags.Bank;
+      Flags &= ~ActCpuFlags.Bank;
       return address;
     }
 

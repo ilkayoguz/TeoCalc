@@ -1,8 +1,8 @@
-namespace TeoCalc.Core.Engine.Spice;
+namespace TeoCalc.Core.Engine.Act;
 
-internal static class SpiceCpuStack
+internal static class ActCpuStack
 {
-  public static void CToStack(SpiceRegisterFile r)
+  public static void CToStack(ActRegisterFile r)
   {
     for (byte i = 0; i < 14; i++)
     {
@@ -12,7 +12,7 @@ internal static class SpiceCpuStack
     }
   }
 
-  public static void YToA(SpiceRegisterFile r)
+  public static void YToA(ActRegisterFile r)
   {
     for (byte i = 0; i < 14; i++)
     {
@@ -20,7 +20,7 @@ internal static class SpiceCpuStack
     }
   }
 
-  public static void StackToA(SpiceRegisterFile r)
+  public static void StackToA(ActRegisterFile r)
   {
     YToA(r);
     for (byte i = 0; i < 14; i++)
@@ -30,7 +30,7 @@ internal static class SpiceCpuStack
     }
   }
 
-  public static void DownRotate(SpiceRegisterFile r)
+  public static void DownRotate(ActRegisterFile r)
   {
     for (byte i = 0; i < 14; i++)
     {
@@ -42,7 +42,7 @@ internal static class SpiceCpuStack
     }
   }
 
-  public static void ClearRegisters(SpiceRegisterFile r)
+  public static void ClearRegisters(ActRegisterFile r)
   {
     for (byte i = 0; i < 14; i++)
     {
@@ -50,7 +50,7 @@ internal static class SpiceCpuStack
     }
   }
 
-  public static void Mx(SpiceRegisterFile r, ushort opcode)
+  public static void Mx(ActRegisterFile r, ushort opcode)
   {
     byte[] other = (opcode & 0x80) != 0 ? r.N : r.M;
     for (byte i = 0; i < 14; i++)

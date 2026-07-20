@@ -2,6 +2,8 @@ using TeoCalc.Core;
 using TeoCalc.Core.Catalog;
 using TeoCalc.Core.Engine.Classic;
 
+using TeoCalc.Core.Engine;
+
 namespace TeoCalc.Core.Tests;
 
 [TestClass]
@@ -15,7 +17,7 @@ public sealed class ClassicCpuCatalogTests
 
   private static ClassicCpu CreateCpu()
   {
-    ClassicMicrocodeRom rom = ClassicMicrocodeRom.LoadBinary(RomBinary);
+    MicrocodeRom rom = MicrocodeRom.LoadBinary(RomBinary);
     MicrocodeHandlerCatalog catalog = MicrocodeHandlerCatalog.Load(Handlers);
     return new ClassicCpu(rom, catalog);
   }
@@ -41,9 +43,9 @@ public sealed class ClassicCpuCatalogTests
   }
 
   [TestMethod]
-  public void ClassicMicrocodeRom_LoadsHp65Binary()
+  public void MicrocodeRom_LoadsHp65Binary()
   {
-    ClassicMicrocodeRom rom = ClassicMicrocodeRom.LoadBinary(RomBinary);
+    MicrocodeRom rom = MicrocodeRom.LoadBinary(RomBinary);
     Assert.AreEqual(3072, rom.WordCount);
     Assert.AreEqual(773, rom.ReadWord(0));
   }

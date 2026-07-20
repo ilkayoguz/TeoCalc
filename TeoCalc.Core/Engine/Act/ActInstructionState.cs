@@ -1,7 +1,7 @@
-namespace TeoCalc.Core.Engine.Woodstock;
+namespace TeoCalc.Core.Engine.Act;
 
 /// <summary>Panamatik HP25 <c>ST</c> multi-cycle instruction state.</summary>
-public enum WoodstockInstructionState
+public enum ActInstructionState
 {
   Norm,
   Branch,

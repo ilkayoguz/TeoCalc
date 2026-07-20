@@ -1,8 +1,8 @@
-namespace TeoCalc.Core.Engine.Spice;
+namespace TeoCalc.Core.Engine.Act;
 
-internal static class SpiceCpuDataRam
+internal static class ActCpuDataRam
 {
-  public static void RegisterToC(SpiceCpuState state, byte addr)
+  public static void RegisterToC(ActCpuState state, byte addr)
   {
     if (addr < 64)
     {
@@ -19,7 +19,7 @@ internal static class SpiceCpuDataRam
     }
   }
 
-  public static void CToRegister(SpiceCpuState state, byte addr)
+  public static void CToRegister(ActCpuState state, byte addr)
   {
     if (addr >= 64)
     {
@@ -33,19 +33,19 @@ internal static class SpiceCpuDataRam
     }
   }
 
-  public static void CToAddress(SpiceCpuState state) =>
+  public static void CToAddress(ActCpuState state) =>
     state.RamAddress = (byte)((state.Registers.C[1] << 4) + state.Registers.C[0]);
 
-  public static void CToData(SpiceCpuState state) =>
+  public static void CToData(ActCpuState state) =>
     CToRegister(state, state.RamAddress);
 
-  public static void CToRegisterOpcode(SpiceCpuState state, ushort opcode)
+  public static void CToRegisterOpcode(ActCpuState state, ushort opcode)
   {
     state.RamAddress = (byte)((state.RamAddress & 0xF0) + (opcode >> 6));
     CToData(state);
   }
 
-  public static void RegisterToCOpcode(SpiceCpuState state, ushort opcode)
+  public static void RegisterToCOpcode(ActCpuState state, ushort opcode)
   {
     if (opcode >> 6 != 0)
     {
@@ -55,7 +55,7 @@ internal static class SpiceCpuDataRam
     RegisterToC(state, state.RamAddress);
   }
 
-  public static void ClearDataRegs(SpiceCpuState state)
+  public static void ClearDataRegs(ActCpuState state)
   {
     byte baseAddr = (byte)(state.RamAddress & 0xF0);
     if (baseAddr >= 64)

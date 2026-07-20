@@ -2,6 +2,8 @@ using TeoCalc.Core;
 using TeoCalc.Core.Catalog;
 using TeoCalc.Core.Engine.Classic;
 
+using TeoCalc.Core.Engine;
+
 namespace TeoCalc.Core.Tests;
 
 [TestClass]
@@ -16,7 +18,7 @@ public sealed class ClassicModelCatalogTests
     {
       TeoCalcModelDefinition model = TeoCalcModelDefinition.Load(Path.Combine(EngineRoot, modelId, "Model.json"));
       string romPath = Path.Combine(EngineRoot, modelId, model.Firmware.RomBinary);
-      ClassicMicrocodeRom rom = ClassicMicrocodeRom.LoadBinary(romPath);
+      MicrocodeRom rom = MicrocodeRom.LoadBinary(romPath);
       Assert.AreEqual(model.Hardware.RomWordCount, rom.WordCount, modelId);
       ClassicCpu cpu = ClassicCpuFactory.Create(model, EngineRoot);
       Assert.IsNotNull(cpu);
@@ -34,7 +36,7 @@ public sealed class ClassicModelCatalogTests
     {
       TeoCalcModelDefinition model = TeoCalcModelDefinition.Load(Path.Combine(EngineRoot, modelId, "Model.json"));
       string romPath = Path.Combine(EngineRoot, modelId, model.Firmware.RomBinary);
-      ClassicMicrocodeRom rom = ClassicMicrocodeRom.LoadBinary(romPath);
+      MicrocodeRom rom = MicrocodeRom.LoadBinary(romPath);
       Assert.AreEqual(model.Hardware.RomWordCount, rom.WordCount, modelId);
 
       string mapPath = Path.Combine(EngineRoot, modelId, model.Firmware.RomMap);

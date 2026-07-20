@@ -1,4 +1,5 @@
 using TeoCalc.Core.Catalog;
+using TeoCalc.Core.Engine;
 using TeoCalc.Core.Engine.Woodstock;
 
 namespace TeoCalc.Core;
@@ -11,7 +12,7 @@ public static class WoodstockCpuFactory
     string romPath = Path.Combine(modelDir, model.Firmware.RomBinary.Replace('/', Path.DirectorySeparatorChar));
     string handlerPath = Path.Combine(modelDir, model.Firmware.HandlerCatalog.Replace('/', Path.DirectorySeparatorChar));
 
-    WoodstockMicrocodeRom rom = WoodstockMicrocodeRom.LoadBinary(romPath);
+    MicrocodeRom rom = MicrocodeRom.LoadBinary(romPath);
     MicrocodeHandlerCatalog handlers = MicrocodeHandlerCatalog.Load(handlerPath);
 
     WoodstockCpu cpu = new(rom, handlers);

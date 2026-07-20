@@ -1,18 +1,16 @@
 using TeoCalc.Core.Catalog;
+using TeoCalc.Core.Engine;
 
 namespace TeoCalc.Core.Engine.Classic;
 
 /// <summary>Classic-family CPU stepper (HP-65 first).</summary>
-public sealed class ClassicCpu
+public sealed class ClassicCpu : CpuBase
 {
-  private readonly ClassicMicrocodeRom _rom;
-  private readonly MicrocodeHandlerCatalog _handlers;
   private readonly Dictionary<int, string> _dispatchTable;
 
-  public ClassicCpu(ClassicMicrocodeRom rom, MicrocodeHandlerCatalog handlers, ProgramVocabulary? vocabulary = null)
+  public ClassicCpu(IMicrocodeRom rom, MicrocodeHandlerCatalog handlers, ProgramVocabulary? vocabulary = null)
+    : base(rom, handlers)
   {
-    _rom = rom;
-    _handlers = handlers;
     _dispatchTable = ClassicDispatchTable.Build();
     State = new ClassicCpuState();
     Program = new ClassicProgramMemory(State, vocabulary);
@@ -22,32 +20,30 @@ public sealed class ClassicCpu
 
   public ClassicProgramMemory Program { get; }
 
-  public int StepCount { get; private set; }
-
-  public void Reset()
+  public override void Reset()
   {
     State.Reset();
     Program.Initialize();
     StepCount = 0;
   }
 
-  public void PressKey(byte keyCode)
+  public override void PressKey(byte keyCode)
   {
     ClassicProgramInput.PressKey(State, keyCode);
   }
 
-  public MicrocodeHandlerEntry Step()
+  public override MicrocodeHandlerEntry Step()
   {
     int address = State.FetchAddress;
-    if (address < 0 || address >= _rom.WordCount)
+    if (address < 0 || address >= Rom.WordCount)
     {
       throw new InvalidOperationException($"ROM address out of range: {address:X4}");
     }
 
-    ushort opcode = _rom.ReadWord(address);
+    ushort opcode = Rom.ReadWord(address);
     State.PrepareOpcodeFlags();
     State.ProgramCounter++;
-    MicrocodeHandlerEntry handler = _handlers.ResolveByDispatchIndex(opcode, _dispatchTable);
+    MicrocodeHandlerEntry handler = Handlers.ResolveByDispatchIndex(opcode, _dispatchTable);
     Execute(handler.HandlerId, opcode);
     State.LastOpcode = opcode;
     State.LastHandlerId = handler.HandlerId;

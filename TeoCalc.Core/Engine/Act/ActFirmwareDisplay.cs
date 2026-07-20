@@ -1,9 +1,9 @@
 using System.Text;
 
-namespace TeoCalc.Core.Engine.Woodstock;
+namespace TeoCalc.Core.Engine.Act;
 
 /// <summary>Panamatik HP25 <c>ShowDisplay</c> (12-digit LED with digittab).</summary>
-public static class WoodstockFirmwareDisplay
+public static class ActFirmwareDisplay
 {
   private static readonly char[] DigitTab =
   [
@@ -11,9 +11,9 @@ public static class WoodstockFirmwareDisplay
     'r', 'F', 'o', 'P', 'E', ' ',
   ];
 
-  public static string BuildLedText(WoodstockCpuState state)
+  public static string BuildLedText(ActCpuState state)
   {
-    if ((state.Flags & WoodstockCpuFlags.DisplayOn) == 0)
+    if ((state.Flags & ActCpuFlags.DisplayOn) == 0)
     {
       return string.Empty;
     }
@@ -40,6 +40,6 @@ public static class WoodstockFirmwareDisplay
   }
 
   /// <summary>LED font uses ';' for decimal point (Classic explorer convention).</summary>
-  public static string ToLedFontText(WoodstockCpuState state) =>
+  public static string ToLedFontText(ActCpuState state) =>
     BuildLedText(state).Replace('.', ';');
 }

@@ -1,8 +1,8 @@
-namespace TeoCalc.Core.Engine.Spice;
+namespace TeoCalc.Core.Engine.Act;
 
 /// <summary>Panamatik HP25 <c>F</c> flags.</summary>
 [Flags]
-public enum SpiceCpuFlags : byte
+public enum ActCpuFlags : byte
 {
   None = 0,
   Null = 1,
