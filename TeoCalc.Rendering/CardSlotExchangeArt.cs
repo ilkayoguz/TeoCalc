@@ -11,7 +11,7 @@ public static class CardSlotExchangeArt
     FaceplateAssetPaths.ResolveFile("HP-65", "CardSlot", "exchange-arrow-up.svg");
 
   public static bool IsReady =>
-    Hp65FaceplateSvgAssets.CanDrawCardSlotLabels && File.Exists(ArrowPath);
+    ClassicFaceplateSvgAssets.CanDrawCardSlotLabels && File.Exists(ArrowPath);
 
   public static float MeasureWidth(float glyphHeight) =>
     glyphHeight * 0.26f;
@@ -35,7 +35,7 @@ public static class CardSlotExchangeArt
 
     if (IsReady)
     {
-      Hp65FaceplateSvgAssets.TryDrawSvgRotated(
+      ClassicFaceplateSvgAssets.TryDrawSvgRotated(
         draw,
         new Vector2(x, top),
         new Vector2(x + w, top + chevronH),
@@ -44,7 +44,7 @@ public static class CardSlotExchangeArt
         rasterH,
         90f,
         color);
-      Hp65FaceplateSvgAssets.TryDrawSvgRotated(
+      ClassicFaceplateSvgAssets.TryDrawSvgRotated(
         draw,
         new Vector2(x, bottom),
         new Vector2(x + w, bottom + chevronH),

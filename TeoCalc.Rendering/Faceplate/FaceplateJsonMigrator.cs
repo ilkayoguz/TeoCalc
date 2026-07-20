@@ -21,7 +21,7 @@ public static class FaceplateJsonMigrator
 
   public static void ExportAll()
   {
-    foreach (string catalogId in HpCalcModelCatalog.SupportedModels)
+    foreach (string catalogId in TeoCalcModelCatalog.SupportedModels)
     {
       ExportModel(catalogId);
     }

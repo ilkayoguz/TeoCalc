@@ -22,7 +22,7 @@ public sealed class CalcKeyVisual
   public uint? CapAboveInkOverride { get; init; }
 
   public static CalcKeyVisual FromLegacy(
-    HpCalcKeyVisual legacy,
+    KeyLegendVisual legacy,
     CalcButtonStyle capStyle,
     CalcButtonKind kind,
     CalcModelDefinition? model = null)
@@ -446,15 +446,15 @@ public static class CalcKeyComponent
 
     if (CalcCapAboveComposite.IsSpaceSavingInverse(goldText, blueText))
     {
-      HpClassicFaceplateGlyphs.LabelSize baseSize =
-        HpClassicFaceplateGlyphs.MeasureBodyLabel(goldText, fontSize);
+      ClassicFaceplateGlyphs.LabelSize baseSize =
+        ClassicFaceplateGlyphs.MeasureBodyLabel(goldText, fontSize);
       float gap = fontSize * 0.04f;
-      float superW = HpClassicFaceplateGlyphs.MeasureInverseSuffixWidth(fontSize);
+      float superW = ClassicFaceplateGlyphs.MeasureInverseSuffixWidth(fontSize);
       float totalW = baseSize.Width + gap + superW;
       float x = slotMin.X + ((slotMax.X - slotMin.X) - totalW) * 0.5f;
       float y = capEdgeY - baseSize.Height - scale * 1.2f;
-      HpClassicFaceplateGlyphs.DrawBodyLabel(draw, new Vector2(x, y), goldText, fontSize, goldInk, scale);
-      HpClassicFaceplateGlyphs.DrawInverseSuffix(
+      ClassicFaceplateGlyphs.DrawBodyLabel(draw, new Vector2(x, y), goldText, fontSize, goldInk, scale);
+      ClassicFaceplateGlyphs.DrawInverseSuffix(
         draw,
         x + baseSize.Width + gap,
         y,
@@ -467,15 +467,15 @@ public static class CalcKeyComponent
     if (CalcCapAboveComposite.IsSpaceSavingHmsPlusMinus(goldText, blueText))
     {
       const string hms = "H.MS";
-      HpClassicFaceplateGlyphs.LabelSize baseSize =
-        HpClassicFaceplateGlyphs.MeasureBodyLabel(hms, fontSize);
+      ClassicFaceplateGlyphs.LabelSize baseSize =
+        ClassicFaceplateGlyphs.MeasureBodyLabel(hms, fontSize);
       float gap = fontSize * 0.08f;
-      float signW = HpClassicFaceplateGlyphs.MeasureHmsSignStackWidth(fontSize);
+      float signW = ClassicFaceplateGlyphs.MeasureHmsSignStackWidth(fontSize);
       float totalW = baseSize.Width + gap + signW;
       float x = slotMin.X + ((slotMax.X - slotMin.X) - totalW) * 0.5f;
       float y = capEdgeY - baseSize.Height - scale * 1.2f;
-      HpClassicFaceplateGlyphs.DrawBodyLabel(draw, new Vector2(x, y), hms, fontSize, goldInk, scale);
-      HpClassicFaceplateGlyphs.DrawHmsSignStack(
+      ClassicFaceplateGlyphs.DrawBodyLabel(draw, new Vector2(x, y), hms, fontSize, goldInk, scale);
+      ClassicFaceplateGlyphs.DrawHmsSignStack(
         draw,
         x + baseSize.Width + gap,
         y,
@@ -488,20 +488,20 @@ public static class CalcKeyComponent
 
     if (CalcCapAboveComposite.TryParseUnitConversionPair(goldText, blueText, out string left, out string right))
     {
-      HpClassicFaceplateGlyphs.LabelSize leftSize =
-        HpClassicFaceplateGlyphs.MeasureBodyLabel(left, fontSize);
-      HpClassicFaceplateGlyphs.LabelSize rightSize =
-        HpClassicFaceplateGlyphs.MeasureBodyLabel(right, fontSize);
+      ClassicFaceplateGlyphs.LabelSize leftSize =
+        ClassicFaceplateGlyphs.MeasureBodyLabel(left, fontSize);
+      ClassicFaceplateGlyphs.LabelSize rightSize =
+        ClassicFaceplateGlyphs.MeasureBodyLabel(right, fontSize);
       float gap = fontSize * 0.06f;
-      float arrowW = HpClassicFaceplateGlyphs.MeasureDualInkConversionArrowWidth(fontSize);
+      float arrowW = ClassicFaceplateGlyphs.MeasureDualInkConversionArrowWidth(fontSize);
       float totalW = leftSize.Width + gap + arrowW + gap + rightSize.Width;
       float bandH = MathF.Max(leftSize.Height, rightSize.Height);
       float x = slotMin.X + ((slotMax.X - slotMin.X) - totalW) * 0.5f;
       float y = capEdgeY - bandH - scale * 1.2f;
-      HpClassicFaceplateGlyphs.DrawBodyLabel(draw, new Vector2(x, y), left, fontSize, goldInk, scale);
+      ClassicFaceplateGlyphs.DrawBodyLabel(draw, new Vector2(x, y), left, fontSize, goldInk, scale);
       x += leftSize.Width + gap;
       // Upper → blue (g), lower ← gold (f) — color-coded conversion direction markers.
-      HpClassicFaceplateGlyphs.DrawDualInkConversionArrows(
+      ClassicFaceplateGlyphs.DrawDualInkConversionArrows(
         draw,
         x,
         y,
@@ -510,7 +510,7 @@ public static class CalcKeyComponent
         leftArrowInk: goldInk,
         scale);
       x += arrowW + gap;
-      HpClassicFaceplateGlyphs.DrawBodyLabel(draw, new Vector2(x, y), right, fontSize, blueInk, scale);
+      ClassicFaceplateGlyphs.DrawBodyLabel(draw, new Vector2(x, y), right, fontSize, blueInk, scale);
       return true;
     }
 
@@ -545,14 +545,14 @@ public static class CalcKeyComponent
 
     if (CalcCapAboveComposite.IsSpaceSavingInverse(goldText, blueText))
     {
-      HpClassicFaceplateGlyphs.LabelSize baseSize =
-        HpClassicFaceplateGlyphs.MeasureBodyLabel(goldText, fontSize);
+      ClassicFaceplateGlyphs.LabelSize baseSize =
+        ClassicFaceplateGlyphs.MeasureBodyLabel(goldText, fontSize);
       float gap = fontSize * 0.04f;
-      float superW = HpClassicFaceplateGlyphs.MeasureInverseSuffixWidth(fontSize);
+      float superW = ClassicFaceplateGlyphs.MeasureInverseSuffixWidth(fontSize);
       float totalW = baseSize.Width + gap + superW;
       float x = slotMin.X + ((slotMax.X - slotMin.X) - totalW) * 0.5f;
-      HpClassicFaceplateGlyphs.DrawBodyLabel(draw, new Vector2(x, y), goldText, fontSize, goldInk, scale);
-      HpClassicFaceplateGlyphs.DrawInverseSuffix(
+      ClassicFaceplateGlyphs.DrawBodyLabel(draw, new Vector2(x, y), goldText, fontSize, goldInk, scale);
+      ClassicFaceplateGlyphs.DrawInverseSuffix(
         draw,
         x + baseSize.Width + gap,
         y,
@@ -564,18 +564,18 @@ public static class CalcKeyComponent
 
     if (CalcCapAboveComposite.TryParseUnitConversionPair(goldText, blueText, out string left, out string right))
     {
-      HpClassicFaceplateGlyphs.LabelSize leftSize =
-        HpClassicFaceplateGlyphs.MeasureBodyLabel(left, fontSize);
-      HpClassicFaceplateGlyphs.LabelSize rightSize =
-        HpClassicFaceplateGlyphs.MeasureBodyLabel(right, fontSize);
+      ClassicFaceplateGlyphs.LabelSize leftSize =
+        ClassicFaceplateGlyphs.MeasureBodyLabel(left, fontSize);
+      ClassicFaceplateGlyphs.LabelSize rightSize =
+        ClassicFaceplateGlyphs.MeasureBodyLabel(right, fontSize);
       float gap = fontSize * 0.06f;
-      float arrowW = HpClassicFaceplateGlyphs.MeasureDualInkConversionArrowWidth(fontSize);
+      float arrowW = ClassicFaceplateGlyphs.MeasureDualInkConversionArrowWidth(fontSize);
       float totalW = leftSize.Width + gap + arrowW + gap + rightSize.Width;
       float x = slotMin.X + ((slotMax.X - slotMin.X) - totalW) * 0.5f;
-      HpClassicFaceplateGlyphs.DrawBodyLabel(draw, new Vector2(x, y), left, fontSize, goldInk, scale);
+      ClassicFaceplateGlyphs.DrawBodyLabel(draw, new Vector2(x, y), left, fontSize, goldInk, scale);
       x += leftSize.Width + gap;
       // Upper → blue (g), lower ← gold (f) — same as CapAbove unit conversions.
-      HpClassicFaceplateGlyphs.DrawDualInkConversionArrows(
+      ClassicFaceplateGlyphs.DrawDualInkConversionArrows(
         draw,
         x,
         y,
@@ -584,7 +584,7 @@ public static class CalcKeyComponent
         leftArrowInk: goldInk,
         scale);
       x += arrowW + gap;
-      HpClassicFaceplateGlyphs.DrawBodyLabel(draw, new Vector2(x, y), right, fontSize, blueInk, scale);
+      ClassicFaceplateGlyphs.DrawBodyLabel(draw, new Vector2(x, y), right, fontSize, blueInk, scale);
       return true;
     }
 
@@ -608,7 +608,7 @@ public static class CalcKeyComponent
 
     // CapFace / ENTER-row gold already use vector glyphs for √ / →; CapAbove must too
     // (Arial Bold atlas is Latin-1 + π only, so those codepoints become "?").
-    HpClassicFaceplateGlyphs.LabelSize textSize = HpClassicFaceplateGlyphs.MeasureBodyLabel(text, fontSize);
+    ClassicFaceplateGlyphs.LabelSize textSize = ClassicFaceplateGlyphs.MeasureBodyLabel(text, fontSize);
     float inset = align is CalcLabelAlign.Left or CalcLabelAlign.Right
       ? CalcLabelAlignMetrics.DualBandInset(scale)
       : scale * 3f;
@@ -622,6 +622,6 @@ public static class CalcKeyComponent
       ? capEdgeY - textSize.Height - scale * 1.2f
       : capEdgeY + scale * 1.2f;
 
-    HpClassicFaceplateGlyphs.DrawBodyLabel(draw, new Vector2(x, y), text, fontSize, ink, scale);
+    ClassicFaceplateGlyphs.DrawBodyLabel(draw, new Vector2(x, y), text, fontSize, ink, scale);
   }
 }

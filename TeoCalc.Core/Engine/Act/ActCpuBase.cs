@@ -80,7 +80,7 @@ public abstract class ActCpuBase : CpuBase, IActCpu
     while (State.InstructionState != ActInstructionState.Norm);
 
     StepCount++;
-    return last ?? Handlers.ResolveByPanamatikAlias("op_nop");
+    return last ?? Handlers.ResolveByOpcodeAlias("op_nop");
   }
 
   private MicrocodeHandlerEntry ExecuteCycle()
@@ -138,7 +138,7 @@ public abstract class ActCpuBase : CpuBase, IActCpu
 
     AfterCycle(opcode);
 
-    MicrocodeHandlerEntry handler = Handlers.ResolveByPanamatikAlias(alias);
+    MicrocodeHandlerEntry handler = Handlers.ResolveByOpcodeAlias(alias);
     State.LastOpcode = opcode;
     State.LastHandlerId = handler.HandlerId;
     return handler;

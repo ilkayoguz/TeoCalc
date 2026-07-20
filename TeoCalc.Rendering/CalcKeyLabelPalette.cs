@@ -107,7 +107,7 @@ public static class CalcKeyLabelPalette
 
   private static bool IsAsciiBlueSkirtLabel(string? label) =>
     label is "DEG" or "RAD" or "GRD" or "DEL" or "NOP" or "DSZ"
-    || (label is not null && label.Length <= 4 && HpClassicFaceplateGlyphs.IsPlainArialSkirtLabel(label));
+    || (label is not null && label.Length <= 4 && ClassicFaceplateGlyphs.IsPlainArialSkirtLabel(label));
 
   public static bool IsProgramRowComparisonLabel(string? label) =>
     label is "x\u2260y" or "x\u2264y" or "x\u2265y" or "x=y" or "x>y";

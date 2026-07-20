@@ -55,6 +55,6 @@ public sealed class MicrocodeMapEntry
   [JsonPropertyName("Title")]
   public string Title { get; init; } = "";
 
-  [JsonPropertyName("PanamatikAlias")]
-  public string PanamatikAlias { get; init; } = "";
+  [JsonPropertyName("OpcodeAlias")]
+  public string OpcodeAlias { get; init; } = "";
 }

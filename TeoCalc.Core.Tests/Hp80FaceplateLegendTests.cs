@@ -12,7 +12,7 @@ public sealed class Hp80FaceplateLegendTests
   private static ProgramVocabulary LoadVocabulary() =>
     ProgramVocabulary.Load(TeoCalcPaths.ResourcePath("Engine/HP-80/Program/program.vocabulary.json"));
 
-  private static HpCalcKeyVisual VisualAt(ProgramVocabulary vocabulary, int index) =>
+  private static KeyLegendVisual VisualAt(ProgramVocabulary vocabulary, int index) =>
     ClassicKeyFaceplateLegend.Resolve(
       "HP-80", "Classic", vocabulary.KeyChart[index], vocabulary, FaceplateLabelStyle.Normal);
 
@@ -103,7 +103,7 @@ public sealed class Hp80FaceplateLegendTests
 
     foreach ((int index, string label) in expectedCapAbove)
     {
-      HpCalcKeyVisual visual = VisualAt(vocabulary, index);
+      KeyLegendVisual visual = VisualAt(vocabulary, index);
       Assert.AreEqual(label, visual.GoldShift, $"CapAbove index {index}");
       Assert.IsTrue(string.IsNullOrEmpty(visual.BlueShift), $"No CapSkirt/blue at {index}");
     }
@@ -116,7 +116,7 @@ public sealed class Hp80FaceplateLegendTests
   {
     ProgramVocabulary vocabulary = LoadVocabulary();
     Assert.AreEqual("CL X", VisualAt(vocabulary, 19).Primary);
-    Assert.IsTrue(HpClassicFaceplateGlyphs.UsesPrefixCapitalMathX("CL X"));
+    Assert.IsTrue(ClassicFaceplateGlyphs.UsesPrefixCapitalMathX("CL X"));
   }
 
   [TestMethod]
@@ -211,7 +211,7 @@ public sealed class Hp80FaceplateLegendTests
 
     foreach ((int index, string capFace, string? capAbove, CalcButtonStyle style) in rows)
     {
-      HpCalcKeyVisual visual = VisualAt(vocabulary, index);
+      KeyLegendVisual visual = VisualAt(vocabulary, index);
       Assert.AreEqual(capFace, visual.Primary, $"CapFace {index}");
       if (capAbove is null)
       {

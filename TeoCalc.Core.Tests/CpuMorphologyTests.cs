@@ -2,9 +2,9 @@ using TeoCalc.Core.Catalog;
 using TeoCalc.Core.Engine;
 using TeoCalc.Core.Engine.Act;
 using TeoCalc.Core.Engine.Classic;
-using TeoCalc.Core.Engine.Hp01;
-using TeoCalc.Core.Engine.Hp19;
-using TeoCalc.Core.Engine.Hp67;
+using TeoCalc.Core.Engine.Teo01;
+using TeoCalc.Core.Engine.Teo19;
+using TeoCalc.Core.Engine.Teo67;
 using TeoCalc.Core.Engine.Spice;
 using TeoCalc.Core.Engine.Woodstock;
 using TeoCalc.Core.Firmware;
@@ -20,16 +20,16 @@ public sealed class CpuMorphologyTests
     Assert.IsTrue(typeof(ICpu).IsAssignableFrom(typeof(ClassicCpu)));
     Assert.IsTrue(typeof(ICpu).IsAssignableFrom(typeof(WoodstockCpu)));
     Assert.IsTrue(typeof(ICpu).IsAssignableFrom(typeof(SpiceCpu)));
-    Assert.IsTrue(typeof(ICpu).IsAssignableFrom(typeof(Hp67Cpu)));
-    Assert.IsTrue(typeof(ICpu).IsAssignableFrom(typeof(Hp19Cpu)));
-    Assert.IsTrue(typeof(ICpu).IsAssignableFrom(typeof(Hp01Cpu)));
+    Assert.IsTrue(typeof(ICpu).IsAssignableFrom(typeof(Teo67Cpu)));
+    Assert.IsTrue(typeof(ICpu).IsAssignableFrom(typeof(Teo19Cpu)));
+    Assert.IsTrue(typeof(ICpu).IsAssignableFrom(typeof(Teo01Cpu)));
     Assert.IsTrue(typeof(CpuBase).IsAssignableFrom(typeof(ClassicCpu)));
-    Assert.IsTrue(typeof(CpuBase).IsAssignableFrom(typeof(Hp01Cpu)));
+    Assert.IsTrue(typeof(CpuBase).IsAssignableFrom(typeof(Teo01Cpu)));
     Assert.IsTrue(typeof(ActCpuBase).IsAssignableFrom(typeof(WoodstockCpu)));
     Assert.IsTrue(typeof(ActCpuBase).IsAssignableFrom(typeof(SpiceCpu)));
-    Assert.IsTrue(typeof(ActCpuBase).IsAssignableFrom(typeof(Hp67Cpu)));
-    Assert.IsTrue(typeof(ActCpuBase).IsAssignableFrom(typeof(Hp19Cpu)));
-    Assert.IsFalse(typeof(ActCpuBase).IsAssignableFrom(typeof(Hp01Cpu)));
+    Assert.IsTrue(typeof(ActCpuBase).IsAssignableFrom(typeof(Teo67Cpu)));
+    Assert.IsTrue(typeof(ActCpuBase).IsAssignableFrom(typeof(Teo19Cpu)));
+    Assert.IsFalse(typeof(ActCpuBase).IsAssignableFrom(typeof(Teo01Cpu)));
     Assert.IsTrue(typeof(IActCpu).IsAssignableFrom(typeof(WoodstockCpu)));
   }
 
@@ -37,11 +37,11 @@ public sealed class CpuMorphologyTests
   public void Gateways_Share_CalcFirmwareGatewayBase()
   {
     Assert.IsTrue(typeof(CalcFirmwareGatewayBase).IsAssignableFrom(typeof(ClassicFirmwareGateway)));
-    Assert.IsTrue(typeof(CalcFirmwareGatewayBase).IsAssignableFrom(typeof(Hp01FirmwareGateway)));
+    Assert.IsTrue(typeof(CalcFirmwareGatewayBase).IsAssignableFrom(typeof(Teo01FirmwareGateway)));
     Assert.IsTrue(typeof(ActFirmwareGatewayBase<WoodstockCpu>).IsAssignableFrom(typeof(WoodstockFirmwareGateway)));
     Assert.IsTrue(typeof(ActFirmwareGatewayBase<SpiceCpu>).IsAssignableFrom(typeof(SpiceFirmwareGateway)));
-    Assert.IsTrue(typeof(ActFirmwareGatewayBase<Hp67Cpu>).IsAssignableFrom(typeof(Hp67FirmwareGateway)));
-    Assert.IsTrue(typeof(ActFirmwareGatewayBase<Hp19Cpu>).IsAssignableFrom(typeof(Hp19FirmwareGateway)));
+    Assert.IsTrue(typeof(ActFirmwareGatewayBase<Teo67Cpu>).IsAssignableFrom(typeof(Teo67FirmwareGateway)));
+    Assert.IsTrue(typeof(ActFirmwareGatewayBase<Teo19Cpu>).IsAssignableFrom(typeof(Teo19FirmwareGateway)));
   }
 
   [TestMethod]
@@ -57,13 +57,13 @@ public sealed class CpuMorphologyTests
     ICpu spice = SpiceCpuFactory.Create(
       TeoCalcModelDefinition.Load(Path.Combine(engineRoot, "HP-31", "Model.json")),
       engineRoot);
-    ICpu hp67 = Hp67CpuFactory.Create(
+    ICpu hp67 = Teo67CpuFactory.Create(
       TeoCalcModelDefinition.Load(Path.Combine(engineRoot, "HP-67", "Model.json")),
       engineRoot);
-    ICpu hp19 = Hp19CpuFactory.Create(
+    ICpu hp19 = Teo19CpuFactory.Create(
       TeoCalcModelDefinition.Load(Path.Combine(engineRoot, "HP-19C", "Model.json")),
       engineRoot);
-    ICpu hp01 = Hp01CpuFactory.Create(
+    ICpu hp01 = Teo01CpuFactory.Create(
       TeoCalcModelDefinition.Load(Path.Combine(engineRoot, "HP-01", "Model.json")),
       engineRoot);
 

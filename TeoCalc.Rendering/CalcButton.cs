@@ -90,7 +90,7 @@ public static class CalcButton
         skipText);
     }
 
-    if (!overlayOnly && drawWell && !Hp65FaceplateSvgAssets.CanDrawKeyCaps)
+    if (!overlayOnly && drawWell && !ClassicFaceplateSvgAssets.CanDrawKeyCaps)
     {
       DrawWell(draw, min, max, scale);
     }
@@ -327,7 +327,7 @@ public static class CalcButton
     }
 
     float fontSize = PrimaryFontSize(text, scale);
-    HpClassicFaceplateGlyphs.DrawKeyFaceLabelInRect(draw, faceMin, faceMax, text, fontSize, ink, scale);
+    ClassicFaceplateGlyphs.DrawKeyFaceLabelInRect(draw, faceMin, faceMax, text, fontSize, ink, scale);
   }
 
   private static void DrawKeyFaceDot(ImDrawListPtr draw, Vector2 faceMin, Vector2 faceMax, float scale, uint ink)
@@ -458,7 +458,7 @@ public static class CalcButton
         break;
       case "\u00d7":
         float xSize = CalcFaceplateTypography.KeyOperator(scale) * 1.22f;
-        HpClassicFaceplateGlyphs.DrawKeyFaceMultiply(draw, center, xSize, ink, scale);
+        ClassicFaceplateGlyphs.DrawKeyFaceMultiply(draw, center, xSize, ink, scale);
         break;
     }
   }
@@ -505,10 +505,10 @@ public static class CalcButton
       Vector2 topLeft = CalcFaceplateFonts.ArialBoldTopLeftForBand(bandMin, bandMax, text, fontSize, verticalBiasRatio: 0f);
       CalcFaceplateFonts.FontInkBounds ink = CalcFaceplateFonts.MeasureArialBoldInk(text, fontSize);
       topLeft.X = bandMax.X - pad - (ink.Left + ink.Width);
-      HpClassicFaceplateGlyphs.DrawArialBoldGlyph(draw, text, topLeft.X, topLeft.Y, fontSize, color);
+      ClassicFaceplateGlyphs.DrawArialBoldGlyph(draw, text, topLeft.X, topLeft.Y, fontSize, color);
       return;
     }
 
-    HpClassicFaceplateGlyphs.DrawSkirtLabelInRect(draw, bandMin, bandMax, text, fontSize, color, scale);
+    ClassicFaceplateGlyphs.DrawSkirtLabelInRect(draw, bandMin, bandMax, text, fontSize, color, scale);
   }
 }

@@ -286,7 +286,7 @@ public static class CalcFaceplateView
           continue;
         }
 
-        HpCalcKeyVisual visual = ClassicKeyFaceplateLegend.Resolve(
+        KeyLegendVisual visual = ClassicKeyFaceplateLegend.Resolve(
           model.Model,
           model.Family,
           key,
@@ -416,7 +416,7 @@ public static class CalcFaceplateView
   private readonly record struct KeypadDrawItem(
     FaceplateCell Cell,
     ProgramKeyEntry Key,
-    HpCalcKeyVisual Visual,
+    KeyLegendVisual Visual,
     RectF KeyRect,
     CalcKeyVisual KeyVisual,
     CalcButtonKind Kind,
@@ -471,7 +471,7 @@ public static class CalcFaceplateView
     (color & 0x00FFFFFFu) | ((uint)alpha << 24);
 
   private static PreviewVisual ApplyShiftPreview(
-    HpCalcKeyVisual visual,
+    KeyLegendVisual visual,
     ShiftPreviewMode mode,
     CalcButtonStyle style,
     string? modelId)
@@ -527,7 +527,7 @@ public static class CalcFaceplateView
     };
   }
 
-  private static string ComposeGoldPreviewFace(HpCalcKeyVisual visual)
+  private static string ComposeGoldPreviewFace(KeyLegendVisual visual)
   {
     if (CalcCapAboveComposite.IsSpaceSavingHmsPlusMinus(visual.GoldShift, visual.BlueShift))
     {
@@ -544,7 +544,7 @@ public static class CalcFaceplateView
     return visual.GoldShift!;
   }
 
-  private static string ComposeBluePreviewFace(HpCalcKeyVisual visual)
+  private static string ComposeBluePreviewFace(KeyLegendVisual visual)
   {
     if (!string.IsNullOrEmpty(visual.GoldShift)
         && CalcCapAboveComposite.IsSpaceSavingInverse(visual.GoldShift, visual.BlueShift))

@@ -83,16 +83,6 @@ public static class CalcChassisRenderer
     string? ledText = null) =>
     DrawLedDisplay(draw, display, programMode, scale, displayLit, ledText);
 
-  [Obsolete("Use DrawLedDisplay.")]
-  public static void DrawPanamatikDisplay(
-    ImDrawListPtr draw,
-    RectF display,
-    bool programMode,
-    float scale,
-    bool displayLit,
-    string? ledText = null) =>
-    DrawLedDisplay(draw, display, programMode, scale, displayLit, ledText);
-
   public static void DrawDisplayDigits(
     ImDrawListPtr draw,
     RectF display,
@@ -192,12 +182,12 @@ public static class CalcChassisRenderer
       float slotLeft = cellX + slotInsetX;
       float slotRight = cellX + cellWidth - slotInsetX;
       float centerX = (slotLeft + slotRight) * 0.5f;
-      Vector2 drawCenter = HpClassicFaceplateGlyphs.CardSlotLabelDrawCenter(
+      Vector2 drawCenter = ClassicFaceplateGlyphs.CardSlotLabelDrawCenter(
         column,
         new Vector2(centerX, labelCenterY),
         fontSize,
         metrics.Scale);
-      HpClassicFaceplateGlyphs.DrawCardSlotLabel(
+      ClassicFaceplateGlyphs.DrawCardSlotLabel(
         draw,
         column,
         drawCenter,

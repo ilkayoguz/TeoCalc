@@ -1,9 +1,9 @@
 using TeoCalc.Core;
 using TeoCalc.Core.Catalog;
 using TeoCalc.Core.Engine.Classic;
-using TeoCalc.Core.Engine.Hp01;
-using TeoCalc.Core.Engine.Hp19;
-using TeoCalc.Core.Engine.Hp67;
+using TeoCalc.Core.Engine.Teo01;
+using TeoCalc.Core.Engine.Teo19;
+using TeoCalc.Core.Engine.Teo67;
 using TeoCalc.Core.Engine.Spice;
 using TeoCalc.Core.Engine.Woodstock;
 using TeoCalc.Core.Firmware;
@@ -19,7 +19,7 @@ public static class CalcFirmwareBootstrap
 {
   /// <summary>
   /// True when the model is Classic-family and ROM/handler assets are present
-  /// (HP-35/45/55/65/70/80). HP-67 is ACT ISA — see <see cref="IsNativeHp67Pilot"/>.
+  /// (HP-35/45/55/65/70/80). HP-67 is ACT ISA — see <see cref="IsNativeTeo67Pilot"/>.
   /// </summary>
   public static bool IsNativeClassicPilot(string catalogOrEngineId)
   {
@@ -53,21 +53,21 @@ public static class CalcFirmwareBootstrap
   }
 
   /// <summary>True when HP-67 ACT ROM/handler assets are present.</summary>
-  public static bool IsNativeHp67Pilot(string catalogOrEngineId)
+  public static bool IsNativeTeo67Pilot(string catalogOrEngineId)
   {
     string engineId = NormalizeEngineId(CalcModelIds.Resolve(catalogOrEngineId));
     return NativeFamilyAssetsExist(engineId, "Hp67");
   }
 
   /// <summary>True when HP-19C ACT ROM/handler assets are present.</summary>
-  public static bool IsNativeHp19Pilot(string catalogOrEngineId)
+  public static bool IsNativeTeo19Pilot(string catalogOrEngineId)
   {
     string engineId = NormalizeEngineId(CalcModelIds.Resolve(catalogOrEngineId));
     return NativeFamilyAssetsExist(engineId, "Hp19");
   }
 
   /// <summary>True when HP-01 ACThp01 ROM/handler assets are present.</summary>
-  public static bool IsNativeHp01(string catalogOrEngineId)
+  public static bool IsNativeTeo01Pilot(string catalogOrEngineId)
   {
     string engineId = NormalizeEngineId(CalcModelIds.Resolve(catalogOrEngineId));
     return NativeFamilyAssetsExist(engineId, "HP01");
@@ -98,19 +98,19 @@ public static class CalcFirmwareBootstrap
       return CreateNativeSpiceGateway(NormalizeEngineId(identity));
     }
 
-    if (IsNativeHp67Pilot(catalogOrEngineId))
+    if (IsNativeTeo67Pilot(catalogOrEngineId))
     {
-      return CreateNativeHp67Gateway(NormalizeEngineId(identity));
+      return CreateNativeTeo67Gateway(NormalizeEngineId(identity));
     }
 
-    if (IsNativeHp19Pilot(catalogOrEngineId))
+    if (IsNativeTeo19Pilot(catalogOrEngineId))
     {
-      return CreateNativeHp19Gateway(NormalizeEngineId(identity));
+      return CreateNativeTeo19Gateway(NormalizeEngineId(identity));
     }
 
-    if (IsNativeHp01(catalogOrEngineId))
+    if (IsNativeTeo01Pilot(catalogOrEngineId))
     {
-      return CreateNativeHp01Gateway(NormalizeEngineId(identity));
+      return CreateNativeTeo01Gateway(NormalizeEngineId(identity));
     }
 
     IPanamatikEngine engine = PanamatikEngineFactory.Create(identity.EngineId);
@@ -169,35 +169,35 @@ public static class CalcFirmwareBootstrap
     return gateway;
   }
 
-  private static Hp67FirmwareGateway CreateNativeHp67Gateway(string engineId)
+  private static Teo67FirmwareGateway CreateNativeTeo67Gateway(string engineId)
   {
     string engineRoot = TeoCalcPaths.ResourcePath("Engine");
     string modelPath = Path.Combine(engineRoot, engineId, "Model.json");
     TeoCalcModelDefinition model = TeoCalcModelDefinition.Load(modelPath);
-    Hp67Cpu cpu = Hp67CpuFactory.Create(model, engineRoot);
-    Hp67FirmwareGateway gateway = new();
+    Teo67Cpu cpu = Teo67CpuFactory.Create(model, engineRoot);
+    Teo67FirmwareGateway gateway = new();
     gateway.AttachCpu(cpu);
     return gateway;
   }
 
-  private static Hp19FirmwareGateway CreateNativeHp19Gateway(string engineId)
+  private static Teo19FirmwareGateway CreateNativeTeo19Gateway(string engineId)
   {
     string engineRoot = TeoCalcPaths.ResourcePath("Engine");
     string modelPath = Path.Combine(engineRoot, engineId, "Model.json");
     TeoCalcModelDefinition model = TeoCalcModelDefinition.Load(modelPath);
-    Hp19Cpu cpu = Hp19CpuFactory.Create(model, engineRoot);
-    Hp19FirmwareGateway gateway = new();
+    Teo19Cpu cpu = Teo19CpuFactory.Create(model, engineRoot);
+    Teo19FirmwareGateway gateway = new();
     gateway.AttachCpu(cpu);
     return gateway;
   }
 
-  private static Hp01FirmwareGateway CreateNativeHp01Gateway(string engineId)
+  private static Teo01FirmwareGateway CreateNativeTeo01Gateway(string engineId)
   {
     string engineRoot = TeoCalcPaths.ResourcePath("Engine");
     string modelPath = Path.Combine(engineRoot, engineId, "Model.json");
     TeoCalcModelDefinition model = TeoCalcModelDefinition.Load(modelPath);
-    Hp01Cpu cpu = Hp01CpuFactory.Create(model, engineRoot);
-    Hp01FirmwareGateway gateway = new();
+    Teo01Cpu cpu = Teo01CpuFactory.Create(model, engineRoot);
+    Teo01FirmwareGateway gateway = new();
     gateway.AttachCpu(cpu);
     return gateway;
   }
@@ -207,9 +207,9 @@ public static class CalcFirmwareBootstrap
     if (IsNativeClassicPilot(catalogOrEngineId)
         || IsNativeWoodstockPilot(catalogOrEngineId)
         || IsNativeSpicePilot(catalogOrEngineId)
-        || IsNativeHp67Pilot(catalogOrEngineId)
-        || IsNativeHp19Pilot(catalogOrEngineId)
-        || IsNativeHp01(catalogOrEngineId))
+        || IsNativeTeo67Pilot(catalogOrEngineId)
+        || IsNativeTeo19Pilot(catalogOrEngineId)
+        || IsNativeTeo01Pilot(catalogOrEngineId))
     {
       return true;
     }
@@ -222,9 +222,9 @@ public static class CalcFirmwareBootstrap
     if (IsNativeClassicPilot(catalogOrEngineId)
         || IsNativeWoodstockPilot(catalogOrEngineId)
         || IsNativeSpicePilot(catalogOrEngineId)
-        || IsNativeHp67Pilot(catalogOrEngineId)
-        || IsNativeHp19Pilot(catalogOrEngineId)
-        || IsNativeHp01(catalogOrEngineId))
+        || IsNativeTeo67Pilot(catalogOrEngineId)
+        || IsNativeTeo19Pilot(catalogOrEngineId)
+        || IsNativeTeo01Pilot(catalogOrEngineId))
     {
       return [];
     }

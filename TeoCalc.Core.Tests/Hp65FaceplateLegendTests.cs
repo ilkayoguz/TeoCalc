@@ -50,7 +50,7 @@ public sealed class Hp65FaceplateLegendTests
 
     foreach ((int index, string gold) in expectedGold)
     {
-      HpCalcKeyVisual visual = ClassicKeyFaceplateLegend.Resolve(
+      KeyLegendVisual visual = ClassicKeyFaceplateLegend.Resolve(
         "HP-65",
         "Classic",
         vocabulary.KeyChart[index],
@@ -62,7 +62,7 @@ public sealed class Hp65FaceplateLegendTests
 
     // CapAbove annotations must reach the key visual path (Modern previously skipped them).
     CalcModelDefinition model = CalcModelCatalog.Resolve("HP-65");
-    HpCalcKeyVisual enterLegacy = ClassicKeyFaceplateLegend.Resolve(
+    KeyLegendVisual enterLegacy = ClassicKeyFaceplateLegend.Resolve(
       "HP-65", "Classic", vocabulary.KeyChart[15], vocabulary, FaceplateLabelStyle.Normal);
     CalcKeyVisual enter = CalcKeyVisual.FromLegacy(enterLegacy, CalcButtonStyle.Black, CalcButtonKind.EnterWide, model);
     Assert.IsTrue(

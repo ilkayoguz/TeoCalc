@@ -74,7 +74,7 @@ public sealed class Hp37EFaceplateLegendTests
     ProgramVocabulary vocabulary = LoadVocabulary();
     Assert.AreEqual("f", vocabulary.KeyChart[9].Char);
 
-    HpCalcKeyVisual f = ClassicKeyFaceplateLegend.Resolve(
+    KeyLegendVisual f = ClassicKeyFaceplateLegend.Resolve(
       "HP-37E", "Spice", vocabulary.KeyChart[9], vocabulary, FaceplateLabelStyle.Normal);
     Assert.AreEqual("f", f.Primary);
     Assert.IsTrue(string.IsNullOrEmpty(f.GoldShift));
@@ -95,7 +95,7 @@ public sealed class Hp37EFaceplateLegendTests
     Assert.AreEqual(
       "CLX",
       CalcFaceplateLayout.LabelForKey(vocabulary.KeyChart[14], vocabulary, "Spice", "HP-37"));
-    Assert.IsTrue(HpClassicFaceplateGlyphs.UsesPrefixCapitalMathX("CLX"));
+    Assert.IsTrue(ClassicFaceplateGlyphs.UsesPrefixCapitalMathX("CLX"));
   }
 
   [TestMethod]
@@ -139,14 +139,14 @@ public sealed class Hp37EFaceplateLegendTests
 
     foreach ((int index, string? gold) in expectedGold)
     {
-      HpCalcKeyVisual visual = ClassicKeyFaceplateLegend.Resolve(
+      KeyLegendVisual visual = ClassicKeyFaceplateLegend.Resolve(
         "HP-37", "Spice", vocabulary.KeyChart[index], vocabulary, FaceplateLabelStyle.Normal);
       Assert.AreEqual(gold, visual.GoldShift, $"Gold at index {index}");
       Assert.IsTrue(string.IsNullOrEmpty(visual.BlueShift), $"Blue at index {index} must be empty");
       Assert.IsTrue(string.IsNullOrEmpty(visual.GoldShiftRight), $"GoldRight at index {index}");
     }
 
-    HpCalcKeyVisual fKey = ClassicKeyFaceplateLegend.Resolve(
+    KeyLegendVisual fKey = ClassicKeyFaceplateLegend.Resolve(
       "HP-37", "Spice", vocabulary.KeyChart[9], vocabulary, FaceplateLabelStyle.Normal);
     Assert.IsTrue(string.IsNullOrEmpty(fKey.GoldShift));
     Assert.IsTrue(string.IsNullOrEmpty(fKey.BlueShift));
@@ -192,7 +192,7 @@ public sealed class Hp37EFaceplateLegendTests
 
     foreach (string label in composite)
     {
-      Assert.IsFalse(HpClassicFaceplateGlyphs.IsPlainArialSkirtLabel(label), label);
+      Assert.IsFalse(ClassicFaceplateGlyphs.IsPlainArialSkirtLabel(label), label);
     }
   }
 

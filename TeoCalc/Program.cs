@@ -15,7 +15,7 @@ internal class Program
 
       if (args.Length > 0 && args[0].Equals("models", StringComparison.OrdinalIgnoreCase))
       {
-        foreach (string model in HpCalcModelCatalog.SupportedModels)
+        foreach (string model in TeoCalcModelCatalog.SupportedModels)
         {
           Console.WriteLine(model);
         }

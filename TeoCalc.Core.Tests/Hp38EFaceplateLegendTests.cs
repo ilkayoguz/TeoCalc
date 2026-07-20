@@ -75,9 +75,9 @@ public sealed class Hp38EFaceplateLegendTests
     Assert.AreEqual("r", vocabulary.KeyChart[8].Char);
     Assert.AreEqual("f", vocabulary.KeyChart[9].Char);
 
-    HpCalcKeyVisual f = ClassicKeyFaceplateLegend.Resolve(
+    KeyLegendVisual f = ClassicKeyFaceplateLegend.Resolve(
       "HP-38E", "Spice", vocabulary.KeyChart[8], vocabulary, FaceplateLabelStyle.Normal);
-    HpCalcKeyVisual g = ClassicKeyFaceplateLegend.Resolve(
+    KeyLegendVisual g = ClassicKeyFaceplateLegend.Resolve(
       "HP-38E", "Spice", vocabulary.KeyChart[9], vocabulary, FaceplateLabelStyle.Normal);
     Assert.AreEqual("f", f.Primary);
     Assert.AreEqual("g", g.Primary);
@@ -95,31 +95,31 @@ public sealed class Hp38EFaceplateLegendTests
     Assert.AreEqual(
       "CL X",
       CalcFaceplateLayout.LabelForKey(vocabulary.KeyChart[14], vocabulary, "Spice", "HP-38"));
-    Assert.IsTrue(HpClassicFaceplateGlyphs.UsesPrefixCapitalMathX("CL X"));
+    Assert.IsTrue(ClassicFaceplateGlyphs.UsesPrefixCapitalMathX("CL X"));
   }
 
   [TestMethod]
   public void CapSkirt_DivideWeightedMean_UsesCapitalMathXBarWithPlainW()
   {
     ProgramVocabulary vocabulary = LoadVocabulary();
-    HpCalcKeyVisual visual = ClassicKeyFaceplateLegend.Resolve(
+    KeyLegendVisual visual = ClassicKeyFaceplateLegend.Resolve(
       "HP-38E", "Spice", vocabulary.KeyChart[30], vocabulary, FaceplateLabelStyle.Normal);
     Assert.AreEqual("1/x", visual.GoldShift);
     Assert.AreEqual("x\u0305w", visual.BlueShift);
-    Assert.IsTrue(HpClassicFaceplateGlyphs.UsesCapitalMathXBar(visual.BlueShift!));
-    Assert.IsFalse(HpClassicFaceplateGlyphs.IsPlainArialSkirtLabel(visual.BlueShift!));
+    Assert.IsTrue(ClassicFaceplateGlyphs.UsesCapitalMathXBar(visual.BlueShift!));
+    Assert.IsFalse(ClassicFaceplateGlyphs.IsPlainArialSkirtLabel(visual.BlueShift!));
   }
 
   [TestMethod]
   public void CapSkirt_ZeroMean_UsesCapitalMathXBarOnly()
   {
     ProgramVocabulary vocabulary = LoadVocabulary();
-    HpCalcKeyVisual visual = ClassicKeyFaceplateLegend.Resolve(
+    KeyLegendVisual visual = ClassicKeyFaceplateLegend.Resolve(
       "HP-38E", "Spice", vocabulary.KeyChart[31], vocabulary, FaceplateLabelStyle.Normal);
     Assert.AreEqual("X\u0305", visual.BlueShift);
-    Assert.IsTrue(HpClassicFaceplateGlyphs.UsesCapitalMathXBarOnly(visual.BlueShift!));
-    Assert.IsFalse(HpClassicFaceplateGlyphs.UsesCapitalMathXBar(visual.BlueShift!));
-    Assert.IsFalse(HpClassicFaceplateGlyphs.IsPlainArialSkirtLabel(visual.BlueShift!));
+    Assert.IsTrue(ClassicFaceplateGlyphs.UsesCapitalMathXBarOnly(visual.BlueShift!));
+    Assert.IsFalse(ClassicFaceplateGlyphs.UsesCapitalMathXBar(visual.BlueShift!));
+    Assert.IsFalse(ClassicFaceplateGlyphs.IsPlainArialSkirtLabel(visual.BlueShift!));
   }
 
   [TestMethod]
@@ -184,14 +184,14 @@ public sealed class Hp38EFaceplateLegendTests
 
     foreach ((int index, (string? gold, string? blue)) in expected)
     {
-      HpCalcKeyVisual visual = ClassicKeyFaceplateLegend.Resolve(
+      KeyLegendVisual visual = ClassicKeyFaceplateLegend.Resolve(
         "HP-38", "Spice", vocabulary.KeyChart[index], vocabulary, FaceplateLabelStyle.Normal);
       Assert.AreEqual(gold, visual.GoldShift, $"Gold at index {index}");
       Assert.AreEqual(blue, visual.BlueShift, $"Blue at index {index}");
       Assert.IsTrue(string.IsNullOrEmpty(visual.GoldShiftRight), $"GoldRight at index {index}");
     }
 
-    HpCalcKeyVisual enter = ClassicKeyFaceplateLegend.Resolve(
+    KeyLegendVisual enter = ClassicKeyFaceplateLegend.Resolve(
       "HP-38E", "Spice", vocabulary.KeyChart[10], vocabulary, FaceplateLabelStyle.Normal);
     Assert.AreEqual("PREFIX", enter.GoldShift);
     Assert.AreEqual("LST X", enter.BlueShift);
@@ -204,9 +204,9 @@ public sealed class Hp38EFaceplateLegendTests
     Assert.IsTrue(enterVisual.Annotations.Any(a =>
       a is { Modifier: CalcModifierKey.G, Anchor: CalcLabelAnchor.CapSkirt, Text: "LST X" }));
 
-    HpCalcKeyVisual fKey = ClassicKeyFaceplateLegend.Resolve(
+    KeyLegendVisual fKey = ClassicKeyFaceplateLegend.Resolve(
       "HP-38", "Spice", vocabulary.KeyChart[8], vocabulary, FaceplateLabelStyle.Normal);
-    HpCalcKeyVisual gKey = ClassicKeyFaceplateLegend.Resolve(
+    KeyLegendVisual gKey = ClassicKeyFaceplateLegend.Resolve(
       "HP-38", "Spice", vocabulary.KeyChart[9], vocabulary, FaceplateLabelStyle.Normal);
     Assert.IsTrue(string.IsNullOrEmpty(fKey.GoldShift));
     Assert.IsTrue(string.IsNullOrEmpty(fKey.BlueShift));
@@ -255,7 +255,7 @@ public sealed class Hp38EFaceplateLegendTests
 
     foreach (string label in composite)
     {
-      Assert.IsFalse(HpClassicFaceplateGlyphs.IsPlainArialSkirtLabel(label), label);
+      Assert.IsFalse(ClassicFaceplateGlyphs.IsPlainArialSkirtLabel(label), label);
     }
   }
 
@@ -300,7 +300,7 @@ public sealed class Hp38EFaceplateLegendTests
     };
     foreach ((int index, string gold) in expectedGold)
     {
-      HpCalcKeyVisual visual = ClassicKeyFaceplateLegend.Resolve(
+      KeyLegendVisual visual = ClassicKeyFaceplateLegend.Resolve(
         "HP-38", "Spice", vocabulary.KeyChart[index], vocabulary, FaceplateLabelStyle.Normal);
       Assert.AreEqual(gold, visual.GoldShift, $"CapAbove gold at {index}");
     }

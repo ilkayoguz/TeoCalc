@@ -187,7 +187,7 @@ public static class CalcExplorerApp
         input = _launcher.CreateInput();
         controller = new ImGuiController(gl, _launcher, input, onConfigureIO: CalcFaceplateFonts.Configure);
         CalcFramelessShell.ApplyRoundedCorners(_launcher.Handle);
-        Hp65FaceplateSvgAssets.TryInitialize(gl);
+        ClassicFaceplateSvgAssets.TryInitialize(gl);
         CalcModernSvgAssets.TryInitialize(gl);
         CalculatorLauncherThumbnail.Initialize(gl);
       }

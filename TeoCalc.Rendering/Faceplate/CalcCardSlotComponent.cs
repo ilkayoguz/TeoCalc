@@ -96,12 +96,12 @@ public static class CalcCardSlotComponent
       string caption = captions[column];
       if (IsNoCardColumn(column, caption))
       {
-        Vector2 drawCenter = HpClassicFaceplateGlyphs.CardSlotLabelDrawCenter(
+        Vector2 drawCenter = ClassicFaceplateGlyphs.CardSlotLabelDrawCenter(
           column,
           new Vector2(centerX, centerY),
           fontSize,
           scale);
-        HpClassicFaceplateGlyphs.DrawCardSlotLabel(draw, column, drawCenter, fontSize, LabelInk, scale);
+        ClassicFaceplateGlyphs.DrawCardSlotLabel(draw, column, drawCenter, fontSize, LabelInk, scale);
         continue;
       }
 
@@ -110,9 +110,9 @@ public static class CalcCardSlotComponent
         continue;
       }
 
-      HpClassicFaceplateGlyphs.LabelSize size = HpClassicFaceplateGlyphs.MeasureBodyLabel(caption, fontSize);
+      ClassicFaceplateGlyphs.LabelSize size = ClassicFaceplateGlyphs.MeasureBodyLabel(caption, fontSize);
       Vector2 topLeft = new(centerX - size.Width * 0.5f, centerY - size.Height * 0.5f);
-      HpClassicFaceplateGlyphs.DrawBodyLabel(draw, topLeft, caption, fontSize, LabelInk, scale);
+      ClassicFaceplateGlyphs.DrawBodyLabel(draw, topLeft, caption, fontSize, LabelInk, scale);
     }
   }
 

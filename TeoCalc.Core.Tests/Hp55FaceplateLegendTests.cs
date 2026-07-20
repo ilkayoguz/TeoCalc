@@ -11,7 +11,7 @@ public sealed class Hp55FaceplateLegendTests
   private static ProgramVocabulary LoadVocabulary() =>
     ProgramVocabulary.Load(TeoCalcPaths.ResourcePath("Engine/HP-55/Program/program.vocabulary.json"));
 
-  private static HpCalcKeyVisual VisualAt(ProgramVocabulary vocabulary, int index) =>
+  private static KeyLegendVisual VisualAt(ProgramVocabulary vocabulary, int index) =>
     ClassicKeyFaceplateLegend.Resolve(
       "HP-55", "Classic", vocabulary.KeyChart[index], vocabulary, FaceplateLabelStyle.Normal);
 
@@ -122,7 +122,7 @@ public sealed class Hp55FaceplateLegendTests
 
     foreach ((int index, (string? gold, string? blue)) in expected)
     {
-      HpCalcKeyVisual visual = VisualAt(vocabulary, index);
+      KeyLegendVisual visual = VisualAt(vocabulary, index);
       if (gold is null)
       {
         Assert.IsTrue(string.IsNullOrEmpty(visual.GoldShift), $"Gold empty {index}");
@@ -148,7 +148,7 @@ public sealed class Hp55FaceplateLegendTests
   {
     ProgramVocabulary vocabulary = LoadVocabulary();
     Assert.AreEqual("CL X", VisualAt(vocabulary, 19).Primary);
-    Assert.IsTrue(HpClassicFaceplateGlyphs.UsesPrefixCapitalMathX("CL X"));
+    Assert.IsTrue(ClassicFaceplateGlyphs.UsesPrefixCapitalMathX("CL X"));
   }
 
   [TestMethod]
@@ -201,7 +201,7 @@ public sealed class Hp55FaceplateLegendTests
 
     foreach ((int index, string baseName) in new[] { (1, "sin"), (2, "cos"), (3, "tan") })
     {
-      HpCalcKeyVisual legacy = VisualAt(vocabulary, index);
+      KeyLegendVisual legacy = VisualAt(vocabulary, index);
       Assert.IsTrue(
         CalcCapAboveComposite.IsSpaceSavingInverse(legacy.GoldShift, legacy.BlueShift),
         $"Index {index}");
@@ -225,7 +225,7 @@ public sealed class Hp55FaceplateLegendTests
   {
     ProgramVocabulary vocabulary = LoadVocabulary();
     CalcModelDefinition model = CalcModelCatalog.Resolve("HP-55");
-    HpCalcKeyVisual legacy = VisualAt(vocabulary, 15);
+    KeyLegendVisual legacy = VisualAt(vocabulary, 15);
     Assert.AreEqual("H.MS", legacy.GoldShift);
     Assert.AreEqual("+-", legacy.BlueShift);
     Assert.IsTrue(CalcCapAboveComposite.IsSpaceSavingHmsPlusMinus(legacy.GoldShift, legacy.BlueShift));
@@ -266,7 +266,7 @@ public sealed class Hp55FaceplateLegendTests
 
     foreach ((int index, string left, string right) in pairs)
     {
-      HpCalcKeyVisual legacy = VisualAt(vocabulary, index);
+      KeyLegendVisual legacy = VisualAt(vocabulary, index);
       Assert.AreEqual($"{left}\u2192", legacy.GoldShift, $"Gold {index}");
       Assert.AreEqual($"\u2190{right}", legacy.BlueShift, $"Blue {index}");
       Assert.IsTrue(
@@ -316,7 +316,7 @@ public sealed class Hp55FaceplateLegendTests
 
     foreach ((int index, string capFace, string? gold, string? blue, CalcButtonStyle style) in rows)
     {
-      HpCalcKeyVisual visual = VisualAt(vocabulary, index);
+      KeyLegendVisual visual = VisualAt(vocabulary, index);
       Assert.AreEqual(capFace, visual.Primary, $"CapFace {index}");
       if (gold is null)
       {

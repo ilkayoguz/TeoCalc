@@ -15,7 +15,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 1,
@@ -26,7 +26,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 2,
@@ -37,7 +37,7 @@
       "Mnemonic": "CLRS",
       "HandlerId": "ClassicCpu.ClearStatus",
       "Title": "Clear status",
-      "PanamatikAlias": "op_clr_s"
+      "OpcodeAlias": "op_clr_s"
     },
     {
       "Address": 3,
@@ -48,7 +48,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 4,
@@ -59,7 +59,7 @@
       "Mnemonic": "SETS",
       "HandlerId": "ClassicCpu.SetStatus",
       "Title": "Set status bit",
-      "PanamatikAlias": "op_set_s"
+      "OpcodeAlias": "op_set_s"
     },
     {
       "Address": 5,
@@ -70,7 +70,7 @@
       "Mnemonic": "SETS",
       "HandlerId": "ClassicCpu.SetStatus",
       "Title": "Set status bit",
-      "PanamatikAlias": "op_set_s"
+      "OpcodeAlias": "op_set_s"
     },
     {
       "Address": 6,
@@ -81,7 +81,7 @@
       "Mnemonic": "SETS",
       "HandlerId": "ClassicCpu.SetStatus",
       "Title": "Set status bit",
-      "PanamatikAlias": "op_set_s"
+      "OpcodeAlias": "op_set_s"
     },
     {
       "Address": 7,
@@ -92,7 +92,7 @@
       "Mnemonic": "SELR",
       "HandlerId": "ClassicCpu.SelectRom",
       "Title": "Select ROM bank",
-      "PanamatikAlias": "op_sel_rom"
+      "OpcodeAlias": "op_sel_rom"
     },
     {
       "Address": 8,
@@ -103,7 +103,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 9,
@@ -114,7 +114,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 10,
@@ -125,7 +125,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 11,
@@ -136,7 +136,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 12,
@@ -147,7 +147,7 @@
       "Mnemonic": "STKA",
       "HandlerId": "ClassicCpu.StackToA",
       "Title": "Stack to A",
-      "PanamatikAlias": "op_stack_to_a"
+      "OpcodeAlias": "op_stack_to_a"
     },
     {
       "Address": 13,
@@ -158,7 +158,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 14,
@@ -169,7 +169,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 15,
@@ -180,7 +180,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 16,
@@ -191,7 +191,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 17,
@@ -202,7 +202,7 @@
       "Mnemonic": "SELR",
       "HandlerId": "ClassicCpu.SelectRom",
       "Title": "Select ROM bank",
-      "PanamatikAlias": "op_sel_rom"
+      "OpcodeAlias": "op_sel_rom"
     },
     {
       "Address": 18,
@@ -213,7 +213,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 19,
@@ -224,7 +224,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 20,
@@ -235,7 +235,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 21,
@@ -246,7 +246,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 22,
@@ -257,7 +257,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 23,
@@ -268,7 +268,7 @@
       "Mnemonic": "CXCH",
       "HandlerId": "ClassicCpu.ExchangeCAndM",
       "Title": "Exchange C and M",
-      "PanamatikAlias": "op_c_exch_m"
+      "OpcodeAlias": "op_c_exch_m"
     },
     {
       "Address": 24,
@@ -279,7 +279,7 @@
       "Mnemonic": "MTOC",
       "HandlerId": "ClassicCpu.MToC",
       "Title": "M to C",
-      "PanamatikAlias": "op_m_to_c"
+      "OpcodeAlias": "op_m_to_c"
     },
     {
       "Address": 25,
@@ -290,7 +290,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 26,
@@ -301,7 +301,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 27,
@@ -312,7 +312,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 28,
@@ -323,7 +323,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 29,
@@ -334,7 +334,7 @@
       "Mnemonic": "RETN",
       "HandlerId": "ClassicCpu.Return",
       "Title": "Return from subroutine",
-      "PanamatikAlias": "op_return"
+      "OpcodeAlias": "op_return"
     },
     {
       "Address": 30,
@@ -345,7 +345,7 @@
       "Mnemonic": "SETP",
       "HandlerId": "ClassicCpu.SetP",
       "Title": "Set P register (digit pointer)",
-      "PanamatikAlias": "op_set_p"
+      "OpcodeAlias": "op_set_p"
     },
     {
       "Address": 31,
@@ -356,7 +356,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 32,
@@ -367,7 +367,7 @@
       "Mnemonic": "STKA",
       "HandlerId": "ClassicCpu.StackToA",
       "Title": "Stack to A",
-      "PanamatikAlias": "op_stack_to_a"
+      "OpcodeAlias": "op_stack_to_a"
     },
     {
       "Address": 33,
@@ -378,7 +378,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 34,
@@ -389,7 +389,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 35,
@@ -400,7 +400,7 @@
       "Mnemonic": "SETP",
       "HandlerId": "ClassicCpu.SetP",
       "Title": "Set P register (digit pointer)",
-      "PanamatikAlias": "op_set_p"
+      "OpcodeAlias": "op_set_p"
     },
     {
       "Address": 36,
@@ -411,7 +411,7 @@
       "Mnemonic": "RETN",
       "HandlerId": "ClassicCpu.Return",
       "Title": "Return from subroutine",
-      "PanamatikAlias": "op_return"
+      "OpcodeAlias": "op_return"
     },
     {
       "Address": 37,
@@ -422,7 +422,7 @@
       "Mnemonic": "NOP",
       "HandlerId": "ClassicCpu.Nop",
       "Title": "No operation",
-      "PanamatikAlias": "op_nop"
+      "OpcodeAlias": "op_nop"
     },
     {
       "Address": 38,
@@ -433,7 +433,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 39,
@@ -444,7 +444,7 @@
       "Mnemonic": "SETS",
       "HandlerId": "ClassicCpu.SetStatus",
       "Title": "Set status bit",
-      "PanamatikAlias": "op_set_s"
+      "OpcodeAlias": "op_set_s"
     },
     {
       "Address": 40,
@@ -455,7 +455,7 @@
       "Mnemonic": "SETS",
       "HandlerId": "ClassicCpu.SetStatus",
       "Title": "Set status bit",
-      "PanamatikAlias": "op_set_s"
+      "OpcodeAlias": "op_set_s"
     },
     {
       "Address": 41,
@@ -466,7 +466,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 42,
@@ -477,7 +477,7 @@
       "Mnemonic": "SETS",
       "HandlerId": "ClassicCpu.SetStatus",
       "Title": "Set status bit",
-      "PanamatikAlias": "op_set_s"
+      "OpcodeAlias": "op_set_s"
     },
     {
       "Address": 43,
@@ -488,7 +488,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 44,
@@ -499,7 +499,7 @@
       "Mnemonic": "SETS",
       "HandlerId": "ClassicCpu.SetStatus",
       "Title": "Set status bit",
-      "PanamatikAlias": "op_set_s"
+      "OpcodeAlias": "op_set_s"
     },
     {
       "Address": 45,
@@ -510,7 +510,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 46,
@@ -521,7 +521,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 47,
@@ -532,7 +532,7 @@
       "Mnemonic": "SELR",
       "HandlerId": "ClassicCpu.SelectRom",
       "Title": "Select ROM bank",
-      "PanamatikAlias": "op_sel_rom"
+      "OpcodeAlias": "op_sel_rom"
     },
     {
       "Address": 48,
@@ -543,7 +543,7 @@
       "Mnemonic": "DROT",
       "HandlerId": "ClassicCpu.DownRotate",
       "Title": "Down rotate stack",
-      "PanamatikAlias": "op_down_rotate"
+      "OpcodeAlias": "op_down_rotate"
     },
     {
       "Address": 49,
@@ -554,7 +554,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 50,
@@ -565,7 +565,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 51,
@@ -576,7 +576,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 52,
@@ -587,7 +587,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 53,
@@ -598,7 +598,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 54,
@@ -609,7 +609,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 55,
@@ -620,7 +620,7 @@
       "Mnemonic": "CLRG",
       "HandlerId": "ClassicCpu.ClearRegisters",
       "Title": "Clear registers",
-      "PanamatikAlias": "op_clear_regs"
+      "OpcodeAlias": "op_clear_regs"
     },
     {
       "Address": 56,
@@ -631,7 +631,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 57,
@@ -642,7 +642,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 58,
@@ -653,7 +653,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 59,
@@ -664,7 +664,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 60,
@@ -675,7 +675,7 @@
       "Mnemonic": "SETS",
       "HandlerId": "ClassicCpu.SetStatus",
       "Title": "Set status bit",
-      "PanamatikAlias": "op_set_s"
+      "OpcodeAlias": "op_set_s"
     },
     {
       "Address": 61,
@@ -686,7 +686,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 62,
@@ -697,7 +697,7 @@
       "Mnemonic": "CTST",
       "HandlerId": "ClassicCpu.CToStack",
       "Title": "C to stack",
-      "PanamatikAlias": "op_c_to_stack"
+      "OpcodeAlias": "op_c_to_stack"
     },
     {
       "Address": 63,
@@ -708,7 +708,7 @@
       "Mnemonic": "CLSS",
       "HandlerId": "ClassicCpu.ClearS",
       "Title": "Clear S register",
-      "PanamatikAlias": "op_clear_s"
+      "OpcodeAlias": "op_clear_s"
     },
     {
       "Address": 64,
@@ -719,7 +719,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 65,
@@ -730,7 +730,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 66,
@@ -741,7 +741,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 67,
@@ -752,7 +752,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 68,
@@ -763,7 +763,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 69,
@@ -774,7 +774,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 70,
@@ -785,7 +785,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 71,
@@ -796,7 +796,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 72,
@@ -807,7 +807,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 73,
@@ -818,7 +818,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 74,
@@ -829,7 +829,7 @@
       "Mnemonic": "SETP",
       "HandlerId": "ClassicCpu.SetP",
       "Title": "Set P register (digit pointer)",
-      "PanamatikAlias": "op_set_p"
+      "OpcodeAlias": "op_set_p"
     },
     {
       "Address": 75,
@@ -840,7 +840,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 76,
@@ -851,7 +851,7 @@
       "Mnemonic": "DECP",
       "HandlerId": "ClassicCpu.DecrementP",
       "Title": "Decrement P",
-      "PanamatikAlias": "op_dec_p"
+      "OpcodeAlias": "op_dec_p"
     },
     {
       "Address": 77,
@@ -862,7 +862,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 78,
@@ -873,7 +873,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 79,
@@ -884,7 +884,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 80,
@@ -895,7 +895,7 @@
       "Mnemonic": "SETS",
       "HandlerId": "ClassicCpu.SetStatus",
       "Title": "Set status bit",
-      "PanamatikAlias": "op_set_s"
+      "OpcodeAlias": "op_set_s"
     },
     {
       "Address": 81,
@@ -906,7 +906,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 82,
@@ -917,7 +917,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 83,
@@ -928,7 +928,7 @@
       "Mnemonic": "TSZ0",
       "HandlerId": "ClassicCpu.TestStatusZero",
       "Title": "Test status equals zero",
-      "PanamatikAlias": "op_test_s_eq_0"
+      "OpcodeAlias": "op_test_s_eq_0"
     },
     {
       "Address": 84,
@@ -939,7 +939,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 85,
@@ -950,7 +950,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 86,
@@ -961,7 +961,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 87,
@@ -972,7 +972,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 88,
@@ -983,7 +983,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 89,
@@ -994,7 +994,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 90,
@@ -1005,7 +1005,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 91,
@@ -1016,7 +1016,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 92,
@@ -1027,7 +1027,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 93,
@@ -1038,7 +1038,7 @@
       "Mnemonic": "CLSS",
       "HandlerId": "ClassicCpu.ClearS",
       "Title": "Clear S register",
-      "PanamatikAlias": "op_clear_s"
+      "OpcodeAlias": "op_clear_s"
     },
     {
       "Address": 94,
@@ -1049,7 +1049,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 95,
@@ -1060,7 +1060,7 @@
       "Mnemonic": "SETP",
       "HandlerId": "ClassicCpu.SetP",
       "Title": "Set P register (digit pointer)",
-      "PanamatikAlias": "op_set_p"
+      "OpcodeAlias": "op_set_p"
     },
     {
       "Address": 96,
@@ -1071,7 +1071,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 97,
@@ -1082,7 +1082,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 98,
@@ -1093,7 +1093,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 99,
@@ -1104,7 +1104,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 100,
@@ -1115,7 +1115,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 101,
@@ -1126,7 +1126,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 102,
@@ -1137,7 +1137,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 103,
@@ -1148,7 +1148,7 @@
       "Mnemonic": "SETP",
       "HandlerId": "ClassicCpu.SetP",
       "Title": "Set P register (digit pointer)",
-      "PanamatikAlias": "op_set_p"
+      "OpcodeAlias": "op_set_p"
     },
     {
       "Address": 104,
@@ -1159,7 +1159,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 105,
@@ -1170,7 +1170,7 @@
       "Mnemonic": "TSZ0",
       "HandlerId": "ClassicCpu.TestStatusZero",
       "Title": "Test status equals zero",
-      "PanamatikAlias": "op_test_s_eq_0"
+      "OpcodeAlias": "op_test_s_eq_0"
     },
     {
       "Address": 106,
@@ -1181,7 +1181,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 107,
@@ -1192,7 +1192,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 108,
@@ -1203,7 +1203,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 109,
@@ -1214,7 +1214,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 110,
@@ -1225,7 +1225,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 111,
@@ -1236,7 +1236,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 112,
@@ -1247,7 +1247,7 @@
       "Mnemonic": "TSTP",
       "HandlerId": "ClassicCpu.TestP",
       "Title": "Test P register",
-      "PanamatikAlias": "op_test_p"
+      "OpcodeAlias": "op_test_p"
     },
     {
       "Address": 113,
@@ -1258,7 +1258,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 114,
@@ -1269,7 +1269,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 115,
@@ -1280,7 +1280,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 116,
@@ -1291,7 +1291,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 117,
@@ -1302,7 +1302,7 @@
       "Mnemonic": "SELR",
       "HandlerId": "ClassicCpu.SelectRom",
       "Title": "Select ROM bank",
-      "PanamatikAlias": "op_sel_rom"
+      "OpcodeAlias": "op_sel_rom"
     },
     {
       "Address": 118,
@@ -1313,7 +1313,7 @@
       "Mnemonic": "TSZ0",
       "HandlerId": "ClassicCpu.TestStatusZero",
       "Title": "Test status equals zero",
-      "PanamatikAlias": "op_test_s_eq_0"
+      "OpcodeAlias": "op_test_s_eq_0"
     },
     {
       "Address": 119,
@@ -1324,7 +1324,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 120,
@@ -1335,7 +1335,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 121,
@@ -1346,7 +1346,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 122,
@@ -1357,7 +1357,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 123,
@@ -1368,7 +1368,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 124,
@@ -1379,7 +1379,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 125,
@@ -1390,7 +1390,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 126,
@@ -1401,7 +1401,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 127,
@@ -1412,7 +1412,7 @@
       "Mnemonic": "SETP",
       "HandlerId": "ClassicCpu.SetP",
       "Title": "Set P register (digit pointer)",
-      "PanamatikAlias": "op_set_p"
+      "OpcodeAlias": "op_set_p"
     },
     {
       "Address": 128,
@@ -1423,7 +1423,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 129,
@@ -1434,7 +1434,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 130,
@@ -1445,7 +1445,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 131,
@@ -1456,7 +1456,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 132,
@@ -1467,7 +1467,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 133,
@@ -1478,7 +1478,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 134,
@@ -1489,7 +1489,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 135,
@@ -1500,7 +1500,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 136,
@@ -1511,7 +1511,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 137,
@@ -1522,7 +1522,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 138,
@@ -1533,7 +1533,7 @@
       "Mnemonic": "TSTP",
       "HandlerId": "ClassicCpu.TestP",
       "Title": "Test P register",
-      "PanamatikAlias": "op_test_p"
+      "OpcodeAlias": "op_test_p"
     },
     {
       "Address": 139,
@@ -1544,7 +1544,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 140,
@@ -1555,7 +1555,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 141,
@@ -1566,7 +1566,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 142,
@@ -1577,7 +1577,7 @@
       "Mnemonic": "SETP",
       "HandlerId": "ClassicCpu.SetP",
       "Title": "Set P register (digit pointer)",
-      "PanamatikAlias": "op_set_p"
+      "OpcodeAlias": "op_set_p"
     },
     {
       "Address": 143,
@@ -1588,7 +1588,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 144,
@@ -1599,7 +1599,7 @@
       "Mnemonic": "INCP",
       "HandlerId": "ClassicCpu.IncrementP",
       "Title": "Increment P",
-      "PanamatikAlias": "op_inc_p"
+      "OpcodeAlias": "op_inc_p"
     },
     {
       "Address": 145,
@@ -1610,7 +1610,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 146,
@@ -1621,7 +1621,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 147,
@@ -1632,7 +1632,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 148,
@@ -1643,7 +1643,7 @@
       "Mnemonic": "TSTP",
       "HandlerId": "ClassicCpu.TestP",
       "Title": "Test P register",
-      "PanamatikAlias": "op_test_p"
+      "OpcodeAlias": "op_test_p"
     },
     {
       "Address": 149,
@@ -1654,7 +1654,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 150,
@@ -1665,7 +1665,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 151,
@@ -1676,7 +1676,7 @@
       "Mnemonic": "SETS",
       "HandlerId": "ClassicCpu.SetStatus",
       "Title": "Set status bit",
-      "PanamatikAlias": "op_set_s"
+      "OpcodeAlias": "op_set_s"
     },
     {
       "Address": 152,
@@ -1687,7 +1687,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 153,
@@ -1698,7 +1698,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 154,
@@ -1709,7 +1709,7 @@
       "Mnemonic": "STKA",
       "HandlerId": "ClassicCpu.StackToA",
       "Title": "Stack to A",
-      "PanamatikAlias": "op_stack_to_a"
+      "OpcodeAlias": "op_stack_to_a"
     },
     {
       "Address": 155,
@@ -1720,7 +1720,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 156,
@@ -1731,7 +1731,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 157,
@@ -1742,7 +1742,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 158,
@@ -1753,7 +1753,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 159,
@@ -1764,7 +1764,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 160,
@@ -1775,7 +1775,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 161,
@@ -1786,7 +1786,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 162,
@@ -1797,7 +1797,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 163,
@@ -1808,7 +1808,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 164,
@@ -1819,7 +1819,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 165,
@@ -1830,7 +1830,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 166,
@@ -1841,7 +1841,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 167,
@@ -1852,7 +1852,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 168,
@@ -1863,7 +1863,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 169,
@@ -1874,7 +1874,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 170,
@@ -1885,7 +1885,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 171,
@@ -1896,7 +1896,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 172,
@@ -1907,7 +1907,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 173,
@@ -1918,7 +1918,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 174,
@@ -1929,7 +1929,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 175,
@@ -1940,7 +1940,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 176,
@@ -1951,7 +1951,7 @@
       "Mnemonic": "TSZ0",
       "HandlerId": "ClassicCpu.TestStatusZero",
       "Title": "Test status equals zero",
-      "PanamatikAlias": "op_test_s_eq_0"
+      "OpcodeAlias": "op_test_s_eq_0"
     },
     {
       "Address": 177,
@@ -1962,7 +1962,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 178,
@@ -1973,7 +1973,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 179,
@@ -1984,7 +1984,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 180,
@@ -1995,7 +1995,7 @@
       "Mnemonic": "TSZ0",
       "HandlerId": "ClassicCpu.TestStatusZero",
       "Title": "Test status equals zero",
-      "PanamatikAlias": "op_test_s_eq_0"
+      "OpcodeAlias": "op_test_s_eq_0"
     },
     {
       "Address": 181,
@@ -2006,7 +2006,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 182,
@@ -2017,7 +2017,7 @@
       "Mnemonic": "CTST",
       "HandlerId": "ClassicCpu.CToStack",
       "Title": "C to stack",
-      "PanamatikAlias": "op_c_to_stack"
+      "OpcodeAlias": "op_c_to_stack"
     },
     {
       "Address": 183,
@@ -2028,7 +2028,7 @@
       "Mnemonic": "SETS",
       "HandlerId": "ClassicCpu.SetStatus",
       "Title": "Set status bit",
-      "PanamatikAlias": "op_set_s"
+      "OpcodeAlias": "op_set_s"
     },
     {
       "Address": 184,
@@ -2039,7 +2039,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 185,
@@ -2050,7 +2050,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 186,
@@ -2061,7 +2061,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 187,
@@ -2072,7 +2072,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 188,
@@ -2083,7 +2083,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 189,
@@ -2094,7 +2094,7 @@
       "Mnemonic": "RETN",
       "HandlerId": "ClassicCpu.Return",
       "Title": "Return from subroutine",
-      "PanamatikAlias": "op_return"
+      "OpcodeAlias": "op_return"
     },
     {
       "Address": 190,
@@ -2105,7 +2105,7 @@
       "Mnemonic": "SELR",
       "HandlerId": "ClassicCpu.SelectRom",
       "Title": "Select ROM bank",
-      "PanamatikAlias": "op_sel_rom"
+      "OpcodeAlias": "op_sel_rom"
     },
     {
       "Address": 191,
@@ -2116,7 +2116,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 192,
@@ -2127,7 +2127,7 @@
       "Mnemonic": "SETS",
       "HandlerId": "ClassicCpu.SetStatus",
       "Title": "Set status bit",
-      "PanamatikAlias": "op_set_s"
+      "OpcodeAlias": "op_set_s"
     },
     {
       "Address": 193,
@@ -2138,7 +2138,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 194,
@@ -2149,7 +2149,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 195,
@@ -2160,7 +2160,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 196,
@@ -2171,7 +2171,7 @@
       "Mnemonic": "CLRS",
       "HandlerId": "ClassicCpu.ClearStatus",
       "Title": "Clear status",
-      "PanamatikAlias": "op_clr_s"
+      "OpcodeAlias": "op_clr_s"
     },
     {
       "Address": 197,
@@ -2182,7 +2182,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 198,
@@ -2193,7 +2193,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 199,
@@ -2204,7 +2204,7 @@
       "Mnemonic": "SETS",
       "HandlerId": "ClassicCpu.SetStatus",
       "Title": "Set status bit",
-      "PanamatikAlias": "op_set_s"
+      "OpcodeAlias": "op_set_s"
     },
     {
       "Address": 200,
@@ -2215,7 +2215,7 @@
       "Mnemonic": "TSZ0",
       "HandlerId": "ClassicCpu.TestStatusZero",
       "Title": "Test status equals zero",
-      "PanamatikAlias": "op_test_s_eq_0"
+      "OpcodeAlias": "op_test_s_eq_0"
     },
     {
       "Address": 201,
@@ -2226,7 +2226,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 202,
@@ -2237,7 +2237,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 203,
@@ -2248,7 +2248,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 204,
@@ -2259,7 +2259,7 @@
       "Mnemonic": "DSPT",
       "HandlerId": "ClassicCpu.DisplayToggle",
       "Title": "Display toggle",
-      "PanamatikAlias": "op_display_toggle"
+      "OpcodeAlias": "op_display_toggle"
     },
     {
       "Address": 205,
@@ -2270,7 +2270,7 @@
       "Mnemonic": "TSZ0",
       "HandlerId": "ClassicCpu.TestStatusZero",
       "Title": "Test status equals zero",
-      "PanamatikAlias": "op_test_s_eq_0"
+      "OpcodeAlias": "op_test_s_eq_0"
     },
     {
       "Address": 206,
@@ -2281,7 +2281,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 207,
@@ -2292,7 +2292,7 @@
       "Mnemonic": "CLRS",
       "HandlerId": "ClassicCpu.ClearStatus",
       "Title": "Clear status",
-      "PanamatikAlias": "op_clr_s"
+      "OpcodeAlias": "op_clr_s"
     },
     {
       "Address": 208,
@@ -2303,7 +2303,7 @@
       "Mnemonic": "DECP",
       "HandlerId": "ClassicCpu.DecrementP",
       "Title": "Decrement P",
-      "PanamatikAlias": "op_dec_p"
+      "OpcodeAlias": "op_dec_p"
     },
     {
       "Address": 209,
@@ -2314,7 +2314,7 @@
       "Mnemonic": "TSTP",
       "HandlerId": "ClassicCpu.TestP",
       "Title": "Test P register",
-      "PanamatikAlias": "op_test_p"
+      "OpcodeAlias": "op_test_p"
     },
     {
       "Address": 210,
@@ -2325,7 +2325,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 211,
@@ -2336,7 +2336,7 @@
       "Mnemonic": "DSPF",
       "HandlerId": "ClassicCpu.DisplayOff",
       "Title": "Display off",
-      "PanamatikAlias": "op_display_off"
+      "OpcodeAlias": "op_display_off"
     },
     {
       "Address": 212,
@@ -2347,7 +2347,7 @@
       "Mnemonic": "TSZ0",
       "HandlerId": "ClassicCpu.TestStatusZero",
       "Title": "Test status equals zero",
-      "PanamatikAlias": "op_test_s_eq_0"
+      "OpcodeAlias": "op_test_s_eq_0"
     },
     {
       "Address": 213,
@@ -2358,7 +2358,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 214,
@@ -2369,7 +2369,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 215,
@@ -2380,7 +2380,7 @@
       "Mnemonic": "CLRS",
       "HandlerId": "ClassicCpu.ClearStatus",
       "Title": "Clear status",
-      "PanamatikAlias": "op_clr_s"
+      "OpcodeAlias": "op_clr_s"
     },
     {
       "Address": 216,
@@ -2391,7 +2391,7 @@
       "Mnemonic": "KROM",
       "HandlerId": "ClassicCpu.KeysToRomAddress",
       "Title": "Keys to ROM address",
-      "PanamatikAlias": "op_keys_to_rom_addr"
+      "OpcodeAlias": "op_keys_to_rom_addr"
     },
     {
       "Address": 217,
@@ -2402,7 +2402,7 @@
       "Mnemonic": "CTST",
       "HandlerId": "ClassicCpu.CToStack",
       "Title": "C to stack",
-      "PanamatikAlias": "op_c_to_stack"
+      "OpcodeAlias": "op_c_to_stack"
     },
     {
       "Address": 218,
@@ -2413,7 +2413,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 219,
@@ -2424,7 +2424,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 220,
@@ -2435,7 +2435,7 @@
       "Mnemonic": "SETS",
       "HandlerId": "ClassicCpu.SetStatus",
       "Title": "Set status bit",
-      "PanamatikAlias": "op_set_s"
+      "OpcodeAlias": "op_set_s"
     },
     {
       "Address": 221,
@@ -2446,7 +2446,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 222,
@@ -2457,7 +2457,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 223,
@@ -2468,7 +2468,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 224,
@@ -2479,7 +2479,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 225,
@@ -2490,7 +2490,7 @@
       "Mnemonic": "DECP",
       "HandlerId": "ClassicCpu.DecrementP",
       "Title": "Decrement P",
-      "PanamatikAlias": "op_dec_p"
+      "OpcodeAlias": "op_dec_p"
     },
     {
       "Address": 226,
@@ -2501,7 +2501,7 @@
       "Mnemonic": "TSTP",
       "HandlerId": "ClassicCpu.TestP",
       "Title": "Test P register",
-      "PanamatikAlias": "op_test_p"
+      "OpcodeAlias": "op_test_p"
     },
     {
       "Address": 227,
@@ -2512,7 +2512,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 228,
@@ -2523,7 +2523,7 @@
       "Mnemonic": "SETP",
       "HandlerId": "ClassicCpu.SetP",
       "Title": "Set P register (digit pointer)",
-      "PanamatikAlias": "op_set_p"
+      "OpcodeAlias": "op_set_p"
     },
     {
       "Address": 229,
@@ -2534,7 +2534,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 230,
@@ -2545,7 +2545,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 231,
@@ -2556,7 +2556,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 232,
@@ -2567,7 +2567,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 233,
@@ -2578,7 +2578,7 @@
       "Mnemonic": "SETP",
       "HandlerId": "ClassicCpu.SetP",
       "Title": "Set P register (digit pointer)",
-      "PanamatikAlias": "op_set_p"
+      "OpcodeAlias": "op_set_p"
     },
     {
       "Address": 234,
@@ -2589,7 +2589,7 @@
       "Mnemonic": "INCP",
       "HandlerId": "ClassicCpu.IncrementP",
       "Title": "Increment P",
-      "PanamatikAlias": "op_inc_p"
+      "OpcodeAlias": "op_inc_p"
     },
     {
       "Address": 235,
@@ -2600,7 +2600,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 236,
@@ -2611,7 +2611,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 237,
@@ -2622,7 +2622,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 238,
@@ -2633,7 +2633,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 239,
@@ -2644,7 +2644,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 240,
@@ -2655,7 +2655,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 241,
@@ -2666,7 +2666,7 @@
       "Mnemonic": "RETN",
       "HandlerId": "ClassicCpu.Return",
       "Title": "Return from subroutine",
-      "PanamatikAlias": "op_return"
+      "OpcodeAlias": "op_return"
     },
     {
       "Address": 242,
@@ -2677,7 +2677,7 @@
       "Mnemonic": "SETS",
       "HandlerId": "ClassicCpu.SetStatus",
       "Title": "Set status bit",
-      "PanamatikAlias": "op_set_s"
+      "OpcodeAlias": "op_set_s"
     },
     {
       "Address": 243,
@@ -2688,7 +2688,7 @@
       "Mnemonic": "TSZ0",
       "HandlerId": "ClassicCpu.TestStatusZero",
       "Title": "Test status equals zero",
-      "PanamatikAlias": "op_test_s_eq_0"
+      "OpcodeAlias": "op_test_s_eq_0"
     },
     {
       "Address": 244,
@@ -2699,7 +2699,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 245,
@@ -2710,7 +2710,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 246,
@@ -2721,7 +2721,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 247,
@@ -2732,7 +2732,7 @@
       "Mnemonic": "CLRS",
       "HandlerId": "ClassicCpu.ClearStatus",
       "Title": "Clear status",
-      "PanamatikAlias": "op_clr_s"
+      "OpcodeAlias": "op_clr_s"
     },
     {
       "Address": 248,
@@ -2743,7 +2743,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 249,
@@ -2754,7 +2754,7 @@
       "Mnemonic": "TSZ0",
       "HandlerId": "ClassicCpu.TestStatusZero",
       "Title": "Test status equals zero",
-      "PanamatikAlias": "op_test_s_eq_0"
+      "OpcodeAlias": "op_test_s_eq_0"
     },
     {
       "Address": 250,
@@ -2765,7 +2765,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 251,
@@ -2776,7 +2776,7 @@
       "Mnemonic": "DECP",
       "HandlerId": "ClassicCpu.DecrementP",
       "Title": "Decrement P",
-      "PanamatikAlias": "op_dec_p"
+      "OpcodeAlias": "op_dec_p"
     },
     {
       "Address": 252,
@@ -2787,7 +2787,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 253,
@@ -2798,7 +2798,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 254,
@@ -2809,7 +2809,7 @@
       "Mnemonic": "MTOC",
       "HandlerId": "ClassicCpu.MToC",
       "Title": "M to C",
-      "PanamatikAlias": "op_m_to_c"
+      "OpcodeAlias": "op_m_to_c"
     },
     {
       "Address": 255,
@@ -2820,7 +2820,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 256,
@@ -2831,7 +2831,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 257,
@@ -2842,7 +2842,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 258,
@@ -2853,7 +2853,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 259,
@@ -2864,7 +2864,7 @@
       "Mnemonic": "STKA",
       "HandlerId": "ClassicCpu.StackToA",
       "Title": "Stack to A",
-      "PanamatikAlias": "op_stack_to_a"
+      "OpcodeAlias": "op_stack_to_a"
     },
     {
       "Address": 260,
@@ -2875,7 +2875,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 261,
@@ -2886,7 +2886,7 @@
       "Mnemonic": "STKA",
       "HandlerId": "ClassicCpu.StackToA",
       "Title": "Stack to A",
-      "PanamatikAlias": "op_stack_to_a"
+      "OpcodeAlias": "op_stack_to_a"
     },
     {
       "Address": 262,
@@ -2897,7 +2897,7 @@
       "Mnemonic": "TSZ0",
       "HandlerId": "ClassicCpu.TestStatusZero",
       "Title": "Test status equals zero",
-      "PanamatikAlias": "op_test_s_eq_0"
+      "OpcodeAlias": "op_test_s_eq_0"
     },
     {
       "Address": 263,
@@ -2908,7 +2908,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 264,
@@ -2919,7 +2919,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 265,
@@ -2930,7 +2930,7 @@
       "Mnemonic": "TSZ0",
       "HandlerId": "ClassicCpu.TestStatusZero",
       "Title": "Test status equals zero",
-      "PanamatikAlias": "op_test_s_eq_0"
+      "OpcodeAlias": "op_test_s_eq_0"
     },
     {
       "Address": 266,
@@ -2941,7 +2941,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 267,
@@ -2952,7 +2952,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 268,
@@ -2963,7 +2963,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 269,
@@ -2974,7 +2974,7 @@
       "Mnemonic": "CTST",
       "HandlerId": "ClassicCpu.CToStack",
       "Title": "C to stack",
-      "PanamatikAlias": "op_c_to_stack"
+      "OpcodeAlias": "op_c_to_stack"
     },
     {
       "Address": 270,
@@ -2985,7 +2985,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 271,
@@ -2996,7 +2996,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 272,
@@ -3007,7 +3007,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 273,
@@ -3018,7 +3018,7 @@
       "Mnemonic": "STKA",
       "HandlerId": "ClassicCpu.StackToA",
       "Title": "Stack to A",
-      "PanamatikAlias": "op_stack_to_a"
+      "OpcodeAlias": "op_stack_to_a"
     },
     {
       "Address": 274,
@@ -3029,7 +3029,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 275,
@@ -3040,7 +3040,7 @@
       "Mnemonic": "TSZ0",
       "HandlerId": "ClassicCpu.TestStatusZero",
       "Title": "Test status equals zero",
-      "PanamatikAlias": "op_test_s_eq_0"
+      "OpcodeAlias": "op_test_s_eq_0"
     },
     {
       "Address": 276,
@@ -3051,7 +3051,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 277,
@@ -3062,7 +3062,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 278,
@@ -3073,7 +3073,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 279,
@@ -3084,7 +3084,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 280,
@@ -3095,7 +3095,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 281,
@@ -3106,7 +3106,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 282,
@@ -3117,7 +3117,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 283,
@@ -3128,7 +3128,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 284,
@@ -3139,7 +3139,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 285,
@@ -3150,7 +3150,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 286,
@@ -3161,7 +3161,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 287,
@@ -3172,7 +3172,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 288,
@@ -3183,7 +3183,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 289,
@@ -3194,7 +3194,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 290,
@@ -3205,7 +3205,7 @@
       "Mnemonic": "CTST",
       "HandlerId": "ClassicCpu.CToStack",
       "Title": "C to stack",
-      "PanamatikAlias": "op_c_to_stack"
+      "OpcodeAlias": "op_c_to_stack"
     },
     {
       "Address": 291,
@@ -3216,7 +3216,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 292,
@@ -3227,7 +3227,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 293,
@@ -3238,7 +3238,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 294,
@@ -3249,7 +3249,7 @@
       "Mnemonic": "SETP",
       "HandlerId": "ClassicCpu.SetP",
       "Title": "Set P register (digit pointer)",
-      "PanamatikAlias": "op_set_p"
+      "OpcodeAlias": "op_set_p"
     },
     {
       "Address": 295,
@@ -3260,7 +3260,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 296,
@@ -3271,7 +3271,7 @@
       "Mnemonic": "CTST",
       "HandlerId": "ClassicCpu.CToStack",
       "Title": "C to stack",
-      "PanamatikAlias": "op_c_to_stack"
+      "OpcodeAlias": "op_c_to_stack"
     },
     {
       "Address": 297,
@@ -3282,7 +3282,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 298,
@@ -3293,7 +3293,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 299,
@@ -3304,7 +3304,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 300,
@@ -3315,7 +3315,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 301,
@@ -3326,7 +3326,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 302,
@@ -3337,7 +3337,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 303,
@@ -3348,7 +3348,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 304,
@@ -3359,7 +3359,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 305,
@@ -3370,7 +3370,7 @@
       "Mnemonic": "TSZ0",
       "HandlerId": "ClassicCpu.TestStatusZero",
       "Title": "Test status equals zero",
-      "PanamatikAlias": "op_test_s_eq_0"
+      "OpcodeAlias": "op_test_s_eq_0"
     },
     {
       "Address": 306,
@@ -3381,7 +3381,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 307,
@@ -3392,7 +3392,7 @@
       "Mnemonic": "TSZ0",
       "HandlerId": "ClassicCpu.TestStatusZero",
       "Title": "Test status equals zero",
-      "PanamatikAlias": "op_test_s_eq_0"
+      "OpcodeAlias": "op_test_s_eq_0"
     },
     {
       "Address": 308,
@@ -3403,7 +3403,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 309,
@@ -3414,7 +3414,7 @@
       "Mnemonic": "TSZ0",
       "HandlerId": "ClassicCpu.TestStatusZero",
       "Title": "Test status equals zero",
-      "PanamatikAlias": "op_test_s_eq_0"
+      "OpcodeAlias": "op_test_s_eq_0"
     },
     {
       "Address": 310,
@@ -3425,7 +3425,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 311,
@@ -3436,7 +3436,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 312,
@@ -3447,7 +3447,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 313,
@@ -3458,7 +3458,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 314,
@@ -3469,7 +3469,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 315,
@@ -3480,7 +3480,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 316,
@@ -3491,7 +3491,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 317,
@@ -3502,7 +3502,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 318,
@@ -3513,7 +3513,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 319,
@@ -3524,7 +3524,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 320,
@@ -3535,7 +3535,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 321,
@@ -3546,7 +3546,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 322,
@@ -3557,7 +3557,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 323,
@@ -3568,7 +3568,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 324,
@@ -3579,7 +3579,7 @@
       "Mnemonic": "STKA",
       "HandlerId": "ClassicCpu.StackToA",
       "Title": "Stack to A",
-      "PanamatikAlias": "op_stack_to_a"
+      "OpcodeAlias": "op_stack_to_a"
     },
     {
       "Address": 325,
@@ -3590,7 +3590,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 326,
@@ -3601,7 +3601,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 327,
@@ -3612,7 +3612,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 328,
@@ -3623,7 +3623,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 329,
@@ -3634,7 +3634,7 @@
       "Mnemonic": "CTST",
       "HandlerId": "ClassicCpu.CToStack",
       "Title": "C to stack",
-      "PanamatikAlias": "op_c_to_stack"
+      "OpcodeAlias": "op_c_to_stack"
     },
     {
       "Address": 330,
@@ -3645,7 +3645,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 331,
@@ -3656,7 +3656,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 332,
@@ -3667,7 +3667,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 333,
@@ -3678,7 +3678,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 334,
@@ -3689,7 +3689,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 335,
@@ -3700,7 +3700,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 336,
@@ -3711,7 +3711,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 337,
@@ -3722,7 +3722,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 338,
@@ -3733,7 +3733,7 @@
       "Mnemonic": "STKA",
       "HandlerId": "ClassicCpu.StackToA",
       "Title": "Stack to A",
-      "PanamatikAlias": "op_stack_to_a"
+      "OpcodeAlias": "op_stack_to_a"
     },
     {
       "Address": 339,
@@ -3744,7 +3744,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 340,
@@ -3755,7 +3755,7 @@
       "Mnemonic": "SETP",
       "HandlerId": "ClassicCpu.SetP",
       "Title": "Set P register (digit pointer)",
-      "PanamatikAlias": "op_set_p"
+      "OpcodeAlias": "op_set_p"
     },
     {
       "Address": 341,
@@ -3766,7 +3766,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 342,
@@ -3777,7 +3777,7 @@
       "Mnemonic": "SETP",
       "HandlerId": "ClassicCpu.SetP",
       "Title": "Set P register (digit pointer)",
-      "PanamatikAlias": "op_set_p"
+      "OpcodeAlias": "op_set_p"
     },
     {
       "Address": 343,
@@ -3788,7 +3788,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 344,
@@ -3799,7 +3799,7 @@
       "Mnemonic": "SETP",
       "HandlerId": "ClassicCpu.SetP",
       "Title": "Set P register (digit pointer)",
-      "PanamatikAlias": "op_set_p"
+      "OpcodeAlias": "op_set_p"
     },
     {
       "Address": 345,
@@ -3810,7 +3810,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 346,
@@ -3821,7 +3821,7 @@
       "Mnemonic": "SETP",
       "HandlerId": "ClassicCpu.SetP",
       "Title": "Set P register (digit pointer)",
-      "PanamatikAlias": "op_set_p"
+      "OpcodeAlias": "op_set_p"
     },
     {
       "Address": 347,
@@ -3832,7 +3832,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 348,
@@ -3843,7 +3843,7 @@
       "Mnemonic": "SETP",
       "HandlerId": "ClassicCpu.SetP",
       "Title": "Set P register (digit pointer)",
-      "PanamatikAlias": "op_set_p"
+      "OpcodeAlias": "op_set_p"
     },
     {
       "Address": 349,
@@ -3854,7 +3854,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 350,
@@ -3865,7 +3865,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 351,
@@ -3876,7 +3876,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 352,
@@ -3887,7 +3887,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 353,
@@ -3898,7 +3898,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 354,
@@ -3909,7 +3909,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 355,
@@ -3920,7 +3920,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 356,
@@ -3931,7 +3931,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 357,
@@ -3942,7 +3942,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 358,
@@ -3953,7 +3953,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 359,
@@ -3964,7 +3964,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 360,
@@ -3975,7 +3975,7 @@
       "Mnemonic": "TSZ0",
       "HandlerId": "ClassicCpu.TestStatusZero",
       "Title": "Test status equals zero",
-      "PanamatikAlias": "op_test_s_eq_0"
+      "OpcodeAlias": "op_test_s_eq_0"
     },
     {
       "Address": 361,
@@ -3986,7 +3986,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 362,
@@ -3997,7 +3997,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 363,
@@ -4008,7 +4008,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 364,
@@ -4019,7 +4019,7 @@
       "Mnemonic": "CLRS",
       "HandlerId": "ClassicCpu.ClearStatus",
       "Title": "Clear status",
-      "PanamatikAlias": "op_clr_s"
+      "OpcodeAlias": "op_clr_s"
     },
     {
       "Address": 365,
@@ -4030,7 +4030,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 366,
@@ -4041,7 +4041,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 367,
@@ -4052,7 +4052,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 368,
@@ -4063,7 +4063,7 @@
       "Mnemonic": "TSZ0",
       "HandlerId": "ClassicCpu.TestStatusZero",
       "Title": "Test status equals zero",
-      "PanamatikAlias": "op_test_s_eq_0"
+      "OpcodeAlias": "op_test_s_eq_0"
     },
     {
       "Address": 369,
@@ -4074,7 +4074,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 370,
@@ -4085,7 +4085,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 371,
@@ -4096,7 +4096,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 372,
@@ -4107,7 +4107,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 373,
@@ -4118,7 +4118,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 374,
@@ -4129,7 +4129,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 375,
@@ -4140,7 +4140,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 376,
@@ -4151,7 +4151,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 377,
@@ -4162,7 +4162,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 378,
@@ -4173,7 +4173,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 379,
@@ -4184,7 +4184,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 380,
@@ -4195,7 +4195,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 381,
@@ -4206,7 +4206,7 @@
       "Mnemonic": "SETP",
       "HandlerId": "ClassicCpu.SetP",
       "Title": "Set P register (digit pointer)",
-      "PanamatikAlias": "op_set_p"
+      "OpcodeAlias": "op_set_p"
     },
     {
       "Address": 382,
@@ -4217,7 +4217,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 383,
@@ -4228,7 +4228,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 384,
@@ -4239,7 +4239,7 @@
       "Mnemonic": "SETP",
       "HandlerId": "ClassicCpu.SetP",
       "Title": "Set P register (digit pointer)",
-      "PanamatikAlias": "op_set_p"
+      "OpcodeAlias": "op_set_p"
     },
     {
       "Address": 385,
@@ -4250,7 +4250,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 386,
@@ -4261,7 +4261,7 @@
       "Mnemonic": "SETP",
       "HandlerId": "ClassicCpu.SetP",
       "Title": "Set P register (digit pointer)",
-      "PanamatikAlias": "op_set_p"
+      "OpcodeAlias": "op_set_p"
     },
     {
       "Address": 387,
@@ -4272,7 +4272,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 388,
@@ -4283,7 +4283,7 @@
       "Mnemonic": "SETP",
       "HandlerId": "ClassicCpu.SetP",
       "Title": "Set P register (digit pointer)",
-      "PanamatikAlias": "op_set_p"
+      "OpcodeAlias": "op_set_p"
     },
     {
       "Address": 389,
@@ -4294,7 +4294,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 390,
@@ -4305,7 +4305,7 @@
       "Mnemonic": "SETP",
       "HandlerId": "ClassicCpu.SetP",
       "Title": "Set P register (digit pointer)",
-      "PanamatikAlias": "op_set_p"
+      "OpcodeAlias": "op_set_p"
     },
     {
       "Address": 391,
@@ -4316,7 +4316,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 392,
@@ -4327,7 +4327,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 393,
@@ -4338,7 +4338,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 394,
@@ -4349,7 +4349,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 395,
@@ -4360,7 +4360,7 @@
       "Mnemonic": "SETP",
       "HandlerId": "ClassicCpu.SetP",
       "Title": "Set P register (digit pointer)",
-      "PanamatikAlias": "op_set_p"
+      "OpcodeAlias": "op_set_p"
     },
     {
       "Address": 396,
@@ -4371,7 +4371,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 397,
@@ -4382,7 +4382,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 398,
@@ -4393,7 +4393,7 @@
       "Mnemonic": "SETP",
       "HandlerId": "ClassicCpu.SetP",
       "Title": "Set P register (digit pointer)",
-      "PanamatikAlias": "op_set_p"
+      "OpcodeAlias": "op_set_p"
     },
     {
       "Address": 399,
@@ -4404,7 +4404,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 400,
@@ -4415,7 +4415,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 401,
@@ -4426,7 +4426,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 402,
@@ -4437,7 +4437,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 403,
@@ -4448,7 +4448,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 404,
@@ -4459,7 +4459,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 405,
@@ -4470,7 +4470,7 @@
       "Mnemonic": "TSZ0",
       "HandlerId": "ClassicCpu.TestStatusZero",
       "Title": "Test status equals zero",
-      "PanamatikAlias": "op_test_s_eq_0"
+      "OpcodeAlias": "op_test_s_eq_0"
     },
     {
       "Address": 406,
@@ -4481,7 +4481,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 407,
@@ -4492,7 +4492,7 @@
       "Mnemonic": "RETN",
       "HandlerId": "ClassicCpu.Return",
       "Title": "Return from subroutine",
-      "PanamatikAlias": "op_return"
+      "OpcodeAlias": "op_return"
     },
     {
       "Address": 408,
@@ -4503,7 +4503,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 409,
@@ -4514,7 +4514,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 410,
@@ -4525,7 +4525,7 @@
       "Mnemonic": "SELR",
       "HandlerId": "ClassicCpu.SelectRom",
       "Title": "Select ROM bank",
-      "PanamatikAlias": "op_sel_rom"
+      "OpcodeAlias": "op_sel_rom"
     },
     {
       "Address": 411,
@@ -4536,7 +4536,7 @@
       "Mnemonic": "SELR",
       "HandlerId": "ClassicCpu.SelectRom",
       "Title": "Select ROM bank",
-      "PanamatikAlias": "op_sel_rom"
+      "OpcodeAlias": "op_sel_rom"
     },
     {
       "Address": 412,
@@ -4547,7 +4547,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 413,
@@ -4558,7 +4558,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 414,
@@ -4569,7 +4569,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 415,
@@ -4580,7 +4580,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 416,
@@ -4591,7 +4591,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 417,
@@ -4602,7 +4602,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 418,
@@ -4613,7 +4613,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 419,
@@ -4624,7 +4624,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 420,
@@ -4635,7 +4635,7 @@
       "Mnemonic": "SELR",
       "HandlerId": "ClassicCpu.SelectRom",
       "Title": "Select ROM bank",
-      "PanamatikAlias": "op_sel_rom"
+      "OpcodeAlias": "op_sel_rom"
     },
     {
       "Address": 421,
@@ -4646,7 +4646,7 @@
       "Mnemonic": "SELR",
       "HandlerId": "ClassicCpu.SelectRom",
       "Title": "Select ROM bank",
-      "PanamatikAlias": "op_sel_rom"
+      "OpcodeAlias": "op_sel_rom"
     },
     {
       "Address": 422,
@@ -4657,7 +4657,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 423,
@@ -4668,7 +4668,7 @@
       "Mnemonic": "SELR",
       "HandlerId": "ClassicCpu.SelectRom",
       "Title": "Select ROM bank",
-      "PanamatikAlias": "op_sel_rom"
+      "OpcodeAlias": "op_sel_rom"
     },
     {
       "Address": 424,
@@ -4679,7 +4679,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 425,
@@ -4690,7 +4690,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 426,
@@ -4701,7 +4701,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 427,
@@ -4712,7 +4712,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 428,
@@ -4723,7 +4723,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 429,
@@ -4734,7 +4734,7 @@
       "Mnemonic": "DECP",
       "HandlerId": "ClassicCpu.DecrementP",
       "Title": "Decrement P",
-      "PanamatikAlias": "op_dec_p"
+      "OpcodeAlias": "op_dec_p"
     },
     {
       "Address": 430,
@@ -4745,7 +4745,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 431,
@@ -4756,7 +4756,7 @@
       "Mnemonic": "TSTP",
       "HandlerId": "ClassicCpu.TestP",
       "Title": "Test P register",
-      "PanamatikAlias": "op_test_p"
+      "OpcodeAlias": "op_test_p"
     },
     {
       "Address": 432,
@@ -4767,7 +4767,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 433,
@@ -4778,7 +4778,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 434,
@@ -4789,7 +4789,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 435,
@@ -4800,7 +4800,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 436,
@@ -4811,7 +4811,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 437,
@@ -4822,7 +4822,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 438,
@@ -4833,7 +4833,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 439,
@@ -4844,7 +4844,7 @@
       "Mnemonic": "DECP",
       "HandlerId": "ClassicCpu.DecrementP",
       "Title": "Decrement P",
-      "PanamatikAlias": "op_dec_p"
+      "OpcodeAlias": "op_dec_p"
     },
     {
       "Address": 440,
@@ -4855,7 +4855,7 @@
       "Mnemonic": "TSTP",
       "HandlerId": "ClassicCpu.TestP",
       "Title": "Test P register",
-      "PanamatikAlias": "op_test_p"
+      "OpcodeAlias": "op_test_p"
     },
     {
       "Address": 441,
@@ -4866,7 +4866,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 442,
@@ -4877,7 +4877,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 443,
@@ -4888,7 +4888,7 @@
       "Mnemonic": "DECP",
       "HandlerId": "ClassicCpu.DecrementP",
       "Title": "Decrement P",
-      "PanamatikAlias": "op_dec_p"
+      "OpcodeAlias": "op_dec_p"
     },
     {
       "Address": 444,
@@ -4899,7 +4899,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 445,
@@ -4910,7 +4910,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 446,
@@ -4921,7 +4921,7 @@
       "Mnemonic": "SELR",
       "HandlerId": "ClassicCpu.SelectRom",
       "Title": "Select ROM bank",
-      "PanamatikAlias": "op_sel_rom"
+      "OpcodeAlias": "op_sel_rom"
     },
     {
       "Address": 447,
@@ -4932,7 +4932,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 448,
@@ -4943,7 +4943,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 449,
@@ -4954,7 +4954,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 450,
@@ -4965,7 +4965,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 451,
@@ -4976,7 +4976,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 452,
@@ -4987,7 +4987,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 453,
@@ -4998,7 +4998,7 @@
       "Mnemonic": "SELR",
       "HandlerId": "ClassicCpu.SelectRom",
       "Title": "Select ROM bank",
-      "PanamatikAlias": "op_sel_rom"
+      "OpcodeAlias": "op_sel_rom"
     },
     {
       "Address": 454,
@@ -5009,7 +5009,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 455,
@@ -5020,7 +5020,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 456,
@@ -5031,7 +5031,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 457,
@@ -5042,7 +5042,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 458,
@@ -5053,7 +5053,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 459,
@@ -5064,7 +5064,7 @@
       "Mnemonic": "SELR",
       "HandlerId": "ClassicCpu.SelectRom",
       "Title": "Select ROM bank",
-      "PanamatikAlias": "op_sel_rom"
+      "OpcodeAlias": "op_sel_rom"
     },
     {
       "Address": 460,
@@ -5075,7 +5075,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 461,
@@ -5086,7 +5086,7 @@
       "Mnemonic": "SETP",
       "HandlerId": "ClassicCpu.SetP",
       "Title": "Set P register (digit pointer)",
-      "PanamatikAlias": "op_set_p"
+      "OpcodeAlias": "op_set_p"
     },
     {
       "Address": 462,
@@ -5097,7 +5097,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 463,
@@ -5108,7 +5108,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 464,
@@ -5119,7 +5119,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 465,
@@ -5130,7 +5130,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 466,
@@ -5141,7 +5141,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 467,
@@ -5152,7 +5152,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 468,
@@ -5163,7 +5163,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 469,
@@ -5174,7 +5174,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 470,
@@ -5185,7 +5185,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 471,
@@ -5196,7 +5196,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 472,
@@ -5207,7 +5207,7 @@
       "Mnemonic": "SETP",
       "HandlerId": "ClassicCpu.SetP",
       "Title": "Set P register (digit pointer)",
-      "PanamatikAlias": "op_set_p"
+      "OpcodeAlias": "op_set_p"
     },
     {
       "Address": 473,
@@ -5218,7 +5218,7 @@
       "Mnemonic": "RETN",
       "HandlerId": "ClassicCpu.Return",
       "Title": "Return from subroutine",
-      "PanamatikAlias": "op_return"
+      "OpcodeAlias": "op_return"
     },
     {
       "Address": 474,
@@ -5229,7 +5229,7 @@
       "Mnemonic": "SELR",
       "HandlerId": "ClassicCpu.SelectRom",
       "Title": "Select ROM bank",
-      "PanamatikAlias": "op_sel_rom"
+      "OpcodeAlias": "op_sel_rom"
     },
     {
       "Address": 475,
@@ -5240,7 +5240,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 476,
@@ -5251,7 +5251,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 477,
@@ -5262,7 +5262,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 478,
@@ -5273,7 +5273,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 479,
@@ -5284,7 +5284,7 @@
       "Mnemonic": "TSTP",
       "HandlerId": "ClassicCpu.TestP",
       "Title": "Test P register",
-      "PanamatikAlias": "op_test_p"
+      "OpcodeAlias": "op_test_p"
     },
     {
       "Address": 480,
@@ -5295,7 +5295,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 481,
@@ -5306,7 +5306,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 482,
@@ -5317,7 +5317,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 483,
@@ -5328,7 +5328,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 484,
@@ -5339,7 +5339,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 485,
@@ -5350,7 +5350,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 486,
@@ -5361,7 +5361,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 487,
@@ -5372,7 +5372,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 488,
@@ -5383,7 +5383,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 489,
@@ -5394,7 +5394,7 @@
       "Mnemonic": "SETP",
       "HandlerId": "ClassicCpu.SetP",
       "Title": "Set P register (digit pointer)",
-      "PanamatikAlias": "op_set_p"
+      "OpcodeAlias": "op_set_p"
     },
     {
       "Address": 490,
@@ -5405,7 +5405,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 491,
@@ -5416,7 +5416,7 @@
       "Mnemonic": "SELR",
       "HandlerId": "ClassicCpu.SelectRom",
       "Title": "Select ROM bank",
-      "PanamatikAlias": "op_sel_rom"
+      "OpcodeAlias": "op_sel_rom"
     },
     {
       "Address": 492,
@@ -5427,7 +5427,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 493,
@@ -5438,7 +5438,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 494,
@@ -5449,7 +5449,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 495,
@@ -5460,7 +5460,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 496,
@@ -5471,7 +5471,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 497,
@@ -5482,7 +5482,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 498,
@@ -5493,7 +5493,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 499,
@@ -5504,7 +5504,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 500,
@@ -5515,7 +5515,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 501,
@@ -5526,7 +5526,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 502,
@@ -5537,7 +5537,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 503,
@@ -5548,7 +5548,7 @@
       "Mnemonic": "STKA",
       "HandlerId": "ClassicCpu.StackToA",
       "Title": "Stack to A",
-      "PanamatikAlias": "op_stack_to_a"
+      "OpcodeAlias": "op_stack_to_a"
     },
     {
       "Address": 504,
@@ -5559,7 +5559,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 505,
@@ -5570,7 +5570,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 506,
@@ -5581,7 +5581,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 507,
@@ -5592,7 +5592,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 508,
@@ -5603,7 +5603,7 @@
       "Mnemonic": "CTST",
       "HandlerId": "ClassicCpu.CToStack",
       "Title": "C to stack",
-      "PanamatikAlias": "op_c_to_stack"
+      "OpcodeAlias": "op_c_to_stack"
     },
     {
       "Address": 509,
@@ -5614,7 +5614,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 510,
@@ -5625,7 +5625,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 511,
@@ -5636,7 +5636,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 512,
@@ -5647,7 +5647,7 @@
       "Mnemonic": "SELR",
       "HandlerId": "ClassicCpu.SelectRom",
       "Title": "Select ROM bank",
-      "PanamatikAlias": "op_sel_rom"
+      "OpcodeAlias": "op_sel_rom"
     },
     {
       "Address": 513,
@@ -5658,7 +5658,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 514,
@@ -5669,7 +5669,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 515,
@@ -5680,7 +5680,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 516,
@@ -5691,7 +5691,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 517,
@@ -5702,7 +5702,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 518,
@@ -5713,7 +5713,7 @@
       "Mnemonic": "STKA",
       "HandlerId": "ClassicCpu.StackToA",
       "Title": "Stack to A",
-      "PanamatikAlias": "op_stack_to_a"
+      "OpcodeAlias": "op_stack_to_a"
     },
     {
       "Address": 519,
@@ -5724,7 +5724,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 520,
@@ -5735,7 +5735,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 521,
@@ -5746,7 +5746,7 @@
       "Mnemonic": "TSZ0",
       "HandlerId": "ClassicCpu.TestStatusZero",
       "Title": "Test status equals zero",
-      "PanamatikAlias": "op_test_s_eq_0"
+      "OpcodeAlias": "op_test_s_eq_0"
     },
     {
       "Address": 522,
@@ -5757,7 +5757,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 523,
@@ -5768,7 +5768,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 524,
@@ -5779,7 +5779,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 525,
@@ -5790,7 +5790,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 526,
@@ -5801,7 +5801,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 527,
@@ -5812,7 +5812,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 528,
@@ -5823,7 +5823,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 529,
@@ -5834,7 +5834,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 530,
@@ -5845,7 +5845,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 531,
@@ -5856,7 +5856,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 532,
@@ -5867,7 +5867,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 533,
@@ -5878,7 +5878,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 534,
@@ -5889,7 +5889,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 535,
@@ -5900,7 +5900,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 536,
@@ -5911,7 +5911,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 537,
@@ -5922,7 +5922,7 @@
       "Mnemonic": "SETP",
       "HandlerId": "ClassicCpu.SetP",
       "Title": "Set P register (digit pointer)",
-      "PanamatikAlias": "op_set_p"
+      "OpcodeAlias": "op_set_p"
     },
     {
       "Address": 538,
@@ -5933,7 +5933,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 539,
@@ -5944,7 +5944,7 @@
       "Mnemonic": "SETP",
       "HandlerId": "ClassicCpu.SetP",
       "Title": "Set P register (digit pointer)",
-      "PanamatikAlias": "op_set_p"
+      "OpcodeAlias": "op_set_p"
     },
     {
       "Address": 540,
@@ -5955,7 +5955,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 541,
@@ -5966,7 +5966,7 @@
       "Mnemonic": "SETP",
       "HandlerId": "ClassicCpu.SetP",
       "Title": "Set P register (digit pointer)",
-      "PanamatikAlias": "op_set_p"
+      "OpcodeAlias": "op_set_p"
     },
     {
       "Address": 542,
@@ -5977,7 +5977,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 543,
@@ -5988,7 +5988,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 544,
@@ -5999,7 +5999,7 @@
       "Mnemonic": "SETP",
       "HandlerId": "ClassicCpu.SetP",
       "Title": "Set P register (digit pointer)",
-      "PanamatikAlias": "op_set_p"
+      "OpcodeAlias": "op_set_p"
     },
     {
       "Address": 545,
@@ -6010,7 +6010,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 546,
@@ -6021,7 +6021,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 547,
@@ -6032,7 +6032,7 @@
       "Mnemonic": "SETP",
       "HandlerId": "ClassicCpu.SetP",
       "Title": "Set P register (digit pointer)",
-      "PanamatikAlias": "op_set_p"
+      "OpcodeAlias": "op_set_p"
     },
     {
       "Address": 548,
@@ -6043,7 +6043,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 549,
@@ -6054,7 +6054,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 550,
@@ -6065,7 +6065,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 551,
@@ -6076,7 +6076,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 552,
@@ -6087,7 +6087,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 553,
@@ -6098,7 +6098,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 554,
@@ -6109,7 +6109,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 555,
@@ -6120,7 +6120,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 556,
@@ -6131,7 +6131,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 557,
@@ -6142,7 +6142,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 558,
@@ -6153,7 +6153,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 559,
@@ -6164,7 +6164,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 560,
@@ -6175,7 +6175,7 @@
       "Mnemonic": "DECP",
       "HandlerId": "ClassicCpu.DecrementP",
       "Title": "Decrement P",
-      "PanamatikAlias": "op_dec_p"
+      "OpcodeAlias": "op_dec_p"
     },
     {
       "Address": 561,
@@ -6186,7 +6186,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 562,
@@ -6197,7 +6197,7 @@
       "Mnemonic": "TSTP",
       "HandlerId": "ClassicCpu.TestP",
       "Title": "Test P register",
-      "PanamatikAlias": "op_test_p"
+      "OpcodeAlias": "op_test_p"
     },
     {
       "Address": 563,
@@ -6208,7 +6208,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 564,
@@ -6219,7 +6219,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 565,
@@ -6230,7 +6230,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 566,
@@ -6241,7 +6241,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 567,
@@ -6252,7 +6252,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 568,
@@ -6263,7 +6263,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 569,
@@ -6274,7 +6274,7 @@
       "Mnemonic": "SETP",
       "HandlerId": "ClassicCpu.SetP",
       "Title": "Set P register (digit pointer)",
-      "PanamatikAlias": "op_set_p"
+      "OpcodeAlias": "op_set_p"
     },
     {
       "Address": 570,
@@ -6285,7 +6285,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 571,
@@ -6296,7 +6296,7 @@
       "Mnemonic": "TSZ0",
       "HandlerId": "ClassicCpu.TestStatusZero",
       "Title": "Test status equals zero",
-      "PanamatikAlias": "op_test_s_eq_0"
+      "OpcodeAlias": "op_test_s_eq_0"
     },
     {
       "Address": 572,
@@ -6307,7 +6307,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 573,
@@ -6318,7 +6318,7 @@
       "Mnemonic": "TSZ0",
       "HandlerId": "ClassicCpu.TestStatusZero",
       "Title": "Test status equals zero",
-      "PanamatikAlias": "op_test_s_eq_0"
+      "OpcodeAlias": "op_test_s_eq_0"
     },
     {
       "Address": 574,
@@ -6329,7 +6329,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 575,
@@ -6340,7 +6340,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 576,
@@ -6351,7 +6351,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 577,
@@ -6362,7 +6362,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 578,
@@ -6373,7 +6373,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 579,
@@ -6384,7 +6384,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 580,
@@ -6395,7 +6395,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 581,
@@ -6406,7 +6406,7 @@
       "Mnemonic": "SETP",
       "HandlerId": "ClassicCpu.SetP",
       "Title": "Set P register (digit pointer)",
-      "PanamatikAlias": "op_set_p"
+      "OpcodeAlias": "op_set_p"
     },
     {
       "Address": 582,
@@ -6417,7 +6417,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 583,
@@ -6428,7 +6428,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 584,
@@ -6439,7 +6439,7 @@
       "Mnemonic": "SETP",
       "HandlerId": "ClassicCpu.SetP",
       "Title": "Set P register (digit pointer)",
-      "PanamatikAlias": "op_set_p"
+      "OpcodeAlias": "op_set_p"
     },
     {
       "Address": 585,
@@ -6450,7 +6450,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 586,
@@ -6461,7 +6461,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 587,
@@ -6472,7 +6472,7 @@
       "Mnemonic": "SETP",
       "HandlerId": "ClassicCpu.SetP",
       "Title": "Set P register (digit pointer)",
-      "PanamatikAlias": "op_set_p"
+      "OpcodeAlias": "op_set_p"
     },
     {
       "Address": 588,
@@ -6483,7 +6483,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 589,
@@ -6494,7 +6494,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 590,
@@ -6505,7 +6505,7 @@
       "Mnemonic": "SETP",
       "HandlerId": "ClassicCpu.SetP",
       "Title": "Set P register (digit pointer)",
-      "PanamatikAlias": "op_set_p"
+      "OpcodeAlias": "op_set_p"
     },
     {
       "Address": 591,
@@ -6516,7 +6516,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 592,
@@ -6527,7 +6527,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 593,
@@ -6538,7 +6538,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 594,
@@ -6549,7 +6549,7 @@
       "Mnemonic": "SETP",
       "HandlerId": "ClassicCpu.SetP",
       "Title": "Set P register (digit pointer)",
-      "PanamatikAlias": "op_set_p"
+      "OpcodeAlias": "op_set_p"
     },
     {
       "Address": 595,
@@ -6560,7 +6560,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 596,
@@ -6571,7 +6571,7 @@
       "Mnemonic": "SETP",
       "HandlerId": "ClassicCpu.SetP",
       "Title": "Set P register (digit pointer)",
-      "PanamatikAlias": "op_set_p"
+      "OpcodeAlias": "op_set_p"
     },
     {
       "Address": 597,
@@ -6582,7 +6582,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 598,
@@ -6593,7 +6593,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 599,
@@ -6604,7 +6604,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 600,
@@ -6615,7 +6615,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 601,
@@ -6626,7 +6626,7 @@
       "Mnemonic": "TSZ0",
       "HandlerId": "ClassicCpu.TestStatusZero",
       "Title": "Test status equals zero",
-      "PanamatikAlias": "op_test_s_eq_0"
+      "OpcodeAlias": "op_test_s_eq_0"
     },
     {
       "Address": 602,
@@ -6637,7 +6637,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 603,
@@ -6648,7 +6648,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 604,
@@ -6659,7 +6659,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 605,
@@ -6670,7 +6670,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 606,
@@ -6681,7 +6681,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 607,
@@ -6692,7 +6692,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 608,
@@ -6703,7 +6703,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 609,
@@ -6714,7 +6714,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 610,
@@ -6725,7 +6725,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 611,
@@ -6736,7 +6736,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 612,
@@ -6747,7 +6747,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 613,
@@ -6758,7 +6758,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 614,
@@ -6769,7 +6769,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 615,
@@ -6780,7 +6780,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 616,
@@ -6791,7 +6791,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 617,
@@ -6802,7 +6802,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 618,
@@ -6813,7 +6813,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 619,
@@ -6824,7 +6824,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 620,
@@ -6835,7 +6835,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 621,
@@ -6846,7 +6846,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 622,
@@ -6857,7 +6857,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 623,
@@ -6868,7 +6868,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 624,
@@ -6879,7 +6879,7 @@
       "Mnemonic": "TSZ0",
       "HandlerId": "ClassicCpu.TestStatusZero",
       "Title": "Test status equals zero",
-      "PanamatikAlias": "op_test_s_eq_0"
+      "OpcodeAlias": "op_test_s_eq_0"
     },
     {
       "Address": 625,
@@ -6890,7 +6890,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 626,
@@ -6901,7 +6901,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 627,
@@ -6912,7 +6912,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 628,
@@ -6923,7 +6923,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 629,
@@ -6934,7 +6934,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 630,
@@ -6945,7 +6945,7 @@
       "Mnemonic": "TSTP",
       "HandlerId": "ClassicCpu.TestP",
       "Title": "Test P register",
-      "PanamatikAlias": "op_test_p"
+      "OpcodeAlias": "op_test_p"
     },
     {
       "Address": 631,
@@ -6956,7 +6956,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 632,
@@ -6967,7 +6967,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 633,
@@ -6978,7 +6978,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 634,
@@ -6989,7 +6989,7 @@
       "Mnemonic": "TSZ0",
       "HandlerId": "ClassicCpu.TestStatusZero",
       "Title": "Test status equals zero",
-      "PanamatikAlias": "op_test_s_eq_0"
+      "OpcodeAlias": "op_test_s_eq_0"
     },
     {
       "Address": 635,
@@ -7000,7 +7000,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 636,
@@ -7011,7 +7011,7 @@
       "Mnemonic": "RETN",
       "HandlerId": "ClassicCpu.Return",
       "Title": "Return from subroutine",
-      "PanamatikAlias": "op_return"
+      "OpcodeAlias": "op_return"
     },
     {
       "Address": 637,
@@ -7022,7 +7022,7 @@
       "Mnemonic": "SETP",
       "HandlerId": "ClassicCpu.SetP",
       "Title": "Set P register (digit pointer)",
-      "PanamatikAlias": "op_set_p"
+      "OpcodeAlias": "op_set_p"
     },
     {
       "Address": 638,
@@ -7033,7 +7033,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 639,
@@ -7044,7 +7044,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 640,
@@ -7055,7 +7055,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 641,
@@ -7066,7 +7066,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 642,
@@ -7077,7 +7077,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 643,
@@ -7088,7 +7088,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 644,
@@ -7099,7 +7099,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 645,
@@ -7110,7 +7110,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 646,
@@ -7121,7 +7121,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 647,
@@ -7132,7 +7132,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 648,
@@ -7143,7 +7143,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 649,
@@ -7154,7 +7154,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 650,
@@ -7165,7 +7165,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 651,
@@ -7176,7 +7176,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 652,
@@ -7187,7 +7187,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 653,
@@ -7198,7 +7198,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 654,
@@ -7209,7 +7209,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 655,
@@ -7220,7 +7220,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 656,
@@ -7231,7 +7231,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 657,
@@ -7242,7 +7242,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 658,
@@ -7253,7 +7253,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 659,
@@ -7264,7 +7264,7 @@
       "Mnemonic": "JSB",
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Title": "Jump to subroutine",
-      "PanamatikAlias": "op_jsb"
+      "OpcodeAlias": "op_jsb"
     },
     {
       "Address": 660,
@@ -7275,7 +7275,7 @@
       "Mnemonic": "SELR",
       "HandlerId": "ClassicCpu.SelectRom",
       "Title": "Select ROM bank",
-      "PanamatikAlias": "op_sel_rom"
+      "OpcodeAlias": "op_sel_rom"
     },
     {
       "Address": 661,
@@ -7286,7 +7286,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 662,
@@ -7297,7 +7297,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 663,
@@ -7308,7 +7308,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 664,
@@ -7319,7 +7319,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 665,
@@ -7330,7 +7330,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 666,
@@ -7341,7 +7341,7 @@
       "Mnemonic": "RETN",
       "HandlerId": "ClassicCpu.Return",
       "Title": "Return from subroutine",
-      "PanamatikAlias": "op_return"
+      "OpcodeAlias": "op_return"
     },
     {
       "Address": 667,
@@ -7352,7 +7352,7 @@
       "Mnemonic": "SELR",
       "HandlerId": "ClassicCpu.SelectRom",
       "Title": "Select ROM bank",
-      "PanamatikAlias": "op_sel_rom"
+      "OpcodeAlias": "op_sel_rom"
     },
     {
       "Address": 668,
@@ -7363,7 +7363,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 669,
@@ -7374,7 +7374,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 670,
@@ -7385,7 +7385,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 671,
@@ -7396,7 +7396,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 672,
@@ -7407,7 +7407,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 673,
@@ -7418,7 +7418,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 674,
@@ -7429,7 +7429,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 675,
@@ -7440,7 +7440,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 676,
@@ -7451,7 +7451,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 677,
@@ -7462,7 +7462,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 678,
@@ -7473,7 +7473,7 @@
       "Mnemonic": "SETP",
       "HandlerId": "ClassicCpu.SetP",
       "Title": "Set P register (digit pointer)",
-      "PanamatikAlias": "op_set_p"
+      "OpcodeAlias": "op_set_p"
     },
     {
       "Address": 679,
@@ -7484,7 +7484,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 680,
@@ -7495,7 +7495,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 681,
@@ -7506,7 +7506,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 682,
@@ -7517,7 +7517,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 683,
@@ -7528,7 +7528,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 684,
@@ -7539,7 +7539,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 685,
@@ -7550,7 +7550,7 @@
       "Mnemonic": "TSTP",
       "HandlerId": "ClassicCpu.TestP",
       "Title": "Test P register",
-      "PanamatikAlias": "op_test_p"
+      "OpcodeAlias": "op_test_p"
     },
     {
       "Address": 686,
@@ -7561,7 +7561,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 687,
@@ -7572,7 +7572,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 688,
@@ -7583,7 +7583,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 689,
@@ -7594,7 +7594,7 @@
       "Mnemonic": "TSZ0",
       "HandlerId": "ClassicCpu.TestStatusZero",
       "Title": "Test status equals zero",
-      "PanamatikAlias": "op_test_s_eq_0"
+      "OpcodeAlias": "op_test_s_eq_0"
     },
     {
       "Address": 690,
@@ -7605,7 +7605,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 691,
@@ -7616,7 +7616,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 692,
@@ -7627,7 +7627,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 693,
@@ -7638,7 +7638,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 694,
@@ -7649,7 +7649,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 695,
@@ -7660,7 +7660,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 696,
@@ -7671,7 +7671,7 @@
       "Mnemonic": "SELR",
       "HandlerId": "ClassicCpu.SelectRom",
       "Title": "Select ROM bank",
-      "PanamatikAlias": "op_sel_rom"
+      "OpcodeAlias": "op_sel_rom"
     },
     {
       "Address": 697,
@@ -7682,7 +7682,7 @@
       "Mnemonic": "CLRS",
       "HandlerId": "ClassicCpu.ClearStatus",
       "Title": "Clear status",
-      "PanamatikAlias": "op_clr_s"
+      "OpcodeAlias": "op_clr_s"
     },
     {
       "Address": 698,
@@ -7693,7 +7693,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 699,
@@ -7704,7 +7704,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 700,
@@ -7715,7 +7715,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 701,
@@ -7726,7 +7726,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 702,
@@ -7737,7 +7737,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 703,
@@ -7748,7 +7748,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 704,
@@ -7759,7 +7759,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 705,
@@ -7770,7 +7770,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 706,
@@ -7781,7 +7781,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 707,
@@ -7792,7 +7792,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 708,
@@ -7803,7 +7803,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 709,
@@ -7814,7 +7814,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 710,
@@ -7825,7 +7825,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 711,
@@ -7836,7 +7836,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 712,
@@ -7847,7 +7847,7 @@
       "Mnemonic": "INCP",
       "HandlerId": "ClassicCpu.IncrementP",
       "Title": "Increment P",
-      "PanamatikAlias": "op_inc_p"
+      "OpcodeAlias": "op_inc_p"
     },
     {
       "Address": 713,
@@ -7858,7 +7858,7 @@
       "Mnemonic": "TSTP",
       "HandlerId": "ClassicCpu.TestP",
       "Title": "Test P register",
-      "PanamatikAlias": "op_test_p"
+      "OpcodeAlias": "op_test_p"
     },
     {
       "Address": 714,
@@ -7869,7 +7869,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 715,
@@ -7880,7 +7880,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 716,
@@ -7891,7 +7891,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 717,
@@ -7902,7 +7902,7 @@
       "Mnemonic": "SETP",
       "HandlerId": "ClassicCpu.SetP",
       "Title": "Set P register (digit pointer)",
-      "PanamatikAlias": "op_set_p"
+      "OpcodeAlias": "op_set_p"
     },
     {
       "Address": 718,
@@ -7913,7 +7913,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 719,
@@ -7924,7 +7924,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 720,
@@ -7935,7 +7935,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 721,
@@ -7946,7 +7946,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 722,
@@ -7957,7 +7957,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 723,
@@ -7968,7 +7968,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 724,
@@ -7979,7 +7979,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 725,
@@ -7990,7 +7990,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 726,
@@ -8001,7 +8001,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 727,
@@ -8012,7 +8012,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 728,
@@ -8023,7 +8023,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 729,
@@ -8034,7 +8034,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 730,
@@ -8045,7 +8045,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 731,
@@ -8056,7 +8056,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 732,
@@ -8067,7 +8067,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 733,
@@ -8078,7 +8078,7 @@
       "Mnemonic": "SETP",
       "HandlerId": "ClassicCpu.SetP",
       "Title": "Set P register (digit pointer)",
-      "PanamatikAlias": "op_set_p"
+      "OpcodeAlias": "op_set_p"
     },
     {
       "Address": 734,
@@ -8089,7 +8089,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 735,
@@ -8100,7 +8100,7 @@
       "Mnemonic": "SETP",
       "HandlerId": "ClassicCpu.SetP",
       "Title": "Set P register (digit pointer)",
-      "PanamatikAlias": "op_set_p"
+      "OpcodeAlias": "op_set_p"
     },
     {
       "Address": 736,
@@ -8111,7 +8111,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 737,
@@ -8122,7 +8122,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 738,
@@ -8133,7 +8133,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 739,
@@ -8144,7 +8144,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 740,
@@ -8155,7 +8155,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 741,
@@ -8166,7 +8166,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 742,
@@ -8177,7 +8177,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 743,
@@ -8188,7 +8188,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 744,
@@ -8199,7 +8199,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 745,
@@ -8210,7 +8210,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 746,
@@ -8221,7 +8221,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 747,
@@ -8232,7 +8232,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 748,
@@ -8243,7 +8243,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 749,
@@ -8254,7 +8254,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 750,
@@ -8265,7 +8265,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 751,
@@ -8276,7 +8276,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 752,
@@ -8287,7 +8287,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 753,
@@ -8298,7 +8298,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 754,
@@ -8309,7 +8309,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 755,
@@ -8320,7 +8320,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 756,
@@ -8331,7 +8331,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 757,
@@ -8342,7 +8342,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 758,
@@ -8353,7 +8353,7 @@
       "Mnemonic": "ARTH",
       "HandlerId": "ClassicCpu.Arithmetic",
       "Title": "Arithmetic and register operations (sub-decode)",
-      "PanamatikAlias": "op_arith"
+      "OpcodeAlias": "op_arith"
     },
     {
       "Address": 759,
@@ -8364,7 +8364,7 @@
       "Mnemonic": "SETP",
       "HandlerId": "ClassicCpu.SetP",
       "Title": "Set P register (digit pointer)",
-      "PanamatikAlias": "op_set_p"
+      "OpcodeAlias": "op_set_p"
     },
     {
       "Address": 760,
@@ -8375,7 +8375,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 761,
@@ -8386,7 +8386,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 762,
@@ -8397,7 +8397,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 763,
@@ -8408,7 +8408,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 764,
@@ -8419,7 +8419,7 @@
       "Mnemonic": "LDCN",
       "HandlerId": "ClassicCpu.LoadConstant",
       "Title": "Load constant digit",
-      "PanamatikAlias": "op_load_constant"
+      "OpcodeAlias": "op_load_constant"
     },
     {
       "Address": 765,
@@ -8430,7 +8430,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     },
     {
       "Address": 766,
@@ -8441,7 +8441,7 @@
       "Mnemonic": "SETP",
       "HandlerId": "ClassicCpu.SetP",
       "Title": "Set P register (digit pointer)",
-      "PanamatikAlias": "op_set_p"
+      "OpcodeAlias": "op_set_p"
     },
     {
       "Address": 767,
@@ -8452,7 +8452,7 @@
       "Mnemonic": "GOTO",
       "HandlerId": "ClassicCpu.Branch",
       "Title": "Branch / go to",
-      "PanamatikAlias": "op_goto"
+      "OpcodeAlias": "op_goto"
     }
   ]
 }

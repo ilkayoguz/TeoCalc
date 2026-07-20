@@ -38,18 +38,18 @@ public sealed class ClassicFirmwareGatewayTests
   }
 
   [TestMethod]
-  public void Bootstrap_Routes_Hp67_To_Hp67FirmwareGateway()
+  public void Bootstrap_Routes_Hp67_To_Teo67FirmwareGateway()
   {
     ICalcFirmwareGateway gateway = CalcFirmwareGatewayLocator.CreateGateway("HP-67");
-    Assert.IsInstanceOfType(gateway, typeof(Hp67FirmwareGateway));
+    Assert.IsInstanceOfType(gateway, typeof(Teo67FirmwareGateway));
   }
 
   [TestMethod]
-  public void Bootstrap_Routes_Hp67BE_To_Hp67FirmwareGateway()
+  public void Bootstrap_Routes_Hp67BE_To_Teo67FirmwareGateway()
   {
     Assert.AreEqual("HP-67", CalcModelIds.ToEngineId("HP-67BE"));
     ICalcFirmwareGateway gateway = CalcFirmwareGatewayLocator.CreateGateway("HP-67BE");
-    Assert.IsInstanceOfType(gateway, typeof(Hp67FirmwareGateway));
+    Assert.IsInstanceOfType(gateway, typeof(Teo67FirmwareGateway));
   }
 
   [TestMethod]
@@ -115,7 +115,7 @@ public sealed class ClassicFirmwareGatewayTests
   public void Hp01Gateway_Batch_ClassicDiagnosticsNull()
   {
     ICalcFirmwareGateway gateway = CalcFirmwareGatewayLocator.CreateGateway("HP-01");
-    Assert.IsInstanceOfType(gateway, typeof(Hp01FirmwareGateway));
+    Assert.IsInstanceOfType(gateway, typeof(Teo01FirmwareGateway));
     gateway.PowerOnResume();
     Assert.IsNull(gateway.LastBatch.Classic);
   }

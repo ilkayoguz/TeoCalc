@@ -2,7 +2,7 @@ using TeoCalc.Core;
 using TeoCalc.Core.Catalog;
 using TeoCalc.Core.Engine;
 using TeoCalc.Core.Engine.Classic;
-using TeoCalc.Core.Engine.Hp67;
+using TeoCalc.Core.Engine.Teo67;
 using TeoCalc.Core.Firmware;
 using TeoCalc.Formats;
 using TeoCalc.Panamatik;
@@ -36,12 +36,12 @@ public sealed class CardProgramSmokeTests
     string path = Path.Combine(Path.GetTempPath(), $"teocalc-card65-{Guid.NewGuid():N}.hp65");
     try
     {
-      Hp65CardProgramFormat.WriteFile(
+      ClassicCardProgramFormat.WriteFile(
         path,
-        new Hp65CardSnapshot(exportedCodes, exportedRegs),
+        new ClassicCardSnapshot(exportedCodes, exportedRegs),
         code => ClassicCardProgramIo.FormatMnemonic(vocabulary, code));
 
-      Hp65CardSnapshot parsed = Hp65CardProgramFormat.ReadFile(
+      ClassicCardSnapshot parsed = ClassicCardProgramFormat.ReadFile(
         path,
         mnemonic => ClassicCardProgramIo.ResolveMnemonic(vocabulary, mnemonic));
       Assert.AreEqual(43, parsed.ProgramCodes[1]);
@@ -60,14 +60,14 @@ public sealed class CardProgramSmokeTests
   public void Act67_Gateway_CardRoundTrip_PreservesProgramAndData()
   {
     ICalcFirmwareGateway gateway = CalcFirmwareGatewayLocator.CreateGateway("HP-67");
-    Assert.IsInstanceOfType<Hp67FirmwareGateway>(gateway);
+    Assert.IsInstanceOfType<Teo67FirmwareGateway>(gateway);
     Assert.IsTrue(gateway.SupportsCardProgram);
 
-    byte[] codes = new byte[Hp67CardProgramIo.ProgramCapacity];
+    byte[] codes = new byte[Teo67CardProgramIo.ProgramCapacity];
     codes[0] = 16; // "0"
     codes[1] = 17; // "1"
     codes[2] = 55; // "+"
-    double[] registers = new double[Hp67CardProgramIo.RegisterCount];
+    double[] registers = new double[Teo67CardProgramIo.RegisterCount];
     registers[0] = 12.5;
     registers[25] = -3;
     Assert.IsTrue(gateway.TryImportCardProgram(codes, registers));
@@ -82,22 +82,22 @@ public sealed class CardProgramSmokeTests
     string path = Path.Combine(Path.GetTempPath(), $"teocalc-card67-{Guid.NewGuid():N}.hp67");
     try
     {
-      Hp67FirmwareGateway hp67 = (Hp67FirmwareGateway)gateway;
-      Assert.IsTrue(hp67.TryExportCardMode(out Hp67CardMode mode));
-      Hp67CardProgramFormat.WriteFile(
+      Teo67FirmwareGateway hp67 = (Teo67FirmwareGateway)gateway;
+      Assert.IsTrue(hp67.TryExportCardMode(out Teo67CardMode mode));
+      Teo67CardProgramFormat.WriteFile(
         path,
-        new Hp67CardSnapshot(
+        new Teo67CardSnapshot(
           exportedCodes,
           exportedRegs,
-          new Hp67CardModeSnapshot(mode.Angle, mode.Display, mode.Digits, mode.FlagsHi, mode.FlagsLo)),
-        Hp67CardProgramIo.FormatMnemonic);
+          new Teo67CardModeSnapshot(mode.Angle, mode.Display, mode.Digits, mode.FlagsHi, mode.FlagsLo)),
+        Teo67CardProgramIo.FormatMnemonic);
 
-      Hp67CardSnapshot parsed = Hp67CardProgramFormat.ReadFile(path, Hp67CardProgramIo.ResolveMnemonic);
+      Teo67CardSnapshot parsed = Teo67CardProgramFormat.ReadFile(path, Teo67CardProgramIo.ResolveMnemonic);
       Assert.AreEqual(16, parsed.ProgramCodes[0]);
       Assert.AreEqual(12.5, parsed.Registers[0], 1e-6);
       Assert.IsNotNull(parsed.Mode);
 
-      Hp67FirmwareGateway other = (Hp67FirmwareGateway)CalcFirmwareGatewayLocator.CreateGateway("HP-67BE");
+      Teo67FirmwareGateway other = (Teo67FirmwareGateway)CalcFirmwareGatewayLocator.CreateGateway("HP-67BE");
       Assert.IsTrue(other.TryImportCardProgram(parsed.ProgramCodes, parsed.Registers));
       Assert.IsTrue(other.TryExportCardProgram(out byte[] roundTrip, out double[] roundTripRegs));
       Assert.AreEqual(55, roundTrip[2]);
@@ -117,6 +117,6 @@ public sealed class CardProgramSmokeTests
   {
     Assert.IsTrue(CalcFirmwareGatewayLocator.CreateGateway("HP-67").SupportsCardProgram);
     Assert.IsTrue(CalcFirmwareGatewayLocator.CreateGateway("HP-67BE").SupportsCardProgram);
-    Assert.IsTrue(CalcFirmwareBootstrap.IsNativeHp67Pilot("HP-67BE"));
+    Assert.IsTrue(CalcFirmwareBootstrap.IsNativeTeo67Pilot("HP-67BE"));
   }
 }

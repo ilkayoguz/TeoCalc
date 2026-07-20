@@ -10,7 +10,7 @@ public static class ClassicKeyFaceplateLegend
 {
   private static readonly Dictionary<string, Dictionary<int, KeyFaceplateEntry>> Cache = new(StringComparer.OrdinalIgnoreCase);
 
-  public static HpCalcKeyVisual Resolve(
+  public static KeyLegendVisual Resolve(
     string modelId,
     string family,
     ProgramKeyEntry key,
@@ -29,7 +29,7 @@ public static class ClassicKeyFaceplateLegend
       ? entry.CapFace
       : CalcFaceplateLayout.LabelForKey(key, vocabulary, family, modelId);
 
-    return new HpCalcKeyVisual(
+    return new KeyLegendVisual(
       primary,
       skipJsonShiftForClassicAe ? null : entry?.Gold,
       skipJsonShiftForClassicAe ? null : entry?.Blue,

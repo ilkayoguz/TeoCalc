@@ -11,7 +11,7 @@ public sealed class Hp35FaceplateLegendTests
   private static ProgramVocabulary LoadVocabulary() =>
     ProgramVocabulary.Load(TeoCalcPaths.ResourcePath("Engine/HP-35/Program/program.vocabulary.json"));
 
-  private static HpCalcKeyVisual VisualAt(ProgramVocabulary vocabulary, int index) =>
+  private static KeyLegendVisual VisualAt(ProgramVocabulary vocabulary, int index) =>
     ClassicKeyFaceplateLegend.Resolve(
       "HP-35", "Classic", vocabulary.KeyChart[index], vocabulary, FaceplateLabelStyle.Normal);
 
@@ -111,7 +111,7 @@ public sealed class Hp35FaceplateLegendTests
 
     foreach ((int index, string label) in expectedCapAbove)
     {
-      HpCalcKeyVisual visual = VisualAt(vocabulary, index);
+      KeyLegendVisual visual = VisualAt(vocabulary, index);
       Assert.AreEqual(label, visual.GoldShift, $"CapAbove index {index}");
       Assert.IsTrue(string.IsNullOrEmpty(visual.Primary), $"CapFace blank at {index}");
       Assert.IsTrue(string.IsNullOrEmpty(visual.BlueShift), $"No blue at {index}");
@@ -127,28 +127,28 @@ public sealed class Hp35FaceplateLegendTests
   {
     ProgramVocabulary vocabulary = LoadVocabulary();
     Assert.AreEqual("CL X", VisualAt(vocabulary, 19).GoldShift);
-    Assert.IsTrue(HpClassicFaceplateGlyphs.UsesPrefixCapitalMathX("CL X"));
+    Assert.IsTrue(ClassicFaceplateGlyphs.UsesPrefixCapitalMathX("CL X"));
   }
 
   [TestMethod]
   public void CapAbove_ChsEex_AreSpacedPlainLabels()
   {
-    Assert.IsTrue(HpClassicFaceplateGlyphs.IsPlainArialSkirtLabel("CH S"));
-    Assert.IsTrue(HpClassicFaceplateGlyphs.IsPlainArialSkirtLabel("E EX"));
-    Assert.IsFalse(HpClassicFaceplateGlyphs.UsesPrefixCapitalMathX("CH S"));
-    Assert.IsFalse(HpClassicFaceplateGlyphs.UsesPrefixCapitalMathX("E EX"));
+    Assert.IsTrue(ClassicFaceplateGlyphs.IsPlainArialSkirtLabel("CH S"));
+    Assert.IsTrue(ClassicFaceplateGlyphs.IsPlainArialSkirtLabel("E EX"));
+    Assert.IsFalse(ClassicFaceplateGlyphs.UsesPrefixCapitalMathX("CH S"));
+    Assert.IsFalse(ClassicFaceplateGlyphs.UsesPrefixCapitalMathX("E EX"));
   }
 
   [TestMethod]
   public void CapAbove_XyPower_UsesGlyphPath()
   {
-    Assert.IsFalse(HpClassicFaceplateGlyphs.IsPlainArialSkirtLabel("x^y"));
+    Assert.IsFalse(ClassicFaceplateGlyphs.IsPlainArialSkirtLabel("x^y"));
   }
 
   [TestMethod]
   public void CapAbove_XExchange_UsesStackedChevrons()
   {
-    Assert.IsTrue(HpClassicFaceplateGlyphs.UsesCardSlotExchangeLabel("x\u2194y"));
+    Assert.IsTrue(ClassicFaceplateGlyphs.UsesCardSlotExchangeLabel("x\u2194y"));
   }
 
   [TestMethod]
@@ -172,7 +172,7 @@ public sealed class Hp35FaceplateLegendTests
     ProgramVocabulary vocabulary = LoadVocabulary();
     foreach (int index in new[] { 20, 21, 25, 30, 35, 36, 37, 38 })
     {
-      HpCalcKeyVisual visual = VisualAt(vocabulary, index);
+      KeyLegendVisual visual = VisualAt(vocabulary, index);
       Assert.IsFalse(string.IsNullOrEmpty(visual.Primary), $"CapFace at {index}");
       Assert.IsTrue(string.IsNullOrEmpty(visual.GoldShift), $"No CapAbove at {index}");
     }
@@ -263,7 +263,7 @@ public sealed class Hp35FaceplateLegendTests
 
     foreach ((int index, string capFace, string? capAbove, CalcButtonStyle style) in rows)
     {
-      HpCalcKeyVisual visual = VisualAt(vocabulary, index);
+      KeyLegendVisual visual = VisualAt(vocabulary, index);
       Assert.AreEqual(capFace, visual.Primary, $"CapFace {index}");
       if (capAbove is null)
       {

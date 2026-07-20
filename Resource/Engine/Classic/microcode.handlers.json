@@ -8,246 +8,246 @@
     {
       "HandlerId": "ClassicCpu.Nop",
       "Mnemonic": "NOP ",
-      "PanamatikAlias": "op_nop",
+      "OpcodeAlias": "op_nop",
       "Title": "No operation"
     },
     {
       "HandlerId": "ClassicCpu.Unknown",
       "Mnemonic": "UNKN",
-      "PanamatikAlias": "op_unknown",
+      "OpcodeAlias": "op_unknown",
       "Title": "Unknown / reserved dispatch slot"
     },
     {
       "HandlerId": "ClassicCpu.SubroutineJump",
       "Mnemonic": "JSB ",
-      "PanamatikAlias": "op_jsb",
+      "OpcodeAlias": "op_jsb",
       "Title": "Jump to subroutine",
       "HpMuseumNote": "Subroutine call (JSB)"
     },
     {
       "HandlerId": "ClassicCpu.Branch",
       "Mnemonic": "GOTO",
-      "PanamatikAlias": "op_goto",
+      "OpcodeAlias": "op_goto",
       "Title": "Branch / go to",
       "HpMuseumNote": "go to n; also if-then-go forms"
     },
     {
       "HandlerId": "ClassicCpu.Return",
       "Mnemonic": "RETN",
-      "PanamatikAlias": "op_return",
+      "OpcodeAlias": "op_return",
       "Title": "Return from subroutine"
     },
     {
       "HandlerId": "ClassicCpu.Arithmetic",
       "Mnemonic": "ARTH",
-      "PanamatikAlias": "op_arith",
+      "OpcodeAlias": "op_arith",
       "Title": "Arithmetic and register operations (sub-decode)",
       "HpMuseumNote": "a +/- b -> a[p], c -> a, etc."
     },
     {
       "HandlerId": "ClassicCpu.SetStatus",
       "Mnemonic": "SETS",
-      "PanamatikAlias": "op_set_s",
+      "OpcodeAlias": "op_set_s",
       "Title": "Set status bit"
     },
     {
       "HandlerId": "ClassicCpu.TestStatusZero",
       "Mnemonic": "TSZ0",
-      "PanamatikAlias": "op_test_s_eq_0",
+      "OpcodeAlias": "op_test_s_eq_0",
       "Title": "Test status equals zero"
     },
     {
       "HandlerId": "ClassicCpu.SetFlag",
       "Mnemonic": "SETF",
-      "PanamatikAlias": "op_set_f",
+      "OpcodeAlias": "op_set_f",
       "Title": "Set flag"
     },
     {
       "HandlerId": "ClassicCpu.ClearStatus",
       "Mnemonic": "CLRS",
-      "PanamatikAlias": "op_clr_s",
+      "OpcodeAlias": "op_clr_s",
       "Title": "Clear status"
     },
     {
       "HandlerId": "ClassicCpu.ClearS",
       "Mnemonic": "CLSS",
-      "PanamatikAlias": "op_clear_s",
+      "OpcodeAlias": "op_clear_s",
       "Title": "Clear S register"
     },
     {
       "HandlerId": "ClassicCpu.SetP",
       "Mnemonic": "SETP",
-      "PanamatikAlias": "op_set_p",
+      "OpcodeAlias": "op_set_p",
       "Title": "Set P register (digit pointer)"
     },
     {
       "HandlerId": "ClassicCpu.TestP",
       "Mnemonic": "TSTP",
-      "PanamatikAlias": "op_test_p",
+      "OpcodeAlias": "op_test_p",
       "Title": "Test P register"
     },
     {
       "HandlerId": "ClassicCpu.DecrementP",
       "Mnemonic": "DECP",
-      "PanamatikAlias": "op_dec_p",
+      "OpcodeAlias": "op_dec_p",
       "Title": "Decrement P"
     },
     {
       "HandlerId": "ClassicCpu.IncrementP",
       "Mnemonic": "INCP",
-      "PanamatikAlias": "op_inc_p",
+      "OpcodeAlias": "op_inc_p",
       "Title": "Increment P"
     },
     {
       "HandlerId": "ClassicCpu.LoadConstant",
       "Mnemonic": "LDCN",
-      "PanamatikAlias": "op_load_constant",
+      "OpcodeAlias": "op_load_constant",
       "Title": "Load constant digit"
     },
     {
       "HandlerId": "ClassicCpu.SelectRom",
       "Mnemonic": "SELR",
-      "PanamatikAlias": "op_sel_rom",
+      "OpcodeAlias": "op_sel_rom",
       "Title": "Select ROM bank"
     },
     {
       "HandlerId": "ClassicCpu.DelayedSelectRom",
       "Mnemonic": "DRSR",
-      "PanamatikAlias": "op_del_sel_rom",
+      "OpcodeAlias": "op_del_sel_rom",
       "Title": "Delayed select ROM"
     },
     {
       "HandlerId": "ClassicCpu.DelayedSelectGroup",
       "Mnemonic": "DRSG",
-      "PanamatikAlias": "op_del_sel_grp",
+      "OpcodeAlias": "op_del_sel_grp",
       "Title": "Delayed select group"
     },
     {
       "HandlerId": "ClassicCpu.KeysToRomAddress",
       "Mnemonic": "KROM",
-      "PanamatikAlias": "op_keys_to_rom_addr",
+      "OpcodeAlias": "op_keys_to_rom_addr",
       "Title": "Keys to ROM address"
     },
     {
       "HandlerId": "ClassicCpu.BufferToRomAddress",
       "Mnemonic": "BTAD",
-      "PanamatikAlias": "op_buf_to_rom_addr",
+      "OpcodeAlias": "op_buf_to_rom_addr",
       "Title": "Buffer to ROM address"
     },
     {
       "HandlerId": "ClassicCpu.RomAddressToBuffer",
       "Mnemonic": "ADTB",
-      "PanamatikAlias": "op_rom_addr_to_buf",
+      "OpcodeAlias": "op_rom_addr_to_buf",
       "Title": "ROM address to buffer"
     },
     {
       "HandlerId": "ClassicCpu.CToAddress",
       "Mnemonic": "CTAD",
-      "PanamatikAlias": "op_c_to_addr",
+      "OpcodeAlias": "op_c_to_addr",
       "Title": "C register to address"
     },
     {
       "HandlerId": "ClassicCpu.DataToC",
       "Mnemonic": "DTAC",
-      "PanamatikAlias": "op_data_to_c",
+      "OpcodeAlias": "op_data_to_c",
       "Title": "Data to C register"
     },
     {
       "HandlerId": "ClassicCpu.CToData",
       "Mnemonic": "CTDT",
-      "PanamatikAlias": "op_c_to_data",
+      "OpcodeAlias": "op_c_to_data",
       "Title": "C register to data"
     },
     {
       "HandlerId": "ClassicCpu.ExchangeCAndM",
       "Mnemonic": "CXCH",
-      "PanamatikAlias": "op_c_exch_m",
+      "OpcodeAlias": "op_c_exch_m",
       "Title": "Exchange C and M"
     },
     {
       "HandlerId": "ClassicCpu.MToC",
       "Mnemonic": "MTOC",
-      "PanamatikAlias": "op_m_to_c",
+      "OpcodeAlias": "op_m_to_c",
       "Title": "M to C"
     },
     {
       "HandlerId": "ClassicCpu.CToStack",
       "Mnemonic": "CTST",
-      "PanamatikAlias": "op_c_to_stack",
+      "OpcodeAlias": "op_c_to_stack",
       "Title": "C to stack"
     },
     {
       "HandlerId": "ClassicCpu.StackToA",
       "Mnemonic": "STKA",
-      "PanamatikAlias": "op_stack_to_a",
+      "OpcodeAlias": "op_stack_to_a",
       "Title": "Stack to A"
     },
     {
       "HandlerId": "ClassicCpu.DownRotate",
       "Mnemonic": "DROT",
-      "PanamatikAlias": "op_down_rotate",
+      "OpcodeAlias": "op_down_rotate",
       "Title": "Down rotate stack"
     },
     {
       "HandlerId": "ClassicCpu.ClearRegisters",
       "Mnemonic": "CLRG",
-      "PanamatikAlias": "op_clear_regs",
+      "OpcodeAlias": "op_clear_regs",
       "Title": "Clear registers"
     },
     {
       "HandlerId": "ClassicCpu.DisplayToggle",
       "Mnemonic": "DSPT",
-      "PanamatikAlias": "op_display_toggle",
+      "OpcodeAlias": "op_display_toggle",
       "Title": "Display toggle"
     },
     {
       "HandlerId": "ClassicCpu.DisplayOff",
       "Mnemonic": "DSPF",
-      "PanamatikAlias": "op_display_off",
+      "OpcodeAlias": "op_display_off",
       "Title": "Display off"
     },
     {
       "HandlerId": "ClassicCpu.MemoryFull",
       "Mnemonic": "MEMF",
-      "PanamatikAlias": "op_memoryfull",
+      "OpcodeAlias": "op_memoryfull",
       "Title": "Program memory full"
     },
     {
       "HandlerId": "ClassicCpu.MemoryInsert",
       "Mnemonic": "MINS",
-      "PanamatikAlias": "op_memoryinsert",
+      "OpcodeAlias": "op_memoryinsert",
       "Title": "Insert program step",
       "HpMuseumNote": "HP-65 program memory"
     },
     {
       "HandlerId": "ClassicCpu.MemoryDelete",
       "Mnemonic": "MDEL",
-      "PanamatikAlias": "op_memorydelete",
+      "OpcodeAlias": "op_memorydelete",
       "Title": "Delete program step"
     },
     {
       "HandlerId": "ClassicCpu.MemoryInitialize",
       "Mnemonic": "MINI",
-      "PanamatikAlias": "op_memoryinitialize",
+      "OpcodeAlias": "op_memoryinitialize",
       "Title": "Initialize program memory"
     },
     {
       "HandlerId": "ClassicCpu.MarkAndSearch",
       "Mnemonic": "MKSR",
-      "PanamatikAlias": "op_markandsearch",
+      "OpcodeAlias": "op_markandsearch",
       "Title": "Mark and search"
     },
     {
       "HandlerId": "ClassicCpu.SearchForLabel",
       "Mnemonic": "SRCL",
-      "PanamatikAlias": "op_searchforlabel",
+      "OpcodeAlias": "op_searchforlabel",
       "Title": "Search for label",
       "HpMuseumNote": "HP-65 specific"
     },
     {
       "HandlerId": "ClassicCpu.PointerAdvance",
       "Mnemonic": "PADV",
-      "PanamatikAlias": "op_pointeradvance",
+      "OpcodeAlias": "op_pointeradvance",
       "Title": "Advance program pointer"
     }
   ]

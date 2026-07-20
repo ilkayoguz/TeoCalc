@@ -8,415 +8,415 @@
     {
       "HandlerId": "ActCpu.Nop",
       "Mnemonic": "NOP ",
-      "PanamatikAlias": "op_nop",
+      "OpcodeAlias": "op_nop",
       "Title": "op_nop"
     },
     {
       "HandlerId": "ActCpu.Unknown",
       "Mnemonic": "UNKN",
-      "PanamatikAlias": "op_unknown",
+      "OpcodeAlias": "op_unknown",
       "Title": "op_unknown"
     },
     {
       "HandlerId": "ActCpu.Jsb",
       "Mnemonic": "JSB ",
-      "PanamatikAlias": "op_jsb",
+      "OpcodeAlias": "op_jsb",
       "Title": "op_jsb"
     },
     {
       "HandlerId": "ActCpu.Goto",
       "Mnemonic": "GOTO",
-      "PanamatikAlias": "op_goto",
+      "OpcodeAlias": "op_goto",
       "Title": "op_goto"
     },
     {
       "HandlerId": "ActCpu.Return",
       "Mnemonic": "RETU",
-      "PanamatikAlias": "op_return",
+      "OpcodeAlias": "op_return",
       "Title": "op_return"
     },
     {
       "HandlerId": "ActCpu.Arith",
       "Mnemonic": "ARİT",
-      "PanamatikAlias": "op_arith",
+      "OpcodeAlias": "op_arith",
       "Title": "op_arith"
     },
     {
       "HandlerId": "ActCpu.SetS",
       "Mnemonic": "SET_",
-      "PanamatikAlias": "op_set_s",
+      "OpcodeAlias": "op_set_s",
       "Title": "op_set_s"
     },
     {
       "HandlerId": "ActCpu.TestSEq1",
       "Mnemonic": "TEST",
-      "PanamatikAlias": "op_test_s_eq_1",
+      "OpcodeAlias": "op_test_s_eq_1",
       "Title": "op_test_s_eq_1"
     },
     {
       "HandlerId": "ActCpu.TestSEq0",
       "Mnemonic": "TEST",
-      "PanamatikAlias": "op_test_s_eq_0",
+      "OpcodeAlias": "op_test_s_eq_0",
       "Title": "op_test_s_eq_0"
     },
     {
       "HandlerId": "ActCpu.ClrS",
       "Mnemonic": "CLR_",
-      "PanamatikAlias": "op_clr_s",
+      "OpcodeAlias": "op_clr_s",
       "Title": "op_clr_s"
     },
     {
       "HandlerId": "ActCpu.ClearS",
       "Mnemonic": "CLEA",
-      "PanamatikAlias": "op_clear_s",
+      "OpcodeAlias": "op_clear_s",
       "Title": "op_clear_s"
     },
     {
       "HandlerId": "ActCpu.SetP",
       "Mnemonic": "SET_",
-      "PanamatikAlias": "op_set_p",
+      "OpcodeAlias": "op_set_p",
       "Title": "op_set_p"
     },
     {
       "HandlerId": "ActCpu.TestPEq",
       "Mnemonic": "TEST",
-      "PanamatikAlias": "op_test_p_eq",
+      "OpcodeAlias": "op_test_p_eq",
       "Title": "op_test_p_eq"
     },
     {
       "HandlerId": "ActCpu.TestPNe",
       "Mnemonic": "TEST",
-      "PanamatikAlias": "op_test_p_ne",
+      "OpcodeAlias": "op_test_p_ne",
       "Title": "op_test_p_ne"
     },
     {
       "HandlerId": "ActCpu.DelSelRom",
       "Mnemonic": "DEL_",
-      "PanamatikAlias": "op_del_sel_rom",
+      "OpcodeAlias": "op_del_sel_rom",
       "Title": "op_del_sel_rom"
     },
     {
       "HandlerId": "ActCpu.LoadConstant",
       "Mnemonic": "LOAD",
-      "PanamatikAlias": "op_load_constant",
+      "OpcodeAlias": "op_load_constant",
       "Title": "op_load_constant"
     },
     {
       "HandlerId": "ActCpu.CToRegister",
       "Mnemonic": "C_TO",
-      "PanamatikAlias": "op_c_to_register",
+      "OpcodeAlias": "op_c_to_register",
       "Title": "op_c_to_register"
     },
     {
       "HandlerId": "ActCpu.RegisterToC",
       "Mnemonic": "REGİ",
-      "PanamatikAlias": "op_register_to_c",
+      "OpcodeAlias": "op_register_to_c",
       "Title": "op_register_to_c"
     },
     {
       "HandlerId": "ActCpu.ClearReg",
       "Mnemonic": "CLEA",
-      "PanamatikAlias": "op_clear_reg",
+      "OpcodeAlias": "op_clear_reg",
       "Title": "op_clear_reg"
     },
     {
       "HandlerId": "ActCpu.DisplayToggle",
       "Mnemonic": "DİSP",
-      "PanamatikAlias": "op_display_toggle",
+      "OpcodeAlias": "op_display_toggle",
       "Title": "op_display_toggle"
     },
     {
       "HandlerId": "ActCpu.DisplayOff",
       "Mnemonic": "DİSP",
-      "PanamatikAlias": "op_display_off",
+      "OpcodeAlias": "op_display_off",
       "Title": "op_display_off"
     },
     {
       "HandlerId": "ActCpu.Mx",
       "Mnemonic": "MX  ",
-      "PanamatikAlias": "op_mx",
+      "OpcodeAlias": "op_mx",
       "Title": "op_mx"
     },
     {
       "HandlerId": "ActCpu.StackToA",
       "Mnemonic": "STAC",
-      "PanamatikAlias": "op_stack_to_a",
+      "OpcodeAlias": "op_stack_to_a",
       "Title": "op_stack_to_a"
     },
     {
       "HandlerId": "ActCpu.DownRotate",
       "Mnemonic": "DOWN",
-      "PanamatikAlias": "op_down_rotate",
+      "OpcodeAlias": "op_down_rotate",
       "Title": "op_down_rotate"
     },
     {
       "HandlerId": "ActCpu.YToA",
       "Mnemonic": "Y_TO",
-      "PanamatikAlias": "op_y_to_a",
+      "OpcodeAlias": "op_y_to_a",
       "Title": "op_y_to_a"
     },
     {
       "HandlerId": "ActCpu.CToStack",
       "Mnemonic": "C_TO",
-      "PanamatikAlias": "op_c_to_stack",
+      "OpcodeAlias": "op_c_to_stack",
       "Title": "op_c_to_stack"
     },
     {
       "HandlerId": "ActCpu.Decimal",
       "Mnemonic": "DECİ",
-      "PanamatikAlias": "op_decimal",
+      "OpcodeAlias": "op_decimal",
       "Title": "op_decimal"
     },
     {
       "HandlerId": "ActCpu.Binary",
       "Mnemonic": "BİNA",
-      "PanamatikAlias": "op_binary",
+      "OpcodeAlias": "op_binary",
       "Title": "op_binary"
     },
     {
       "HandlerId": "ActCpu.FToA",
       "Mnemonic": "F_TO",
-      "PanamatikAlias": "op_f_to_a",
+      "OpcodeAlias": "op_f_to_a",
       "Title": "op_f_to_a"
     },
     {
       "HandlerId": "ActCpu.FExchA",
       "Mnemonic": "F_EX",
-      "PanamatikAlias": "op_f_exch_a",
+      "OpcodeAlias": "op_f_exch_a",
       "Title": "op_f_exch_a"
     },
     {
       "HandlerId": "ActCpu.KeysToRomAddr",
       "Mnemonic": "KEYS",
-      "PanamatikAlias": "op_keys_to_rom_addr",
+      "OpcodeAlias": "op_keys_to_rom_addr",
       "Title": "op_keys_to_rom_addr"
     },
     {
       "HandlerId": "ActCpu.KeysToA",
       "Mnemonic": "KEYS",
-      "PanamatikAlias": "op_keys_to_a",
+      "OpcodeAlias": "op_keys_to_a",
       "Title": "op_keys_to_a"
     },
     {
       "HandlerId": "ActCpu.SelRom",
       "Mnemonic": "SEL_",
-      "PanamatikAlias": "op_sel_rom",
+      "OpcodeAlias": "op_sel_rom",
       "Title": "op_sel_rom"
     },
     {
       "HandlerId": "ActCpu.AToRomAddr",
       "Mnemonic": "A_TO",
-      "PanamatikAlias": "op_a_to_rom_addr",
+      "OpcodeAlias": "op_a_to_rom_addr",
       "Title": "op_a_to_rom_addr"
     },
     {
       "HandlerId": "ActCpu.DecP",
       "Mnemonic": "DEC_",
-      "PanamatikAlias": "op_dec_p",
+      "OpcodeAlias": "op_dec_p",
       "Title": "op_dec_p"
     },
     {
       "HandlerId": "ActCpu.İncP",
       "Mnemonic": "İNC_",
-      "PanamatikAlias": "op_inc_p",
+      "OpcodeAlias": "op_inc_p",
       "Title": "op_inc_p"
     },
     {
       "HandlerId": "ActCpu.CirculateALeft",
       "Mnemonic": "CİRC",
-      "PanamatikAlias": "op_circulate_a_left",
+      "OpcodeAlias": "op_circulate_a_left",
       "Title": "op_circulate_a_left"
     },
     {
       "HandlerId": "ActCpu.CToAddr",
       "Mnemonic": "C_TO",
-      "PanamatikAlias": "op_c_to_addr",
+      "OpcodeAlias": "op_c_to_addr",
       "Title": "op_c_to_addr"
     },
     {
       "HandlerId": "ActCpu.CToData",
       "Mnemonic": "C_TO",
-      "PanamatikAlias": "op_c_to_data",
+      "OpcodeAlias": "op_c_to_data",
       "Title": "op_c_to_data"
     },
     {
       "HandlerId": "ActCpu.ClearDataRegs",
       "Mnemonic": "CLEA",
-      "PanamatikAlias": "op_clear_data_regs",
+      "OpcodeAlias": "op_clear_data_regs",
       "Title": "op_clear_data_regs"
     },
     {
       "HandlerId": "ActCpu.BankSwitch",
       "Mnemonic": "BANK",
-      "PanamatikAlias": "op_bank_switch",
+      "OpcodeAlias": "op_bank_switch",
       "Title": "op_bank_switch"
     },
     {
       "HandlerId": "ActCpu.RomSelftest",
       "Mnemonic": "ROM_",
-      "PanamatikAlias": "op_rom_selftest",
+      "OpcodeAlias": "op_rom_selftest",
       "Title": "op_rom_selftest"
     },
     {
       "HandlerId": "ActCpu.CrcTestMotorOn",
       "Mnemonic": "CRC_",
-      "PanamatikAlias": "op_crc_test_motor_on",
+      "OpcodeAlias": "op_crc_test_motor_on",
       "Title": "op_crc_test_motor_on"
     },
     {
       "HandlerId": "ActCpu.CrcMotorOn",
       "Mnemonic": "CRC_",
-      "PanamatikAlias": "op_crc_motor_on",
+      "OpcodeAlias": "op_crc_motor_on",
       "Title": "op_crc_motor_on"
     },
     {
       "HandlerId": "ActCpu.CrcMotorOff",
       "Mnemonic": "CRC_",
-      "PanamatikAlias": "op_crc_motor_off",
+      "OpcodeAlias": "op_crc_motor_off",
       "Title": "op_crc_motor_off"
     },
     {
       "HandlerId": "ActCpu.CrcTestCardİn",
       "Mnemonic": "CRC_",
-      "PanamatikAlias": "op_crc_test_card_in",
+      "OpcodeAlias": "op_crc_test_card_in",
       "Title": "op_crc_test_card_in"
     },
     {
       "HandlerId": "ActCpu.CrcTestProt",
       "Mnemonic": "CRC_",
-      "PanamatikAlias": "op_crc_test_prot",
+      "OpcodeAlias": "op_crc_test_prot",
       "Title": "op_crc_test_prot"
     },
     {
       "HandlerId": "ActCpu.CrcWriteProt",
       "Mnemonic": "CRC_",
-      "PanamatikAlias": "op_crc_write_prot",
+      "OpcodeAlias": "op_crc_write_prot",
       "Title": "op_crc_write_prot"
     },
     {
       "HandlerId": "ActCpu.CrcTestF1",
       "Mnemonic": "CRC_",
-      "PanamatikAlias": "op_crc_test_f1",
+      "OpcodeAlias": "op_crc_test_f1",
       "Title": "op_crc_test_f1"
     },
     {
       "HandlerId": "ActCpu.CrcTestF2",
       "Mnemonic": "CRC_",
-      "PanamatikAlias": "op_crc_test_f2",
+      "OpcodeAlias": "op_crc_test_f2",
       "Title": "op_crc_test_f2"
     },
     {
       "HandlerId": "ActCpu.CrcTestF3",
       "Mnemonic": "CRC_",
-      "PanamatikAlias": "op_crc_test_f3",
+      "OpcodeAlias": "op_crc_test_f3",
       "Title": "op_crc_test_f3"
     },
     {
       "HandlerId": "ActCpu.CrcTestF4",
       "Mnemonic": "CRC_",
-      "PanamatikAlias": "op_crc_test_f4",
+      "OpcodeAlias": "op_crc_test_f4",
       "Title": "op_crc_test_f4"
     },
     {
       "HandlerId": "ActCpu.CrcSetF0",
       "Mnemonic": "CRC_",
-      "PanamatikAlias": "op_crc_set_f0",
+      "OpcodeAlias": "op_crc_set_f0",
       "Title": "op_crc_set_f0"
     },
     {
       "HandlerId": "ActCpu.CrcSetF1",
       "Mnemonic": "CRC_",
-      "PanamatikAlias": "op_crc_set_f1",
+      "OpcodeAlias": "op_crc_set_f1",
       "Title": "op_crc_set_f1"
     },
     {
       "HandlerId": "ActCpu.CrcSetF2",
       "Mnemonic": "CRC_",
-      "PanamatikAlias": "op_crc_set_f2",
+      "OpcodeAlias": "op_crc_set_f2",
       "Title": "op_crc_set_f2"
     },
     {
       "HandlerId": "ActCpu.CrcSetF3",
       "Mnemonic": "CRC_",
-      "PanamatikAlias": "op_crc_set_f3",
+      "OpcodeAlias": "op_crc_set_f3",
       "Title": "op_crc_set_f3"
     },
     {
       "HandlerId": "ActCpu.CrcSetF4",
       "Mnemonic": "CRC_",
-      "PanamatikAlias": "op_crc_set_f4",
+      "OpcodeAlias": "op_crc_set_f4",
       "Title": "op_crc_set_f4"
     },
     {
       "HandlerId": "ActCpu.CrcClearF0",
       "Mnemonic": "CRC_",
-      "PanamatikAlias": "op_crc_clear_f0",
+      "OpcodeAlias": "op_crc_clear_f0",
       "Title": "op_crc_clear_f0"
     },
     {
       "HandlerId": "ActCpu.CrcClearF1",
       "Mnemonic": "CRC_",
-      "PanamatikAlias": "op_crc_clear_f1",
+      "OpcodeAlias": "op_crc_clear_f1",
       "Title": "op_crc_clear_f1"
     },
     {
       "HandlerId": "ActCpu.DisplayResetTwf",
       "Mnemonic": "DİSP",
-      "PanamatikAlias": "op_display_reset_twf",
+      "OpcodeAlias": "op_display_reset_twf",
       "Title": "op_display_reset_twf"
     },
     {
       "HandlerId": "ActCpu.PikHome",
       "Mnemonic": "PİK_",
-      "PanamatikAlias": "op_pik_home",
+      "OpcodeAlias": "op_pik_home",
       "Title": "op_pik_home"
     },
     {
       "HandlerId": "ActCpu.PikCr",
       "Mnemonic": "PİK_",
-      "PanamatikAlias": "op_pik_cr",
+      "OpcodeAlias": "op_pik_cr",
       "Title": "op_pik_cr"
     },
     {
       "HandlerId": "ActCpu.PikKeys",
       "Mnemonic": "PİK_",
-      "PanamatikAlias": "op_pik_keys",
+      "OpcodeAlias": "op_pik_keys",
       "Title": "op_pik_keys"
     },
     {
       "HandlerId": "ActCpu.PikC4",
       "Mnemonic": "PİK_",
-      "PanamatikAlias": "op_pik_c4",
+      "OpcodeAlias": "op_pik_c4",
       "Title": "op_pik_c4"
     },
     {
       "HandlerId": "ActCpu.PikD4",
       "Mnemonic": "PİK_",
-      "PanamatikAlias": "op_pik_d4",
+      "OpcodeAlias": "op_pik_d4",
       "Title": "op_pik_d4"
     },
     {
       "HandlerId": "ActCpu.PikE4",
       "Mnemonic": "PİK_",
-      "PanamatikAlias": "op_pik_e4",
+      "OpcodeAlias": "op_pik_e4",
       "Title": "op_pik_e4"
     },
     {
       "HandlerId": "ActCpu.PikPrint",
       "Mnemonic": "PİK_",
-      "PanamatikAlias": "op_pik_print",
+      "OpcodeAlias": "op_pik_print",
       "Title": "op_pik_print"
     },
     {
       "HandlerId": "ActCpu.RomAddrToBuffer",
       "Mnemonic": "ROM_",
-      "PanamatikAlias": "op_rom_addr_to_buffer",
+      "OpcodeAlias": "op_rom_addr_to_buffer",
       "Title": "op_rom_addr_to_buffer"
     },
     {
       "HandlerId": "ActCpu.BranchTarget",
       "Mnemonic": "BRAN",
-      "PanamatikAlias": "op_branch_target",
+      "OpcodeAlias": "op_branch_target",
       "Title": "op_branch_target"
     }
   ]

@@ -67,7 +67,7 @@ public sealed class Hp22FaceplateLegendTests
   public void CapFace_GoldFKeyIsBlank_NotLetterF()
   {
     ProgramVocabulary vocabulary = LoadVocabulary();
-    HpCalcKeyVisual f = ClassicKeyFaceplateLegend.Resolve(
+    KeyLegendVisual f = ClassicKeyFaceplateLegend.Resolve(
       "HP-22", "Woodstock", vocabulary.KeyChart[9], vocabulary, FaceplateLabelStyle.Normal);
     Assert.AreEqual(string.Empty, f.Primary);
     Assert.IsTrue(string.IsNullOrEmpty(f.BlueShift));
@@ -95,7 +95,7 @@ public sealed class Hp22FaceplateLegendTests
     Assert.AreEqual(
       "CLX",
       CalcFaceplateLayout.LabelForKey(vocabulary.KeyChart[14], vocabulary, "Woodstock", "HP-22"));
-    Assert.IsTrue(HpClassicFaceplateGlyphs.UsesPrefixCapitalMathX("CLX"));
+    Assert.IsTrue(ClassicFaceplateGlyphs.UsesPrefixCapitalMathX("CLX"));
   }
 
   [TestMethod]
@@ -126,14 +126,14 @@ public sealed class Hp22FaceplateLegendTests
 
     foreach ((int index, string gold) in expectedGold)
     {
-      HpCalcKeyVisual visual = ClassicKeyFaceplateLegend.Resolve(
+      KeyLegendVisual visual = ClassicKeyFaceplateLegend.Resolve(
         "HP-22", "Woodstock", vocabulary.KeyChart[index], vocabulary, FaceplateLabelStyle.Normal);
       Assert.AreEqual(gold, visual.GoldShift, $"Gold at index {index}");
       Assert.IsTrue(string.IsNullOrEmpty(visual.BlueShift), $"No blue at index {index}");
     }
 
     // Blank gold f has no CapAbove either.
-    HpCalcKeyVisual f = ClassicKeyFaceplateLegend.Resolve(
+    KeyLegendVisual f = ClassicKeyFaceplateLegend.Resolve(
       "HP-22", "Woodstock", vocabulary.KeyChart[9], vocabulary, FaceplateLabelStyle.Normal);
     Assert.IsTrue(string.IsNullOrEmpty(f.GoldShift));
   }
@@ -141,9 +141,9 @@ public sealed class Hp22FaceplateLegendTests
   [TestMethod]
   public void GoldLegend_DeltaPercent_UsesVectorGlyphPath()
   {
-    Assert.IsFalse(HpClassicFaceplateGlyphs.IsPlainArialSkirtLabel("\u0394%"));
+    Assert.IsFalse(ClassicFaceplateGlyphs.IsPlainArialSkirtLabel("\u0394%"));
     ProgramVocabulary vocabulary = LoadVocabulary();
-    HpCalcKeyVisual visual = ClassicKeyFaceplateLegend.Resolve(
+    KeyLegendVisual visual = ClassicKeyFaceplateLegend.Resolve(
       "HP-22", "Woodstock", vocabulary.KeyChart[13], vocabulary, FaceplateLabelStyle.Normal);
     Assert.AreEqual("\u0394%", visual.GoldShift);
   }
@@ -151,9 +151,9 @@ public sealed class Hp22FaceplateLegendTests
   [TestMethod]
   public void GoldLegend_YHat_UsesCompositeGlyphPath()
   {
-    Assert.IsFalse(HpClassicFaceplateGlyphs.IsPlainArialSkirtLabel("y\u0302"));
+    Assert.IsFalse(ClassicFaceplateGlyphs.IsPlainArialSkirtLabel("y\u0302"));
     ProgramVocabulary vocabulary = LoadVocabulary();
-    HpCalcKeyVisual visual = ClassicKeyFaceplateLegend.Resolve(
+    KeyLegendVisual visual = ClassicKeyFaceplateLegend.Resolve(
       "HP-22", "Woodstock", vocabulary.KeyChart[6], vocabulary, FaceplateLabelStyle.Normal);
     Assert.AreEqual("y\u0302", visual.GoldShift);
   }
@@ -161,9 +161,9 @@ public sealed class Hp22FaceplateLegendTests
   [TestMethod]
   public void GoldLegend_XBar_StillComposite()
   {
-    Assert.IsFalse(HpClassicFaceplateGlyphs.IsPlainArialSkirtLabel("x\u0305"));
+    Assert.IsFalse(ClassicFaceplateGlyphs.IsPlainArialSkirtLabel("x\u0305"));
     ProgramVocabulary vocabulary = LoadVocabulary();
-    HpCalcKeyVisual visual = ClassicKeyFaceplateLegend.Resolve(
+    KeyLegendVisual visual = ClassicKeyFaceplateLegend.Resolve(
       "HP-22", "Woodstock", vocabulary.KeyChart[7], vocabulary, FaceplateLabelStyle.Normal);
     Assert.AreEqual("x\u0305", visual.GoldShift);
   }

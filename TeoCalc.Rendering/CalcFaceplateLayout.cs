@@ -79,14 +79,14 @@ public static class CalcFaceplateLayout
     if (string.Equals(modelId, "HP-01", StringComparison.OrdinalIgnoreCase)
         || string.Equals(family, "HP01", StringComparison.OrdinalIgnoreCase))
     {
-      return Hp01FaceplateLayout.PhysicalCells;
+      return Teo01FaceplateLayout.PhysicalCells;
     }
 
     if (string.Equals(modelId, "HP-19C", StringComparison.OrdinalIgnoreCase)
         || string.Equals(family, "HP19C", StringComparison.OrdinalIgnoreCase)
         || string.Equals(family, "Hp19", StringComparison.OrdinalIgnoreCase))
     {
-      return Hp19CFaceplateLayout.PhysicalCells;
+      return Teo19CFaceplateLayout.PhysicalCells;
     }
 
     return Enumerable.Range(0, Rows * Columns)

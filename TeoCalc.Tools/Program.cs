@@ -14,8 +14,8 @@ internal static class Program
 
     if (args[0].Equals("models", StringComparison.OrdinalIgnoreCase))
     {
-      Console.WriteLine($"Priority: {HpCalcModelCatalog.PriorityModel}");
-      foreach (string model in HpCalcModelCatalog.SupportedModels)
+      Console.WriteLine($"Priority: {TeoCalcModelCatalog.PriorityModel}");
+      foreach (string model in TeoCalcModelCatalog.SupportedModels)
         Console.WriteLine(model);
       return 0;
     }

@@ -68,9 +68,9 @@ public sealed class Hp27FaceplateLegendTests
   public void CapFace_FAndGShowLetters()
   {
     ProgramVocabulary vocabulary = LoadVocabulary();
-    HpCalcKeyVisual f = ClassicKeyFaceplateLegend.Resolve(
+    KeyLegendVisual f = ClassicKeyFaceplateLegend.Resolve(
       "HP-27", "Woodstock", vocabulary.KeyChart[3], vocabulary, FaceplateLabelStyle.Normal);
-    HpCalcKeyVisual g = ClassicKeyFaceplateLegend.Resolve(
+    KeyLegendVisual g = ClassicKeyFaceplateLegend.Resolve(
       "HP-27", "Woodstock", vocabulary.KeyChart[4], vocabulary, FaceplateLabelStyle.Normal);
     Assert.AreEqual("f", f.Primary);
     Assert.AreEqual("g", g.Primary);
@@ -83,8 +83,8 @@ public sealed class Hp27FaceplateLegendTests
   [TestMethod]
   public void CapFace_YHatAndXBar_UseCompositeGlyphPaths()
   {
-    Assert.IsFalse(HpClassicFaceplateGlyphs.IsPlainArialSkirtLabel("y\u0302"));
-    Assert.IsFalse(HpClassicFaceplateGlyphs.IsPlainArialSkirtLabel("x\u0305"));
+    Assert.IsFalse(ClassicFaceplateGlyphs.IsPlainArialSkirtLabel("y\u0302"));
+    Assert.IsFalse(ClassicFaceplateGlyphs.IsPlainArialSkirtLabel("x\u0305"));
     ProgramVocabulary vocabulary = LoadVocabulary();
     Assert.AreEqual(
       "y\u0302",
@@ -115,7 +115,7 @@ public sealed class Hp27FaceplateLegendTests
     Assert.AreEqual(
       "CLX",
       CalcFaceplateLayout.LabelForKey(vocabulary.KeyChart[14], vocabulary, "Woodstock", "HP-27"));
-    Assert.IsTrue(HpClassicFaceplateGlyphs.UsesPrefixCapitalMathX("CLX"));
+    Assert.IsTrue(ClassicFaceplateGlyphs.UsesPrefixCapitalMathX("CLX"));
   }
 
   [TestMethod]
@@ -152,7 +152,7 @@ public sealed class Hp27FaceplateLegendTests
 
     foreach ((int index, (string? gold, string? blue)) in expected)
     {
-      HpCalcKeyVisual visual = ClassicKeyFaceplateLegend.Resolve(
+      KeyLegendVisual visual = ClassicKeyFaceplateLegend.Resolve(
         "HP-27", "Woodstock", vocabulary.KeyChart[index], vocabulary, FaceplateLabelStyle.Normal);
       Assert.AreEqual(gold, visual.GoldShift, $"Gold at index {index}");
       Assert.AreEqual(blue, visual.BlueShift, $"Blue at index {index}");
@@ -231,7 +231,7 @@ public sealed class Hp27FaceplateLegendTests
 
     foreach ((int index, string gold) in expectedGold)
     {
-      HpCalcKeyVisual visual = ClassicKeyFaceplateLegend.Resolve(
+      KeyLegendVisual visual = ClassicKeyFaceplateLegend.Resolve(
         "HP-27",
         "Woodstock",
         vocabulary.KeyChart[index],

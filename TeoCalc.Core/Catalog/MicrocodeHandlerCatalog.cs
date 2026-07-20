@@ -18,17 +18,18 @@ public sealed class MicrocodeHandlerCatalog
     return catalog ?? throw new InvalidDataException($"Failed to load {path}");
   }
 
-  public MicrocodeHandlerEntry ResolveByPanamatikAlias(string alias)
+  public MicrocodeHandlerEntry ResolveByOpcodeAlias(string alias)
   {
-    MicrocodeHandlerEntry? entry = Handlers.Find(h => h.PanamatikAlias == alias);
-    return entry ?? Handlers.Find(h => h.PanamatikAlias == "op_unknown")
+    MicrocodeHandlerEntry? entry = Handlers.Find(h => h.OpcodeAlias == alias);
+    return entry ?? Handlers.Find(h => h.OpcodeAlias == "op_unknown")
       ?? throw new KeyNotFoundException(alias);
   }
+
 
   public MicrocodeHandlerEntry ResolveByDispatchIndex(int index, IReadOnlyDictionary<int, string> dispatchTable)
   {
     string alias = dispatchTable.TryGetValue(index, out string? name) ? name : "op_unknown";
-    return ResolveByPanamatikAlias(alias);
+    return ResolveByOpcodeAlias(alias);
   }
 
   private static JsonSerializerOptions JsonOptions => new()
@@ -45,8 +46,8 @@ public sealed class MicrocodeHandlerEntry
   [JsonPropertyName("Mnemonic")]
   public string Mnemonic { get; init; } = "";
 
-  [JsonPropertyName("PanamatikAlias")]
-  public string PanamatikAlias { get; init; } = "";
+  [JsonPropertyName("OpcodeAlias")]
+  public string OpcodeAlias { get; init; } = "";
 
   [JsonPropertyName("Title")]
   public string Title { get; init; } = "";

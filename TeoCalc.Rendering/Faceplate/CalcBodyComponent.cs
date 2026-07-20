@@ -26,15 +26,15 @@ public static class CalcBodyComponent
       return;
     }
 
-    if (Hp65FaceplateSvgAssets.UseBodyChrome && Hp65FaceplateSvgAssets.IsReady)
+    if (ClassicFaceplateSvgAssets.UseBodyChrome && ClassicFaceplateSvgAssets.IsReady)
     {
-      Hp65FaceplateSvgAssets.DrawBody(draw, origin, metrics);
+      ClassicFaceplateSvgAssets.DrawBody(draw, origin, metrics);
       if (!skipText)
       {
         CalcChassisRenderer.DrawCardSlotLabels(draw, origin, metrics);
       }
 
-      Hp65FaceplateSvgAssets.DrawLogo(draw, origin, metrics, skipText: skipText);
+      ClassicFaceplateSvgAssets.DrawLogo(draw, origin, metrics, skipText: skipText);
       return;
     }
 

@@ -8,7 +8,7 @@
       "HandlerId": "FirmwareStudy.PendingDispatch",
       "Mnemonic": "RAW ",
       "Title": "ROM word (handler decode pending)",
-      "PanamatikAlias": "study_raw"
+      "OpcodeAlias": "study_raw"
     }
   ]
 }

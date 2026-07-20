@@ -23,7 +23,7 @@ public sealed class CalculatorLauncherPresenter
   public static CalculatorLauncherPresenter CreateDefault(Func<string, bool>? tryOpenEngineModel = null)
   {
     List<CalculatorLauncherItem> items = [];
-    foreach (string catalogId in HpCalcModelCatalog.SupportedModels)
+    foreach (string catalogId in TeoCalcModelCatalog.SupportedModels)
     {
       string engineId = CalcModelIds.ToEngineId(catalogId);
       bool canOpen = CalcFirmwareGatewayLocator.Supports(engineId);

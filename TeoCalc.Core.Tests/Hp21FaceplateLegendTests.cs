@@ -67,7 +67,7 @@ public sealed class Hp21FaceplateLegendTests
   public void CapFace_GKeyIsBlank_NotLetterG()
   {
     ProgramVocabulary vocabulary = LoadVocabulary();
-    HpCalcKeyVisual g = ClassicKeyFaceplateLegend.Resolve(
+    KeyLegendVisual g = ClassicKeyFaceplateLegend.Resolve(
       "HP-21", "Woodstock", vocabulary.KeyChart[4], vocabulary, FaceplateLabelStyle.Normal);
     Assert.AreEqual(string.Empty, g.Primary);
     Assert.IsTrue(string.IsNullOrEmpty(g.BlueShift));
@@ -114,14 +114,14 @@ public sealed class Hp21FaceplateLegendTests
 
     foreach ((int index, string blue) in expectedBlue)
     {
-      HpCalcKeyVisual visual = ClassicKeyFaceplateLegend.Resolve(
+      KeyLegendVisual visual = ClassicKeyFaceplateLegend.Resolve(
         "HP-21", "Woodstock", vocabulary.KeyChart[index], vocabulary, FaceplateLabelStyle.Normal);
       Assert.AreEqual(blue, visual.BlueShift, $"Blue at index {index}");
       Assert.IsTrue(string.IsNullOrEmpty(visual.GoldShift), $"No gold at index {index}");
     }
 
     // ENTER has no skirt.
-    HpCalcKeyVisual enter = ClassicKeyFaceplateLegend.Resolve(
+    KeyLegendVisual enter = ClassicKeyFaceplateLegend.Resolve(
       "HP-21", "Woodstock", vocabulary.KeyChart[10], vocabulary, FaceplateLabelStyle.Normal);
     Assert.IsTrue(string.IsNullOrEmpty(enter.BlueShift));
   }

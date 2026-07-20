@@ -47,7 +47,7 @@ public sealed class CalcFaceplateThemeTests
   [TestMethod]
   public void CalcKeyVisual_FromLegacy_Maps_ShiftLabels()
   {
-    HpCalcKeyVisual legacy = new()
+    KeyLegendVisual legacy = new()
     {
       Primary = "1",
       GoldShift = "LN",
