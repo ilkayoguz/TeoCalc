@@ -47,10 +47,13 @@ public static class CalcSwitchComponent
     float fontSize = MathF.Max(11f, FontSizeRef * scale);
     float auxSize = fontSize * 0.85f;
     ImFontPtr font = ResolveFont();
-    float leftW = MeasureLabel(font, fontSize, spec.LeftLabel);
-    float rightW = MeasureLabel(font, fontSize, spec.RightLabel);
-    float topW = MeasureLabel(font, auxSize, spec.TopLabel);
-    float botW = MeasureLabel(font, auxSize, spec.BottomLabel);
+    float lineGap = fontSize * 0.12f;
+    float leftW = MeasureLabelWidth(font, fontSize, spec.LeftLabel);
+    float rightW = MeasureLabelWidth(font, fontSize, spec.RightLabel);
+    float leftH = MeasureLabelHeight(font, fontSize, spec.LeftLabel, lineGap);
+    float rightH = MeasureLabelHeight(font, fontSize, spec.RightLabel, lineGap);
+    float topW = MeasureLabelWidth(font, auxSize, spec.TopLabel);
+    float botW = MeasureLabelWidth(font, auxSize, spec.BottomLabel);
     float trackW = Calc00dWireStyle.SwitchTrackWidthRefPx * scale;
     float knobH = Calc00dWireStyle.SwitchKnobHeightRefPx * scale;
     float gap = LabelGapRef * scale;
@@ -70,6 +73,11 @@ public static class CalcSwitchComponent
       float botH = font.CalcTextSizeA(auxSize, float.MaxValue, 0f, spec.BottomLabel).Y;
       below = knobH * 0.55f + vGap + botH;
     }
+
+    // Dual-row side legends (HP-38E D.MY/BEGIN) need vertical room beyond the knob.
+    float sideHalf = MathF.Max(leftH, rightH) * 0.5f;
+    above = MathF.Max(above, sideHalf);
+    below = MathF.Max(below, sideHalf);
 
     float width = leftW + gap + trackColumnW + gap + rightW;
     return new Metrics(width, above + below, leftW, rightW, trackColumnW, trackW, fontSize, above, below);
@@ -95,8 +103,7 @@ public static class CalcSwitchComponent
     float x = leftX;
     if (m.LeftLabelWidth > 0.5f)
     {
-      Vector2 size = font.CalcTextSizeA(m.FontSize, float.MaxValue, 0f, spec.LeftLabel);
-      draw.AddText(font, m.FontSize, new Vector2(x, trackCenterY - size.Y * 0.5f), ink, spec.LeftLabel);
+      DrawStackedSideLabel(draw, font, m.FontSize, ink, spec.LeftLabel, x, trackCenterY, rightAligned: true);
     }
 
     x += m.LeftLabelWidth + gap;
@@ -120,8 +127,7 @@ public static class CalcSwitchComponent
     x += m.TrackColumnWidth + gap;
     if (m.RightLabelWidth > 0.5f)
     {
-      Vector2 size = font.CalcTextSizeA(m.FontSize, float.MaxValue, 0f, spec.RightLabel);
-      draw.AddText(font, m.FontSize, new Vector2(x, trackCenterY - size.Y * 0.5f), ink, spec.RightLabel);
+      DrawStackedSideLabel(draw, font, m.FontSize, ink, spec.RightLabel, x, trackCenterY, rightAligned: false);
     }
   }
 
@@ -221,11 +227,12 @@ public static class CalcSwitchComponent
     ImFontPtr font = ResolveFont();
     float auxSize = m.FontSize * 0.85f;
 
+    float lineGap = m.FontSize * 0.12f;
     RectF leftLabel = default;
     if (m.LeftLabelWidth > 0.5f)
     {
-      Vector2 size = font.CalcTextSizeA(m.FontSize, float.MaxValue, 0f, spec.LeftLabel);
-      leftLabel = new RectF(leftX, trackCenterY - size.Y * 0.5f, size.X, size.Y);
+      float leftH = MeasureLabelHeight(font, m.FontSize, spec.LeftLabel, lineGap);
+      leftLabel = new RectF(leftX, trackCenterY - leftH * 0.5f, m.LeftLabelWidth, leftH);
     }
 
     float trackW = Calc00dWireStyle.SwitchTrackWidthRefPx * scale;
@@ -257,8 +264,8 @@ public static class CalcSwitchComponent
     if (m.RightLabelWidth > 0.5f)
     {
       float rightX = leftX + m.LeftLabelWidth + gap + m.TrackColumnWidth + gap;
-      Vector2 size = font.CalcTextSizeA(m.FontSize, float.MaxValue, 0f, spec.RightLabel);
-      rightLabel = new RectF(rightX, trackCenterY - size.Y * 0.5f, size.X, size.Y);
+      float rightH = MeasureLabelHeight(font, m.FontSize, spec.RightLabel, lineGap);
+      rightLabel = new RectF(rightX, trackCenterY - rightH * 0.5f, m.RightLabelWidth, rightH);
     }
 
     return new HitLayout(leftLabel, rightLabel, topLabel, botLabel, track, knob, trackCenterX, trackCenterY);
@@ -403,6 +410,68 @@ public static class CalcSwitchComponent
       ? CalcFaceplateFonts.ArialBold
       : (CalcFaceplateFonts.IsReady ? CalcFaceplateFonts.SansBold : ImGui.GetFont());
 
-  private static float MeasureLabel(ImFontPtr font, float fontSize, string text) =>
-    string.IsNullOrEmpty(text) ? 0f : font.CalcTextSizeA(fontSize, float.MaxValue, 0f, text).X;
+  private static float MeasureLabelWidth(ImFontPtr font, float fontSize, string text)
+  {
+    if (string.IsNullOrEmpty(text))
+    {
+      return 0f;
+    }
+
+    float maxW = 0f;
+    foreach (string line in SplitLines(text))
+    {
+      maxW = MathF.Max(maxW, font.CalcTextSizeA(fontSize, float.MaxValue, 0f, line).X);
+    }
+
+    return maxW;
+  }
+
+  private static float MeasureLabelHeight(ImFontPtr font, float fontSize, string text, float lineGap)
+  {
+    if (string.IsNullOrEmpty(text))
+    {
+      return 0f;
+    }
+
+    string[] lines = SplitLines(text);
+    float lineH = font.CalcTextSizeA(fontSize, float.MaxValue, 0f, lines[0]).Y;
+    return lines.Length * lineH + MathF.Max(0, lines.Length - 1) * lineGap;
+  }
+
+  /// <summary>
+  /// Side legends: single line centered on the track, or dual-row stack
+  /// (HP-38E: D.MY above BEGIN / M.DY above END), right-edge aligned on the left side.
+  /// </summary>
+  private static void DrawStackedSideLabel(
+    ImDrawListPtr draw,
+    ImFontPtr font,
+    float fontSize,
+    uint ink,
+    string text,
+    float columnX,
+    float trackCenterY,
+    bool rightAligned)
+  {
+    string[] lines = SplitLines(text);
+    float lineGap = fontSize * 0.12f;
+    float lineH = font.CalcTextSizeA(fontSize, float.MaxValue, 0f, lines[0]).Y;
+    float totalH = lines.Length * lineH + MathF.Max(0, lines.Length - 1) * lineGap;
+    float y = trackCenterY - totalH * 0.5f;
+    float columnW = 0f;
+    foreach (string line in lines)
+    {
+      columnW = MathF.Max(columnW, font.CalcTextSizeA(fontSize, float.MaxValue, 0f, line).X);
+    }
+
+    foreach (string line in lines)
+    {
+      Vector2 size = font.CalcTextSizeA(fontSize, float.MaxValue, 0f, line);
+      float x = rightAligned ? columnX + columnW - size.X : columnX;
+      draw.AddText(font, fontSize, new Vector2(x, y), ink, line);
+      y += lineH + lineGap;
+    }
+  }
+
+  private static string[] SplitLines(string text) =>
+    text.Replace("\r\n", "\n", StringComparison.Ordinal).Split('\n');
 }

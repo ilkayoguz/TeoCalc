@@ -11,6 +11,9 @@ public readonly record struct CalcSwitchLabels(string Left, string Right)
 
   public static CalcSwitchLabels BeginEnd { get; } = new("BEGIN", "END");
 
+  /// <summary>HP-38E/38C dual-row right switch (D.MY/M.DY over BEGIN/END).</summary>
+  public static CalcSwitchLabels DateBeginEnd { get; } = new("D.MY\nBEGIN", "M.DY\nEND");
+
   public static CalcSwitchLabels TimerRun { get; } = new("TIMER", "RUN");
 
   public static CalcSwitchLabels PowerOnly { get; } = new(string.Empty, string.Empty);

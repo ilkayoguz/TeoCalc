@@ -1,6 +1,7 @@
 using TeoCalc.Core;
 using TeoCalc.Core.Catalog;
 using TeoCalc.Rendering;
+using TeoCalc.Rendering.Faceplate;
 
 namespace TeoCalc.Core.Tests;
 
@@ -9,6 +10,10 @@ public sealed class Hp35FaceplateLegendTests
 {
   private static ProgramVocabulary LoadVocabulary() =>
     ProgramVocabulary.Load(TeoCalcPaths.ResourcePath("Engine/HP-35/Program/program.vocabulary.json"));
+
+  private static HpCalcKeyVisual VisualAt(ProgramVocabulary vocabulary, int index) =>
+    ClassicKeyFaceplateLegend.Resolve(
+      "HP-35", "Classic", vocabulary.KeyChart[index], vocabulary, FaceplateLabelStyle.Normal);
 
   [TestMethod]
   public void Family_IsClassic_NotSpice()
@@ -20,40 +25,45 @@ public sealed class Hp35FaceplateLegendTests
   }
 
   [TestMethod]
-  public void PhysicalCells_OmitBlankTopRight_ClassicMap()
+  public void PhysicalCells_IncludeClr_Index4()
   {
     IReadOnlyList<FaceplateCell> cells = CalcFaceplateLayout.GetPhysicalCells("Classic", "HP-35");
-    Assert.IsFalse(cells.Any(c => c.KeyChartIndex == 4));
+    Assert.IsTrue(cells.Any(c => c.KeyChartIndex == 4), "CLR CapAbove requires physical cell index 4");
+    FaceplateCell clr = cells.Single(c => c.KeyChartIndex == 4);
+    Assert.AreEqual(0, clr.Row);
+    Assert.AreEqual(4, clr.Column);
+
     FaceplateCell enter = cells.Single(c => c.KeyChartIndex == 15);
     Assert.AreEqual(2, enter.ColSpan);
     Assert.IsFalse(cells.Any(c => c.KeyChartIndex == 16));
   }
 
   [TestMethod]
-  public void PrimaryLabels_MatchFinsethClassicKeyboard()
+  public void CapFace_BlankOnFunctionRows_EnterAndDigitPadRemain()
   {
     ProgramVocabulary vocabulary = LoadVocabulary();
-    Dictionary<int, string> expected = new()
+    Dictionary<int, string> expectedCapFace = new()
     {
-      [0] = "x^y",
-      [1] = "log",
-      [2] = "ln",
-      [3] = "e^x",
-      // Index 4 = Finseth CLR, but Panamatik KeyCode 0 (omitted physical key).
-      [5] = "\u221ax",
-      [6] = "arc",
-      [7] = "sin",
-      [8] = "cos",
-      [9] = "tan",
-      [10] = "1/x",
-      [11] = "x\u2194y",
-      [12] = "R\u2193",
-      [13] = "STO",
-      [14] = "RCL",
+      // Rows 1–3 + CH S/E EX/CL X: CapFace blank (legends on CapAbove).
+      [0] = "",
+      [1] = "",
+      [2] = "",
+      [3] = "",
+      [4] = "", // CLR — KeyCode 0; CapFace blank
+      [5] = "",
+      [6] = "",
+      [7] = "",
+      [8] = "",
+      [9] = "",
+      [10] = "",
+      [11] = "",
+      [12] = "",
+      [13] = "",
+      [14] = "",
       [15] = "ENTER",
-      [17] = "CHS",
-      [18] = "EEX",
-      [19] = "CLX",
+      [17] = "",
+      [18] = "",
+      [19] = "",
       [20] = "-",
       [21] = "7",
       [25] = "+",
@@ -64,68 +74,154 @@ public sealed class Hp35FaceplateLegendTests
       [38] = "\u03c0",
     };
 
-    foreach ((int index, string label) in expected)
+    foreach ((int index, string label) in expectedCapFace)
     {
       Assert.AreEqual(
         label,
         CalcFaceplateLayout.LabelForKey(vocabulary.KeyChart[index], vocabulary, "Classic", "HP-35"),
-        $"Index {index}");
+        $"CapFace index {index}");
+    }
+  }
+
+  [TestMethod]
+  public void CapAbove_WhiteLegends_MatchUserGrid()
+  {
+    ProgramVocabulary vocabulary = LoadVocabulary();
+    Dictionary<int, string> expectedCapAbove = new()
+    {
+      [0] = "x^y",
+      [1] = "log",
+      [2] = "ln",
+      [3] = "e^x",
+      [4] = "CLR",
+      [5] = "\u221ax",
+      [6] = "arc",
+      [7] = "sin",
+      [8] = "cos",
+      [9] = "tan",
+      [10] = "1/x",
+      [11] = "x\u2194y",
+      [12] = "R\u2193",
+      [13] = "STO",
+      [14] = "RCL",
+      [17] = "CH S",
+      [18] = "E EX",
+      [19] = "CL X",
+    };
+
+    foreach ((int index, string label) in expectedCapAbove)
+    {
+      HpCalcKeyVisual visual = VisualAt(vocabulary, index);
+      Assert.AreEqual(label, visual.GoldShift, $"CapAbove index {index}");
+      Assert.IsTrue(string.IsNullOrEmpty(visual.Primary), $"CapFace blank at {index}");
+      Assert.IsTrue(string.IsNullOrEmpty(visual.BlueShift), $"No blue at {index}");
+      Assert.IsTrue(string.IsNullOrEmpty(visual.BlackShift), $"No black at {index}");
     }
 
     // Finseth note: HP-35 had x^y, not y^x.
-    Assert.AreNotEqual(
-      "y^x",
-      CalcFaceplateLayout.LabelForKey(vocabulary.KeyChart[0], vocabulary, "Classic", "HP-35"));
+    Assert.AreNotEqual("y^x", VisualAt(vocabulary, 0).GoldShift);
   }
 
   [TestMethod]
-  public void CapFace_ClxUsesCapitalMathXPath()
+  public void CapAbove_ClxUsesCapitalMathXPath()
   {
     ProgramVocabulary vocabulary = LoadVocabulary();
-    Assert.AreEqual(
-      "CLX",
-      CalcFaceplateLayout.LabelForKey(vocabulary.KeyChart[19], vocabulary, "Classic", "HP-35"));
-    Assert.IsTrue(HpClassicFaceplateGlyphs.UsesPrefixCapitalMathX("CLX"));
+    Assert.AreEqual("CL X", VisualAt(vocabulary, 19).GoldShift);
+    Assert.IsTrue(HpClassicFaceplateGlyphs.UsesPrefixCapitalMathX("CL X"));
   }
 
   [TestMethod]
-  public void CapFace_XyPower_UsesGlyphPath()
+  public void CapAbove_ChsEex_AreSpacedPlainLabels()
+  {
+    Assert.IsTrue(HpClassicFaceplateGlyphs.IsPlainArialSkirtLabel("CH S"));
+    Assert.IsTrue(HpClassicFaceplateGlyphs.IsPlainArialSkirtLabel("E EX"));
+    Assert.IsFalse(HpClassicFaceplateGlyphs.UsesPrefixCapitalMathX("CH S"));
+    Assert.IsFalse(HpClassicFaceplateGlyphs.UsesPrefixCapitalMathX("E EX"));
+  }
+
+  [TestMethod]
+  public void CapAbove_XyPower_UsesGlyphPath()
   {
     Assert.IsFalse(HpClassicFaceplateGlyphs.IsPlainArialSkirtLabel("x^y"));
   }
 
   [TestMethod]
-  public void NoShiftSkirts_EmptyFaceplateJson()
+  public void CapAbove_XExchange_UsesStackedChevrons()
   {
-    ProgramVocabulary vocabulary = LoadVocabulary();
-    for (int i = 0; i < vocabulary.KeyChart.Count; i++)
-    {
-      if (vocabulary.KeyChart[i].KeyCode == 0)
-      {
-        continue;
-      }
-
-      HpCalcKeyVisual visual = ClassicKeyFaceplateLegend.Resolve(
-        "HP-35", "Classic", vocabulary.KeyChart[i], vocabulary, FaceplateLabelStyle.Normal);
-      Assert.IsTrue(string.IsNullOrEmpty(visual.GoldShift), $"Gold at {i}");
-      Assert.IsTrue(string.IsNullOrEmpty(visual.BlueShift), $"Blue at {i}");
-      Assert.IsTrue(string.IsNullOrEmpty(visual.BlackShift), $"Black at {i}");
-    }
+    Assert.IsTrue(HpClassicFaceplateGlyphs.UsesCardSlotExchangeLabel("x\u2194y"));
   }
 
   [TestMethod]
-  public void KeyColors_BlackFunctions_WhiteDigitPad_NoOrangeBluePrefixes()
+  public void CapAboveInk_IsWhiteNotGold()
   {
+    CalcModelDefinition model = CalcModelCatalog.Resolve("HP-35");
+    Assert.AreEqual(CalcLabelAnchor.CapAbove, CalcModifierPlacement.PrimaryAnchor(model, CalcModifierKey.F));
+    Assert.IsTrue(
+      CalcModifierPlacement.TryGetInkToken(model, CalcModifierKey.F, CalcLabelAnchor.CapAbove, out CalcColorToken ink));
+    Assert.AreEqual(CalcFaceplateTokens.LabelOnDarkCapColor, ink.Name);
+    Assert.AreNotEqual(CalcFaceplateTokens.ModifierFCapAboveColor, ink.Name);
+
+    uint resolved = CalcFaceplateTheme.ResolveAnnotation(CalcModifierKey.F, CalcLabelAnchor.CapAbove, model);
+    uint gold = CalcFaceplateTheme.Resolve(CalcFaceplateTokens.ModifierFCapAboveColor, model);
+    Assert.AreNotEqual(gold, resolved);
+  }
+
+  [TestMethod]
+  public void DigitPad_NoCapAbove_CapFaceOnly()
+  {
+    ProgramVocabulary vocabulary = LoadVocabulary();
+    foreach (int index in new[] { 20, 21, 25, 30, 35, 36, 37, 38 })
+    {
+      HpCalcKeyVisual visual = VisualAt(vocabulary, index);
+      Assert.IsFalse(string.IsNullOrEmpty(visual.Primary), $"CapFace at {index}");
+      Assert.IsTrue(string.IsNullOrEmpty(visual.GoldShift), $"No CapAbove at {index}");
+    }
+
+    Assert.AreEqual("ENTER", VisualAt(vocabulary, 15).Primary);
+    Assert.IsTrue(string.IsNullOrEmpty(VisualAt(vocabulary, 15).GoldShift));
+  }
+
+  [TestMethod]
+  public void KeyColors_BlueExEnterOps_WhiteDigitsPi_BlackFunctions()
+  {
+    // Row1: black except CLR (index 4) blue; e^x (3) black.
     Assert.AreEqual(CalcButtonStyle.Black, CalcFaceplateKeyStyles.StyleForKey("Classic", "HP-35", 0));
-    Assert.AreEqual(CalcButtonStyle.Black, CalcFaceplateKeyStyles.StyleForKey("Classic", "HP-35", 6));
+    Assert.AreEqual(CalcButtonStyle.Black, CalcFaceplateKeyStyles.StyleForKey("Classic", "HP-35", 1));
+    Assert.AreEqual(CalcButtonStyle.Black, CalcFaceplateKeyStyles.StyleForKey("Classic", "HP-35", 2));
+    Assert.AreEqual(CalcButtonStyle.Black, CalcFaceplateKeyStyles.StyleForKey("Classic", "HP-35", 3)); // [1,4] e^x
+    Assert.AreEqual(CalcButtonStyle.Blue, CalcFaceplateKeyStyles.StyleForKey("Classic", "HP-35", 4)); // CLR
+
+    // Row2: √x (5) black; arc sin cos tan (6–9) dark grey.
+    Assert.AreEqual(CalcButtonStyle.Black, CalcFaceplateKeyStyles.StyleForKey("Classic", "HP-35", 5));
+    Assert.AreEqual(CalcButtonStyle.DarkGrey, CalcFaceplateKeyStyles.StyleForKey("Classic", "HP-35", 6));
+    Assert.AreEqual(CalcButtonStyle.DarkGrey, CalcFaceplateKeyStyles.StyleForKey("Classic", "HP-35", 7));
+    Assert.AreEqual(CalcButtonStyle.DarkGrey, CalcFaceplateKeyStyles.StyleForKey("Classic", "HP-35", 8));
+    Assert.AreEqual(CalcButtonStyle.DarkGrey, CalcFaceplateKeyStyles.StyleForKey("Classic", "HP-35", 9)); // tan
+
     Assert.AreEqual(CalcButtonStyle.Black, CalcFaceplateKeyStyles.StyleForKey("Classic", "HP-35", 10));
-    Assert.AreEqual(CalcButtonStyle.Black, CalcFaceplateKeyStyles.StyleForKey("Classic", "HP-35", 15));
+    Assert.AreEqual(CalcButtonStyle.Black, CalcFaceplateKeyStyles.StyleForKey("Classic", "HP-35", 10));
+    Assert.AreEqual(CalcButtonStyle.Black, CalcFaceplateKeyStyles.StyleForKey("Classic", "HP-35", 14));
+
+    // ENTER row blue
+    Assert.AreEqual(CalcButtonStyle.Blue, CalcFaceplateKeyStyles.StyleForKey("Classic", "HP-35", 15));
+    Assert.AreEqual(CalcButtonStyle.Blue, CalcFaceplateKeyStyles.StyleForKey("Classic", "HP-35", 17));
+    Assert.AreEqual(CalcButtonStyle.Blue, CalcFaceplateKeyStyles.StyleForKey("Classic", "HP-35", 18));
+    Assert.AreEqual(CalcButtonStyle.Blue, CalcFaceplateKeyStyles.StyleForKey("Classic", "HP-35", 19));
+
+    // Arithmetic blue
+    Assert.AreEqual(CalcButtonStyle.Blue, CalcFaceplateKeyStyles.StyleForKey("Classic", "HP-35", 20));
+    Assert.AreEqual(CalcButtonStyle.Blue, CalcFaceplateKeyStyles.StyleForKey("Classic", "HP-35", 25));
+    Assert.AreEqual(CalcButtonStyle.Blue, CalcFaceplateKeyStyles.StyleForKey("Classic", "HP-35", 30));
+    Assert.AreEqual(CalcButtonStyle.Blue, CalcFaceplateKeyStyles.StyleForKey("Classic", "HP-35", 35));
+
+    // Digits + · + π white
     Assert.AreEqual(CalcButtonStyle.White, CalcFaceplateKeyStyles.StyleForKey("Classic", "HP-35", 21));
     Assert.AreEqual(CalcButtonStyle.White, CalcFaceplateKeyStyles.StyleForKey("Classic", "HP-35", 36));
-    Assert.AreEqual(CalcButtonStyle.Black, CalcFaceplateKeyStyles.StyleForKey("Classic", "HP-35", 38));
+    Assert.AreEqual(CalcButtonStyle.White, CalcFaceplateKeyStyles.StyleForKey("Classic", "HP-35", 37));
+    Assert.AreEqual(CalcButtonStyle.White, CalcFaceplateKeyStyles.StyleForKey("Classic", "HP-35", 38));
+
     // Must not inherit HP-65 orange f / blue g chart indices.
     Assert.AreNotEqual(CalcButtonStyle.Orange, CalcFaceplateKeyStyles.StyleForKey("Classic", "HP-35", 10));
-    Assert.AreNotEqual(CalcButtonStyle.Blue, CalcFaceplateKeyStyles.StyleForKey("Classic", "HP-35", 14));
   }
 
   [TestMethod]
@@ -138,5 +234,47 @@ public sealed class Hp35FaceplateLegendTests
     ShiftPreviewController preview = new();
     preview.HandleKeyPress(10, "Classic", "HP-35");
     Assert.AreEqual(ShiftPreviewMode.None, preview.Mode);
+  }
+
+  [TestMethod]
+  public void IndexTable_CapFaceCapAboveStyle_MatchesDeliverable()
+  {
+    ProgramVocabulary vocabulary = LoadVocabulary();
+    // Spot-check the full index → CapFace / CapAbove / style contract.
+    (int Index, string CapFace, string? CapAbove, CalcButtonStyle Style)[] rows =
+    [
+      (0, "", "x^y", CalcButtonStyle.Black),
+      (3, "", "e^x", CalcButtonStyle.Black),
+      (4, "", "CLR", CalcButtonStyle.Blue),
+      (5, "", "\u221ax", CalcButtonStyle.Black),
+      (6, "", "arc", CalcButtonStyle.DarkGrey),
+      (7, "", "sin", CalcButtonStyle.DarkGrey),
+      (8, "", "cos", CalcButtonStyle.DarkGrey),
+      (9, "", "tan", CalcButtonStyle.DarkGrey),
+      (11, "", "x\u2194y", CalcButtonStyle.Black),
+      (15, "ENTER", null, CalcButtonStyle.Blue),
+      (17, "", "CH S", CalcButtonStyle.Blue),
+      (18, "", "E EX", CalcButtonStyle.Blue),
+      (19, "", "CL X", CalcButtonStyle.Blue),
+      (20, "-", null, CalcButtonStyle.Blue),
+      (21, "7", null, CalcButtonStyle.White),
+      (38, "\u03c0", null, CalcButtonStyle.White),
+    ];
+
+    foreach ((int index, string capFace, string? capAbove, CalcButtonStyle style) in rows)
+    {
+      HpCalcKeyVisual visual = VisualAt(vocabulary, index);
+      Assert.AreEqual(capFace, visual.Primary, $"CapFace {index}");
+      if (capAbove is null)
+      {
+        Assert.IsTrue(string.IsNullOrEmpty(visual.GoldShift), $"CapAbove empty {index}");
+      }
+      else
+      {
+        Assert.AreEqual(capAbove, visual.GoldShift, $"CapAbove {index}");
+      }
+
+      Assert.AreEqual(style, CalcFaceplateKeyStyles.StyleForKey("Classic", "HP-35", index), $"Style {index}");
+    }
   }
 }

@@ -2,6 +2,25 @@
   "Format": "TeoCalc.KeyFaceplate",
   "SchemaVersion": 1,
   "Model": "HP-35",
-  "Source": "HP-35 Owner's Handbook / Finseth hp35a — Classic (not Spice); no f/g shift keys; CapFace only (early units printed legends above keys as CapFace moldings)",
-  "Keys": {}
+  "Source": "HP-35 Owner's Handbook / user grid — CapAbove white legends on black/blue function keys (no f/g); CapFace blank on those keys; ENTER + digit pad CapFace only; Gold JSON field holds CapAbove text (rendered white via HP-35 AnnotationStyles)",
+  "Keys": {
+    "0":  { "Gold": "x^y" },
+    "1":  { "Gold": "log" },
+    "2":  { "Gold": "ln" },
+    "3":  { "Gold": "e^x" },
+    "4":  { "Gold": "CLR" },
+    "5":  { "Gold": "\u221ax" },
+    "6":  { "Gold": "arc" },
+    "7":  { "Gold": "sin" },
+    "8":  { "Gold": "cos" },
+    "9":  { "Gold": "tan" },
+    "10": { "Gold": "1/x" },
+    "11": { "Gold": "x\u2194y" },
+    "12": { "Gold": "R\u2193" },
+    "13": { "Gold": "STO" },
+    "14": { "Gold": "RCL" },
+    "17": { "Gold": "CH S" },
+    "18": { "Gold": "E EX" },
+    "19": { "Gold": "CL X" }
+  }
 }

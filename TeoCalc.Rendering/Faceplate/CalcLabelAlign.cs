@@ -7,3 +7,9 @@ public enum CalcLabelAlign
   Left,
   Right,
 }
+
+public static class CalcLabelAlignMetrics
+{
+  /// <summary>Extra horizontal inset for dual CapAbove legends (Gold left / Blue or GoldRight right).</summary>
+  public static float DualCapAboveInset(float scale) => scale * 5f;
+}

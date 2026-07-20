@@ -85,7 +85,7 @@ public sealed class Hp34CFaceplateLegendTests
       [6] = ("R\u2191", "R\u2193", "DEL"),
       [7] = ("I", "DSE", "BST"),
       [8] = ("(i)", "ISG", "SST"),
-      [10] = ("PREFIX", "MEM", "MANT"),
+      [10] = ("MEM", "PREFIX", "MANT"),
       [12] = ("PRGM", null, "INT"),
       [13] = ("REG", null, "FRAC"),
       [14] = ("\u03a3", null, "ABS"),
@@ -130,11 +130,32 @@ public sealed class Hp34CFaceplateLegendTests
       "HP-34C", "Spice", vocabulary.KeyChart[10], vocabulary, FaceplateLabelStyle.Normal);
     CalcKeyVisual enterVisual = CalcKeyVisual.FromLegacy(enter, CalcButtonStyle.Black, CalcButtonKind.EnterWide, model);
     Assert.IsTrue(enterVisual.Annotations.Any(a =>
-      a is { Modifier: CalcModifierKey.F, Anchor: CalcLabelAnchor.CapAbove, Text: "PREFIX", Align: CalcLabelAlign.Left }));
+      a is { Modifier: CalcModifierKey.F, Anchor: CalcLabelAnchor.CapAbove, Text: "MEM", Align: CalcLabelAlign.Left }));
     Assert.IsTrue(enterVisual.Annotations.Any(a =>
-      a is { Modifier: CalcModifierKey.G, Anchor: CalcLabelAnchor.CapAbove, Text: "MEM", Align: CalcLabelAlign.Right }));
+      a is { Modifier: CalcModifierKey.G, Anchor: CalcLabelAnchor.CapAbove, Text: "PREFIX", Align: CalcLabelAlign.Right }));
     Assert.IsTrue(enterVisual.Annotations.Any(a =>
       a is { Modifier: CalcModifierKey.H, Anchor: CalcLabelAnchor.CapSkirt, Text: "MANT" }));
+  }
+
+  [TestMethod]
+  public void CapAbove_XExchangeI_UsesCardSlotChevrons()
+  {
+    Assert.IsTrue(HpClassicFaceplateGlyphs.UsesCardSlotExchangeLabel("x\u2194I"));
+    Assert.IsTrue(HpClassicFaceplateGlyphs.UsesCardSlotExchangeLabel("x\u2194(i)"));
+    Assert.IsTrue(HpClassicFaceplateGlyphs.UsesCardSlotExchangeLabel("x\u2194y"));
+    Assert.IsFalse(HpClassicFaceplateGlyphs.IsPlainArialSkirtLabel("x\u2194I"));
+    Assert.IsFalse(HpClassicFaceplateGlyphs.IsPlainArialSkirtLabel("x\u2194(i)"));
+
+    float fontSize = 14f;
+    float cardSlotConnector = CardSlotExchangeArt.MeasureWidth(fontSize);
+    float stackedArrowConnector = fontSize * 0.98f;
+    Assert.IsTrue(cardSlotConnector < stackedArrowConnector);
+  }
+
+  [TestMethod]
+  public void DualCapAbove_Inset_PullsLegendsInward()
+  {
+    Assert.AreEqual(70f, CalcLabelAlignMetrics.DualCapAboveInset(14f));
   }
 
   [TestMethod]

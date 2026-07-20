@@ -2,7 +2,7 @@
   "Format": "TeoCalc.KeyFaceplate",
   "SchemaVersion": 1,
   "Model": "HP-34",
-  "Source": "HP-34C Owner's Handbook / Finseth hp34c — CapAbove left=f (gold); CapAbove right=g (blue); trig CapAbove space-saving: Gold=SIN/COS/TAN + Blue=^-1 (superscript, dual ink); CapSkirt=h (black, contrast ink); CapFace A/B/GSB/f/g and h; CLEAR CapAbove PREFIX+MEM, CapSkirt MANT; Finseth ->D/->R as →D/→R; \\.Syx as ∫yx",
+  "Source": "HP-34C Owner's Handbook / Finseth hp34c — CapAbove left=f (gold); CapAbove right=g (blue); trig CapAbove space-saving: Gold=SIN/COS/TAN + Blue=^-1 (superscript, dual ink); CapSkirt=h (black, contrast ink); CapFace A/B/GSB/f/g and h; CLEAR CapAbove MEM+PREFIX, CapSkirt MANT; Finseth ->D/->R as →D/→R; \\.Syx as ∫yx",
   "Keys": {
     "0":  { "Gold": "FIX", "Blue": "DEG", "Black": "DSP I" },
     "1":  { "Gold": "SCI", "Blue": "RAD", "Black": "RTN" },
@@ -11,7 +11,7 @@
     "6":  { "Gold": "R\u2191", "Blue": "R\u2193", "Black": "DEL" },
     "7":  { "Gold": "I", "Blue": "DSE", "Black": "BST" },
     "8":  { "Gold": "(i)", "Blue": "ISG", "Black": "SST" },
-    "10": { "Gold": "PREFIX", "Blue": "MEM", "Black": "MANT" },
+    "10": { "Gold": "MEM", "Blue": "PREFIX", "Black": "MANT" },
     "12": { "Gold": "PRGM", "Black": "INT" },
     "13": { "Gold": "REG", "Black": "FRAC" },
     "14": { "Gold": "\u03a3", "Black": "ABS" },

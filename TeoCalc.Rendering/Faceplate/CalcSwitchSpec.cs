@@ -72,6 +72,10 @@ public readonly record struct CalcSwitchSpec(
   public static CalcSwitchSpec BeginEnd(int initialIndex = 0) =>
     new("BEGIN", "END", InitialIndex: initialIndex);
 
+  /// <summary>HP-38E/38C: one payment/date switch with dual-row side legends (Finseth).</summary>
+  public static CalcSwitchSpec DateBeginEnd(int initialIndex = 0) =>
+    new("D.MY\nBEGIN", "M.DY\nEND", InitialIndex: initialIndex);
+
   /// <summary>HP-55: TIMER · RUN with PRGM on top (3-position).</summary>
   public static CalcSwitchSpec TimerPrgmRun(int initialIndex = 2) =>
     new("TIMER", "RUN", InitialIndex: initialIndex, TopLabel: "PRGM");

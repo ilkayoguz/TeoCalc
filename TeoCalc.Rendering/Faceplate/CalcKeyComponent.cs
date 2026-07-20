@@ -395,7 +395,9 @@ public static class CalcKeyComponent
     // CapFace / ENTER-row gold already use vector glyphs for √ / →; CapAbove must too
     // (Arial Bold atlas is Latin-1 + π only, so those codepoints become "?").
     HpClassicFaceplateGlyphs.LabelSize textSize = HpClassicFaceplateGlyphs.MeasureBodyLabel(text, fontSize);
-    float inset = scale * 3f;
+    float inset = above && align is CalcLabelAlign.Left or CalcLabelAlign.Right
+      ? CalcLabelAlignMetrics.DualCapAboveInset(scale)
+      : scale * 3f;
     float x = align switch
     {
       CalcLabelAlign.Left => slotMin.X + inset,

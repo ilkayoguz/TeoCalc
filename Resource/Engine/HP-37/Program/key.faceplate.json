@@ -1,0 +1,26 @@
+{
+  "Format": "TeoCalc.KeyFaceplate",
+  "SchemaVersion": 1,
+  "Model": "HP-37",
+  "Source": "HP-37E Owner's Handbook / Finseth hp37e — CapAbove=f (gold only, no blue g); CapFace f at index 9; financial n/i/PV/PMT/FV; STO RCL % %T; ENTER row CHS x↔y CLX (no EEX); Σ+ CapFace; CLEAR CapAbove CL FIN + CL ALL (AMORT on ENTER, R↓ on x↔y)",
+  "Keys": {
+    "0":  { "Gold": "12x" },
+    "1":  { "Gold": "12\u00f7" },
+    "2":  { "Gold": "1/x" },
+    "3":  { "Gold": "\u221ax" },
+    "4":  { "Gold": "y^x" },
+    "5":  { "Gold": "e^x" },
+    "6":  { "Gold": "LN" },
+    "7":  { "Gold": "\u0394%" },
+    "8":  { "Gold": "PRICE" },
+    "10": { "Gold": "AMORT" },
+    "12": { "Gold": "CL FIN" },
+    "13": { "Gold": "R\u2193" },
+    "14": { "Gold": "CL ALL" },
+    "15": { "Gold": "x\u0305" },
+    "20": { "Gold": "s" },
+    "25": { "Gold": "y\u0302,r" },
+    "30": { "Gold": "n!" },
+    "33": { "Gold": "\u03a3-" }
+  }
+}

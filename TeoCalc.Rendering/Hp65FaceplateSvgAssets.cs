@@ -197,6 +197,7 @@ public static class Hp65FaceplateSvgAssets
     string file = style switch
     {
       CalcButtonStyle.Grey => "KeyCap-grey.svg",
+      CalcButtonStyle.DarkGrey => "KeyCap-black.svg",
       CalcButtonStyle.White => "KeyCap-grey.svg",
       CalcButtonStyle.Olive => "KeyCap-grey.svg",
       CalcButtonStyle.Blue => "KeyCap-blue.svg",

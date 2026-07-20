@@ -43,6 +43,8 @@ public static class CalcModelCatalog
     string engineId = CalcModelIds.ToEngineId(engineModelId ?? catalogId);
     bool hp34 = string.Equals(engineId, "HP-34", StringComparison.OrdinalIgnoreCase)
       || string.Equals(catalogId, "HP-34C", StringComparison.OrdinalIgnoreCase);
+    bool hp35 = string.Equals(engineId, "HP-35", StringComparison.OrdinalIgnoreCase)
+      || string.Equals(catalogId, "HP-35", StringComparison.OrdinalIgnoreCase);
 
     return new CalcModelDefinition
     {
@@ -52,8 +54,14 @@ public static class CalcModelCatalog
       BodyLayoutId = bodyLayoutId,
       ModifierKeys = hp34
         ? [CalcModifierKey.F, CalcModifierKey.G, CalcModifierKey.H]
-        : [CalcModifierKey.F, CalcModifierKey.G],
-      AnnotationStyles = hp34 ? CalcModifierPlacement.SpiceFgh : CalcModifierPlacement.ClassicFg,
+        : hp35
+          ? [CalcModifierKey.F]
+          : [CalcModifierKey.F, CalcModifierKey.G],
+      AnnotationStyles = hp34
+        ? CalcModifierPlacement.SpiceFgh
+        : hp35
+          ? CalcModifierPlacement.Hp35WhiteCapAbove
+          : CalcModifierPlacement.ClassicFg,
     };
   }
 

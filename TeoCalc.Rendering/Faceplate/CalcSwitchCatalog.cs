@@ -28,6 +28,13 @@ public static class CalcSwitchCatalog
     CalcSwitchSpec.BeginEnd(initialIndex: 0),
   ];
 
+  /// <summary>HP-38E/38C: OFF·ON + D.MY/M.DY · BEGIN/END (one dual-row switch).</summary>
+  public static IReadOnlyList<CalcSwitchSpec> FinancialDateBeginEnd { get; } =
+  [
+    CalcSwitchSpec.Power(initialIndex: 0),
+    CalcSwitchSpec.DateBeginEnd(initialIndex: 0),
+  ];
+
   /// <summary>HP-55: OFF·ON + TIMER·PRGM·RUN (PRGM on top).</summary>
   public static IReadOnlyList<CalcSwitchSpec> Classic55 { get; } =
   [
@@ -59,7 +66,8 @@ public static class CalcSwitchCatalog
       "55" => Classic55,
       "19" or "19C" => Classic19C,
       "21" => WoodstockAngle,
-      "22" or "37" or "37E" or "38" or "38E" or "38C" => FinancialBeginEnd,
+      "22" or "37" or "37E" => FinancialBeginEnd,
+      "38" or "38E" or "38C" => FinancialDateBeginEnd,
       "25" or "25C" or "29" or "29C" or "33" or "33C" or "33E"
         or "34" or "34C" => WoodstockPrgm,
       "35" or "45" or "70" or "80" or "27"

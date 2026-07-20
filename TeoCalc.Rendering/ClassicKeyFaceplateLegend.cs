@@ -17,10 +17,10 @@ public static class ClassicKeyFaceplateLegend
     FaceplateLabelStyle labelStyle)
   {
     string primary = CalcFaceplateLayout.LabelForKey(key, vocabulary, family, modelId);
-    // HP-65 A–E (indices 10–14) use CalcEnterRowLabels / card-slot overlays instead of JSON gold.
-    // Other models (e.g. HP-01 operator-row gold DW/21/…) must still load those indices.
+    // HP-65/67 A–E (indices 10–14) use card-slot overlays instead of JSON gold.
+    // Other Classic models (HP-35 CapAbove on STO/RCL/…) must still load those indices.
     bool skipJsonForClassicAe =
-      string.Equals(family, "Classic", StringComparison.OrdinalIgnoreCase)
+      IsHp65Or67(modelId)
       && key.Index is >= 10 and <= 14;
     KeyFaceplateEntry? entry = skipJsonForClassicAe ? null : TryGetEntry(modelId, key.Index);
     return new HpCalcKeyVisual(
@@ -32,6 +32,14 @@ public static class ClassicKeyFaceplateLegend
       entry?.Black,
       labelStyle);
   }
+
+  private static bool IsHp65Or67(string modelId) =>
+    string.Equals(modelId, "HP-65", StringComparison.OrdinalIgnoreCase)
+    || string.Equals(modelId, "65", StringComparison.OrdinalIgnoreCase)
+    || string.Equals(modelId, "HP-67", StringComparison.OrdinalIgnoreCase)
+    || string.Equals(modelId, "HP-67BE", StringComparison.OrdinalIgnoreCase)
+    || string.Equals(modelId, "67", StringComparison.OrdinalIgnoreCase)
+    || string.Equals(modelId, "67BE", StringComparison.OrdinalIgnoreCase);
 
   private static KeyFaceplateEntry? TryGetEntry(string modelId, int keyIndex)
   {

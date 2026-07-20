@@ -29,10 +29,17 @@ public static class CalcFaceplateKeyStyles
     if (string.Equals(modelId, "HP-35", StringComparison.OrdinalIgnoreCase)
         || string.Equals(modelId, "35", StringComparison.OrdinalIgnoreCase))
     {
-      // Classic HP-35: no f/g prefixes; black function keys; white digit pad; π black.
+      // Classic HP-35: black rows 1–3 except CLR [1,5]=index 4 blue;
+      // row 2 cols 2–5 (arc sin cos tan) dark grey; √x [2,1] stays black;
+      // blue ENTER row + blue arithmetic; white digits / . / π.
       return keyChartIndex switch
       {
-        21 or 22 or 23 or 26 or 27 or 28 or 31 or 32 or 33 or 36 or 37 => CalcButtonStyle.White,
+        4 => CalcButtonStyle.Blue, // CLR (1-based row1 col5)
+        6 or 7 or 8 or 9 => CalcButtonStyle.DarkGrey, // arc sin cos tan (row2 cols 2–5)
+        15 or 17 or 18 or 19 => CalcButtonStyle.Blue, // ENTER, CHS, EEX, CLX
+        20 or 25 or 30 or 35 => CalcButtonStyle.Blue, // − + × ÷
+        21 or 22 or 23 or 26 or 27 or 28 or 31 or 32 or 33
+          or 36 or 37 or 38 => CalcButtonStyle.White, // digits, ·, π
         _ => CalcButtonStyle.Black,
       };
     }
@@ -83,6 +90,14 @@ public static class CalcFaceplateKeyStyles
       || string.Equals(modelId, "HP-34C", StringComparison.OrdinalIgnoreCase)
       || string.Equals(modelId, "34", StringComparison.OrdinalIgnoreCase)
       || string.Equals(modelId, "34C", StringComparison.OrdinalIgnoreCase);
+    bool hp37 = string.Equals(modelId, "HP-37", StringComparison.OrdinalIgnoreCase)
+      || string.Equals(modelId, "HP-37E", StringComparison.OrdinalIgnoreCase)
+      || string.Equals(modelId, "37", StringComparison.OrdinalIgnoreCase)
+      || string.Equals(modelId, "37E", StringComparison.OrdinalIgnoreCase);
+    bool hp38 = string.Equals(modelId, "HP-38", StringComparison.OrdinalIgnoreCase)
+      || string.Equals(modelId, "HP-38E", StringComparison.OrdinalIgnoreCase)
+      || string.Equals(modelId, "38", StringComparison.OrdinalIgnoreCase)
+      || string.Equals(modelId, "38E", StringComparison.OrdinalIgnoreCase);
 
     if (hp22)
     {
@@ -131,12 +146,24 @@ public static class CalcFaceplateKeyStyles
       };
     }
 
-    if (hp31)
+    if (hp31 || hp37)
     {
-      // HP-31E: gold f only (index 9); black rows 1–3 (incl. ENTER); white pad.
+      // HP-31E / HP-37E: gold f only (index 9); black rows 1–3 (incl. ENTER); white pad.
       return keyChartIndex switch
       {
         9 => CalcButtonStyle.Orange, // gold f CapFace
+        >= 15 and <= 33 => CalcButtonStyle.White,
+        _ => CalcButtonStyle.Black,
+      };
+    }
+
+    if (hp38)
+    {
+      // HP-38E: gold f at 8; blue g at 9; black rows 1–3 (incl. ENTER); white pad.
+      return keyChartIndex switch
+      {
+        8 => CalcButtonStyle.Orange, // gold f CapFace
+        9 => CalcButtonStyle.Blue,   // blue g CapFace
         >= 15 and <= 33 => CalcButtonStyle.White,
         _ => CalcButtonStyle.Black,
       };

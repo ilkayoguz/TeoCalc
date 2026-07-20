@@ -57,7 +57,9 @@ public static class CalcFaceplateLayout
       .Where(cell => cell.KeyChartIndex is not (24 or 29 or 34 or 39)),
   ];
 
-  /// <summary>HP-35/45/55/70 share Classic map but omit blank top-right key (chart index 4).</summary>
+  /// <summary>
+  /// HP-45/55/70 omit chart index 4 (KeyCode 0). HP-35 restores it as CLR CapAbove (Finseth / user grid).
+  /// </summary>
   private static readonly FaceplateCell[] ClassicPhysicalCellsNoTopRight =
     ClassicPhysicalCells.Where(cell => cell.KeyChartIndex != 4).ToArray();
 
@@ -103,8 +105,8 @@ public static class CalcFaceplateLayout
 
   private static bool IsClassicSparseTopRight(string? modelId) =>
     modelId is not null
-    && modelId.ToUpperInvariant() is "HP-35" or "HP-45" or "HP-55" or "HP-70"
-      or "35" or "45" or "55" or "70";
+    && modelId.ToUpperInvariant() is "HP-45" or "HP-55" or "HP-70"
+      or "45" or "55" or "70";
 
   public static string LabelForKey(
     ProgramKeyEntry key,
@@ -251,6 +253,14 @@ public static class CalcFaceplateLayout
       || string.Equals(modelId, "HP-34C", StringComparison.OrdinalIgnoreCase)
       || string.Equals(modelId, "34", StringComparison.OrdinalIgnoreCase)
       || string.Equals(modelId, "34C", StringComparison.OrdinalIgnoreCase);
+    bool hp37 = string.Equals(modelId, "HP-37", StringComparison.OrdinalIgnoreCase)
+      || string.Equals(modelId, "HP-37E", StringComparison.OrdinalIgnoreCase)
+      || string.Equals(modelId, "37", StringComparison.OrdinalIgnoreCase)
+      || string.Equals(modelId, "37E", StringComparison.OrdinalIgnoreCase);
+    bool hp38 = string.Equals(modelId, "HP-38", StringComparison.OrdinalIgnoreCase)
+      || string.Equals(modelId, "HP-38E", StringComparison.OrdinalIgnoreCase)
+      || string.Equals(modelId, "38", StringComparison.OrdinalIgnoreCase)
+      || string.Equals(modelId, "38E", StringComparison.OrdinalIgnoreCase);
 
     // HP-21 Owner's Handbook: blank CapFace on blue prefix; DSP (not R/S); CLx spelling.
     if (hp21)
@@ -472,6 +482,62 @@ public static class CalcFaceplateLayout
       }
     }
 
+    // HP-37E Finseth hp37e / Owner's Handbook: n i PV PMT FV; STO RCL % %T f; CHS x↔y CLX; Σ+ (no EEX/R/S).
+    // Panamatik chart chars stay for binding; CapFace remaps t/p/v and row2/row3/%/#.
+    if (hp37)
+    {
+      string? hp37Label = charValue switch
+      {
+        "n" => "n",
+        "i" => "i",
+        "t" => "PV",
+        "p" => "PMT",
+        "v" => "FV",
+        "y" => "STO",
+        "d" => "RCL",
+        "s" => "%",
+        "r" => "%T",
+        "f" => "f",
+        "h" => "CHS",
+        "%" => "x\u2194y",
+        "\b" => "CLX",
+        "#" => "\u03a3+",
+        _ => null,
+      };
+      if (hp37Label is not null)
+      {
+        return hp37Label;
+      }
+    }
+
+    // HP-38E Finseth hp38e / Owner's Handbook: n i PV PMT FV; STO RCL % f g; CHS x↔y CL X; R/S.
+    // Panamatik chart: r→f, f→g CapFace letters (indices 8/9).
+    if (hp38)
+    {
+      string? hp38Label = charValue switch
+      {
+        "n" => "n",
+        "i" => "i",
+        "t" => "PV",
+        "p" => "PMT",
+        "v" => "FV",
+        "y" => "STO",
+        "d" => "RCL",
+        "s" => "%",
+        "r" => "f",
+        "f" => "g",
+        "h" => "CHS",
+        "%" => "x\u2194y",
+        "\b" => "CL X",
+        "#" => "R/S",
+        _ => null,
+      };
+      if (hp38Label is not null)
+      {
+        return hp38Label;
+      }
+    }
+
     return charValue switch
     {
       "k" => "1/x",
@@ -494,31 +560,16 @@ public static class CalcFaceplateLayout
     || string.Equals(modelId, "35", StringComparison.OrdinalIgnoreCase);
 
   /// <summary>
-  /// HP-35 CapFace (Finseth hp35a). Index-based: chart reuses chars (c=CLR/cos, r=1/x/RCL).
-  /// Classic x^y (not y^x). No shift legends.
+  /// HP-35 CapFace only. Rows 1–3 + CHS/EEX/CLX legends live on CapAbove (key.faceplate.json Gold).
+  /// Index-based: chart reuses chars (c=CLR/cos, r=1/x/RCL). Classic x^y (not y^x).
   /// </summary>
   private static string? Hp35LabelFromIndex(int index, string charValue) =>
     index switch
     {
-      0 => "x^y",
-      1 => "log",
-      2 => "ln",
-      3 => "e^x",
-      4 => "CLR",
-      5 => "\u221ax",
-      6 => "arc",
-      7 => "sin",
-      8 => "cos",
-      9 => "tan",
-      10 => "1/x",
-      11 => "x\u2194y",
-      12 => "R\u2193",
-      13 => "STO",
-      14 => "RCL",
+      // CapAbove-only function keys (blank CapFace).
+      >= 0 and <= 14 => string.Empty,
+      17 or 18 or 19 => string.Empty,
       15 or 16 => "ENTER",
-      17 => "CHS",
-      18 => "EEX",
-      19 => "CLX",
       38 => "\u03c0",
       _ => charValue switch
       {

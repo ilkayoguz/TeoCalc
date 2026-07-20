@@ -13,6 +13,8 @@ public enum CalcButtonStyle
   Blue,
   /// <summary>HP-27 Woodstock rows 1–3 function keys (olive khaki).</summary>
   Olive,
+  /// <summary>HP-35 row 2 inverse-trig keys (charcoal grey, lighter than black).</summary>
+  DarkGrey,
 }
 
 /// <summary>HP key cap — procedural Key2 geometry; labels drawn at runtime.</summary>
@@ -472,21 +474,24 @@ public static class CalcButton
     float scale)
   {
     (Vector2 bottomMin, Vector2 bottomMax) = cap.BottomBand;
-    float bottomHeight = bottomMax.Y - bottomMin.Y;
-    // CapSkirt slot size: shrink-to-fit only (never grow past band); keep below CapFace.
-    fontSize = MathF.Min(fontSize, bottomHeight * 0.82f);
-    // Slight upward bias so ink clears the cap lip.
-    Vector2 bottomNudge = new(0f, -scale * 0.35f);
+    float bottomHeight = MathF.Max(1f, bottomMax.Y - bottomMin.Y);
+    // Equal top/bottom inset so CapSkirt ink sits centered in the skirt band (not flush to the lip).
+    float vInset = MathF.Max(scale * 0.55f, bottomHeight * 0.14f);
+    Vector2 bandMin = new(bottomMin.X, bottomMin.Y + vInset);
+    Vector2 bandMax = new(bottomMax.X, bottomMax.Y - vInset);
+    float usableH = MathF.Max(1f, bandMax.Y - bandMin.Y);
+    // CapSkirt slot size: shrink-to-fit only (never grow past padded band); keep below CapFace.
+    fontSize = MathF.Min(fontSize, usableH * 0.92f);
     if (kind == CalcButtonKind.EnterWide)
     {
       float pad = scale * 2.5f;
-      Vector2 topLeft = CalcFaceplateFonts.ArialBoldTopLeftForBand(bottomMin + bottomNudge, bottomMax + bottomNudge, text, fontSize, verticalBiasRatio: 0f);
+      Vector2 topLeft = CalcFaceplateFonts.ArialBoldTopLeftForBand(bandMin, bandMax, text, fontSize, verticalBiasRatio: 0f);
       CalcFaceplateFonts.FontInkBounds ink = CalcFaceplateFonts.MeasureArialBoldInk(text, fontSize);
-      topLeft.X = bottomMax.X - pad - (ink.Left + ink.Width);
+      topLeft.X = bandMax.X - pad - (ink.Left + ink.Width);
       HpClassicFaceplateGlyphs.DrawArialBoldGlyph(draw, text, topLeft.X, topLeft.Y, fontSize, color);
       return;
     }
 
-    HpClassicFaceplateGlyphs.DrawSkirtLabelInRect(draw, bottomMin + bottomNudge, bottomMax + bottomNudge, text, fontSize, color, scale);
+    HpClassicFaceplateGlyphs.DrawSkirtLabelInRect(draw, bandMin, bandMax, text, fontSize, color, scale);
   }
 }

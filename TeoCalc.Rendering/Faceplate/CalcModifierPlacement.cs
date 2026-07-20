@@ -14,6 +14,14 @@ public static class CalcModifierPlacement
     new(CalcModifierKey.G, CalcLabelAnchor.CapSkirt, CalcKeyColorPalette.ModifierGOnCapSkirt),
   ];
 
+  /// <summary>
+  /// HP-35: CapAbove legends only (no f/g). Ink is cream/white on black and blue keys — not gold.
+  /// </summary>
+  public static IReadOnlyList<CalcModifierAnnotationStyle> Hp35WhiteCapAbove { get; } =
+  [
+    new(CalcModifierKey.F, CalcLabelAnchor.CapAbove, CalcKeyColorPalette.LabelOnDarkCap),
+  ];
+
   /// <summary>HP-34C: f CapAbove left (gold), g CapAbove right (blue), h CapSkirt (black).</summary>
   public static IReadOnlyList<CalcModifierAnnotationStyle> SpiceFgh { get; } =
   [

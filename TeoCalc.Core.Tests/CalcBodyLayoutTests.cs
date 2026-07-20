@@ -69,7 +69,9 @@ public sealed class CalcBodyLayoutTests
     Assert.AreEqual(CalcSwitchLabels.WoodstockPrgmRun, CalcSwitchLabels.ForModelId("34C"));
     Assert.AreEqual(CalcSwitchLabels.WoodstockAngle, CalcSwitchLabels.ForModelId("21"));
     Assert.AreEqual(CalcSwitchLabels.BeginEnd, CalcSwitchLabels.ForModelId("22"));
-    Assert.AreEqual(CalcSwitchLabels.BeginEnd, CalcSwitchLabels.ForModelId("38E"));
+    Assert.AreEqual(CalcSwitchLabels.BeginEnd, CalcSwitchLabels.ForModelId("37E"));
+    Assert.AreEqual(CalcSwitchLabels.DateBeginEnd, CalcSwitchLabels.ForModelId("38E"));
+    Assert.AreEqual(CalcSwitchLabels.DateBeginEnd, CalcSwitchLabels.ForModelId("38"));
     Assert.AreEqual(CalcSwitchLabels.TimerRun, CalcSwitchLabels.ForModelId("55"));
     Assert.AreEqual(new CalcSwitchLabels("MAN", "NORM"), CalcSwitchLabels.ForModelId("19C"));
     Assert.AreEqual(CalcSwitchLabels.PowerOnly, CalcSwitchLabels.ForModelId("35"));
@@ -110,6 +112,22 @@ public sealed class CalcBodyLayoutTests
     Assert.AreEqual("MAN", bank[1].LeftLabel);
     Assert.AreEqual("NORM", bank[1].RightLabel);
     Assert.AreEqual("TRACE", bank[1].BottomLabel);
+  }
+
+  [TestMethod]
+  public void SwitchCatalog_Hp38E_HasDualRowDateBeginEnd()
+  {
+    IReadOnlyList<CalcSwitchSpec> bank = CalcSwitchCatalog.ForModelId("38E");
+    Assert.AreEqual(2, bank.Count);
+    Assert.AreEqual("OFF", bank[0].LeftLabel);
+    Assert.AreEqual("ON", bank[0].RightLabel);
+    Assert.AreEqual("D.MY\nBEGIN", bank[1].LeftLabel);
+    Assert.AreEqual("M.DY\nEND", bank[1].RightLabel);
+    Assert.AreEqual(2, bank[1].PositionCount);
+
+    IReadOnlyList<CalcSwitchSpec> hp37 = CalcSwitchCatalog.ForModelId("37E");
+    Assert.AreEqual("BEGIN", hp37[1].LeftLabel);
+    Assert.AreEqual("END", hp37[1].RightLabel);
   }
 
   [TestMethod]
@@ -197,13 +215,14 @@ public sealed class CalcBodyLayoutTests
   }
 
   [TestMethod]
-  public void Modern00d_Hp35_TopRow_FlushesWithoutBlankKey()
+  public void Modern00d_Hp35_TopRow_IncludesClrAndFlushes()
   {
     CalcModelDefinition model = CalcModelCatalog.Resolve("HP-35");
     CalcBodyLayout layout = Calc00dBodyLayout.Resolve("Classic", "HP-35", model);
-    Assert.IsFalse(CalcFaceplateLayout.GetPhysicalCells("Classic", "HP-35").Any(cell => cell.KeyChartIndex == 4));
+    IReadOnlyList<FaceplateCell> cells = CalcFaceplateLayout.GetPhysicalCells("Classic", "HP-35");
+    Assert.IsTrue(cells.Any(cell => cell.KeyChartIndex == 4));
     Assert.IsTrue(layout.TryGetKeySlot(0, out RectF left));
-    Assert.IsTrue(layout.TryGetKeySlot(3, out RectF right));
+    Assert.IsTrue(layout.TryGetKeySlot(4, out RectF right));
     Assert.AreEqual(0f, left.X - layout.KeypadSlot.X, 0.05f);
     Assert.AreEqual(0f, layout.KeypadSlot.X + layout.KeypadSlot.Width - (right.X + right.Width), 0.05f);
   }

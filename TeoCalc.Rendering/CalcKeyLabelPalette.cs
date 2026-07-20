@@ -12,12 +12,12 @@ public static class CalcKeyLabelPalette
   public static uint SkirtBlueDark => CalcFaceplateTheme.Resolve(CalcFaceplateTokens.SkirtBlueDarkColor);
 
   public static uint GoldOnCap(CalcButtonStyle style) =>
-    style is CalcButtonStyle.Black or CalcButtonStyle.Blue
+    style is CalcButtonStyle.Black or CalcButtonStyle.Blue or CalcButtonStyle.DarkGrey
       ? GoldOnBody
       : CalcChassisPalette.KeyOrangeSkirt;
 
   public static uint BlueOnCap(CalcButtonStyle style) =>
-    style is CalcButtonStyle.Black or CalcButtonStyle.Blue
+    style is CalcButtonStyle.Black or CalcButtonStyle.Blue or CalcButtonStyle.DarkGrey
       ? BlueOnSkirt
       : SkirtBlueDark;
 
@@ -44,12 +44,12 @@ public static class CalcKeyLabelPalette
 
     if (IsProgramRowComparisonLabel(label))
     {
-      return style is CalcButtonStyle.Black or CalcButtonStyle.Blue
+      return style is CalcButtonStyle.Black or CalcButtonStyle.Blue or CalcButtonStyle.DarkGrey
         ? BlueOnSkirt
         : SkirtBlueDark;
     }
 
-    return style is CalcButtonStyle.Black or CalcButtonStyle.Blue
+    return style is CalcButtonStyle.Black or CalcButtonStyle.Blue or CalcButtonStyle.DarkGrey
       ? BlueOnSkirt
       : SkirtBlueDark;
   }
@@ -102,13 +102,14 @@ public static class CalcKeyLabelPalette
     {
       CalcButtonStyle.Blue => CalcChassisPalette.KeyCapDarkText,
       CalcButtonStyle.Black => CalcChassisPalette.KeyText,
+      CalcButtonStyle.DarkGrey => CalcChassisPalette.KeyText,
       CalcButtonStyle.White => CalcChassisPalette.KeyCapDarkText,
       CalcButtonStyle.Olive => CalcChassisPalette.KeyCapDarkText,
       _ => CalcChassisPalette.KeyCapDarkText,
     };
 
   public static uint SkirtOnCap(CalcButtonStyle style) =>
-    style is CalcButtonStyle.Black or CalcButtonStyle.Blue
+    style is CalcButtonStyle.Black or CalcButtonStyle.Blue or CalcButtonStyle.DarkGrey
       ? CalcChassisPalette.KeyText
       : CalcChassisPalette.KeyCapDarkText;
 }

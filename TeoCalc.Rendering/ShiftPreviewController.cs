@@ -64,10 +64,21 @@ public sealed class ShiftPreviewController
 
     if (IsWoodstock(family))
     {
-      if (IsHp22(modelId) || IsHp31(modelId))
+      if (IsHp22(modelId) || IsHp31(modelId) || IsHp37(modelId))
       {
-        // HP-22 / HP-31E: single gold prefix at chart index 9 (HP-22 blank CapFace; HP-31E letter f).
+        // HP-22 / HP-31E / HP-37E: single gold prefix at chart index 9.
         return mode == ShiftPreviewMode.Gold ? 9 : -1;
+      }
+
+      if (IsHp38(modelId))
+      {
+        // HP-38E: gold f at 8, blue g at 9.
+        return mode switch
+        {
+          ShiftPreviewMode.Gold => 8,
+          ShiftPreviewMode.Blue => 9,
+          _ => -1,
+        };
       }
 
       if (IsHp34(modelId))
@@ -128,9 +139,14 @@ public sealed class ShiftPreviewController
 
     if (IsWoodstock(family))
     {
-      if (IsHp22(modelId) || IsHp31(modelId))
+      if (IsHp22(modelId) || IsHp31(modelId) || IsHp37(modelId))
       {
         return keyChartIndex == 9;
+      }
+
+      if (IsHp38(modelId))
+      {
+        return keyChartIndex is 8 or 9;
       }
 
       if (IsHp34(modelId))
@@ -174,9 +190,19 @@ public sealed class ShiftPreviewController
 
     if (IsWoodstock(family))
     {
-      if (IsHp22(modelId) || IsHp31(modelId))
+      if (IsHp22(modelId) || IsHp31(modelId) || IsHp37(modelId))
       {
         return keyChartIndex == 9 ? ShiftPreviewMode.Gold : ShiftPreviewMode.None;
+      }
+
+      if (IsHp38(modelId))
+      {
+        return keyChartIndex switch
+        {
+          8 => ShiftPreviewMode.Gold,
+          9 => ShiftPreviewMode.Blue,
+          _ => ShiftPreviewMode.None,
+        };
       }
 
       if (IsHp34(modelId))
@@ -265,6 +291,18 @@ public sealed class ShiftPreviewController
     || string.Equals(modelId, "HP-34C", StringComparison.OrdinalIgnoreCase)
     || string.Equals(modelId, "34", StringComparison.OrdinalIgnoreCase)
     || string.Equals(modelId, "34C", StringComparison.OrdinalIgnoreCase);
+
+  private static bool IsHp37(string? modelId) =>
+    string.Equals(modelId, "HP-37", StringComparison.OrdinalIgnoreCase)
+    || string.Equals(modelId, "HP-37E", StringComparison.OrdinalIgnoreCase)
+    || string.Equals(modelId, "37", StringComparison.OrdinalIgnoreCase)
+    || string.Equals(modelId, "37E", StringComparison.OrdinalIgnoreCase);
+
+  private static bool IsHp38(string? modelId) =>
+    string.Equals(modelId, "HP-38", StringComparison.OrdinalIgnoreCase)
+    || string.Equals(modelId, "HP-38E", StringComparison.OrdinalIgnoreCase)
+    || string.Equals(modelId, "38", StringComparison.OrdinalIgnoreCase)
+    || string.Equals(modelId, "38E", StringComparison.OrdinalIgnoreCase);
 
   private static bool IsHp35(string? modelId) =>
     string.Equals(modelId, "HP-35", StringComparison.OrdinalIgnoreCase)

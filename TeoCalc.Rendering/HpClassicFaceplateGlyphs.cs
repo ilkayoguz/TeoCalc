@@ -90,7 +90,10 @@ public static class HpClassicFaceplateGlyphs
   private static float MathGlyphWidth(string text, float size) =>
     CalcFaceplateFonts.IsMathReady ? CalcFaceplateFonts.MathWidth(text, size) : size * 0.48f;
 
-  private static float MeasureDeltaWidth(float fontSize) => fontSize * 0.72f;
+  private static float MeasureDeltaWidth(float fontSize) => fontSize * 0.72f + MeasureDeltaTrailGap(fontSize);
+
+  /// <summary>Gap between hollow Δ and following CapAbove text (ΔDAYS / Δ%).</summary>
+  private static float MeasureDeltaTrailGap(float fontSize) => fontSize * 0.16f;
 
   private static float MeasureYHatWidth(float fontSize) => MathGlyphWidth("y", fontSize);
 
@@ -122,7 +125,7 @@ public static class HpClassicFaceplateGlyphs
       return MeasureKeyFaceMultiply(fontSize * 1.22f);
     }
 
-    if (text is "CLX" or "CLx")
+    if (text is "CL X" or "CLX" or "CLx")
     {
       return new(
         PlainGlyphWidth("CL", fontSize) + MathGlyphWidth("X", fontSize),
@@ -227,9 +230,9 @@ public static class HpClassicFaceplateGlyphs
     int i = 0;
     while (i < text.Length)
     {
-      if (TryConsumeClX(text, ref i, out _))
+      if (TryConsumeClX(text, ref i, out string clPrefix))
       {
-        float w = PlainGlyphWidth("CL", fontSize) + MathGlyphWidth("X", fontSize);
+        float w = PlainGlyphWidth(clPrefix, fontSize) + MathGlyphWidth("X", fontSize);
         Vector2 xDim = MathGlyphSize("X", fontSize * 1.05f);
         union = CalcFaceplateBandLabel.Union(union, CalcFaceplateBandLabel.BoxAt(x, rowMidY - xDim.Y * 0.5f, w, MathF.Max(fontSize * 0.92f, xDim.Y)));
         x += w;
@@ -266,6 +269,40 @@ public static class HpClassicFaceplateGlyphs
         float w = MeasureInverseXWidth(fontSize);
         union = CalcFaceplateBandLabel.Union(union, CalcFaceplateBandLabel.BoxAt(x, rowMidY - fontSize * 0.6f, w, fontSize * 1.2f));
         x += w;
+        continue;
+      }
+
+      if (TryConsume(text, ref i, "\u0394", out _) || TryConsume(text, ref i, "Δ", out _)
+        || TryConsume(text, ref i, "\u2206", out _) || TryConsume(text, ref i, "∆", out _))
+      {
+        float w = MeasureDeltaWidth(fontSize);
+        union = CalcFaceplateBandLabel.Union(union, CalcFaceplateBandLabel.BoxAt(x, rowMidY - fontSize * 0.5f, w, fontSize));
+        x += w;
+        continue;
+      }
+
+      if (TryConsumeWeightedMeanXBar(text, ref i))
+      {
+        Vector2 dim = MathGlyphSize("X", fontSize);
+        float w = MeasureWeightedMeanXBarWidth(fontSize);
+        union = CalcFaceplateBandLabel.Union(union, CalcFaceplateBandLabel.BoxAt(x, rowMidY - dim.Y * 0.5f, w, dim.Y));
+        x += w;
+        continue;
+      }
+
+      if (TryConsumeCapitalMeanXBar(text, ref i))
+      {
+        Vector2 dim = MathGlyphSize("X", fontSize);
+        union = CalcFaceplateBandLabel.Union(union, CalcFaceplateBandLabel.BoxAt(x, rowMidY - dim.Y * 0.5f, dim.X, dim.Y));
+        x += dim.X;
+        continue;
+      }
+
+      if (TryConsume(text, ref i, "x\u0305", out _) || TryConsume(text, ref i, "x\u0304", out _))
+      {
+        Vector2 dim = MathGlyphSize("x", fontSize);
+        union = CalcFaceplateBandLabel.Union(union, CalcFaceplateBandLabel.BoxAt(x, rowMidY - dim.Y * 0.5f, dim.X, dim.Y));
+        x += dim.X;
         continue;
       }
 
@@ -449,6 +486,10 @@ public static class HpClassicFaceplateGlyphs
 
   public static LabelSize MeasureBodyLabel(string text, float fontSize) =>
     new(MeasureWidth(text, fontSize, skirtArial: true), fontSize * 0.92f);
+
+  /// <summary>True when label uses card-slot stacked exchange chevrons (CapFace x↔y style), not HP-01 ↔ shafts.</summary>
+  public static bool UsesCardSlotExchangeLabel(string text) =>
+    text is "x\u2194y" or "x\u2194I" or "x\u2194(i)";
 
   public static void DrawBodyLabel(
     ImDrawListPtr draw,
@@ -706,10 +747,10 @@ public static class HpClassicFaceplateGlyphs
     int i = 0;
     while (i < text.Length)
     {
-      if (TryConsumeClX(text, ref i, out _))
+      if (TryConsumeClX(text, ref i, out string clPrefix))
       {
         x += DrawPrefixCapitalMathX(
-          draw, x, y, fontSize, color, scale, "CL", bold, keyFaceArialBold, skirtArial, skirtBand, bandAlign, rowMidY, useRowMid, bandMode);
+          draw, x, y, fontSize, color, scale, clPrefix, bold, keyFaceArialBold, skirtArial, skirtBand, bandAlign, rowMidY, useRowMid, bandMode);
         continue;
       }
 
@@ -724,6 +765,20 @@ public static class HpClassicFaceplateGlyphs
       {
         float top = useRowMid ? rowMidY - fontSize * 0.55f : y + mathYOffset;
         x += DrawXExchangeYAt(draw, x, top, fontSize, color, scale, widen: useRowMid);
+        continue;
+      }
+
+      if (TryConsume(text, ref i, "x\u2194I", out _))
+      {
+        float top = useRowMid ? rowMidY - fontSize * 0.55f : y + mathYOffset;
+        x += DrawXExchangeSuffixAt(draw, x, top, fontSize, color, scale, "I", widen: useRowMid);
+        continue;
+      }
+
+      if (TryConsume(text, ref i, "x\u2194(i)", out _))
+      {
+        float top = useRowMid ? rowMidY - fontSize * 0.55f : y + mathYOffset;
+        x += DrawXExchangeSuffixAt(draw, x, top, fontSize, color, scale, parenthesizedMathI: true, widen: useRowMid);
         continue;
       }
 
@@ -854,7 +909,10 @@ public static class HpClassicFaceplateGlyphs
         || TryConsume(text, ref i, "\u2206", out _) || TryConsume(text, ref i, "∆", out _))
       {
         float drawY = useRowMid ? rowMidY - fontSize * 0.5f : y;
-        x += DrawDeltaTriangle(draw, x, drawY, fontSize, color, bandMode || useRowMid);
+        // CapAbove bandAlign: share optical mid with following Arial run (DAYS / %).
+        bool bodyBand = bandAlign && !skirtBand;
+        x += DrawDeltaTriangle(draw, x, drawY, fontSize, color, bandMode || useRowMid, bodyBand);
+        x += MeasureDeltaTrailGap(fontSize);
         continue;
       }
 
@@ -872,11 +930,29 @@ public static class HpClassicFaceplateGlyphs
         continue;
       }
 
+      // HP-38E ÷ CapSkirt: weighted mean x̄w → capital math-italic X̄ + space + plain w.
+      if (TryConsumeWeightedMeanXBar(text, ref i))
+      {
+        float drawY = useRowMid ? rowMidY - fontSize * 0.5f : y;
+        x += DrawXBar(draw, x, drawY, fontSize, color, scale, bandMode || useRowMid, capital: true);
+        x += fontSize * 0.10f;
+        x += DrawPlainRun(draw, "w", x, drawY, fontSize, color, bold, keyFaceArialBold, skirtArial, skirtBand, bandAlign, rowMidY, useRowMid);
+        continue;
+      }
+
+      // HP-38E 0 CapSkirt: unweighted mean X̄ (capital math-italic X with overline).
+      if (TryConsumeCapitalMeanXBar(text, ref i))
+      {
+        float drawY = useRowMid ? rowMidY - fontSize * 0.5f : y;
+        x += DrawXBar(draw, x, drawY, fontSize, color, scale, bandMode || useRowMid, capital: true);
+        continue;
+      }
+
       // HP-19C: x̄, Σ / Σ+ / Σ-, →R / →P / →H / →H.MS, x<0 / x>0 / x≠0 / x=0
       if (TryConsume(text, ref i, "x\u0305", out _) || TryConsume(text, ref i, "x\u0304", out _))
       {
         float drawY = useRowMid ? rowMidY - fontSize * 0.5f : y;
-        x += DrawXBar(draw, x, drawY, fontSize, color, scale, bandMode || useRowMid);
+        x += DrawXBar(draw, x, drawY, fontSize, color, scale, bandMode || useRowMid, capital: false);
         continue;
       }
 
@@ -1364,6 +1440,46 @@ public static class HpClassicFaceplateGlyphs
     return xW + gap + symW + gap + MathGlyphWidth("y", xSize);
   }
 
+  private static float DrawXExchangeSuffixAt(
+    ImDrawListPtr draw,
+    float x,
+    float y,
+    float fontSize,
+    uint color,
+    float scale,
+    string suffix = "I",
+    bool parenthesizedMathI = false,
+    bool widen = false)
+  {
+    float xSize = fontSize * CardSlotMathXScale * (widen ? 1.08f : 1f);
+    Vector2 xDim = MathGlyphSize("x", xSize);
+    float xW = DrawCardSlotMathX(draw, x, y, xSize, color);
+    float gap = fontSize * (widen ? 0.14f : 0.06f);
+    float centerY = y + xDim.Y * 0.58f;
+    float symW = CardSlotExchangeArt.Draw(draw, x + xW + gap, centerY, xDim.Y, scale, color);
+    float suffixX = x + xW + gap + symW + gap;
+    float suffixW = parenthesizedMathI
+      ? DrawParenthesizedMathIAt(draw, suffixX, y, fontSize, color, widen)
+      : DrawArialBoldGlyph(draw, suffix, suffixX, y, fontSize, color);
+    return xW + gap + symW + gap + suffixW;
+  }
+
+  private static float DrawParenthesizedMathIAt(
+    ImDrawListPtr draw,
+    float x,
+    float y,
+    float fontSize,
+    uint color,
+    bool useRowMid)
+  {
+    float parenW = DrawArialBoldGlyph(draw, "(", x, y, fontSize, color);
+    Vector2 iDim = MathGlyphSize("i", fontSize);
+    float iTop = useRowMid ? y + fontSize * 0.5f - iDim.Y * 0.5f : y;
+    float iW = DrawMathGlyph(draw, "i", x + parenW, iTop, fontSize, color);
+    float closeW = DrawArialBoldGlyph(draw, ")", x + parenW + iW, y, fontSize, color);
+    return parenW + iW + closeW;
+  }
+
   private static float PlainGlyphWidth(string text, float size) =>
     PlainGlyphSize(text, size).X;
 
@@ -1707,11 +1823,23 @@ public static class HpClassicFaceplateGlyphs
   }
 
   /// <summary>HP-01 shift/store key face and HP-22 Δ%: hollow outline triangle (not math-font Δ).</summary>
-  private static float DrawDeltaTriangle(ImDrawListPtr draw, float x, float y, float fontSize, uint color, bool bandMode = false)
+  private static float DrawDeltaTriangle(
+    ImDrawListPtr draw,
+    float x,
+    float y,
+    float fontSize,
+    uint color,
+    bool bandMode = false,
+    bool bodyBand = false)
   {
     float w = fontSize * 0.72f;
     float h = fontSize * 0.62f;
-    float midY = bandMode ? y + fontSize * 0.5f : y + fontSize * 0.35f;
+    // CapAbove body band: optical mid matches Arial run at y + 0.08·fs (ink mid ≈ +0.42·fs).
+    float midY = bodyBand
+      ? y + fontSize * 0.50f
+      : bandMode
+        ? y + fontSize * 0.5f
+        : y + fontSize * 0.35f;
     float top = midY - h * 0.55f;
     float bottom = midY + h * 0.45f;
     float cx = x + w * 0.5f;
@@ -1777,7 +1905,7 @@ public static class HpClassicFaceplateGlyphs
     return w;
   }
 
-  /// <summary>HP-19C mean legend: lowercase italic x with overline snug to painted ink.</summary>
+  /// <summary>Mean / weighted-mean legend: math-italic x (or capital X) with overline snug to painted ink.</summary>
   private static float DrawXBar(
     ImDrawListPtr draw,
     float x,
@@ -1785,26 +1913,30 @@ public static class HpClassicFaceplateGlyphs
     float fontSize,
     uint color,
     float scale,
-    bool bandMode)
+    bool bandMode,
+    bool capital = false)
   {
+    string glyph = capital ? "X" : "x";
     float midY = bandMode ? y + fontSize * 0.5f : y + fontSize * 0.4f;
-    Vector2 dim = MathGlyphSize("x", fontSize);
-    CalcFaceplateFonts.FontInkBounds ink = CalcFaceplateFonts.MeasureMathInk("x", fontSize);
+    Vector2 dim = MathGlyphSize(glyph, fontSize);
+    CalcFaceplateFonts.FontInkBounds ink = CalcFaceplateFonts.MeasureMathInk(glyph, fontSize);
     float top = CalcFaceplateFonts.IsMathReady && ink.Height > 0.01f
       ? midY - ink.Top - ink.Height * 0.5f
       : midY - dim.Y * 0.5f;
-    float w = DrawMathX(draw, x, top, fontSize, color, scale);
+    float w = capital
+      ? DrawMathGlyph(draw, "X", x, top, fontSize, color)
+      : DrawMathX(draw, x, top, fontSize, color, scale);
     float stroke = MathF.Max(1.05f, fontSize * 0.08f);
     // Glyph Y0 is the font cell top; lowercase x strokes sit lower inside the cell.
     float visualTop = top;
     if (CalcFaceplateFonts.IsMathReady && ink.Height > 0.01f)
     {
       float descenderBand = MathF.Max(0f, dim.Y - ink.Top - ink.Height);
-      visualTop = top + ink.Top + descenderBand * 0.20f + ink.Height * 0.11f;
+      visualTop = top + ink.Top + descenderBand * 0.20f + ink.Height * (capital ? 0.06f : 0.11f);
     }
     else
     {
-      visualTop = top + dim.Y * 0.22f;
+      visualTop = top + dim.Y * (capital ? 0.12f : 0.22f);
     }
 
     float barY = visualTop - stroke * 0.10f;
@@ -2084,6 +2216,16 @@ public static class HpClassicFaceplateGlyphs
       + CardSlotExchangeArt.MeasureWidth(fontSize)
       + gap
       + MathGlyphWidth("y", xSize);
+  }
+
+  private static float MeasureXExchangeSuffixWidth(float fontSize, bool widen, bool parenthesizedMathI = false, string suffix = "I")
+  {
+    float xSize = fontSize * CardSlotMathXScale * (widen ? 1.08f : 1f);
+    float gap = fontSize * (widen ? 0.14f : 0.06f);
+    float suffixW = parenthesizedMathI
+      ? ArialBoldGlyphWidth("(", fontSize) + MathGlyphWidth("i", fontSize) + ArialBoldGlyphWidth(")", fontSize)
+      : ArialBoldGlyphWidth(suffix, fontSize);
+    return MathGlyphWidth("x", xSize) + gap + CardSlotExchangeArt.MeasureWidth(fontSize) + gap + suffixW;
   }
 
   private static float MeasureSqrtXWidth(float fontSize) =>
@@ -2593,9 +2735,11 @@ public static class HpClassicFaceplateGlyphs
     int i = 0;
     while (i < text.Length)
     {
-      if (TryConsumeClX(text, ref i, out _)) { width += PlainGlyphWidth("CL", fontSize) + MathGlyphWidth("X", fontSize); continue; }
+      if (TryConsumeClX(text, ref i, out string clPrefix)) { width += PlainGlyphWidth(clPrefix, fontSize) + MathGlyphWidth("X", fontSize); continue; }
       if (TryConsume(text, ref i, "PRx", out _)) { width += PlainGlyphWidth("PR", fontSize) + MathGlyphWidth("X", fontSize); continue; }
       if (TryConsume(text, ref i, "x\u2194y", out _)) { width += MeasureXExchangeYWidth(fontSize, widen: true); continue; }
+      if (TryConsume(text, ref i, "x\u2194I", out _)) { width += MeasureXExchangeSuffixWidth(fontSize, widen: true); continue; }
+      if (TryConsume(text, ref i, "x\u2194(i)", out _)) { width += MeasureXExchangeSuffixWidth(fontSize, widen: true, parenthesizedMathI: true); continue; }
       if (TryConsume(text, ref i, "x\u2260y", out _)) { width += fontSize * 2.05f; continue; }
       if (TryConsume(text, ref i, "x\u2264y", out _)) { width += fontSize * 2.05f; continue; }
       if (TryConsume(text, ref i, "x=y", out _)) { width += fontSize * 1.95f; continue; }
@@ -2633,6 +2777,18 @@ public static class HpClassicFaceplateGlyphs
       }
       if (TryConsume(text, ref i, "\u00f7", out _)) { width += fontSize * 0.55f; continue; }
       if (TryConsume(text, ref i, "\u0251", out _)) { width += fontSize * 0.56f; continue; }
+      if (TryConsumeWeightedMeanXBar(text, ref i))
+      {
+        width += MeasureWeightedMeanXBarWidth(fontSize);
+        continue;
+      }
+
+      if (TryConsumeCapitalMeanXBar(text, ref i))
+      {
+        width += MathGlyphWidth("X", fontSize);
+        continue;
+      }
+
       if (TryConsume(text, ref i, "x\u0305", out _) || TryConsume(text, ref i, "x\u0304", out _)) { width += MathGlyphWidth("x", fontSize); continue; }
       if (TryConsume(text, ref i, "x^y", out _))
       {
@@ -2770,6 +2926,7 @@ public static class HpClassicFaceplateGlyphs
 
   private static bool IsPlainArialKeyFaceLabel(string text) =>
     text is not "\u00d7"
+    and not "CL X"
     and not "CLX"
     and not "CLx"
     and not "PRx"
@@ -2844,6 +3001,8 @@ public static class HpClassicFaceplateGlyphs
   {
     ReadOnlySpan<char> tail = text.AsSpan(index);
     return tail.StartsWith("x\u2194y")
+      || tail.StartsWith("x\u2194I")
+      || tail.StartsWith("x\u2194(i)")
       || tail.StartsWith("x\u2260y")
       || tail.StartsWith("x\u2264y")
       || tail.StartsWith("x\u2265y")
@@ -2867,6 +3026,14 @@ public static class HpClassicFaceplateGlyphs
       || tail.StartsWith("∆")
       || tail.StartsWith("\u00f7")
       || tail.StartsWith("\u0251")
+      || tail.StartsWith("x\u0305w")
+      || tail.StartsWith("x\u0304w")
+      || tail.StartsWith("X\u0305w")
+      || tail.StartsWith("X\u0304w")
+      || tail.StartsWith("x\u0305 w")
+      || tail.StartsWith("X\u0305 w")
+      || tail.StartsWith("X\u0305")
+      || tail.StartsWith("X\u0304")
       || tail.StartsWith("x\u0305")
       || tail.StartsWith("x\u0304")
       || tail.StartsWith("x\u0302")
@@ -2901,6 +3068,7 @@ public static class HpClassicFaceplateGlyphs
       || tail.StartsWith("\u2192OCT")
       || tail.StartsWith("OCT\u2192")
       || tail.StartsWith("LST X")
+      || tail.StartsWith("CL X")
       || tail.StartsWith("CLX")
       || tail.StartsWith("CLx")
       || tail.StartsWith("PRx")
@@ -2968,29 +3136,58 @@ public static class HpClassicFaceplateGlyphs
     || TryConsume(text, ref index, "\u207b\u00b9", out _)
     || TryConsume(text, ref index, "⁻¹", out _);
 
-  /// <summary>True when the full label is drawn as plain CL + capital math-italic X (CLX / CLx).</summary>
+  /// <summary>True when the full label is drawn as plain CL + capital math-italic X (CL X / CLX / CLx).</summary>
   public static bool UsesPrefixCapitalMathX(string text)
   {
     int index = 0;
     return TryConsumeClX(text, ref index, out _) && index == text.Length;
   }
 
-  /// <summary>CLX and HP-21 handbook CLx — same plain CL + capital math-italic X.</summary>
-  private static bool TryConsumeClX(string text, ref int index, out string _)
+  /// <summary>HP-38E ÷ CapSkirt x̄w: capital math-italic X̄ plus spaced plain w.</summary>
+  public static bool UsesCapitalMathXBar(string text) =>
+    text is "x\u0305w" or "x\u0304w" or "X\u0305w" or "X\u0304w" or "x\u0305 w" or "X\u0305 w";
+
+  /// <summary>HP-38E 0 CapSkirt: capital math-italic X̄ only (no w suffix).</summary>
+  public static bool UsesCapitalMathXBarOnly(string text) =>
+    text is "X\u0305" or "X\u0304";
+
+  private static bool TryConsumeWeightedMeanXBar(string text, ref int index) =>
+    TryConsume(text, ref index, "x\u0305w", out _)
+    || TryConsume(text, ref index, "x\u0304w", out _)
+    || TryConsume(text, ref index, "X\u0305w", out _)
+    || TryConsume(text, ref index, "X\u0304w", out _)
+    || TryConsume(text, ref index, "x\u0305 w", out _)
+    || TryConsume(text, ref index, "X\u0305 w", out _);
+
+  private static bool TryConsumeCapitalMeanXBar(string text, ref int index) =>
+    TryConsume(text, ref index, "X\u0305", out _)
+    || TryConsume(text, ref index, "X\u0304", out _);
+
+  private static float MeasureWeightedMeanXBarWidth(float fontSize) =>
+    MathGlyphWidth("X", fontSize) + fontSize * 0.10f + PlainGlyphWidth("w", fontSize);
+
+  /// <summary>HP-35 CL X (spaced) and CLX / HP-21 handbook CLx — plain CL prefix + capital math-italic X.</summary>
+  private static bool TryConsumeClX(string text, ref int index, out string prefix)
   {
+    if (TryConsume(text, ref index, "CL X", out _))
+    {
+      prefix = "CL ";
+      return true;
+    }
+
     if (TryConsume(text, ref index, "CLX", out _))
     {
-      _ = string.Empty;
+      prefix = "CL";
       return true;
     }
 
     if (TryConsume(text, ref index, "CLx", out _))
     {
-      _ = string.Empty;
+      prefix = "CL";
       return true;
     }
 
-    _ = string.Empty;
+    prefix = string.Empty;
     return false;
   }
 }

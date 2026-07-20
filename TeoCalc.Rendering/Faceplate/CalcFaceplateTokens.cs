@@ -38,6 +38,9 @@ public static class CalcFaceplateTokens
   public const string KeyGreyTopColor = "KeyGreyTopColor";
   public const string KeyGreyFaceColor = "KeyGreyFaceColor";
   public const string KeyGreySkirtColor = "KeyGreySkirtColor";
+  public const string KeyDarkGreyTopColor = "KeyDarkGreyTopColor";
+  public const string KeyDarkGreyFaceColor = "KeyDarkGreyFaceColor";
+  public const string KeyDarkGreySkirtColor = "KeyDarkGreySkirtColor";
   public const string KeyWhiteTopColor = "KeyWhiteTopColor";
   public const string KeyWhiteFaceColor = "KeyWhiteFaceColor";
   public const string KeyWhiteSkirtColor = "KeyWhiteSkirtColor";
@@ -97,6 +100,9 @@ public static class CalcFaceplateTokens
     KeyGreyTopColor,
     KeyGreyFaceColor,
     KeyGreySkirtColor,
+    KeyDarkGreyTopColor,
+    KeyDarkGreyFaceColor,
+    KeyDarkGreySkirtColor,
     KeyWhiteTopColor,
     KeyWhiteFaceColor,
     KeyWhiteSkirtColor,

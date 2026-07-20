@@ -74,6 +74,12 @@ public static class CalcChassisPalette
 
   public static uint KeyGreySkirt => T(CalcFaceplateTokens.KeyGreySkirtColor);
 
+  public static uint KeyDarkGreyTop => T(CalcFaceplateTokens.KeyDarkGreyTopColor);
+
+  public static uint KeyDarkGreyFace => T(CalcFaceplateTokens.KeyDarkGreyFaceColor);
+
+  public static uint KeyDarkGreySkirt => T(CalcFaceplateTokens.KeyDarkGreySkirtColor);
+
   public static uint KeyWhiteTop => T(CalcFaceplateTokens.KeyWhiteTopColor);
 
   public static uint KeyWhiteFace => T(CalcFaceplateTokens.KeyWhiteFaceColor);

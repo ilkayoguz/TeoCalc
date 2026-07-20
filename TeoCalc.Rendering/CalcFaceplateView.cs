@@ -167,8 +167,8 @@ public static class CalcFaceplateView
         }
 
         ProgramKeyEntry key = session.Vocabulary.KeyChart[cell.KeyChartIndex];
-        // KeyCode 0 = blank chart slot. Empty CapFace is allowed (HP-21 blue g / HP-22 gold f).
-        if (key.KeyCode == 0)
+        // KeyCode 0 = blank chart slot, except HP-35 CLR (index 4) which is CapAbove-only faceplate.
+        if (key.KeyCode == 0 && !IsHp35ClrFaceplateSlot(session.Model.Model, cell.KeyChartIndex))
         {
           continue;
         }
@@ -185,7 +185,7 @@ public static class CalcFaceplateView
           key,
           session.Vocabulary,
           cell.LabelStyle);
-        if (string.Equals(session.Model.Family, "Classic", StringComparison.OrdinalIgnoreCase)
+        if (IsHp65Or67EnterRowGold(session.Model)
             && CalcEnterRowLabels.GoldLabelForKey(cell.KeyChartIndex) is { } enterRowGold)
         {
           visual = visual with { GoldShift = enterRowGold, GoldInverseShift = enterRowGold };
@@ -490,6 +490,20 @@ public static class CalcFaceplateView
     uint? FaceInk,
     uint? SkirtInk,
     uint? GoldBodyInk);
+
+  /// <summary>HP-35 CLR chart slot (KeyCode 0) still has CapAbove faceplate art.</summary>
+  private static bool IsHp35ClrFaceplateSlot(string? modelId, int keyChartIndex) =>
+    keyChartIndex == 4
+    && (string.Equals(modelId, "HP-35", StringComparison.OrdinalIgnoreCase)
+      || string.Equals(modelId, "35", StringComparison.OrdinalIgnoreCase));
+
+  private static bool IsHp65Or67EnterRowGold(TeoCalcModelDefinition model) =>
+    string.Equals(model.Model, "HP-65", StringComparison.OrdinalIgnoreCase)
+    || string.Equals(model.Model, "HP-67", StringComparison.OrdinalIgnoreCase)
+    || string.Equals(model.Model, "HP-67BE", StringComparison.OrdinalIgnoreCase)
+    || string.Equals(model.DisplayName, "HP-65", StringComparison.OrdinalIgnoreCase)
+    || string.Equals(model.DisplayName, "HP-67", StringComparison.OrdinalIgnoreCase);
+
   private static RectF ResolveDisplayRect(Vector2 origin, CalcChassisMetrics metrics)
   {
     if (!CalcModernBody.IsActive)
