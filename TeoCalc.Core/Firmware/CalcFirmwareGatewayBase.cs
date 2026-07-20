@@ -7,13 +7,13 @@ namespace TeoCalc.Core.Firmware;
 public abstract class CalcFirmwareGatewayBase : ICalcFirmwareGateway
 {
   protected const int KeyRunSteps = 200;
-  /// <summary>Match Panamatik / emulator timer cadence (most families use 50ms / 200 steps).</summary>
+  /// <summary>Match reference / emulator timer cadence (most families use 50ms / 200 steps).</summary>
   protected const float RunTickSeconds = 0.05f;
 
-  /// <summary>Instructions executed per timer batch. HP-01 overrides to Panamatik's 100.</summary>
+  /// <summary>Instructions executed per timer batch. T-01 overrides to 100.</summary>
   protected virtual int InstructionStepsPerBatch => KeyRunSteps;
 
-  /// <summary>Gateway tick quantum. HP-01 overrides to Panamatik's 10ms timer1 interval.</summary>
+  /// <summary>Gateway tick quantum. T-01 overrides to 10ms timer interval.</summary>
   protected virtual float TimerTickSeconds => RunTickSeconds;
 
   private float _runAccumulator;

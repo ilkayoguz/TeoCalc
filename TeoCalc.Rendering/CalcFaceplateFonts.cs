@@ -13,7 +13,7 @@ public static class CalcFaceplateFonts
 {
   private const float FaceplateLoadPx = 18f;
 
-  /// <summary>Baked size for <c>LEDcharset_class.TTF</c> (Panamatik HP Classic LED Set).</summary>
+  /// <summary>Baked size for <c>LEDcharset_class.TTF</c> (Classic LED charset).</summary>
   public const float LedDisplayLoadPx = 48f;
 
   private readonly record struct FontSet(

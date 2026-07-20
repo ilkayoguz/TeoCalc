@@ -1,6 +1,6 @@
 namespace TeoCalc.Formats;
 
-/// <summary>HP-65 mag-card style program + register snapshot (Panamatik <c>.hp65</c> ASCII).</summary>
+/// <summary>Classic mag-card style program + register snapshot (<c>.hp65</c> ASCII interop).</summary>
 public sealed record Hp65CardSnapshot(
   IReadOnlyList<byte> ProgramCodes,
   IReadOnlyList<double> Registers)

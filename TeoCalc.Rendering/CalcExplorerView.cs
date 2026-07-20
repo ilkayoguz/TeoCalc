@@ -47,9 +47,10 @@ public static class CalcExplorerView
 
   private static void DrawCalculatorPanel(CalcExplorerSession session)
   {
-    ImGui.TextUnformatted(session.Model.DisplayName);
+    string label = CalcModelIds.ToProductLabel(session.EngineModelId);
+    ImGui.TextUnformatted(label);
     ImGui.SameLine();
-    ImGui.TextDisabled("(emulator)");
+    ImGui.TextDisabled("(firmware)");
     ImGui.PushStyleColor(ImGuiCol.ChildBg, 0);
     ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, System.Numerics.Vector2.Zero);
     ImGui.BeginChild("calculator", new System.Numerics.Vector2(0, 0), ImGuiChildFlags.Border);
@@ -77,12 +78,14 @@ public static class CalcExplorerView
       ImGui.SameLine();
     }
 
-    if (ImGui.BeginCombo("Model", session.Model.DisplayName))
+    string comboLabel = CalcModelIds.ToProductLabel(session.EngineModelId);
+    if (ImGui.BeginCombo("Model", comboLabel))
     {
       for (int index = 0; index < session.Models.Length; index++)
       {
         bool selected = index == session.ModelIndex;
-        if (ImGui.Selectable(session.Models[index], selected))
+        string itemLabel = CalcModelIds.ToProductLabel(session.Models[index]);
+        if (ImGui.Selectable(itemLabel, selected))
         {
           session.LoadModel(index);
         }

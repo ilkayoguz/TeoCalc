@@ -26,7 +26,7 @@ public static class CalcButton
 {
   private const float WellInsetRatio = 0.024f;
 
-  /// <summary>Panamatik reference caps — slight inset leaves room for bezel + gold shift labels.</summary>
+  /// <summary>Reference faceplate caps — slight inset leaves room for bezel + gold shift labels.</summary>
   private const float KeyCapLayoutScale = 1.02f;
 
   private static float CapLayoutScale => KeyCapLayoutScale;

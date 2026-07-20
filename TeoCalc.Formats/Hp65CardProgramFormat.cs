@@ -4,8 +4,8 @@ using System.Text;
 namespace TeoCalc.Formats;
 
 /// <summary>
-/// Panamatik HPClassic ASCII card format:
-/// <c>HP65</c> header, optional <c>PROGRAM</c>…<c>END</c>, then <c>DATA</c>…<c>END</c>.
+/// Classic ASCII card format:
+/// <c>HP65</c> header (interop magic), optional <c>PROGRAM</c>…<c>END</c>, then <c>DATA</c>…<c>END</c>.
 /// </summary>
 public static class Hp65CardProgramFormat
 {
@@ -30,7 +30,7 @@ public static class Hp65CardProgramFormat
       }
     }
 
-    // Panamatik WriteProgram emits steps 1..lastNonZero-1 (skips START at 0).
+    // Classic WriteProgram emits steps 1..lastNonZero-1 (skips START at 0).
     if (lastNonZero > 1)
     {
       sb.Append("PROGRAM\r\n");

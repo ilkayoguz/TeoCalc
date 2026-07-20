@@ -7,7 +7,7 @@ public static class CalcModelCatalog
   public static CalcModelDefinition Hp65 { get; } = new()
   {
     Id = "65",
-    DisplayName = "HP-65",
+    DisplayName = "T-65",
     ThemeId = CalcThemeCatalog.DefaultThemeId,
     BodyLayoutId = Calc00dBodyLayout.LayoutId,
     ModifierKeys = [CalcModifierKey.F, CalcModifierKey.G],
@@ -22,7 +22,7 @@ public static class CalcModelCatalog
   public static CalcModelDefinition Hp21 { get; } = new()
   {
     Id = "21",
-    DisplayName = "HP-21",
+    DisplayName = "T-21",
     ThemeId = CalcThemeCatalog.DefaultThemeId,
     BodyLayoutId = Calc00dBodyLayout.LayoutId,
     ModifierKeys = [CalcModifierKey.F, CalcModifierKey.G],

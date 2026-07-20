@@ -2,7 +2,7 @@ using System.Globalization;
 
 namespace TeoCalc.Core.Engine.Classic;
 
-/// <summary>BCD packed data-register encode/decode matching Panamatik HPClassic card I/O.</summary>
+/// <summary>BCD packed data-register encode/decode matching Classic card I/O.</summary>
 public static class ClassicDataRegisterCodec
 {
   public static double GetRegisterValue(byte[] ram, int registerIndex)

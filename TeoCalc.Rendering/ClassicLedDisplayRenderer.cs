@@ -5,10 +5,10 @@ using TeoCalc.Rendering.Faceplate;
 
 namespace TeoCalc.Rendering;
 
-/// <summary>Draws HP-65 Classic LED display via Panamatik <c>LEDcharset_class.TTF</c> or procedural 7-segment fallback.</summary>
+/// <summary>Draws Classic LED display via <c>LEDcharset_class.TTF</c> or procedural 7-segment fallback.</summary>
 public static class ClassicLedDisplayRenderer
 {
-  /// <summary>Panamatik KML <c>hp65_470</c>: font 20 in display height 42.</summary>
+  /// <summary>Reference KML display metrics: font 20 in display height 42.</summary>
   private const float LedFontHeightRatio = 20f / 42f;
 
   /// <summary>Modern glass is shorter — keep digits inside the bezel, then letter-space to full width.</summary>

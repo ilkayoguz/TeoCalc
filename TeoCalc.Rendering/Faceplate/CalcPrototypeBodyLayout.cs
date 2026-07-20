@@ -17,7 +17,7 @@ public static class CalcPrototypeBodyLayout
   public static CalcBodyLayout Instance => Resolve("Classic", "HP-65", new CalcModelDefinition
   {
     Id = "65",
-    DisplayName = "HP-65",
+    DisplayName = "T-65",
   });
 
   public static CalcBodyLayout Resolve(string family, string modelId, CalcModelDefinition model)

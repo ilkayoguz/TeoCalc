@@ -2,7 +2,7 @@ using TeoCalc.Core.Catalog;
 
 namespace TeoCalc.Core.Engine.Classic;
 
-/// <summary>Apply / capture HP-65 card snapshots against <see cref="ClassicCpu"/> program + data RAM.</summary>
+/// <summary>Apply / capture Classic card snapshots against <see cref="ClassicCpu"/> program + data RAM.</summary>
 public static class ClassicCardProgramIo
 {
   public const int ProgramCapacity = 100;

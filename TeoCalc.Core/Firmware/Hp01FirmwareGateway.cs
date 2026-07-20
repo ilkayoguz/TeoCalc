@@ -3,15 +3,15 @@ using TeoCalc.Core.Engine.Hp01;
 namespace TeoCalc.Core.Firmware;
 
 /// <summary>
-/// HP-01 gateway (ACThp01 ISA). Timer batch matches Panamatik
+/// T-01 gateway (ACThp01 ISA). Timer batch matches reference
 /// <c>HeadlessRunTimerBatch</c> / <c>timer1</c> (10ms / 100 steps).
 /// </summary>
 public sealed class Hp01FirmwareGateway : CalcFirmwareGatewayBase
 {
-  /// <summary>Panamatik HP01 <c>timer1.Interval</c>.</summary>
+  /// <summary>Reference <c>timer1.Interval</c> for T-01.</summary>
   private const float Hp01TimerTickSeconds = 0.01f;
 
-  /// <summary>Panamatik HP01 <c>timer1_Tick</c> instruction budget.</summary>
+  /// <summary>Reference <c>timer1_Tick</c> instruction budget for T-01.</summary>
   private const int Hp01TimerBatchSteps = 100;
 
   public Hp01Cpu? Cpu { get; private set; }

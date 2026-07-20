@@ -74,6 +74,16 @@ public static class CalcChassisRenderer
   }
 
   [Obsolete("Use DrawLedDisplay.")]
+  public static void DrawLegacyDisplay(
+    ImDrawListPtr draw,
+    RectF display,
+    bool programMode,
+    float scale,
+    bool displayLit,
+    string? ledText = null) =>
+    DrawLedDisplay(draw, display, programMode, scale, displayLit, ledText);
+
+  [Obsolete("Use DrawLedDisplay.")]
   public static void DrawPanamatikDisplay(
     ImDrawListPtr draw,
     RectF display,

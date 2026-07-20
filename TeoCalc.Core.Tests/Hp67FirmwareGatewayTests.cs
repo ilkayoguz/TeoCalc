@@ -39,7 +39,7 @@ public sealed class Hp67FirmwareGatewayTests
   }
 
   [TestMethod]
-  public void PowerOnResume_ShowsIdleDisplay_WithoutPanamatikTypes()
+  public void PowerOnResume_ShowsIdleDisplay_NativeGateway()
   {
     ICalcFirmwareGateway gateway = CreateHp67Gateway();
     gateway.PowerOnResume();

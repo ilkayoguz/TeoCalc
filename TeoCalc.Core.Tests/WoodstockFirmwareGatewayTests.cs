@@ -57,7 +57,7 @@ public sealed class WoodstockFirmwareGatewayTests
   }
 
   [TestMethod]
-  public void PowerOnResume_ShowsIdleDisplay_WithoutPanamatikTypes()
+  public void PowerOnResume_ShowsIdleDisplay_NativeGateway()
   {
     ICalcFirmwareGateway gateway = CreateHp25Gateway();
     gateway.PowerOnResume();

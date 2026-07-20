@@ -60,7 +60,7 @@ public sealed class ClassicFirmwareGatewayTests
   }
 
   [TestMethod]
-  public void PowerOnResume_ShowsIdleDisplay_WithoutPanamatikTypes()
+  public void PowerOnResume_ShowsIdleDisplay_NativeGateway()
   {
     ICalcFirmwareGateway gateway = CreatePilotGateway();
     gateway.PowerOnResume();

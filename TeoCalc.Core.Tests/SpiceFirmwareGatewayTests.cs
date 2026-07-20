@@ -61,7 +61,7 @@ public sealed class SpiceFirmwareGatewayTests
   }
 
   [TestMethod]
-  public void PowerOnResume_ShowsIdleDisplay_WithoutPanamatikTypes()
+  public void PowerOnResume_ShowsIdleDisplay_NativeGateway()
   {
     ICalcFirmwareGateway gateway = CreateHp31Gateway();
     gateway.PowerOnResume();

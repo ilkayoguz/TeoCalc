@@ -37,7 +37,7 @@ public sealed class Hp19FirmwareGatewayTests
   }
 
   [TestMethod]
-  public void PowerOnResume_ShowsIdleDisplay_WithoutPanamatikTypes()
+  public void PowerOnResume_ShowsIdleDisplay_NativeGateway()
   {
     ICalcFirmwareGateway gateway = CreateHp19Gateway();
     Assert.IsInstanceOfType(gateway, typeof(Hp19FirmwareGateway));

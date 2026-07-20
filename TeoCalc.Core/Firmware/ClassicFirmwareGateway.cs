@@ -4,7 +4,7 @@ namespace TeoCalc.Core.Firmware;
 
 /// <summary>
 /// Native Classic-family firmware life-cycle (power / key / batch / display).
-/// Mirrors Panamatik Classic timing shape without calling Panamatik at runtime.
+/// Mirrors reference Classic timing shape without calling the emulator adapter at runtime.
 /// </summary>
 public sealed class ClassicFirmwareGateway : CalcFirmwareGatewayBase
 {

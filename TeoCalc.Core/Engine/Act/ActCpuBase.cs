@@ -3,7 +3,7 @@ using TeoCalc.Core.Engine;
 
 namespace TeoCalc.Core.Engine.Act;
 
-/// <summary>Shared ACT-family CPU body (Woodstock / Spice / HP-67 / HP-19C). Mirrors Panamatik HP25/HPSpice.</summary>
+/// <summary>Shared ACT-family CPU body (Woodstock / Spice / T-67 / T-19C). Mirrors reference ACT firmware.</summary>
 public abstract class ActCpuBase : CpuBase, IActCpu
 {
   private static readonly byte[] PSetMap =
