@@ -114,6 +114,14 @@ public static class CalcFirmwareBootstrap
     }
 
     IPanamatikEngine engine = PanamatikEngineFactory.Create(identity.EngineId);
+    // Native T-01 / T-19C prefer dedicated gateways; if assets are missing and the
+    // emulator adapter is still used, keep reference timer cadences (10ms / 50ms).
+    string engineId = NormalizeEngineId(identity);
+    if (string.Equals(engineId, "HP-01", StringComparison.OrdinalIgnoreCase))
+    {
+      return new EmulatorFirmwareGateway(engine, runTickSeconds: 0.01f, stepsPerBatch: 100);
+    }
+
     return new EmulatorFirmwareGateway(engine);
   }
 

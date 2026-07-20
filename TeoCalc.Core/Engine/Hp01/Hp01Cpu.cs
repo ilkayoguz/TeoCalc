@@ -5,7 +5,7 @@ using TeoCalc.Core.Engine;
 namespace TeoCalc.Core.Engine.Hp01;
 
 /// <summary>
-/// Native HP-01 CPU (Panamatik <c>ACThp01</c>). Distinct ISA from <see cref="Act.ActCpuBase"/>.
+/// Native T-01 CPU (ACThp01 ISA). Distinct ISA from <see cref="Act.ActCpuBase"/>.
 /// </summary>
 public sealed class Hp01Cpu : CpuBase
 {
@@ -23,6 +23,7 @@ public sealed class Hp01Cpu : CpuBase
 
   private readonly Dictionary<int, string> _dispatchTable;
   private readonly Stopwatch _stopwatch = new();
+  private readonly IHp01ToneSink _tones;
 
   private byte[]? _src;
   private byte[]? _dest;
@@ -36,16 +37,17 @@ public sealed class Hp01Cpu : CpuBase
   private byte _pendingKeycode;
   private bool _refreshDisplay;
 
-  public Hp01Cpu(IMicrocodeRom rom, MicrocodeHandlerCatalog handlers)
+  public Hp01Cpu(IMicrocodeRom rom, MicrocodeHandlerCatalog handlers, IHp01ToneSink? tones = null)
     : base(rom, handlers)
   {
     _dispatchTable = Hp01DispatchTable.Build();
     State = new Hp01CpuState();
+    _tones = tones ?? NullHp01ToneSink.Instance;
   }
 
   public Hp01CpuState State { get; }
 
-  /// <summary>When false, instruction batches should stop (Panamatik <c>running</c>).</summary>
+  /// <summary>When false, instruction batches should stop (reference <c>running</c> flag).</summary>
   public bool Running { get; private set; } = true;
 
   /// <summary>First sleep after reset injects wall-clock time (Panamatik <c>ShowTime</c>).</summary>
@@ -129,8 +131,7 @@ public sealed class Hp01Cpu : CpuBase
   }
 
   /// <summary>
-  /// Panamatik <c>timer1_Tick</c> peripheral service (blink / wakeup / clock / stopwatch).
-  /// Call once per gateway batch.
+  /// Peripheral service once per gateway batch (blink / wakeup / clock / stopwatch).
   /// </summary>
   public void ServicePeripherals()
   {
@@ -165,6 +166,10 @@ public sealed class Hp01Cpu : CpuBase
       _refreshDisplay = true;
     }
   }
+
+  /// <summary>Test hook: run a dispatch alias without advancing ROM.</summary>
+  internal void InvokeOpcodeAliasForTests(string alias) =>
+    Execute(alias, opcode: 0);
 
   /// <summary>Consume pending key display-hold side effects after a sleep stop (Panamatik timer loop).</summary>
   public void ApplyPendingKeyDisplayHold()
@@ -583,6 +588,7 @@ public sealed class Hp01Cpu : CpuBase
         {
           State.ExtraFlags &= ~Hp01ExtraFlags.AlarmActive;
           State.ExtraFlags |= Hp01ExtraFlags.Blink;
+          _tones.Alarm();
         }
       }
     }
@@ -600,6 +606,7 @@ public sealed class Hp01Cpu : CpuBase
         _swStartTime = 0;
         ticks = 0;
         State.ExtraFlags |= Hp01ExtraFlags.Blink;
+        _tones.Beep();
       }
 
       for (int i = 0; i < 8; i++)

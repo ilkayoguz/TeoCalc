@@ -51,7 +51,7 @@ public sealed class Hp01FirmwareGatewayTests
   }
 
   [TestMethod]
-  public void PowerOnResume_ShowsIdleDisplay_WithoutPanamatikTypes()
+  public void PowerOnResume_ShowsIdleDisplay_NativeGateway()
   {
     ICalcFirmwareGateway gateway = CreateHp01Gateway();
     Assert.IsInstanceOfType(gateway, typeof(Hp01FirmwareGateway));
@@ -91,9 +91,9 @@ public sealed class Hp01FirmwareGatewayTests
   }
 
   [TestMethod]
-  public void Tick_Uses_Panamatik_10ms_Timer_For_DisplayHold()
+  public void Tick_Uses_10ms_Timer_For_DisplayHold()
   {
-    // Panamatik timer1 is 10ms; DisplayCnt after a digit key is 200 ticks (~2s).
+    // Reference timer1 is 10ms; DisplayCnt after a digit key is 200 ticks (~2s).
     // Wrong 50ms cadence would still show the digit after only 2s of Tick budget.
     ICalcFirmwareGateway gateway = CreateHp01Gateway();
     gateway.PowerOnResume();

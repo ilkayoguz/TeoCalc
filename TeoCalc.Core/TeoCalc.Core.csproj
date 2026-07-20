@@ -6,4 +6,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="TeoCalc.Core.Tests" />
+  </ItemGroup>
 </Project>

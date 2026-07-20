@@ -33,4 +33,8 @@
     <ProjectReference Include="..\TeoCalc.Core\TeoCalc.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="TeoCalc.Core.Tests" />
+  </ItemGroup>
+
 </Project>

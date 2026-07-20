@@ -5,9 +5,9 @@ namespace TeoCalc.Panamatik;
 /// <summary>Routes TeoCalc UI through headless emulator engines in this adapter assembly.</summary>
 public sealed class EmulatorFirmwareGateway : ICalcFirmwareGateway, IDisposable
 {
-  private const float RunTickSeconds = 0.05f;
-
   private readonly IPanamatikEngine _engine;
+  private readonly float _runTickSeconds;
+  private readonly int _stepsPerBatch;
   private float _runAccumulator;
   private long _stepCount;
   private long _displayRevision;
@@ -16,9 +16,14 @@ public sealed class EmulatorFirmwareGateway : ICalcFirmwareGateway, IDisposable
   private bool _keyLineHeld;
   private FirmwareKeyCommand? _activeKey;
 
-  public EmulatorFirmwareGateway(IPanamatikEngine engine)
+  public EmulatorFirmwareGateway(
+    IPanamatikEngine engine,
+    float runTickSeconds = 0.05f,
+    int stepsPerBatch = 200)
   {
     _engine = engine;
+    _runTickSeconds = runTickSeconds > 0f ? runTickSeconds : 0.05f;
+    _stepsPerBatch = stepsPerBatch > 0 ? stepsPerBatch : 200;
     SetDisplayState(string.Empty, blankPulse: false);
   }
 
@@ -61,6 +66,12 @@ public sealed class EmulatorFirmwareGateway : ICalcFirmwareGateway, IDisposable
   public bool SupportsCardProgram => false;
 
   public IReadOnlyList<string> PrintLines => [];
+
+  /// <summary>Timer quantum used by <see cref="Tick"/> (T-01 fallback uses 10ms).</summary>
+  internal float RunTickSeconds => _runTickSeconds;
+
+  /// <summary>Instruction budget credited per timer batch.</summary>
+  internal int StepsPerBatch => _stepsPerBatch;
 
   public void PowerOnResume()
   {
@@ -107,10 +118,10 @@ public sealed class EmulatorFirmwareGateway : ICalcFirmwareGateway, IDisposable
     }
 
     _runAccumulator += deltaSeconds;
-    while (_runAccumulator >= RunTickSeconds)
+    while (_runAccumulator >= _runTickSeconds)
     {
       RunTimerBatch();
-      _runAccumulator -= RunTickSeconds;
+      _runAccumulator -= _runTickSeconds;
     }
   }
 
@@ -205,7 +216,7 @@ public sealed class EmulatorFirmwareGateway : ICalcFirmwareGateway, IDisposable
   private void RunTimerBatch()
   {
     _engine.RunTimerBatch();
-    _stepCount += 200;
+    _stepCount += _stepsPerBatch;
     RefreshDisplayFromEngine();
     PublishBatch();
   }
