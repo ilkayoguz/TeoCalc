@@ -10,6 +10,20 @@ public sealed class Hp19Cpu : ActCpuBase
   /// <summary>Panamatik <c>DefaultRAM</c> continuous-memory seed at register address 0x2E (offset 322).</summary>
   private static readonly byte[] DefaultRamSeed = [0, 2, 64, 40, 52, 73, 3];
 
+  /// <summary>
+  /// Panamatik HP-19C <c>op_fcn_0000</c>: no <c>op_rom_selftest</c>; print slots are alpha/num.
+  /// </summary>
+  private static readonly string[] Op0000Hp19 =
+  [
+    "op_nop", "op_keys_to_rom_addr", "op_sel_rom", "op_unknown", "op_crc_test_motor_on", "op_keys_to_a", "op_sel_rom", "op_unknown", "op_unknown", "op_a_to_rom_addr",
+    "op_sel_rom", "op_crc_motor_on", "op_crc_test_f1", "op_display_reset_twf", "op_sel_rom", "op_crc_motor_off", "op_crc_set_f2", "op_binary", "op_sel_rom", "op_unknown",
+    "op_crc_test_f2", "op_circulate_a_left", "op_sel_rom", "op_crc_test_card_in", "op_crc_set_f3", "op_dec_p", "op_sel_rom", "op_unknown", "op_crc_test_f3", "op_inc_p",
+    "op_sel_rom", "op_crc_test_prot", "op_crc_set_f4", "op_return", "op_sel_rom", "op_bank_switch", "op_crc_test_f4", "op_pik_home", "op_sel_rom", "op_c_to_addr",
+    "op_crc_set_f0", "op_pik_cr", "op_sel_rom", "op_clear_data_regs", "op_crc_clear_f0", "op_pik_keys", "op_sel_rom", "op_c_to_data", "op_crc_set_f1", "op_pik_c4",
+    "op_sel_rom", "op_unknown", "op_crc_clear_f1", "op_pik_d4", "op_sel_rom", "op_unknown", "op_unknown", "op_pik_e4", "op_sel_rom", "op_pik_print_alpha",
+    "op_crc_write_prot", "op_pik_print_num", "op_sel_rom", "op_nop",
+  ];
+
   /// <summary>Panamatik <c>act_switch</c> cold-start value (ON / run position).</summary>
   private byte _powerSwitch = 4;
 
@@ -50,6 +64,9 @@ public sealed class Hp19Cpu : ActCpuBase
     int remapped = (opcode & ~3) | (((byte)opcode & 3) ^ 2);
     return ResolveStandardNormAlias((ushort)remapped);
   }
+
+  protected override string ResolveOp0000Alias(ushort opcode) =>
+    Op0000Hp19[opcode >> 4];
 
   protected override void ApplyBranchTarget(ushort opcode) =>
     State.ProgramCounter = (ushort)((State.ProgramCounter & 0xFC00) | (opcode ^ 2));

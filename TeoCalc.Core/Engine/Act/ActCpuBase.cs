@@ -18,7 +18,8 @@ public abstract class ActCpuBase : CpuBase, IActCpu
     5, 0, 11, 10, 7, 4,
   ];
 
-  private static readonly string[] Op0000 =
+  /// <summary>Woodstock/Spice/HP-67 <c>op_fcn_0000</c>. HP-19C overrides via <see cref="ResolveOp0000Alias"/>.</summary>
+  protected static readonly string[] Op0000 =
   [
     "op_nop", "op_keys_to_rom_addr", "op_sel_rom", "op_unknown", "op_crc_test_motor_on", "op_keys_to_a", "op_sel_rom", "op_unknown", "op_unknown", "op_a_to_rom_addr",
     "op_sel_rom", "op_crc_motor_on", "op_crc_test_f1", "op_display_reset_twf", "op_sel_rom", "op_crc_motor_off", "op_crc_set_f2", "op_binary", "op_sel_rom", "op_unknown",
@@ -29,13 +30,13 @@ public abstract class ActCpuBase : CpuBase, IActCpu
     "op_crc_write_prot", "op_pik_print", "op_sel_rom", "op_nop",
   ];
 
-  private static readonly string[] Op0100 = ["op_set_s", "op_test_s_eq_1", "op_test_p_eq", "op_del_sel_rom"];
+  protected static readonly string[] Op0100 = ["op_set_s", "op_test_s_eq_1", "op_test_p_eq", "op_del_sel_rom"];
 
-  private static readonly string[] Op02xx = ["op_nop", "op_load_constant", "op_c_to_register", "op_register_to_c"];
+  protected static readonly string[] Op02xx = ["op_nop", "op_load_constant", "op_c_to_register", "op_register_to_c"];
 
-  private static readonly string[] Op0300 = ["op_clr_s", "op_test_s_eq_0", "op_test_p_ne", "op_set_p"];
+  protected static readonly string[] Op0300 = ["op_clr_s", "op_test_s_eq_0", "op_test_p_ne", "op_set_p"];
 
-  private static readonly string[] Op0200 =
+  protected static readonly string[] Op0200 =
   [
     "op_clear_reg", "op_clear_s", "op_display_toggle", "op_display_off", "op_mx", "op_mx", "op_mx", "op_mx", "op_stack_to_a", "op_down_rotate",
     "op_y_to_a", "op_c_to_stack", "op_decimal", "op_unknown", "op_f_to_a", "op_f_exch_a",
@@ -155,13 +156,17 @@ public abstract class ActCpuBase : CpuBase, IActCpu
   protected virtual string ResolveNormAlias(ushort opcode) =>
     ResolveStandardNormAlias(opcode);
 
+  /// <summary>Woodstock/Spice/HP-67 <c>op_fcn_0000</c> entry; HP-19C substitutes print/selftest slots.</summary>
+  protected virtual string ResolveOp0000Alias(ushort opcode) =>
+    Op0000[opcode >> 4];
+
   /// <summary>Woodstock/Spice/HP-67 low-bit decode tables.</summary>
-  protected static string ResolveStandardNormAlias(ushort opcode) =>
+  protected string ResolveStandardNormAlias(ushort opcode) =>
     ((byte)opcode & 3) switch
     {
       0 => ((byte)opcode & 0xC) switch
       {
-        0 => Op0000[opcode >> 4],
+        0 => ResolveOp0000Alias(opcode),
         4 => Op0100[((byte)opcode >> 4) & 3],
         8 => ((opcode >> 4) & 3) != 0
           ? Op02xx[((byte)opcode >> 4) & 3]
@@ -245,6 +250,8 @@ public abstract class ActCpuBase : CpuBase, IActCpu
       case "op_pik_d4":
       case "op_pik_e4":
       case "op_pik_print":
+      case "op_pik_print_alpha":
+      case "op_pik_print_num":
       case "op_rom_addr_to_buffer":
         break;
       case "op_binary":
