@@ -27,10 +27,25 @@ public static class CalcKeyLabelPalette
     || string.Equals(modelId, "27", StringComparison.OrdinalIgnoreCase);
 
   /// <summary>
+  /// HP-67 CapSkirt (h) is always black ink — including Olive body keys.
+  /// CapFace olive stays light; skirt-only override.
+  /// </summary>
+  public static bool UsesBlackHShiftSkirtInk(string? modelId) =>
+    string.Equals(modelId, "HP-67", StringComparison.OrdinalIgnoreCase)
+    || string.Equals(modelId, "HP-67BE", StringComparison.OrdinalIgnoreCase)
+    || string.Equals(modelId, "67", StringComparison.OrdinalIgnoreCase);
+
+  /// <summary>
   /// HP-34C h CapSkirt: light ink on black/blue keys, dark ink on white/orange (same contrast as CapFace).
   /// Do not force KeyCapDarkText — that is black-on-black on Spice black keys.
+  /// HP-67: always <see cref="CalcChassisPalette.KeyCapDarkText"/> (see <see cref="UsesBlackHShiftSkirtInk"/>).
   /// </summary>
-  public static uint HShiftSkirtInk(CalcButtonStyle style) => SkirtOnCap(style);
+  public static uint HShiftSkirtInk(CalcButtonStyle style) => HShiftSkirtInk(style, modelId: null);
+
+  public static uint HShiftSkirtInk(CalcButtonStyle style, string? modelId) =>
+    UsesBlackHShiftSkirtInk(modelId)
+      ? CalcChassisPalette.KeyCapDarkText
+      : SkirtOnCap(style);
 
   public static uint SkirtLabelInk(string? label, CalcButtonStyle style) =>
     SkirtLabelInk(label, style, modelId: null);
@@ -103,13 +118,17 @@ public static class CalcKeyLabelPalette
       CalcButtonStyle.Blue => CalcChassisPalette.KeyCapDarkText,
       CalcButtonStyle.Black => CalcChassisPalette.KeyText,
       CalcButtonStyle.DarkGrey => CalcChassisPalette.KeyText,
+      // Olive (HP-67 body) / Cement (HP-80 SlateGray #708090) are light-on-dark like Black.
+      CalcButtonStyle.Olive => CalcChassisPalette.KeyText,
+      CalcButtonStyle.Cement => CalcChassisPalette.KeyText,
       CalcButtonStyle.White => CalcChassisPalette.KeyCapDarkText,
-      CalcButtonStyle.Olive => CalcChassisPalette.KeyCapDarkText,
+      CalcButtonStyle.LightGrey => CalcChassisPalette.KeyCapDarkText,
       _ => CalcChassisPalette.KeyCapDarkText,
     };
 
   public static uint SkirtOnCap(CalcButtonStyle style) =>
     style is CalcButtonStyle.Black or CalcButtonStyle.Blue or CalcButtonStyle.DarkGrey
+      or CalcButtonStyle.Olive or CalcButtonStyle.Cement
       ? CalcChassisPalette.KeyText
       : CalcChassisPalette.KeyCapDarkText;
 }

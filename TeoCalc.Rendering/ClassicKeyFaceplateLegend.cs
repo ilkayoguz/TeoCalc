@@ -17,10 +17,10 @@ public static class ClassicKeyFaceplateLegend
     FaceplateLabelStyle labelStyle)
   {
     string primary = CalcFaceplateLayout.LabelForKey(key, vocabulary, family, modelId);
-    // HP-65/67 A–E (indices 10–14) use card-slot overlays instead of JSON gold.
-    // Other Classic models (HP-35 CapAbove on STO/RCL/…) must still load those indices.
+    // HP-65 A–E card-slot overlays skip JSON gold on the f/h/STO/RCL/g row (10–14).
+    // HP-67 uses CapAbove/CapSkirt JSON on that row (f,g,STO,RCL,h) and must not skip.
     bool skipJsonForClassicAe =
-      IsHp65Or67(modelId)
+      IsHp65(modelId)
       && key.Index is >= 10 and <= 14;
     KeyFaceplateEntry? entry = skipJsonForClassicAe ? null : TryGetEntry(modelId, key.Index);
     return new HpCalcKeyVisual(
@@ -33,13 +33,9 @@ public static class ClassicKeyFaceplateLegend
       labelStyle);
   }
 
-  private static bool IsHp65Or67(string modelId) =>
+  private static bool IsHp65(string modelId) =>
     string.Equals(modelId, "HP-65", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(modelId, "65", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(modelId, "HP-67", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(modelId, "HP-67BE", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(modelId, "67", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(modelId, "67BE", StringComparison.OrdinalIgnoreCase);
+    || string.Equals(modelId, "65", StringComparison.OrdinalIgnoreCase);
 
   private static KeyFaceplateEntry? TryGetEntry(string modelId, int keyIndex)
   {

@@ -147,7 +147,7 @@ public sealed class Hp34CFaceplateLegendTests
     Assert.IsFalse(HpClassicFaceplateGlyphs.IsPlainArialSkirtLabel("x\u2194(i)"));
 
     float fontSize = 14f;
-    float cardSlotConnector = CardSlotExchangeArt.MeasureWidth(fontSize);
+    float cardSlotConnector = HpClassicFaceplateGlyphs.MeasureCardSlotExchangeConnector(fontSize);
     float stackedArrowConnector = fontSize * 0.98f;
     Assert.IsTrue(cardSlotConnector < stackedArrowConnector);
   }

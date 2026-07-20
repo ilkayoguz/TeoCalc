@@ -62,6 +62,43 @@ public sealed class ShiftPreviewController
       return -1; // Classic HP-35: no shift prefix keys.
     }
 
+    if (IsHp45(modelId))
+    {
+      return mode == ShiftPreviewMode.Gold ? 4 : -1; // gold prefix, upper right
+    }
+
+    if (IsHp55(modelId))
+    {
+      return mode switch
+      {
+        ShiftPreviewMode.Gold => 10, // f
+        ShiftPreviewMode.Blue => 11, // g
+        _ => -1,
+      };
+    }
+
+    if (IsHp67(modelId))
+    {
+      // HP-67: gold f @10, blue g @11, black h @14.
+      return mode switch
+      {
+        ShiftPreviewMode.Gold => 10,
+        ShiftPreviewMode.Blue => 11,
+        ShiftPreviewMode.Black => 14,
+        _ => -1,
+      };
+    }
+
+    if (IsHp70(modelId))
+    {
+      return -1; // no shift keys
+    }
+
+    if (IsHp80(modelId))
+    {
+      return mode == ShiftPreviewMode.Gold ? 5 : -1; // gold prefix, row2 col0
+    }
+
     if (IsWoodstock(family))
     {
       if (IsHp22(modelId) || IsHp31(modelId) || IsHp37(modelId))
@@ -127,6 +164,31 @@ public sealed class ShiftPreviewController
       return false;
     }
 
+    if (IsHp45(modelId))
+    {
+      return keyChartIndex == 4;
+    }
+
+    if (IsHp55(modelId))
+    {
+      return keyChartIndex is 10 or 11;
+    }
+
+    if (IsHp67(modelId))
+    {
+      return keyChartIndex is 10 or 11 or 14;
+    }
+
+    if (IsHp70(modelId))
+    {
+      return false;
+    }
+
+    if (IsHp80(modelId))
+    {
+      return keyChartIndex == 5;
+    }
+
     if (IsHp01(family))
     {
       return keyChartIndex == 24; // Δ
@@ -170,6 +232,42 @@ public sealed class ShiftPreviewController
     if (IsHp35(modelId))
     {
       return ShiftPreviewMode.None;
+    }
+
+    if (IsHp45(modelId))
+    {
+      return keyChartIndex == 4 ? ShiftPreviewMode.Gold : ShiftPreviewMode.None;
+    }
+
+    if (IsHp55(modelId))
+    {
+      return keyChartIndex switch
+      {
+        10 => ShiftPreviewMode.Gold,
+        11 => ShiftPreviewMode.Blue,
+        _ => ShiftPreviewMode.None,
+      };
+    }
+
+    if (IsHp67(modelId))
+    {
+      return keyChartIndex switch
+      {
+        10 => ShiftPreviewMode.Gold,
+        11 => ShiftPreviewMode.Blue,
+        14 => ShiftPreviewMode.Black,
+        _ => ShiftPreviewMode.None,
+      };
+    }
+
+    if (IsHp70(modelId))
+    {
+      return ShiftPreviewMode.None;
+    }
+
+    if (IsHp80(modelId))
+    {
+      return keyChartIndex == 5 ? ShiftPreviewMode.Gold : ShiftPreviewMode.None;
     }
 
     if (IsHp01(family))
@@ -307,4 +405,26 @@ public sealed class ShiftPreviewController
   private static bool IsHp35(string? modelId) =>
     string.Equals(modelId, "HP-35", StringComparison.OrdinalIgnoreCase)
     || string.Equals(modelId, "35", StringComparison.OrdinalIgnoreCase);
+
+  private static bool IsHp45(string? modelId) =>
+    string.Equals(modelId, "HP-45", StringComparison.OrdinalIgnoreCase)
+    || string.Equals(modelId, "45", StringComparison.OrdinalIgnoreCase);
+
+  private static bool IsHp55(string? modelId) =>
+    string.Equals(modelId, "HP-55", StringComparison.OrdinalIgnoreCase)
+    || string.Equals(modelId, "55", StringComparison.OrdinalIgnoreCase);
+
+  private static bool IsHp67(string? modelId) =>
+    string.Equals(modelId, "HP-67", StringComparison.OrdinalIgnoreCase)
+    || string.Equals(modelId, "HP-67BE", StringComparison.OrdinalIgnoreCase)
+    || string.Equals(modelId, "67", StringComparison.OrdinalIgnoreCase)
+    || string.Equals(modelId, "67BE", StringComparison.OrdinalIgnoreCase);
+
+  private static bool IsHp70(string? modelId) =>
+    string.Equals(modelId, "HP-70", StringComparison.OrdinalIgnoreCase)
+    || string.Equals(modelId, "70", StringComparison.OrdinalIgnoreCase);
+
+  private static bool IsHp80(string? modelId) =>
+    string.Equals(modelId, "HP-80", StringComparison.OrdinalIgnoreCase)
+    || string.Equals(modelId, "80", StringComparison.OrdinalIgnoreCase);
 }

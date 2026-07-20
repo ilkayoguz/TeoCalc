@@ -81,7 +81,8 @@ public static class CalcFaceplateView
 
     ShiftPreviewMode shiftPreview = session.ShiftPreview.Mode;
     if (string.Equals(session.Model.Family, "Classic", StringComparison.OrdinalIgnoreCase)
-        && !CalcModernBody.IsActive)
+        && !CalcModernBody.IsActive
+        && IsHp65EnterRowGold(session.Model))
     {
       CalcEnterRowLabels.Draw(draw, origin, metrics, shiftPreview);
     }
@@ -167,8 +168,9 @@ public static class CalcFaceplateView
         }
 
         ProgramKeyEntry key = session.Vocabulary.KeyChart[cell.KeyChartIndex];
-        // KeyCode 0 = blank chart slot, except HP-35 CLR (index 4) which is CapAbove-only faceplate.
-        if (key.KeyCode == 0 && !IsHp35ClrFaceplateSlot(session.Model.Model, cell.KeyChartIndex))
+        // KeyCode 0 = blank chart slot, except Classic faceplate keys that share scancode 0
+        // (HP-35 CLR, HP-45 gold, HP-55 BST).
+        if (key.KeyCode == 0 && !IsClassicKeyCodeZeroFaceplateSlot(session.Model.Model, cell.KeyChartIndex))
         {
           continue;
         }
@@ -185,7 +187,7 @@ public static class CalcFaceplateView
           key,
           session.Vocabulary,
           cell.LabelStyle);
-        if (IsHp65Or67EnterRowGold(session.Model)
+        if (IsHp65EnterRowGold(session.Model)
             && CalcEnterRowLabels.GoldLabelForKey(cell.KeyChartIndex) is { } enterRowGold)
         {
           visual = visual with { GoldShift = enterRowGold, GoldInverseShift = enterRowGold };
@@ -234,7 +236,14 @@ public static class CalcFaceplateView
         visuals[i] = rowItems[i].KeyVisual;
       }
 
-      CalcKeyRowLayout.ApplyRowBands(visuals, slotMins, slotMaxs, capMins, capMaxs, metrics.Scale);
+      CalcKeyRowLayout.ApplyRowBands(
+        visuals,
+        slotMins,
+        slotMaxs,
+        capMins,
+        capMaxs,
+        metrics.Scale,
+        faceplateModel);
 
       for (int i = 0; i < count; i++)
       {
@@ -364,7 +373,7 @@ public static class CalcFaceplateView
         null),
       // Dual CapAbove (GoldRight) collapses during gold preview — face shows left gold legend.
       ShiftPreviewMode.Gold when !string.IsNullOrEmpty(visual.GoldShift) => new(
-        visual.GoldShift,
+        ComposeGoldPreviewFace(visual),
         visual.Primary,
         null,
         visual.BlueShift,
@@ -393,12 +402,41 @@ public static class CalcFaceplateView
     };
   }
 
+  private static string ComposeGoldPreviewFace(HpCalcKeyVisual visual)
+  {
+    if (CalcCapAboveComposite.IsSpaceSavingHmsPlusMinus(visual.GoldShift, visual.BlueShift))
+    {
+      return CalcCapAboveComposite.ComposeHmsPlusMinusPreviewFace(
+        visual.GoldShift, visual.BlueShift, blueShift: false);
+    }
+
+    if (CalcCapAboveComposite.IsSpaceSavingUnitConversion(visual.GoldShift, visual.BlueShift))
+    {
+      return CalcCapAboveComposite.ComposeUnitConversionPreviewFace(
+        visual.GoldShift, visual.BlueShift, blueShift: false);
+    }
+
+    return visual.GoldShift!;
+  }
+
   private static string ComposeBluePreviewFace(HpCalcKeyVisual visual)
   {
     if (!string.IsNullOrEmpty(visual.GoldShift)
         && CalcCapAboveComposite.IsSpaceSavingInverse(visual.GoldShift, visual.BlueShift))
     {
       return CalcCapAboveComposite.ComposeInversePreviewFace(visual.GoldShift, visual.BlueShift!);
+    }
+
+    if (CalcCapAboveComposite.IsSpaceSavingHmsPlusMinus(visual.GoldShift, visual.BlueShift))
+    {
+      return CalcCapAboveComposite.ComposeHmsPlusMinusPreviewFace(
+        visual.GoldShift, visual.BlueShift, blueShift: true);
+    }
+
+    if (CalcCapAboveComposite.IsSpaceSavingUnitConversion(visual.GoldShift, visual.BlueShift))
+    {
+      return CalcCapAboveComposite.ComposeUnitConversionPreviewFace(
+        visual.GoldShift, visual.BlueShift, blueShift: true);
     }
 
     return visual.BlueShift!;
@@ -415,21 +453,30 @@ public static class CalcFaceplateView
     List<CalcKeyAnnotation> annotations = [];
     bool classicEnterRow =
       string.Equals(model.DisplayName, "HP-65", StringComparison.OrdinalIgnoreCase)
-      || string.Equals(model.DisplayName, "HP-67", StringComparison.OrdinalIgnoreCase)
-      || model.Id is "65" or "67";
+      || model.Id is "65";
     bool gOnCapAbove = CalcModifierPlacement.PrimaryAnchor(model, CalcModifierKey.G) == CalcLabelAnchor.CapAbove;
+    bool fOnCapBelow = CalcModifierPlacement.PrimaryAnchor(model, CalcModifierKey.F) == CalcLabelAnchor.CapBelow;
+    bool gOnCapBelow = CalcModifierPlacement.PrimaryAnchor(model, CalcModifierKey.G) == CalcLabelAnchor.CapBelow;
     bool dualCapAbove = gOnCapAbove
       && !string.IsNullOrEmpty(preview.GoldOnBody)
       && !string.IsNullOrEmpty(preview.BlueOnSkirt);
-    bool spaceSavingInverse = dualCapAbove
-      && CalcCapAboveComposite.IsSpaceSavingInverse(preview.GoldOnBody, preview.BlueOnSkirt);
-    bool splitDualCapAbove = dualCapAbove && !spaceSavingInverse;
+    bool dualCapBelow = fOnCapBelow
+      && gOnCapBelow
+      && !string.IsNullOrEmpty(preview.GoldOnBody)
+      && !string.IsNullOrEmpty(preview.BlueOnSkirt);
+    bool spaceSavingCapAbove = dualCapAbove
+      && CalcCapAboveComposite.IsSpaceSavingDualInk(preview.GoldOnBody, preview.BlueOnSkirt);
+    bool spaceSavingCapBelow = dualCapBelow
+      && CalcCapAboveComposite.IsSpaceSavingDualInk(preview.GoldOnBody, preview.BlueOnSkirt);
+    // CapAbove/CapBelow space-saving composites stay centered; other duals split L/R.
+    bool splitDualBand = (dualCapAbove && !spaceSavingCapAbove)
+      || (dualCapBelow && !spaceSavingCapBelow);
     if (!string.IsNullOrEmpty(preview.GoldOnBody)
       && (!classicEnterRow
         || !CalcEnterRowLabels.IsEnterRowKey(keyChartIndex)
         || shiftPreview is ShiftPreviewMode.Gold or ShiftPreviewMode.GoldInverse))
     {
-      CalcLabelAlign goldAlign = splitDualCapAbove || !string.IsNullOrEmpty(preview.GoldOnBodyRight)
+      CalcLabelAlign goldAlign = splitDualBand || !string.IsNullOrEmpty(preview.GoldOnBodyRight)
         ? CalcLabelAlign.Left
         : CalcLabelAlign.Center;
       annotations.Add(CalcModifierPlacement.Annotate(
@@ -453,7 +500,7 @@ public static class CalcFaceplateView
 
     if (!string.IsNullOrEmpty(preview.BlueOnSkirt))
     {
-      CalcLabelAlign blueAlign = splitDualCapAbove ? CalcLabelAlign.Right : CalcLabelAlign.Center;
+      CalcLabelAlign blueAlign = splitDualBand ? CalcLabelAlign.Right : CalcLabelAlign.Center;
       annotations.Add(CalcModifierPlacement.Annotate(
         model,
         CalcModifierKey.G,
@@ -475,7 +522,7 @@ public static class CalcFaceplateView
       CapFaceInkOverride = preview.FaceInk,
       CapSkirtInkOverride = preview.SkirtInk
         ?? (!string.IsNullOrEmpty(preview.BlackOnSkirt)
-          ? CalcKeyLabelPalette.HShiftSkirtInk(style)
+          ? CalcKeyLabelPalette.HShiftSkirtInk(style, model.Id)
           : null),
       CapAboveInkOverride = preview.GoldBodyInk,
     };
@@ -491,18 +538,19 @@ public static class CalcFaceplateView
     uint? SkirtInk,
     uint? GoldBodyInk);
 
-  /// <summary>HP-35 CLR chart slot (KeyCode 0) still has CapAbove faceplate art.</summary>
-  private static bool IsHp35ClrFaceplateSlot(string? modelId, int keyChartIndex) =>
+  /// <summary>
+  /// Classic KeyCode 0 chart slots that still have physical faceplate keys:
+  /// HP-35 CLR, HP-45 gold prefix, HP-55 BST, HP-70 FV (Finseth / scancode 0).
+  /// </summary>
+  private static bool IsClassicKeyCodeZeroFaceplateSlot(string? modelId, int keyChartIndex) =>
     keyChartIndex == 4
-    && (string.Equals(modelId, "HP-35", StringComparison.OrdinalIgnoreCase)
-      || string.Equals(modelId, "35", StringComparison.OrdinalIgnoreCase));
+    && modelId is not null
+    && modelId.ToUpperInvariant() is "HP-35" or "35" or "HP-45" or "45" or "HP-55" or "55"
+      or "HP-70" or "70";
 
-  private static bool IsHp65Or67EnterRowGold(TeoCalcModelDefinition model) =>
+  private static bool IsHp65EnterRowGold(TeoCalcModelDefinition model) =>
     string.Equals(model.Model, "HP-65", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(model.Model, "HP-67", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(model.Model, "HP-67BE", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(model.DisplayName, "HP-65", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(model.DisplayName, "HP-67", StringComparison.OrdinalIgnoreCase);
+    || string.Equals(model.DisplayName, "HP-65", StringComparison.OrdinalIgnoreCase);
 
   private static RectF ResolveDisplayRect(Vector2 origin, CalcChassisMetrics metrics)
   {

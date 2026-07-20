@@ -31,8 +31,12 @@ public static class CalcKeyPanelComponent
   /// <summary>TopLabel band above the cap (f / CapAbove).</summary>
   public const float LabelAboveRef = 14f;
 
-  /// <summary>BottomLabel band below the cap (CapBelow only). CapSkirt is inside the cap.</summary>
-  public const float LabelBelowRef = 0f;
+  /// <summary>
+  /// BottomLabel band below the cap (CapBelow only; CapSkirt stays inside the cap).
+  /// Same budget as <see cref="LabelAboveRef"/> so CapBelow-only models (HP-67) reclaim
+  /// empty CapAbove space into CapFace without losing the shift-legend band.
+  /// </summary>
+  public const float LabelBelowRef = 14f;
 
   /// <summary>Classic HP-65 column count (reference); prefer <see cref="CountColumns"/>.</summary>
   public const int Columns = 5;
@@ -77,15 +81,20 @@ public static class CalcKeyPanelComponent
   public static PanelMetrics Measure(
     IReadOnlyList<FaceplateCell> cells,
     int skipTopRows = 0,
-    bool includeTopGutter = true)
+    bool includeTopGutter = true,
+    CalcModelDefinition? model = null)
   {
     int rows = Math.Max(0, CountRows(cells) - Math.Max(0, skipTopRows));
     int cols = CountColumns(cells);
     float g = GutterRef;
     float cellW = PreferredCellWidthRef;
     float capH = PreferredCapHeightRef;
-    float above = LabelAboveRef;
-    float below = LabelBelowRef;
+    // Default (no model): CapAbove gutter like Classic HP-65. CapBelow-only models
+    // (ClassicHp67Fgh) zero CapAbove and allocate CapBelow instead.
+    bool reserveAbove = model is null || CalcModifierPlacement.ReservesCapAboveBand(model);
+    bool reserveBelow = model is not null && CalcModifierPlacement.ReservesCapBelowBand(model);
+    float above = reserveAbove ? LabelAboveRef : 0f;
+    float below = reserveBelow ? LabelBelowRef : 0f;
     float rowH = above + capH + below;
     float width = cols * cellW + (cols - 1) * g;
     float topGutter = includeTopGutter ? g : 0f;

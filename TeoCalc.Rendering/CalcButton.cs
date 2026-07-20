@@ -15,6 +15,10 @@ public enum CalcButtonStyle
   Olive,
   /// <summary>HP-35 row 2 inverse-trig keys (charcoal grey, lighter than black).</summary>
   DarkGrey,
+  /// <summary>HP-55 T-55 light grey function / ENTER / ops keys (açık gri).</summary>
+  LightGrey,
+  /// <summary>HP-80 cement/slate keys (photo sample face SlateGray #708090).</summary>
+  Cement,
 }
 
 /// <summary>HP key cap — procedural Key2 geometry; labels drawn at runtime.</summary>

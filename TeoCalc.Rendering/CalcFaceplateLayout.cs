@@ -57,21 +57,10 @@ public static class CalcFaceplateLayout
       .Where(cell => cell.KeyChartIndex is not (24 or 29 or 34 or 39)),
   ];
 
-  /// <summary>
-  /// HP-45/55/70 omit chart index 4 (KeyCode 0). HP-35 restores it as CLR CapAbove (Finseth / user grid).
-  /// </summary>
-  private static readonly FaceplateCell[] ClassicPhysicalCellsNoTopRight =
-    ClassicPhysicalCells.Where(cell => cell.KeyChartIndex != 4).ToArray();
-
   public static int ToIndex(int row, int column) => row * Columns + column;
 
   public static IReadOnlyList<FaceplateCell> GetPhysicalCells(string family, string? modelId = null)
   {
-    if (IsClassicSparseTopRight(modelId))
-    {
-      return ClassicPhysicalCellsNoTopRight;
-    }
-
     if (string.Equals(modelId, "HP-65", StringComparison.OrdinalIgnoreCase)
         || string.Equals(family, "Classic", StringComparison.OrdinalIgnoreCase))
     {
@@ -103,17 +92,69 @@ public static class CalcFaceplateLayout
       .ToArray();
   }
 
-  private static bool IsClassicSparseTopRight(string? modelId) =>
-    modelId is not null
-    && modelId.ToUpperInvariant() is "HP-45" or "HP-55" or "HP-70"
-      or "45" or "55" or "70";
-
   public static string LabelForKey(
     ProgramKeyEntry key,
     ProgramVocabulary? vocabulary,
     string? family = null,
     string? modelId = null)
   {
+    if (string.Equals(family, "Classic", StringComparison.OrdinalIgnoreCase))
+    {
+      if (IsHp35(modelId))
+      {
+        string? hp35 = Hp35LabelFromIndex(key.Index, key.Char);
+        if (hp35 is not null)
+        {
+          return hp35;
+        }
+      }
+
+      if (IsHp45(modelId))
+      {
+        string? hp45 = Hp45LabelFromIndex(key.Index, key.Char);
+        if (hp45 is not null)
+        {
+          return hp45;
+        }
+      }
+
+      if (IsHp55(modelId))
+      {
+        string? hp55 = Hp55LabelFromIndex(key.Index, key.Char);
+        if (hp55 is not null)
+        {
+          return hp55;
+        }
+      }
+
+      if (IsHp67(modelId))
+      {
+        string? hp67 = Hp67LabelFromIndex(key.Index, key.Char);
+        if (hp67 is not null)
+        {
+          return hp67;
+        }
+      }
+
+      if (IsHp70(modelId))
+      {
+        string? hp70 = Hp70LabelFromIndex(key.Index, key.Char);
+        if (hp70 is not null)
+        {
+          return hp70;
+        }
+      }
+
+      if (IsHp80(modelId))
+      {
+        string? hp80 = Hp80LabelFromIndex(key.Index, key.Char);
+        if (hp80 is not null)
+        {
+          return hp80;
+        }
+      }
+    }
+
     if (key.KeyCode == 0)
     {
       return string.Empty;
@@ -126,16 +167,6 @@ public static class CalcFaceplateLayout
       if (woodstock is not null)
       {
         return woodstock;
-      }
-    }
-
-    if (string.Equals(family, "Classic", StringComparison.OrdinalIgnoreCase)
-        && IsHp35(modelId))
-    {
-      string? hp35 = Hp35LabelFromIndex(key.Index, key.Char);
-      if (hp35 is not null)
-      {
-        return hp35;
       }
     }
 
@@ -559,6 +590,28 @@ public static class CalcFaceplateLayout
     string.Equals(modelId, "HP-35", StringComparison.OrdinalIgnoreCase)
     || string.Equals(modelId, "35", StringComparison.OrdinalIgnoreCase);
 
+  private static bool IsHp45(string? modelId) =>
+    string.Equals(modelId, "HP-45", StringComparison.OrdinalIgnoreCase)
+    || string.Equals(modelId, "45", StringComparison.OrdinalIgnoreCase);
+
+  private static bool IsHp55(string? modelId) =>
+    string.Equals(modelId, "HP-55", StringComparison.OrdinalIgnoreCase)
+    || string.Equals(modelId, "55", StringComparison.OrdinalIgnoreCase);
+
+  private static bool IsHp67(string? modelId) =>
+    string.Equals(modelId, "HP-67", StringComparison.OrdinalIgnoreCase)
+    || string.Equals(modelId, "HP-67BE", StringComparison.OrdinalIgnoreCase)
+    || string.Equals(modelId, "67", StringComparison.OrdinalIgnoreCase)
+    || string.Equals(modelId, "67BE", StringComparison.OrdinalIgnoreCase);
+
+  private static bool IsHp70(string? modelId) =>
+    string.Equals(modelId, "HP-70", StringComparison.OrdinalIgnoreCase)
+    || string.Equals(modelId, "70", StringComparison.OrdinalIgnoreCase);
+
+  private static bool IsHp80(string? modelId) =>
+    string.Equals(modelId, "HP-80", StringComparison.OrdinalIgnoreCase)
+    || string.Equals(modelId, "80", StringComparison.OrdinalIgnoreCase);
+
   /// <summary>
   /// HP-35 CapFace only. Rows 1–3 + CHS/EEX/CLX legends live on CapAbove (key.faceplate.json Gold).
   /// Index-based: chart reuses chars (c=CLR/cos, r=1/x/RCL). Classic x^y (not y^x).
@@ -571,15 +624,167 @@ public static class CalcFaceplateLayout
       17 or 18 or 19 => string.Empty,
       15 or 16 => "ENTER",
       38 => "\u03c0",
-      _ => charValue switch
-      {
-        "*" => "\u00d7",
-        "/" => "\u00f7",
-        "." => "\u00b7",
-        "-" or "+" => charValue,
-        _ when charValue.Length == 1 && char.IsDigit(charValue[0]) => charValue,
-        _ => null,
-      },
+      _ => ClassicDigitPadCapFace(charValue),
+    };
+
+  /// <summary>
+  /// HP-45 CapFace (Finseth hp45a / Owner's Handbook). Primary on key; gold CapAbove in JSON.
+  /// Index 4 = gold prefix (blank CapFace). Chart char "p" at 38 is Σ+, not DSP.
+  /// </summary>
+  private static string? Hp45LabelFromIndex(int index, string charValue) =>
+    index switch
+    {
+      0 => "1/x",
+      1 => "ln",
+      2 => "e^x",
+      3 => "FIX",
+      4 => string.Empty, // gold prefix
+      5 => "x\u00b2",
+      6 => "\u2192P",
+      7 => "SIN",
+      8 => "COS",
+      9 => "TAN",
+      10 => "x\u2194y",
+      11 => "R\u2193",
+      12 => "STO",
+      13 => "RCL",
+      14 => "%",
+      15 or 16 => "ENTER",
+      17 => "CHS",
+      18 => "EEX",
+      19 => "CL X",
+      38 => "\u03a3+",
+      _ => ClassicDigitPadCapFace(charValue),
+    };
+
+  /// <summary>
+  /// HP-55 CapFace (Finseth hp55a). Primary on key; dual CapAbove f/g in JSON.
+  /// Index 4 = BST (KeyCode 0 scancode). f/g CapFace at 10/11.
+  /// </summary>
+  private static string? Hp55LabelFromIndex(int index, string charValue) =>
+    index switch
+    {
+      0 => "\u03a3+",
+      1 => "y^x",
+      2 => "1/x",
+      3 => "%",
+      4 => "BST",
+      5 => "y\u0302",
+      6 => "x\u2194y",
+      7 => "R\u2193",
+      8 => "FIX",
+      9 => "SST",
+      10 => "f",
+      11 => "g",
+      12 => "STO",
+      13 => "RCL",
+      14 => "GTO",
+      15 or 16 => "ENTER",
+      17 => "CHS",
+      18 => "EEX",
+      19 => "CL X",
+      38 => "R/S",
+      _ => ClassicDigitPadCapFace(charValue),
+    };
+
+  /// <summary>
+  /// HP-67 CapFace (Finseth hp67a). Primary on key; f/g CapBelow + h CapSkirt in JSON (no CapAbove).
+  /// Chart: f,g,STO,RCL,h (not HP-65 f,h,STO,RCL,g). Do not map h→f⁻¹.
+  /// </summary>
+  private static string? Hp67LabelFromIndex(int index, string charValue) =>
+    index switch
+    {
+      0 => "A",
+      1 => "B",
+      2 => "C",
+      3 => "D",
+      4 => "E",
+      5 => "\u03a3+",
+      6 => "GTO",
+      7 => "DSP",
+      8 => "(i)",
+      9 => "SST",
+      10 => "f",
+      11 => "g",
+      12 => "STO",
+      13 => "RCL",
+      14 => "h",
+      15 or 16 => "ENTER",
+      17 => "CHS",
+      18 => "EEX",
+      19 => "CL X",
+      38 => "R/S",
+      _ => ClassicDigitPadCapFace(charValue),
+    };
+
+  /// <summary>
+  /// HP-70 CapFace (Finseth hp70a). No shift keys. Index 4 = FV (KeyCode 0 restore).
+  /// </summary>
+  private static string? Hp70LabelFromIndex(int index, string charValue) =>
+    index switch
+    {
+      0 => "n",
+      1 => "i",
+      2 => "PMT",
+      3 => "PV",
+      4 => "FV",
+      5 => "INT",
+      6 => "%",
+      7 => "\u0394%",
+      8 => "y^x",
+      9 => "CLR",
+      10 => "x\u2194y",
+      11 => "R\u2193",
+      12 => "STO",
+      13 => "K",
+      14 => "DSP",
+      15 or 16 => "ENTER",
+      17 => "CHS",
+      18 => "M",
+      19 => "M+",
+      38 => "CL X",
+      _ => ClassicDigitPadCapFace(charValue),
+    };
+
+  /// <summary>
+  /// HP-80 CapFace (Finseth hp80a / HP Journal). Gold blank CapFace at index 5; SAVE not ENTER.
+  /// Panamatik chart chars are HP-45 clones — labels are index-based.
+  /// </summary>
+  private static string? Hp80LabelFromIndex(int index, string charValue) =>
+    index switch
+    {
+      0 => "n",
+      1 => "i",
+      2 => "PMT",
+      3 => "PV",
+      4 => "FV",
+      5 => string.Empty, // gold prefix
+      6 => "%",
+      7 => "TL",
+      8 => "SOD",
+      9 => "DAY",
+      10 => "x\u2194y",
+      11 => "R\u2193",
+      12 => "STO",
+      13 => "y^x",
+      14 => "x\u0305",
+      15 or 16 => "SAVE",
+      17 => "RCL",
+      18 => "CHS",
+      19 => "CL X",
+      38 => "\u03a3+",
+      _ => ClassicDigitPadCapFace(charValue),
+    };
+
+  private static string? ClassicDigitPadCapFace(string charValue) =>
+    charValue switch
+    {
+      "*" => "\u00d7",
+      "/" => "\u00f7",
+      "." => "\u00b7",
+      "-" or "+" => charValue,
+      _ when charValue.Length == 1 && char.IsDigit(charValue[0]) => charValue,
+      _ => null,
     };
 
   /// <summary>

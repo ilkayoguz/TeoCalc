@@ -73,7 +73,7 @@ public static class Calc00dBodyLayout
     bool hasCardSlot = CalcCardSlotComponent.ModelHasCardSlot(model.Id)
       || CalcCardSlotComponent.ModelHasCardSlot(modelId);
 
-    CalcKeyPanelComponent.PanelMetrics keyMetrics = CalcKeyPanelComponent.Measure(cells);
+    CalcKeyPanelComponent.PanelMetrics keyMetrics = CalcKeyPanelComponent.Measure(cells, model: model);
 
     float bandLeft = FacePadXRef;
     float bandWidth = keyMetrics.Width;

@@ -78,7 +78,7 @@ public static class HpClassicFaceplateGlyphs
       2 => new(fontSize * 1.25f, fontSize),
       3 => new(ArialBoldGlyphWidth("R", fontSize * 0.82f) + fontSize * 0.24f, fontSize * 0.82f),
       4 => new(
-        (MathGlyphWidth("x", xSize) + CardSlotExchangeArt.MeasureWidth(fontSize) + MathGlyphWidth("y", xSize) + fontSize * 0.28f) * 1.08f,
+        (MathGlyphWidth("x", xSize) + MeasureCardSlotExchangeConnector(fontSize) + MathGlyphWidth("y", xSize) + fontSize * 0.28f) * 1.08f,
         fontSize),
       _ => new(fontSize, fontSize),
     };
@@ -264,6 +264,14 @@ public static class HpClassicFaceplateGlyphs
         continue;
       }
 
+      if (TryConsume(text, ref i, "P\u2194S", out _))
+      {
+        float w = MeasurePlainExchangeWidth("P", "S", fontSize, widen: true);
+        union = CalcFaceplateBandLabel.Union(union, CalcFaceplateBandLabel.BoxAt(x, rowMidY - fontSize * 0.55f, w, fontSize * 1.1f));
+        x += w;
+        continue;
+      }
+
       if (TryConsume(text, ref i, "1/x", out _))
       {
         float w = MeasureInverseXWidth(fontSize);
@@ -407,6 +415,14 @@ public static class HpClassicFaceplateGlyphs
         continue;
       }
 
+      if (TryConsumeLetterArrowLeft(text, ref i, out string letterLeftMeasure))
+      {
+        float w = MeasureLetterArrowLeftWidth(letterLeftMeasure, fontSize);
+        union = CalcFaceplateBandLabel.Union(union, CalcFaceplateBandLabel.BoxAt(x, rowMidY - fontSize * 0.5f, w, fontSize));
+        x += w;
+        continue;
+      }
+
       if (TryConsumeArrowRightSuffix(text, ref i, out ReadOnlySpan<char> arrowSuffix))
       {
         float w = MeasureArrowTextWidth(arrowSuffix.ToString(), fontSize);
@@ -489,7 +505,18 @@ public static class HpClassicFaceplateGlyphs
 
   /// <summary>True when label uses card-slot stacked exchange chevrons (CapFace x↔y style), not HP-01 ↔ shafts.</summary>
   public static bool UsesCardSlotExchangeLabel(string text) =>
-    text is "x\u2194y" or "x\u2194I" or "x\u2194(i)";
+    text is "x\u2194y" or "x\u2194I" or "x\u2194(i)" or "P\u2194S";
+
+  /// <summary>
+  /// Glyph-height argument passed to <see cref="CardSlotExchangeArt"/> for x↔y / P↔S / x↔I.
+  /// Shared so CapBelow P↔S chevrons match CapFace (and CapBelow body) x↔y scale.
+  /// </summary>
+  public static float CardSlotExchangeGlyphHeight(float fontSize, bool widen = false) =>
+    MathGlyphSize("x", fontSize * CardSlotMathXScale * (widen ? 1.08f : 1f)).Y;
+
+  /// <summary>Connector width for card-slot exchange (same for x↔y and P↔S at a given fontSize).</summary>
+  public static float MeasureCardSlotExchangeConnector(float fontSize, bool widen = false) =>
+    CardSlotExchangeArt.MeasureWidth(CardSlotExchangeGlyphHeight(fontSize, widen));
 
   public static void DrawBodyLabel(
     ImDrawListPtr draw,
@@ -765,6 +792,13 @@ public static class HpClassicFaceplateGlyphs
       {
         float top = useRowMid ? rowMidY - fontSize * 0.55f : y + mathYOffset;
         x += DrawXExchangeYAt(draw, x, top, fontSize, color, scale, widen: useRowMid);
+        continue;
+      }
+
+      if (TryConsume(text, ref i, "P\u2194S", out _))
+      {
+        float top = useRowMid ? rowMidY - fontSize * 0.55f : y + mathYOffset;
+        x += DrawPlainExchangeAt(draw, x, top, fontSize, color, scale, "P", "S", widen: useRowMid);
         continue;
       }
 
@@ -1175,6 +1209,15 @@ public static class HpClassicFaceplateGlyphs
         continue;
       }
 
+      if (TryConsumeLetterArrowLeft(text, ref i, out string letterLeftDraw))
+      {
+        float drawY = useRowMid ? rowMidY - fontSize * 0.5f : y;
+        x += DrawPlainRun(draw, letterLeftDraw, x, drawY, fontSize, color, bold, keyFaceArialBold, skirtArial, skirtBand, bandAlign, rowMidY, useRowMid);
+        x += fontSize * 0.1f;
+        x += DrawArrowLeft(draw, x, drawY, fontSize, color, scale, bandMode || useRowMid);
+        continue;
+      }
+
       if (TryConsumeArrowRightSuffix(text, ref i, out ReadOnlySpan<char> arrowSuffix))
       {
         float drawY = useRowMid ? rowMidY - fontSize * 0.5f : y;
@@ -1306,7 +1349,7 @@ public static class HpClassicFaceplateGlyphs
     float xSize = fontSize * CardSlotMathXScale;
     Vector2 xDim = MathGlyphSize("x", xSize);
     float gap = fontSize * 0.20f;
-    float width = MathGlyphWidth("x", xSize) + gap + CardSlotExchangeArt.MeasureWidth(fontSize) + gap + MathGlyphWidth("y", xSize);
+    float width = MathGlyphWidth("x", xSize) + gap + MeasureCardSlotExchangeConnector(fontSize, widen: true) + gap + MathGlyphWidth("y", xSize);
     float left = center.X - width * 0.5f;
     float top = center.Y - xDim.Y * 0.5f;
     DrawXExchangeYAt(draw, left, top, fontSize, color, scale, widen: true);
@@ -1434,10 +1477,35 @@ public static class HpClassicFaceplateGlyphs
     Vector2 xDim = MathGlyphSize("x", xSize);
     float xW = DrawCardSlotMathX(draw, x, y, xSize, color);
     float gap = fontSize * (widen ? 0.14f : 0.06f);
+    float exchangeH = CardSlotExchangeGlyphHeight(fontSize, widen);
     float centerY = y + xDim.Y * 0.58f;
-    float symW = CardSlotExchangeArt.Draw(draw, x + xW + gap, centerY, xDim.Y, scale, color);
+    float symW = CardSlotExchangeArt.Draw(draw, x + xW + gap, centerY, exchangeH, scale, color);
     DrawCardSlotMathY(draw, x + xW + gap + symW + gap, y, xSize, color);
     return xW + gap + symW + gap + MathGlyphWidth("y", xSize);
+  }
+
+  /// <summary>HP-67 CapBelow P↔S: plain Arial P/S with card-slot stacked exchange chevrons (same scale as x↔y).</summary>
+  private static float DrawPlainExchangeAt(
+    ImDrawListPtr draw,
+    float x,
+    float y,
+    float fontSize,
+    uint color,
+    float scale,
+    string left,
+    string right,
+    bool widen = false)
+  {
+    float letterSize = fontSize * (widen ? 1.08f : 1f);
+    Vector2 leftDim = PlainGlyphSize(left, letterSize);
+    float leftW = DrawArialBoldGlyph(draw, left, x, y, letterSize, color);
+    float gap = fontSize * (widen ? 0.14f : 0.06f);
+    // Match CapFace / CapBelow x↔y chevron height — do not scale off Arial letter ink box.
+    float exchangeH = CardSlotExchangeGlyphHeight(fontSize, widen);
+    float centerY = y + MathF.Max(leftDim.Y, exchangeH) * 0.58f;
+    float symW = CardSlotExchangeArt.Draw(draw, x + leftW + gap, centerY, exchangeH, scale, color);
+    float rightW = DrawArialBoldGlyph(draw, right, x + leftW + gap + symW + gap, y, letterSize, color);
+    return leftW + gap + symW + gap + rightW;
   }
 
   private static float DrawXExchangeSuffixAt(
@@ -1455,8 +1523,9 @@ public static class HpClassicFaceplateGlyphs
     Vector2 xDim = MathGlyphSize("x", xSize);
     float xW = DrawCardSlotMathX(draw, x, y, xSize, color);
     float gap = fontSize * (widen ? 0.14f : 0.06f);
+    float exchangeH = CardSlotExchangeGlyphHeight(fontSize, widen);
     float centerY = y + xDim.Y * 0.58f;
-    float symW = CardSlotExchangeArt.Draw(draw, x + xW + gap, centerY, xDim.Y, scale, color);
+    float symW = CardSlotExchangeArt.Draw(draw, x + xW + gap, centerY, exchangeH, scale, color);
     float suffixX = x + xW + gap + symW + gap;
     float suffixW = parenthesizedMathI
       ? DrawParenthesizedMathIAt(draw, suffixX, y, fontSize, color, widen)
@@ -2194,6 +2263,29 @@ public static class HpClassicFaceplateGlyphs
     return true;
   }
 
+  /// <summary>Consumes Finseth letter+← (R← / D← / H←) for vector left-arrow + letter.</summary>
+  private static bool TryConsumeLetterArrowLeft(string text, ref int i, out string letter)
+  {
+    letter = string.Empty;
+    if (i + 1 >= text.Length || text[i + 1] != '\u2190')
+    {
+      return false;
+    }
+
+    char ch = text[i];
+    if (ch is not ('R' or 'D' or 'H'))
+    {
+      return false;
+    }
+
+    letter = ch.ToString();
+    i += 2;
+    return true;
+  }
+
+  private static float MeasureLetterArrowLeftWidth(string letter, float fontSize) =>
+    PlainGlyphWidth(letter, fontSize) + fontSize * 0.1f + fontSize * 0.62f;
+
   private static float MeasureArrowBetweenTextWidth(string leftText, string rightText, float fontSize) =>
     PlainGlyphWidth(leftText, fontSize)
     + fontSize * 0.1f
@@ -2213,9 +2305,20 @@ public static class HpClassicFaceplateGlyphs
     float gap = fontSize * (widen ? 0.14f : 0.06f);
     return MathGlyphWidth("x", xSize)
       + gap
-      + CardSlotExchangeArt.MeasureWidth(fontSize)
+      + MeasureCardSlotExchangeConnector(fontSize, widen)
       + gap
       + MathGlyphWidth("y", xSize);
+  }
+
+  private static float MeasurePlainExchangeWidth(string left, string right, float fontSize, bool widen)
+  {
+    float letterSize = fontSize * (widen ? 1.08f : 1f);
+    float gap = fontSize * (widen ? 0.14f : 0.06f);
+    return PlainGlyphWidth(left, letterSize)
+      + gap
+      + MeasureCardSlotExchangeConnector(fontSize, widen)
+      + gap
+      + PlainGlyphWidth(right, letterSize);
   }
 
   private static float MeasureXExchangeSuffixWidth(float fontSize, bool widen, bool parenthesizedMathI = false, string suffix = "I")
@@ -2225,7 +2328,11 @@ public static class HpClassicFaceplateGlyphs
     float suffixW = parenthesizedMathI
       ? ArialBoldGlyphWidth("(", fontSize) + MathGlyphWidth("i", fontSize) + ArialBoldGlyphWidth(")", fontSize)
       : ArialBoldGlyphWidth(suffix, fontSize);
-    return MathGlyphWidth("x", xSize) + gap + CardSlotExchangeArt.MeasureWidth(fontSize) + gap + suffixW;
+    return MathGlyphWidth("x", xSize)
+      + gap
+      + MeasureCardSlotExchangeConnector(fontSize, widen)
+      + gap
+      + suffixW;
   }
 
   private static float MeasureSqrtXWidth(float fontSize) =>
@@ -2269,6 +2376,67 @@ public static class HpClassicFaceplateGlyphs
       keyFaceArialBold: false,
       skirtArial: true,
       skirtBand: false);
+
+  /// <summary>Width of HP-55 CapAbove stacked +/− beside H.MS.</summary>
+  public static float MeasureHmsSignStackWidth(float fontSize) =>
+    MathF.Max(PlainGlyphWidth("+", fontSize * 0.78f), PlainGlyphWidth("-", fontSize * 0.78f));
+
+  /// <summary>
+  /// HP-55 ENTER CapAbove: upper gold <c>+</c>, lower blue <c>−</c> stacked beside H.MS.
+  /// </summary>
+  public static float DrawHmsSignStack(
+    ImDrawListPtr draw,
+    float x,
+    float y,
+    float fontSize,
+    uint plusInk,
+    uint minusInk,
+    float scale)
+  {
+    _ = scale;
+    float signFs = fontSize * 0.78f;
+    float w = MeasureHmsSignStackWidth(fontSize);
+    float midY = y + fontSize * 0.42f;
+    float gap = fontSize * 0.12f;
+    float topY = midY - gap * 0.5f - signFs * 0.55f;
+    float botY = midY + gap * 0.5f - signFs * 0.35f;
+    DrawPlainRun(
+      draw, "+", x + (w - PlainGlyphWidth("+", signFs)) * 0.5f, topY, signFs, plusInk, bold: false);
+    DrawPlainRun(
+      draw, "-", x + (w - PlainGlyphWidth("-", signFs)) * 0.5f, botY, signFs, minusInk, bold: false);
+    return w;
+  }
+
+  /// <summary>Width of HP-55 dual-ink conversion arrow stack (→ over ←).</summary>
+  public static float MeasureDualInkConversionArrowWidth(float fontSize) =>
+    fontSize * 0.72f;
+
+  /// <summary>
+  /// HP-55 unit CapAbove: upper right-arrow + lower left-arrow (dual ink).
+  /// Authentic color coding: upper → blue (g), lower ← gold (f).
+  /// </summary>
+  public static float DrawDualInkConversionArrows(
+    ImDrawListPtr draw,
+    float x,
+    float y,
+    float fontSize,
+    uint rightArrowInk,
+    uint leftArrowInk,
+    float scale)
+  {
+    _ = scale;
+    float w = MeasureDualInkConversionArrowWidth(fontSize);
+    // Match bandAlign CapAbove body labels (DrawBodyLabel + DrawStackedExchangeArrows bandMode).
+    float midY = y + fontSize * 0.5f;
+    float arrowLen = fontSize * 0.58f;
+    float gap = fontSize * 0.12f;
+    float cx = x + w * 0.5f;
+    float topCy = midY - fontSize * 0.18f - gap * 0.5f;
+    float botCy = midY + fontSize * 0.18f + gap * 0.5f;
+    DrawLongShaftArrow(draw, new Vector2(cx, topCy), arrowLen, rightArrowInk, pointRight: true);
+    DrawLongShaftArrow(draw, new Vector2(cx, botCy), arrowLen, leftArrowInk, pointRight: false);
+    return w;
+  }
 
   private enum ArrowDirection
   {
@@ -2738,6 +2906,7 @@ public static class HpClassicFaceplateGlyphs
       if (TryConsumeClX(text, ref i, out string clPrefix)) { width += PlainGlyphWidth(clPrefix, fontSize) + MathGlyphWidth("X", fontSize); continue; }
       if (TryConsume(text, ref i, "PRx", out _)) { width += PlainGlyphWidth("PR", fontSize) + MathGlyphWidth("X", fontSize); continue; }
       if (TryConsume(text, ref i, "x\u2194y", out _)) { width += MeasureXExchangeYWidth(fontSize, widen: true); continue; }
+      if (TryConsume(text, ref i, "P\u2194S", out _)) { width += MeasurePlainExchangeWidth("P", "S", fontSize, widen: true); continue; }
       if (TryConsume(text, ref i, "x\u2194I", out _)) { width += MeasureXExchangeSuffixWidth(fontSize, widen: true); continue; }
       if (TryConsume(text, ref i, "x\u2194(i)", out _)) { width += MeasureXExchangeSuffixWidth(fontSize, widen: true, parenthesizedMathI: true); continue; }
       if (TryConsume(text, ref i, "x\u2260y", out _)) { width += fontSize * 2.05f; continue; }
@@ -2839,6 +3008,11 @@ public static class HpClassicFaceplateGlyphs
       if (TryConsume(text, ref i, "R\u2193", out _)) { width += MeasureRArrowWidth(fontSize, down: true); continue; }
       if (TryConsume(text, ref i, "\u2192D.MS", out _) || TryConsume(text, ref i, "D.MS\u2192", out _)) { width += MeasureArrowTextWidth("D.MS", fontSize); continue; }
       if (TryConsume(text, ref i, "\u2192OCT", out _) || TryConsume(text, ref i, "OCT\u2192", out _)) { width += MeasureArrowTextWidth("OCT", fontSize); continue; }
+      if (TryConsumeLetterArrowLeft(text, ref i, out string letterLeftWidth))
+      {
+        width += MeasureLetterArrowLeftWidth(letterLeftWidth, fontSize);
+        continue;
+      }
       if (TryConsumeArrowRightSuffix(text, ref i, out ReadOnlySpan<char> arrowSuffix))
       {
         width += MeasureArrowTextWidth(arrowSuffix.ToString(), fontSize);
@@ -2967,6 +3141,7 @@ public static class HpClassicFaceplateGlyphs
     || text.Contains('\u221a')
     || text.Contains('√')
     || text.Contains('\u2192')
+    || text.Contains('\u2190')
     || text.Contains('\u2191')
     || text.Contains('\u2193')
     || text.Contains('\u2194')
@@ -3003,6 +3178,7 @@ public static class HpClassicFaceplateGlyphs
     return tail.StartsWith("x\u2194y")
       || tail.StartsWith("x\u2194I")
       || tail.StartsWith("x\u2194(i)")
+      || tail.StartsWith("P\u2194S")
       || tail.StartsWith("x\u2260y")
       || tail.StartsWith("x\u2264y")
       || tail.StartsWith("x\u2265y")
@@ -3067,6 +3243,10 @@ public static class HpClassicFaceplateGlyphs
       || tail.StartsWith("D.MS\u2192")
       || tail.StartsWith("\u2192OCT")
       || tail.StartsWith("OCT\u2192")
+      || tail.StartsWith("R\u2190")
+      || tail.StartsWith("D\u2190")
+      || tail.StartsWith("H\u2190")
+      || (tail.Length > 0 && tail[0] == '\u2192')
       || tail.StartsWith("LST X")
       || tail.StartsWith("CL X")
       || tail.StartsWith("CLX")
@@ -3093,7 +3273,7 @@ public static class HpClassicFaceplateGlyphs
     return false;
   }
 
-  /// <summary>Skirt legends like SINH^-1 / sin⁻¹ — uppercase base + superscript −1 (never raw ^).</summary>
+  /// <summary>Skirt legends like SINH^-1 / sin⁻¹ — preserve base casing + superscript −1 (never raw ^).</summary>
   private static bool TryConsumeInverseFunction(string text, ref int index, out string displayName)
   {
     displayName = string.Empty;
@@ -3121,7 +3301,7 @@ public static class HpClassicFaceplateGlyphs
       return false;
     }
 
-    displayName = baseName.ToString().ToUpperInvariant();
+    displayName = baseName.ToString();
     return true;
   }
 

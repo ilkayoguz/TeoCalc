@@ -1,0 +1,32 @@
+{
+  "Format": "TeoCalc.KeyFaceplate",
+  "SchemaVersion": 1,
+  "Model": "HP-45",
+  "Source": "HP-45 Owner's Handbook / Finseth hp45a / NMAH + Catalog visuals — CapFace primary (white on key); CapAbove=gold f (yellow); no blue g; gold prefix at index 4 (blank CapFace); CLEAR CapAbove on CLx; Σ+ CapFace (π / LST X / Σ- on CapAbove)",
+  "Keys": {
+    "0":  { "Gold": "y^x" },
+    "1":  { "Gold": "log" },
+    "2":  { "Gold": "10^x" },
+    "3":  { "Gold": "SCI" },
+    "5":  { "Gold": "\u221ax" },
+    "6":  { "Gold": "\u2192R" },
+    "7":  { "Gold": "SIN^-1" },
+    "8":  { "Gold": "COS^-1" },
+    "9":  { "Gold": "TAN^-1" },
+    "10": { "Gold": "n!" },
+    "11": { "Gold": "x\u0305,s" },
+    "12": { "Gold": "\u2192D.MS" },
+    "13": { "Gold": "D.MS\u2192" },
+    "14": { "Gold": "\u0394%" },
+    "15": { "Gold": "DEG" },
+    "17": { "Gold": "RAD" },
+    "18": { "Gold": "GRD" },
+    "19": { "Gold": "CLEAR" },
+    "21": { "Gold": "cm/in" },
+    "22": { "Gold": "kg/lb" },
+    "23": { "Gold": "ltr/gal" },
+    "36": { "Gold": "LST X" },
+    "37": { "Gold": "\u03c0" },
+    "38": { "Gold": "\u03a3-" }
+  }
+}

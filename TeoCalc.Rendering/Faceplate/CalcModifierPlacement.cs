@@ -1,3 +1,5 @@
+using System.Linq;
+
 namespace TeoCalc.Rendering.Faceplate;
 
 /// <summary>
@@ -22,6 +24,19 @@ public static class CalcModifierPlacement
     new(CalcModifierKey.F, CalcLabelAnchor.CapAbove, CalcKeyColorPalette.LabelOnDarkCap),
   ];
 
+  /// <summary>HP-45: single gold f CapAbove (no blue g / CapSkirt).</summary>
+  public static IReadOnlyList<CalcModifierAnnotationStyle> ClassicGoldOnly { get; } =
+  [
+    new(CalcModifierKey.F, CalcLabelAnchor.CapAbove, CalcKeyColorPalette.ModifierFOnCapAbove),
+  ];
+
+  /// <summary>HP-55: f CapAbove left (gold), g CapAbove right (blue); no CapSkirt.</summary>
+  public static IReadOnlyList<CalcModifierAnnotationStyle> ClassicDualCapAbove { get; } =
+  [
+    new(CalcModifierKey.F, CalcLabelAnchor.CapAbove, CalcKeyColorPalette.ModifierFOnCapAbove),
+    new(CalcModifierKey.G, CalcLabelAnchor.CapAbove, CalcKeyColorPalette.ModifierGOnCapSkirt),
+  ];
+
   /// <summary>HP-34C: f CapAbove left (gold), g CapAbove right (blue), h CapSkirt (black).</summary>
   public static IReadOnlyList<CalcModifierAnnotationStyle> SpiceFgh { get; } =
   [
@@ -30,8 +45,30 @@ public static class CalcModifierPlacement
     new(CalcModifierKey.H, CalcLabelAnchor.CapSkirt, CalcKeyColorPalette.ModifierHOnCapFace),
   ];
 
-  public static IReadOnlyList<CalcModifierAnnotationStyle> StylesOrDefault(CalcModelDefinition model) =>
-    model.AnnotationStyles.Count > 0 ? model.AnnotationStyles : ClassicFg;
+  /// <summary>
+  /// HP-67: no CapAbove — f CapBelow (gold), g CapBelow (blue), h CapSkirt (black ink).
+  /// Dual CapBelow uses left gold / right blue, except space-saving composites
+  /// (trig SIN+^-1; unit conversions R→/←P).
+  /// </summary>
+  public static IReadOnlyList<CalcModifierAnnotationStyle> ClassicHp67Fgh { get; } =
+  [
+    new(CalcModifierKey.F, CalcLabelAnchor.CapBelow, CalcKeyColorPalette.ModifierFOnCapAbove),
+    new(CalcModifierKey.G, CalcLabelAnchor.CapBelow, CalcKeyColorPalette.ModifierGOnCapSkirt),
+    new(CalcModifierKey.H, CalcLabelAnchor.CapSkirt, CalcKeyColorPalette.ModifierHOnCapFace),
+  ];
+
+  /// <summary>HP-70: no shift keys / no CapAbove annotations.</summary>
+  public static IReadOnlyList<CalcModifierAnnotationStyle> None { get; } = [];
+
+  public static IReadOnlyList<CalcModifierAnnotationStyle> StylesOrDefault(CalcModelDefinition model)
+  {
+    if (model.ModifierKeys.Count == 0)
+    {
+      return model.AnnotationStyles;
+    }
+
+    return model.AnnotationStyles.Count > 0 ? model.AnnotationStyles : ClassicFg;
+  }
 
   /// <summary>Primary slot for a modifier (first binding in the model list).</summary>
   public static CalcLabelAnchor PrimaryAnchor(CalcModelDefinition model, CalcModifierKey modifier)
@@ -46,6 +83,14 @@ public static class CalcModifierPlacement
 
     return CalcLabelAnchor.CapAbove;
   }
+
+  /// <summary>True when the model prints any legend on CapAbove (reserves top label band).</summary>
+  public static bool ReservesCapAboveBand(CalcModelDefinition model) =>
+    StylesOrDefault(model).Any(style => style.Anchor == CalcLabelAnchor.CapAbove);
+
+  /// <summary>True when the model prints any legend on CapBelow (reserves bottom label band).</summary>
+  public static bool ReservesCapBelowBand(CalcModelDefinition model) =>
+    StylesOrDefault(model).Any(style => style.Anchor == CalcLabelAnchor.CapBelow);
 
   /// <summary>
   /// Resolve slot for <paramref name="modifier"/>. If <paramref name="requested"/> is set and

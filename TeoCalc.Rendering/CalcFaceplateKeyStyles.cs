@@ -44,6 +44,95 @@ public static class CalcFaceplateKeyStyles
       };
     }
 
+    if (string.Equals(modelId, "HP-45", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(modelId, "45", StringComparison.OrdinalIgnoreCase))
+    {
+      // Classic HP-45 (photos / YouTube color coding): gold prefix; black trig;
+      // dark grey powers/roots/%; blue ENTER + stack/arithmetic; white digits · Σ+.
+      return keyChartIndex switch
+      {
+        4 => CalcButtonStyle.Orange, // gold f
+        7 or 8 or 9 => CalcButtonStyle.Black, // SIN COS TAN
+        0 or 1 or 2 or 3 or 5 or 6 or 14 => CalcButtonStyle.DarkGrey, // 1/x ln e^x FIX x² →P %
+        15 or 17 or 18 or 19 => CalcButtonStyle.Blue, // ENTER CHS EEX CLX
+        10 or 11 or 12 or 13 => CalcButtonStyle.Blue, // x↔y R↓ STO RCL
+        20 or 25 or 30 or 35 => CalcButtonStyle.Blue, // − + × ÷
+        21 or 22 or 23 or 26 or 27 or 28 or 31 or 32 or 33
+          or 36 or 37 or 38 => CalcButtonStyle.White, // digits, ·, Σ+
+        _ => CalcButtonStyle.Black,
+      };
+    }
+
+    if (string.Equals(modelId, "HP-55", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(modelId, "55", StringComparison.OrdinalIgnoreCase))
+    {
+      // Classic HP-55 (T-55): light grey rows 1–2 + ENTER + ops; olive BST/SST;
+      // gold f / blue g; black GTO + R/S; white digit pad.
+      return keyChartIndex switch
+      {
+        4 or 9 => CalcButtonStyle.Olive, // BST, SST
+        10 => CalcButtonStyle.Orange, // f
+        11 => CalcButtonStyle.Blue, // g
+        14 or 38 => CalcButtonStyle.Black, // GTO, R/S
+        21 or 22 or 23 or 26 or 27 or 28 or 31 or 32 or 33
+          or 36 or 37 => CalcButtonStyle.White, // digits, ·
+        _ => CalcButtonStyle.LightGrey,
+      };
+    }
+
+    if (string.Equals(modelId, "HP-67", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(modelId, "HP-67BE", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(modelId, "67", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(modelId, "67BE", StringComparison.OrdinalIgnoreCase))
+    {
+      // Classic HP-67: orange f / blue g / black h; olive body; white digit pad + R/S.
+      return keyChartIndex switch
+      {
+        10 => CalcButtonStyle.Orange, // f
+        11 => CalcButtonStyle.Blue, // g
+        14 => CalcButtonStyle.Black, // h
+        21 or 22 or 23 or 26 or 27 or 28 or 31 or 32 or 33
+          or 36 or 37 or 38 => CalcButtonStyle.White, // digits, ·, R/S
+        _ => CalcButtonStyle.Olive,
+      };
+    }
+
+    if (string.Equals(modelId, "HP-70", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(modelId, "70", StringComparison.OrdinalIgnoreCase))
+    {
+      // Classic HP-70 (T-70): black TVM row; dark grey finance/stack; orange ENTER/CHS + ops; white pad.
+      return keyChartIndex switch
+      {
+        5 or 6 or 7 or 8 => CalcButtonStyle.DarkGrey, // INT % Δ% y^x
+        10 or 11 or 12 or 13 => CalcButtonStyle.DarkGrey, // x↔y R↓ STO K
+        15 or 17 => CalcButtonStyle.Orange, // ENTER CHS
+        18 or 19 => CalcButtonStyle.DarkGrey, // M M+
+        20 or 25 or 30 or 35 => CalcButtonStyle.Orange, // − + × ÷
+        21 or 22 or 23 or 26 or 27 or 28 or 31 or 32 or 33
+          or 36 or 37 or 38 => CalcButtonStyle.White, // digits, ·, CLx
+        _ => CalcButtonStyle.Black, // n i PMT PV FV CLR DSP
+      };
+    }
+
+    if (string.Equals(modelId, "HP-80", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(modelId, "80", StringComparison.OrdinalIgnoreCase))
+    {
+      // Classic HP-80 (T-80): cement only [2,2]–[2,5] (% TL SOD DAY) + [3,4]–[3,5] (y^x x̄);
+      // face SlateGray #708090 from Catalog HP-80.jpg (TL/SOD/DAY). Former cement slots → LightGrey.
+      return keyChartIndex switch
+      {
+        5 => CalcButtonStyle.Orange, // gold prefix
+        6 or 7 or 8 or 9 => CalcButtonStyle.Cement, // % TL SOD DAY
+        13 or 14 => CalcButtonStyle.Cement, // y^x x̄
+        10 or 11 or 12 => CalcButtonStyle.LightGrey, // x↔y R↓ STO
+        15 or 17 or 18 or 19 => CalcButtonStyle.LightGrey, // SAVE RCL CHS CLX
+        20 or 25 or 30 or 35 => CalcButtonStyle.LightGrey, // − + × ÷
+        21 or 22 or 23 or 26 or 27 or 28 or 31 or 32 or 33
+          or 36 or 37 or 38 => CalcButtonStyle.White, // digits, ·, Σ+
+        _ => CalcButtonStyle.Black, // n i PMT PV FV
+      };
+    }
+
     return CalcButton.StyleForKeyIndex(keyChartIndex);
   }
 

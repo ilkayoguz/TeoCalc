@@ -1,0 +1,17 @@
+{
+  "Format": "TeoCalc.KeyFaceplate",
+  "SchemaVersion": 1,
+  "Model": "HP-80",
+  "Source": "HP-80 Owner's Handbook / Finseth hp80a / HP Journal May 1973 — CapFace primary (SAVE not ENTER); CapAbove=gold f only (yellow); gold blank CapFace at index 5; financial CapAbove YTM/INTR/BOND/Δ%/DATE/√x/→Σ/CLEAR/Σ-",
+  "Keys": {
+    "1":  { "Gold": "YTM" },
+    "2":  { "Gold": "INTR" },
+    "3":  { "Gold": "BOND" },
+    "6":  { "Gold": "\u0394%" },
+    "9":  { "Gold": "DATE" },
+    "13": { "Gold": "\u221ax" },
+    "14": { "Gold": "\u2192\u03a3" },
+    "19": { "Gold": "CLEAR" },
+    "38": { "Gold": "\u03a3-" }
+  }
+}

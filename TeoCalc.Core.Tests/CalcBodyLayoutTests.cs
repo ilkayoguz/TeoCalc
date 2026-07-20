@@ -200,16 +200,15 @@ public sealed class CalcBodyLayoutTests
   }
 
   [TestMethod]
-  public void Modern00d_Hp45_TopRow_FlushesWithoutBlankKey()
+  public void Modern00d_Hp45_TopRow_IncludesGoldAndFlushes()
   {
     CalcModelDefinition model = CalcModelCatalog.Resolve("HP-45");
     CalcBodyLayout layout = Calc00dBodyLayout.Resolve("Classic", "HP-45", model);
     IReadOnlyList<FaceplateCell> cells = CalcFaceplateLayout.GetPhysicalCells("Classic", "HP-45");
-    Assert.IsFalse(cells.Any(cell => cell.KeyChartIndex == 4));
+    Assert.IsTrue(cells.Any(cell => cell.KeyChartIndex == 4), "HP-45 gold prefix at index 4");
 
     Assert.IsTrue(layout.TryGetKeySlot(0, out RectF left));
-    Assert.IsTrue(layout.TryGetKeySlot(3, out RectF right));
-    Assert.IsFalse(layout.TryGetKeySlot(4, out _));
+    Assert.IsTrue(layout.TryGetKeySlot(4, out RectF right));
     Assert.AreEqual(0f, left.X - layout.KeypadSlot.X, 0.05f);
     Assert.AreEqual(0f, layout.KeypadSlot.X + layout.KeypadSlot.Width - (right.X + right.Width), 0.05f);
   }

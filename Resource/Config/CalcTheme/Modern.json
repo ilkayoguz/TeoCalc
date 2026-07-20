@@ -80,6 +80,18 @@
 
     "KeyGreySkirtColor": "#A29E92",
 
+    "KeyLightGreyTopColor": "#BABAB4",
+
+    "KeyLightGreyFaceColor": "#B0B0AA",
+
+    "KeyLightGreySkirtColor": "#989892",
+
+    "KeyCementTopColor": "#82919E",
+
+    "KeyCementFaceColor": "#708090",
+
+    "KeyCementSkirtColor": "#5A6F7C",
+
     "KeyDarkGreyTopColor": "#4A4A4A",
 
     "KeyDarkGreyFaceColor": "#404040",
