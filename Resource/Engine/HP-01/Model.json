@@ -19,7 +19,7 @@
     "RomBinary": "Firmware/hp01.microcode.bin",
     "RomListing": "Firmware/hp01.microcode.mlist",
     "RomMap": "Firmware/hp01.microcode.map.json",
-    "HandlerCatalog": "../Act/microcode.handlers.json"
+    "HandlerCatalog": "../Hp01/microcode.handlers.json"
   },
   "Faceplate": {
     "BodyLayoutId": "00d",

@@ -112,11 +112,10 @@ public sealed class ClassicFirmwareGatewayTests
   }
 
   [TestMethod]
-  public void EmulatorGateway_Batch_ClassicDiagnosticsNull_Hp01()
+  public void Hp01Gateway_Batch_ClassicDiagnosticsNull()
   {
-    // HP-01 stays on the emulator adapter (ACThp01 opcode table ≠ ActCpuBase).
     ICalcFirmwareGateway gateway = CalcFirmwareGatewayLocator.CreateGateway("HP-01");
-    Assert.IsInstanceOfType(gateway, typeof(EmulatorFirmwareGateway));
+    Assert.IsInstanceOfType(gateway, typeof(Hp01FirmwareGateway));
     gateway.PowerOnResume();
     Assert.IsNull(gateway.LastBatch.Classic);
   }

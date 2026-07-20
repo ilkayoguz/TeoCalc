@@ -1,6 +1,7 @@
 using TeoCalc.Core;
 using TeoCalc.Core.Catalog;
 using TeoCalc.Core.Engine.Classic;
+using TeoCalc.Core.Engine.Hp01;
 using TeoCalc.Core.Engine.Hp19;
 using TeoCalc.Core.Engine.Hp67;
 using TeoCalc.Core.Engine.Spice;
@@ -11,8 +12,8 @@ namespace TeoCalc.Panamatik;
 
 /// <summary>
 /// Wires firmware backends into <see cref="CalcFirmwareGatewayLocator"/>.
-/// ROM-ready Classic, Woodstock, Spice, HP-67, and HP-19C models use native gateways;
-/// other models (including HP-01 — different ACT opcode table) keep the emulator adapter.
+/// ROM-ready Classic, Woodstock, Spice, HP-67, HP-19C, and HP-01 models use native gateways;
+/// other models keep the emulator adapter.
 /// </summary>
 public static class CalcFirmwareBootstrap
 {
@@ -65,6 +66,13 @@ public static class CalcFirmwareBootstrap
     return NativeFamilyAssetsExist(engineId, "Hp19");
   }
 
+  /// <summary>True when HP-01 ACThp01 ROM/handler assets are present.</summary>
+  public static bool IsNativeHp01(string catalogOrEngineId)
+  {
+    string engineId = NormalizeEngineId(CalcModelIds.Resolve(catalogOrEngineId));
+    return NativeFamilyAssetsExist(engineId, "HP01");
+  }
+
   public static void UseEmulatorAdapter()
   {
     CalcFirmwareGatewayLocator.Create = CreateGateway;
@@ -100,7 +108,11 @@ public static class CalcFirmwareBootstrap
       return CreateNativeHp19Gateway(NormalizeEngineId(identity));
     }
 
-    // HP-01: ROM exported but native deferred (ACThp01 opcode table ≠ ActCpuBase).
+    if (IsNativeHp01(catalogOrEngineId))
+    {
+      return CreateNativeHp01Gateway(NormalizeEngineId(identity));
+    }
+
     IPanamatikEngine engine = PanamatikEngineFactory.Create(identity.EngineId);
     return new EmulatorFirmwareGateway(engine);
   }
@@ -171,13 +183,25 @@ public static class CalcFirmwareBootstrap
     return gateway;
   }
 
+  private static Hp01FirmwareGateway CreateNativeHp01Gateway(string engineId)
+  {
+    string engineRoot = TeoCalcPaths.ResourcePath("Engine");
+    string modelPath = Path.Combine(engineRoot, engineId, "Model.json");
+    TeoCalcModelDefinition model = TeoCalcModelDefinition.Load(modelPath);
+    Hp01Cpu cpu = Hp01CpuFactory.Create(model, engineRoot);
+    Hp01FirmwareGateway gateway = new();
+    gateway.AttachCpu(cpu);
+    return gateway;
+  }
+
   private static bool IsSupported(string catalogOrEngineId)
   {
     if (IsNativeClassicPilot(catalogOrEngineId)
         || IsNativeWoodstockPilot(catalogOrEngineId)
         || IsNativeSpicePilot(catalogOrEngineId)
         || IsNativeHp67Pilot(catalogOrEngineId)
-        || IsNativeHp19Pilot(catalogOrEngineId))
+        || IsNativeHp19Pilot(catalogOrEngineId)
+        || IsNativeHp01(catalogOrEngineId))
     {
       return true;
     }
@@ -191,7 +215,8 @@ public static class CalcFirmwareBootstrap
         || IsNativeWoodstockPilot(catalogOrEngineId)
         || IsNativeSpicePilot(catalogOrEngineId)
         || IsNativeHp67Pilot(catalogOrEngineId)
-        || IsNativeHp19Pilot(catalogOrEngineId))
+        || IsNativeHp19Pilot(catalogOrEngineId)
+        || IsNativeHp01(catalogOrEngineId))
     {
       return [];
     }

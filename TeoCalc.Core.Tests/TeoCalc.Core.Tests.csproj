@@ -27,4 +27,8 @@
     <ProjectReference Include="..\TeoCalc.Rendering\TeoCalc.Rendering.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Remove="_tmp_*.cs" />
+  </ItemGroup>
+
 </Project>
