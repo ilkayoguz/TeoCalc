@@ -162,10 +162,12 @@ public sealed class Hp33CFaceplateLegendTests
   }
 
   [TestMethod]
-  public void CatalogAlias_Hp33CMapsToEngineHp33()
+  public void CatalogAlias_Hp33EMapsToEngineHp33()
   {
+    Assert.AreEqual("HP-33", CalcModelIds.ToEngineId("HP-33E"));
+    Assert.AreEqual("33E", CalcModelIds.ToShortId("HP-33E"));
+    Assert.AreEqual("T-33E", CalcModelIds.ToProductLabel("HP-33E"));
     Assert.AreEqual("HP-33", CalcModelIds.ToEngineId("HP-33C"));
-    Assert.AreEqual("33C", CalcModelIds.ToShortId("HP-33C"));
   }
 
   [TestMethod]

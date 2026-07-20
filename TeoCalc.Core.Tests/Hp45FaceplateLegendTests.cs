@@ -145,14 +145,14 @@ public sealed class Hp45FaceplateLegendTests
   }
 
   [TestMethod]
-  public void KeyColors_GoldTrigDarkGreyBlueEnterWhitePad()
+  public void KeyColors_GoldTrigDarkGreyGreyEnterWhitePad()
   {
     Assert.AreEqual(CalcButtonStyle.Orange, CalcFaceplateKeyStyles.StyleForKey("Classic", "HP-45", 4));
     Assert.AreEqual(CalcButtonStyle.DarkGrey, CalcFaceplateKeyStyles.StyleForKey("Classic", "HP-45", 0));
     Assert.AreEqual(CalcButtonStyle.DarkGrey, CalcFaceplateKeyStyles.StyleForKey("Classic", "HP-45", 5));
     Assert.AreEqual(CalcButtonStyle.Black, CalcFaceplateKeyStyles.StyleForKey("Classic", "HP-45", 7));
-    Assert.AreEqual(CalcButtonStyle.Blue, CalcFaceplateKeyStyles.StyleForKey("Classic", "HP-45", 15));
-    Assert.AreEqual(CalcButtonStyle.Blue, CalcFaceplateKeyStyles.StyleForKey("Classic", "HP-45", 20));
+    Assert.AreEqual(CalcButtonStyle.Grey, CalcFaceplateKeyStyles.StyleForKey("Classic", "HP-45", 15));
+    Assert.AreEqual(CalcButtonStyle.Grey, CalcFaceplateKeyStyles.StyleForKey("Classic", "HP-45", 20));
     Assert.AreEqual(CalcButtonStyle.White, CalcFaceplateKeyStyles.StyleForKey("Classic", "HP-45", 21));
     Assert.AreEqual(CalcButtonStyle.White, CalcFaceplateKeyStyles.StyleForKey("Classic", "HP-45", 38));
   }
@@ -180,8 +180,8 @@ public sealed class Hp45FaceplateLegendTests
       (5, "x\u00b2", "\u221ax", CalcButtonStyle.DarkGrey),
       (7, "SIN", "SIN^-1", CalcButtonStyle.Black),
       (14, "%", "\u0394%", CalcButtonStyle.DarkGrey),
-      (15, "ENTER", "DEG", CalcButtonStyle.Blue),
-      (19, "CL X", "CLEAR", CalcButtonStyle.Blue),
+      (15, "ENTER", "DEG", CalcButtonStyle.Grey),
+      (19, "CL X", "CLEAR", CalcButtonStyle.Grey),
       (21, "7", "cm/in", CalcButtonStyle.White),
       (37, "\u00b7", "\u03c0", CalcButtonStyle.White),
       (38, "\u03a3+", "\u03a3-", CalcButtonStyle.White),

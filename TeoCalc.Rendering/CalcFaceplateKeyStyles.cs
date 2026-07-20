@@ -47,16 +47,16 @@ public static class CalcFaceplateKeyStyles
     if (string.Equals(modelId, "HP-45", StringComparison.OrdinalIgnoreCase)
         || string.Equals(modelId, "45", StringComparison.OrdinalIgnoreCase))
     {
-      // Classic HP-45 (photos / YouTube color coding): gold prefix; black trig;
-      // dark grey powers/roots/%; blue ENTER + stack/arithmetic; white digits · Σ+.
+      // Classic HP-45: gold prefix; black trig; dark grey powers/roots/%;
+      // grey ENTER + stack/arithmetic; white digits · Σ+.
       return keyChartIndex switch
       {
         4 => CalcButtonStyle.Orange, // gold f
         7 or 8 or 9 => CalcButtonStyle.Black, // SIN COS TAN
         0 or 1 or 2 or 3 or 5 or 6 or 14 => CalcButtonStyle.DarkGrey, // 1/x ln e^x FIX x² →P %
-        15 or 17 or 18 or 19 => CalcButtonStyle.Blue, // ENTER CHS EEX CLX
-        10 or 11 or 12 or 13 => CalcButtonStyle.Blue, // x↔y R↓ STO RCL
-        20 or 25 or 30 or 35 => CalcButtonStyle.Blue, // − + × ÷
+        15 or 17 or 18 or 19 => CalcButtonStyle.Grey, // ENTER CHS EEX CLX
+        10 or 11 or 12 or 13 => CalcButtonStyle.Grey, // x↔y R↓ STO RCL
+        20 or 25 or 30 or 35 => CalcButtonStyle.Grey, // − + × ÷
         21 or 22 or 23 or 26 or 27 or 28 or 31 or 32 or 33
           or 36 or 37 or 38 => CalcButtonStyle.White, // digits, ·, Σ+
         _ => CalcButtonStyle.Black,
@@ -190,17 +190,30 @@ public static class CalcFaceplateKeyStyles
 
     if (hp22)
     {
+      // HP-22: gold f; dark grey rows 1–3 (incl. ENTER); white pad.
       return keyChartIndex switch
       {
         9 => CalcButtonStyle.Orange, // blank gold f prefix
         >= 15 and <= 33 => CalcButtonStyle.White,
-        _ => CalcButtonStyle.Black,
+        _ => CalcButtonStyle.DarkGrey,
       };
     }
 
-    if (hp25 || hp29 || hp32 || hp33)
+    if (hp25 || hp29)
     {
-      // HP-25 / HP-29C / HP-32E / HP-33C: gold f; blue g; black rows 1–3 (incl. ENTER); white pad.
+      // HP-25 / HP-29C: gold f; blue g; dark grey rows 1–3 (incl. ENTER); white pad.
+      return keyChartIndex switch
+      {
+        3 => CalcButtonStyle.Orange, // gold f CapFace
+        4 => CalcButtonStyle.Blue,   // blue g CapFace
+        >= 15 and <= 33 => CalcButtonStyle.White,
+        _ => CalcButtonStyle.DarkGrey,
+      };
+    }
+
+    if (hp32 || hp33)
+    {
+      // HP-32E / HP-33E: gold f; blue g; black rows 1–3 (incl. ENTER); white pad.
       return keyChartIndex switch
       {
         3 => CalcButtonStyle.Orange, // gold f CapFace
@@ -212,14 +225,14 @@ public static class CalcFaceplateKeyStyles
 
     if (hp34)
     {
-      // HP-34C: gold f; blue g; black h CapFace; black rows 1–3; white pad.
+      // HP-34C: gold f; blue g; dark grey h + rows 1–3; white pad.
       return keyChartIndex switch
       {
         3 => CalcButtonStyle.Orange,
         4 => CalcButtonStyle.Blue,
-        9 => CalcButtonStyle.Black, // h prefix letter
+        9 => CalcButtonStyle.DarkGrey, // h prefix letter
         >= 15 and <= 33 => CalcButtonStyle.White,
-        _ => CalcButtonStyle.Black,
+        _ => CalcButtonStyle.DarkGrey,
       };
     }
 

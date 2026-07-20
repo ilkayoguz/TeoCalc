@@ -2,10 +2,13 @@
   "Format": "TeoCalc.Model",
   "SchemaVersion": 1,
   "Model": "HP-29",
-  "DisplayName": "HP-29",
+  "DisplayName": "HP-29C",
   "Inherits": "Woodstock",
   "Family": "Woodstock",
   "FamilyConfig": "../Woodstock/Family.json",
+  "Faceplate": {
+    "ShortId": "29C"
+  },
   "Hardware": {
     "ButtonCount": 40,
     "RamBytes": 448,
