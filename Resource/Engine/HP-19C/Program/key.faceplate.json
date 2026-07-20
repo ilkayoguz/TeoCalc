@@ -2,7 +2,13 @@
   "Format": "TeoCalc.KeyFaceplate",
   "SchemaVersion": 1,
   "Model": "HP-19C",
-  "Source": "HP-19C/29C keyboard — CapAbove=f (gold), CapSkirt=g (blue); GTO included (chart index 3)",
+  "Source": "HP-19C/29C keyboard — CapAbove=f (gold), CapSkirt=g (blue); GTO included (chart index 3); CLEAR bracket spans ENTER…CLX CapAbove (PREFIX/PRGM/REG/Σ)",
+  "ClearBracket": {
+    "LeftKey": 6,
+    "RightKey": 10,
+    "TextCenterKey": 8,
+    "Text": "CLEAR"
+  },
   "Keys": {
     "0":  { "Gold": "x\u0305", "Blue": "%" },
     "1":  { "Gold": "S", "Blue": "i" },

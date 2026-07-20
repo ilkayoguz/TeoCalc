@@ -17,30 +17,36 @@ public static class CalcBodyComponent
     ImDrawListPtr draw,
     Vector2 origin,
     CalcChassisMetrics metrics,
-    CalcModelDefinition model)
+    CalcModelDefinition model,
+    bool skipText = false)
   {
     if (CalcModernBody.IsActive)
     {
-      CalcModernBodyChrome.Draw(draw, origin, metrics, model);
+      CalcModernBodyChrome.Draw(draw, origin, metrics, model, skipText: skipText);
       return;
     }
 
     if (Hp65FaceplateSvgAssets.UseBodyChrome && Hp65FaceplateSvgAssets.IsReady)
     {
       Hp65FaceplateSvgAssets.DrawBody(draw, origin, metrics);
-      CalcChassisRenderer.DrawCardSlotLabels(draw, origin, metrics);
-      Hp65FaceplateSvgAssets.DrawLogo(draw, origin, metrics);
+      if (!skipText)
+      {
+        CalcChassisRenderer.DrawCardSlotLabels(draw, origin, metrics);
+      }
+
+      Hp65FaceplateSvgAssets.DrawLogo(draw, origin, metrics, skipText: skipText);
       return;
     }
 
-    DrawProceduralChrome(draw, origin, metrics, model);
+    DrawProceduralChrome(draw, origin, metrics, model, skipText);
   }
 
   private static void DrawProceduralChrome(
     ImDrawListPtr draw,
     Vector2 origin,
     CalcChassisMetrics metrics,
-    CalcModelDefinition model)
+    CalcModelDefinition model,
+    bool skipText)
   {
     Vector2 size = new(metrics.Width, metrics.Height);
     Vector2 max = origin + size;
@@ -68,10 +74,10 @@ public static class CalcBodyComponent
 
     if (metrics.Layout.HasCardSlots)
     {
-      CalcChassisRenderer.DrawCardSlots(draw, origin, metrics, paintChrome: true);
+      CalcChassisRenderer.DrawCardSlots(draw, origin, metrics, paintChrome: true, skipText: skipText);
     }
 
-    CalcLogoComponent.Draw(draw, slots.Logo.Min, slots.Logo.Max, model, scale);
+    CalcLogoComponent.Draw(draw, slots.Logo.Min, slots.Logo.Max, model, scale, skipText: skipText);
   }
 
   private static void DrawDisplayBezel(ImDrawListPtr draw, RectF display, float scale)

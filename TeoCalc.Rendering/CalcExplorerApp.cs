@@ -1,3 +1,4 @@
+using System.Numerics;
 using ImGuiNET;
 using Silk.NET.Input;
 using Silk.NET.Maths;
@@ -124,10 +125,13 @@ public static class CalcExplorerApp
   {
     CalcFaceplateThemeState.ApplyForModel(CalcModelCatalog.Hp65);
     CalculatorLauncherModel launcherModel = CalculatorLauncherModel.CreateDefault();
+    Vector2 launcherSize = CalculatorLauncherView.PreferredWindowSize(launcherModel.Entries.Count);
 
     WindowOptions options = WindowOptions.Default;
     options.Title = "TeoCalc";
-    options.Size = new Vector2D<int>(460, 320);
+    options.Size = new Vector2D<int>(
+      Math.Max(320, (int)MathF.Round(launcherSize.X)),
+      Math.Max(240, (int)MathF.Round(launcherSize.Y)));
     options.VSync = true;
 
     _launcher = Silk.NET.Windowing.Window.Create(options);
@@ -145,6 +149,7 @@ public static class CalcExplorerApp
         controller = new ImGuiController(gl, _launcher, input, onConfigureIO: CalcFaceplateFonts.Configure);
         Hp65FaceplateSvgAssets.TryInitialize(gl);
         CalcModernSvgAssets.TryInitialize(gl);
+        CalculatorLauncherThumbnail.Initialize(gl);
       }
       catch (Exception exception)
       {
@@ -178,6 +183,7 @@ public static class CalcExplorerApp
         controller.MakeCurrent();
         CalculatorLauncherView.Draw(launcherModel);
         controller.Render();
+        CalculatorLauncherThumbnail.BakePending(gl, _launcher.FramebufferSize);
         CalcFaceplatePointer.ApplyPendingCursor(input);
       }
       catch (Exception exception)
@@ -207,6 +213,7 @@ public static class CalcExplorerApp
       controller = null;
       input?.Dispose();
       input = null;
+      CalculatorLauncherThumbnail.Dispose();
       Hp65FaceplateSvgAssets.Dispose();
       CalcModernSvgAssets.Dispose();
       gl?.Dispose();

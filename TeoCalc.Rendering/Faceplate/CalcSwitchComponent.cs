@@ -91,7 +91,8 @@ public static class CalcSwitchComponent
     float scale,
     CalcSwitchSpec spec,
     float positionNorm,
-    bool modernChrome = true)
+    bool modernChrome = true,
+    bool skipText = false)
   {
     Metrics m = Measure(spec, scale);
     float gap = LabelGapRef * scale;
@@ -101,7 +102,7 @@ public static class CalcSwitchComponent
     float auxSize = m.FontSize * 0.85f;
 
     float x = leftX;
-    if (m.LeftLabelWidth > 0.5f)
+    if (!skipText && m.LeftLabelWidth > 0.5f)
     {
       DrawStackedSideLabel(draw, font, m.FontSize, ink, spec.LeftLabel, x, trackCenterY, rightAligned: true);
     }
@@ -109,6 +110,11 @@ public static class CalcSwitchComponent
     x += m.LeftLabelWidth + gap;
     float trackCenterX = x + m.TrackColumnWidth * 0.5f;
     DrawTrackAndKnob(draw, new Vector2(trackCenterX, trackCenterY), scale, positionNorm, modernChrome);
+
+    if (skipText)
+    {
+      return;
+    }
 
     if (!string.IsNullOrEmpty(spec.TopLabel))
     {
@@ -142,7 +148,8 @@ public static class CalcSwitchComponent
     float scale,
     IReadOnlyList<CalcSwitchSpec> specs,
     Func<int, CalcSwitchSpec, float> positionNormForIndex,
-    bool modernChrome = true)
+    bool modernChrome = true,
+    bool skipText = false)
   {
     if (specs.Count == 0)
     {
@@ -158,7 +165,7 @@ public static class CalcSwitchComponent
     for (int i = 0; i < specs.Count; i++)
     {
       float leftX = ComponentLeftX(rowSlot, specs.Count, metrics, i, scale);
-      Draw(draw, leftX, trackCenterY, scale, specs[i], positionNormForIndex(i, specs[i]), modernChrome);
+      Draw(draw, leftX, trackCenterY, scale, specs[i], positionNormForIndex(i, specs[i]), modernChrome, skipText);
     }
   }
 

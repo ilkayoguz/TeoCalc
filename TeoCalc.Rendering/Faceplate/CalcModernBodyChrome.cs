@@ -11,7 +11,8 @@ public static class CalcModernBodyChrome
     ImDrawListPtr draw,
     Vector2 origin,
     CalcChassisMetrics metrics,
-    CalcModelDefinition model)
+    CalcModelDefinition model,
+    bool skipText = false)
   {
     float scale = metrics.Scale;
 
@@ -27,7 +28,7 @@ public static class CalcModernBodyChrome
     RectF logo = ScaleRect(origin, scale, metrics.Layout.LogoSlot);
     if (logo.Height > 0f)
     {
-      CalcLogoPanelComponent.Draw(draw, logo, scale, model);
+      CalcLogoPanelComponent.Draw(draw, logo, scale, model, skipText: skipText);
     }
   }
 

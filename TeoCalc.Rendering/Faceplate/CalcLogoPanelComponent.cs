@@ -19,7 +19,7 @@ public static class CalcLogoPanelComponent
   public static RectF ResolveSlotRef(float bandLeft, float bandWidth, float topY) =>
     new(bandLeft, topY, bandWidth, HeightRef);
 
-  public static void Draw(ImDrawListPtr draw, RectF logo, float scale, CalcModelDefinition model)
+  public static void Draw(ImDrawListPtr draw, RectF logo, float scale, CalcModelDefinition model, bool skipText = false)
   {
     float radius = Calc00dWireStyle.SwitchPanelRadiusRef * scale;
     DrawBrushedAluminumPlate(draw, logo, radius, scale);
@@ -34,6 +34,11 @@ public static class CalcLogoPanelComponent
         && !CalcModernSvgAssets.TryDrawHpMark(draw, markMin, markMax))
     {
       draw.AddRectFilled(markMin, markMax, 0xFF3A3A3A, MathF.Max(2f, scale));
+    }
+
+    if (skipText)
+    {
+      return;
     }
 
     float dividerPadY = logo.Height * 0.18f;

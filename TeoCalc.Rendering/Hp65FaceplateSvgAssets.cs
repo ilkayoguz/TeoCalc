@@ -49,7 +49,7 @@ public static class Hp65FaceplateSvgAssets
     Cache.TryDraw(draw, origin, max, BodyPath, w, h, revision: BodySvgRevision);
   }
 
-  public static void DrawLogo(ImDrawListPtr draw, Vector2 origin, CalcChassisMetrics metrics)
+  public static void DrawLogo(ImDrawListPtr draw, Vector2 origin, CalcChassisMetrics metrics, bool skipText = false)
   {
     BodyFaceplateLayout.EnsureLoaded();
     RectF plate = BodyFaceplateLayout.BrandPlate;
@@ -66,6 +66,11 @@ public static class Hp65FaceplateSvgAssets
       {
         Cache.TryDraw(draw, logoMin, logoMax, LogoPath, w, h, revision: LogoSvgRevision);
       }
+    }
+
+    if (skipText)
+    {
+      return;
     }
 
     // Modern window chrome draws the full Teo | caption | T-xx plate; classic SVG path

@@ -2,7 +2,13 @@
   "Format": "TeoCalc.KeyFaceplate",
   "SchemaVersion": 1,
   "Model": "HP-29",
-  "Source": "HP-29C Owner's Handbook / Finseth hp29c — CapAbove=f (gold); CapSkirt=g (blue); CapFace letters on f/g; GSB not BST",
+  "Source": "HP-29C Owner's Handbook / Finseth hp29c — CapAbove=f (gold); CapSkirt=g (blue); CapFace letters on f/g; GSB not BST; CLEAR bracket spans ENTER…CLX CapAbove (PREFIX/PRGM/REG/Σ)",
+  "ClearBracket": {
+    "LeftKey": 10,
+    "RightKey": 14,
+    "TextCenterKey": 12,
+    "Text": "CLEAR"
+  },
   "Keys": {
     "0":  { "Gold": "FIX", "Blue": "BST" },
     "1":  { "Gold": "SCI", "Blue": "RTN" },

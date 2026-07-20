@@ -7,15 +7,22 @@ namespace TeoCalc.Rendering.Faceplate;
 /// <summary>Logo strip: brand mark + Teo caption.</summary>
 public static class CalcLogoComponent
 {
-  public static void Draw(ImDrawListPtr draw, Vector2 stripMin, Vector2 stripMax, CalcModelDefinition model, float scale) =>
-    DrawProceduralStrip(draw, stripMin, stripMax, model, scale);
+  public static void Draw(
+    ImDrawListPtr draw,
+    Vector2 stripMin,
+    Vector2 stripMax,
+    CalcModelDefinition model,
+    float scale,
+    bool skipText = false) =>
+    DrawProceduralStrip(draw, stripMin, stripMax, model, scale, skipText);
 
   private static void DrawProceduralStrip(
     ImDrawListPtr draw,
     Vector2 stripMin,
     Vector2 stripMax,
     CalcModelDefinition model,
-    float scale)
+    float scale,
+    bool skipText)
   {
     float height = stripMax.Y - stripMin.Y;
     float width = stripMax.X - stripMin.X;
@@ -28,7 +35,12 @@ public static class CalcLogoComponent
     draw.AddRectFilled(stripMin, stripMax, stripBase, 2f * scale);
     DrawBrushedMetal(draw, stripMin, stripMax, scale, stripBase);
 
-    float logoRight = DrawMonochromeHpLogo(draw, stripMin, stripMax, scale, markMetal);
+    float logoRight = DrawMonochromeHpLogo(draw, stripMin, stripMax, scale, markMetal, skipText);
+
+    if (skipText)
+    {
+      return;
+    }
 
     float dividerX = logoRight + padX * 0.35f;
     draw.AddLine(
@@ -52,7 +64,8 @@ public static class CalcLogoComponent
     Vector2 stripMin,
     Vector2 stripMax,
     float scale,
-    uint markMetal)
+    uint markMetal,
+    bool skipText)
   {
     float height = stripMax.Y - stripMin.Y;
     float padX = (stripMax.X - stripMin.X) * 0.04f;
@@ -67,10 +80,13 @@ public static class CalcLogoComponent
     draw.AddCircleFilled(center, radius + scale * 0.8f, rim);
     draw.AddCircleFilled(center, radius, face);
 
-    float fontSize = markSize * 0.36f;
-    ImFontPtr font = CalcFaceplateFonts.IsArialBoldReady ? CalcFaceplateFonts.ArialBold : ImGui.GetFont();
-    Vector2 textSize = font.CalcTextSizeA(fontSize, float.MaxValue, 0f, "hp");
-    draw.AddText(font, fontSize, center - textSize * 0.5f, hpInk, "hp");
+    if (!skipText)
+    {
+      float fontSize = markSize * 0.36f;
+      ImFontPtr font = CalcFaceplateFonts.IsArialBoldReady ? CalcFaceplateFonts.ArialBold : ImGui.GetFont();
+      Vector2 textSize = font.CalcTextSizeA(fontSize, float.MaxValue, 0f, "hp");
+      draw.AddText(font, fontSize, center - textSize * 0.5f, hpInk, "hp");
+    }
 
     return center.X + radius;
   }

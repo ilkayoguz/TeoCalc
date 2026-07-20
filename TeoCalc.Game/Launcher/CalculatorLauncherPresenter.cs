@@ -99,7 +99,7 @@ public sealed class CalculatorLauncherPresenter
 
     if (!selected.CanOpen)
     {
-      _viewModel.StatusLine = $"{selected.DisplayName}: {selected.Status}.";
+      _viewModel.StatusLine = $"{selected.ProductLabel}: {selected.Status}.";
       return false;
     }
 
@@ -117,7 +117,7 @@ public sealed class CalculatorLauncherPresenter
       return true;
     }
 
-    _viewModel.StatusLine = $"{selected.DisplayName}: failed to open.";
+    _viewModel.StatusLine = $"{selected.ProductLabel}: failed to open.";
     return false;
   }
 
@@ -128,6 +128,6 @@ public sealed class CalculatorLauncherPresenter
       return;
     }
 
-    _viewModel.StatusLine = $"{selected.DisplayName} ({selected.ProductLabel}): {selected.Status}.";
+    _viewModel.StatusLine = $"{selected.ProductLabel}: {selected.Status}.";
   }
 }

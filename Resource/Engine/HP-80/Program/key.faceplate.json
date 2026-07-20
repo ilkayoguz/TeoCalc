@@ -2,7 +2,13 @@
   "Format": "TeoCalc.KeyFaceplate",
   "SchemaVersion": 1,
   "Model": "HP-80",
-  "Source": "HP-80 Owner's Handbook / Finseth hp80a / HP Journal May 1973 — CapFace primary (SAVE not ENTER); CapAbove=gold f only (yellow); gold blank CapFace at index 5; financial CapAbove YTM/INTR/BOND/Δ%/DATE/√x/→Σ/CLEAR/Σ-",
+  "Source": "HP-80 Owner's Handbook / Finseth hp80a / HP Journal May 1973 — CapFace primary (SAVE not ENTER); CapAbove=gold f only (yellow); gold blank CapFace at index 5; financial CapAbove YTM/INTR/BOND/Δ%/DATE/√x/→Σ/CLEAR/Σ-; COMPUTE bracket spans TL…SOD (indices 7–8)",
+  "ClearBracket": {
+    "LeftKey": 7,
+    "RightKey": 8,
+    "TextCenterKey": 7,
+    "Text": "COMPUTE"
+  },
   "Keys": {
     "1":  { "Gold": "YTM" },
     "2":  { "Gold": "INTR" },

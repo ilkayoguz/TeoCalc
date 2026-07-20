@@ -67,7 +67,8 @@ public static class CalcButton
     bool forcePressed = false,
     bool interactive = true,
     uint? primaryInkOverride = null,
-    uint? skirtInkOverride = null)
+    uint? skirtInkOverride = null,
+    bool skipText = false)
   {
     if (!overlayOnly && CalcModernBody.IsActive)
     {
@@ -85,7 +86,8 @@ public static class CalcButton
         forcePressed,
         interactive,
         primaryInkOverride,
-        skirtInkOverride);
+        skirtInkOverride,
+        skipText);
     }
 
     if (!overlayOnly && drawWell && !Hp65FaceplateSvgAssets.CanDrawKeyCaps)
@@ -126,6 +128,11 @@ public static class CalcButton
     }
 
     DrawCap(draw, capMin, capMax, style, kind, hovered, pressed, scale);
+    if (skipText)
+    {
+      return clicked;
+    }
+
     CalcKeyCapComponent cap = new() { CapMin = capMin, CapMax = capMax };
     DrawPrimaryLabel(draw, primary, cap, kind, style, scale, leftAlignPrimary, primaryInkOverride);
 
@@ -160,7 +167,8 @@ public static class CalcButton
     bool forcePressed,
     bool interactive,
     uint? primaryInkOverride,
-    uint? skirtInkOverride)
+    uint? skirtInkOverride,
+    bool skipText)
   {
     Vector2 size = max - min;
     bool clicked = false;
@@ -201,6 +209,11 @@ public static class CalcButton
     else
     {
       draw.AddRect(capMin, capMax, CalcChassisPalette.KeyCapBezel, radius, ImDrawFlags.None, scale * 0.35f);
+    }
+
+    if (skipText)
+    {
+      return clicked;
     }
 
     CalcKeyCapComponent cap = new() { CapMin = capMin, CapMax = capMax };

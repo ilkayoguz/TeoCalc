@@ -240,8 +240,29 @@ public static class CalcKeyComponent
     bool leftAlignPrimary = false,
     bool drawWell = true,
     bool forcePressed = false,
-    bool interactive = true)
+    bool interactive = true,
+    bool skipText = false)
   {
+    if (skipText)
+    {
+      return CalcButton.Draw(
+        draw,
+        id,
+        capMin,
+        capMax,
+        visual.CapStyle,
+        visual.Kind,
+        primary: string.Empty,
+        goldOnBody: null,
+        blueOnBody: null,
+        scale,
+        leftAlignPrimary,
+        drawWell,
+        forcePressed: forcePressed,
+        interactive: interactive,
+        skipText: true);
+    }
+
     bool drewSpaceSavingDualInkAbove = TryDrawSpaceSavingDualInkCapAbove(
       draw,
       visual,

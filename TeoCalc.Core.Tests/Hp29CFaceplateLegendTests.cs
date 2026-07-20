@@ -1,6 +1,7 @@
 using TeoCalc.Core;
 using TeoCalc.Core.Catalog;
 using TeoCalc.Rendering;
+using TeoCalc.Rendering.Faceplate;
 
 namespace TeoCalc.Core.Tests;
 
@@ -185,5 +186,62 @@ public sealed class Hp29CFaceplateLegendTests
     Assert.AreEqual(ShiftPreviewMode.Blue, preview.Mode);
     preview.HandleKeyPress(0, "Woodstock", "HP-29");
     Assert.AreEqual(ShiftPreviewMode.None, preview.Mode);
+  }
+
+  [TestMethod]
+  public void ClearBracket_SpansEnterThroughClx()
+  {
+    Assert.IsTrue(CalcBracketLegendComponent.TryResolve("HP-29", out CalcBracketLegendComponent.Spec spec));
+    Assert.AreEqual(10, spec.LeftKey);
+    Assert.AreEqual(14, spec.RightKey);
+    Assert.AreEqual(12, spec.TextCenterKey);
+    Assert.AreEqual("CLEAR", spec.Text);
+    Assert.IsTrue(CalcBracketLegendComponent.TryResolve("HP-29C", out CalcBracketLegendComponent.Spec alias));
+    Assert.AreEqual(10, alias.LeftKey);
+    Assert.AreEqual("CLEAR", alias.Text);
+  }
+
+  [TestMethod]
+  public void ClearBracket_CapAboveLegends_RemainUnderBracket()
+  {
+    ProgramVocabulary vocabulary = LoadVocabulary();
+    Dictionary<int, string> expectedGold = new()
+    {
+      [10] = "PREFIX",
+      [12] = "PRGM",
+      [13] = "REG",
+      [14] = "\u03a3",
+    };
+
+    foreach ((int index, string gold) in expectedGold)
+    {
+      HpCalcKeyVisual visual = ClassicKeyFaceplateLegend.Resolve(
+        "HP-29",
+        "Woodstock",
+        vocabulary.KeyChart[index],
+        vocabulary,
+        FaceplateLabelStyle.Normal);
+      Assert.AreEqual(gold, visual.GoldShift, $"CapAbove gold at {index}");
+    }
+  }
+
+  [TestMethod]
+  public void ClearBracket_LayoutInsertsGutterExtraAboveEnterRow()
+  {
+    CalcModelDefinition model = CalcModelCatalog.Resolve("HP-29");
+    CalcBodyLayout layout = Calc00dBodyLayout.Resolve("Woodstock", "HP-29", model);
+    IReadOnlyList<FaceplateCell> cells = CalcFaceplateLayout.GetPhysicalCells("Woodstock", "HP-29");
+    int clearRow = CalcBracketLegendComponent.FindBracketRow(cells, "HP-29");
+    Assert.IsTrue(clearRow >= 1);
+
+    FaceplateCell enter = cells.Single(c => c.KeyChartIndex == 10);
+    FaceplateCell above = cells.First(c => c.Row == clearRow - 1);
+    Assert.IsTrue(layout.TryGetKeySlot(enter.KeyChartIndex, out RectF enterSlot));
+    Assert.IsTrue(layout.TryGetKeySlot(above.KeyChartIndex, out RectF aboveSlot));
+
+    float gap = enterSlot.Y - (aboveSlot.Y + aboveSlot.Height);
+    Assert.AreEqual(CalcKeyPanelComponent.GutterRef + CalcBracketLegendComponent.GutterExtraAboveRef, gap, 0.05f);
+    float capFace = enterSlot.Height - CalcKeyPanelComponent.LabelAboveRef;
+    Assert.AreEqual(CalcKeyPanelComponent.PreferredCapHeightRef, capFace, 0.05f);
   }
 }

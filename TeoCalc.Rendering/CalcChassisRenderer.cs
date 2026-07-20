@@ -7,8 +7,13 @@ namespace TeoCalc.Rendering;
 
 public static class CalcChassisRenderer
 {
-  public static void DrawShell(ImDrawListPtr draw, Vector2 origin, CalcChassisMetrics metrics, CalcModelDefinition model) =>
-    CalcBodyComponent.DrawChrome(draw, origin, metrics, model);
+  public static void DrawShell(
+    ImDrawListPtr draw,
+    Vector2 origin,
+    CalcChassisMetrics metrics,
+    CalcModelDefinition model,
+    bool skipText = false) =>
+    CalcBodyComponent.DrawChrome(draw, origin, metrics, model, skipText: skipText);
 
   public static void DrawBrandPlateText(
     ImDrawListPtr draw,
@@ -120,7 +125,8 @@ public static class CalcChassisRenderer
     Vector2 origin,
     CalcChassisMetrics metrics,
     bool paintChrome,
-    IReadOnlyList<string>? labels = null)
+    IReadOnlyList<string>? labels = null,
+    bool skipText = false)
   {
     if (!metrics.Layout.HasCardSlots)
     {
@@ -130,7 +136,7 @@ public static class CalcChassisRenderer
     RectF band = metrics.CardSlotBandRect(origin);
     if (CalcModernBody.IsActive)
     {
-      CalcCardSlotComponent.Draw(draw, band, metrics, origin, labels);
+      CalcCardSlotComponent.Draw(draw, band, metrics, origin, labels, skipText: skipText);
       return;
     }
 
@@ -167,6 +173,11 @@ public static class CalcChassisRenderer
           metrics.Scale);
       }
 
+      if (skipText)
+      {
+        continue;
+      }
+
       float slotInsetX = metrics.Scale * 1.5f;
       float slotLeft = cellX + slotInsetX;
       float slotRight = cellX + cellWidth - slotInsetX;
@@ -191,7 +202,12 @@ public static class CalcChassisRenderer
     }
   }
 
-  public static void DrawSliderSwitches(ImDrawListPtr draw, Vector2 origin, CalcChassisMetrics metrics, CalcExplorerSession session)
+  public static void DrawSliderSwitches(
+    ImDrawListPtr draw,
+    Vector2 origin,
+    CalcChassisMetrics metrics,
+    CalcExplorerSession session,
+    bool skipText = false)
   {
     float scale = metrics.Scale;
     RectF slot = metrics.SwitchTrackRect(origin);
@@ -203,7 +219,8 @@ public static class CalcChassisRenderer
       scale,
       specs,
       (index, spec) => session.GetFaceplateSwitchNorm(index, spec),
-      modernChrome: CalcModernBody.IsActive);
+      modernChrome: CalcModernBody.IsActive,
+      skipText: skipText);
   }
 
   public readonly record struct SwitchPointerState(bool Hovered, bool ClickHandled);

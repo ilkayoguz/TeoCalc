@@ -225,4 +225,38 @@ public sealed class Hp80FaceplateLegendTests
       Assert.AreEqual(style, CalcFaceplateKeyStyles.StyleForKey("Classic", "HP-80", index), $"Style {index}");
     }
   }
+
+  [TestMethod]
+  public void ClearBracket_SpansTlThroughSod_AsCompute()
+  {
+    Assert.IsTrue(CalcBracketLegendComponent.TryResolve("HP-80", out CalcBracketLegendComponent.Spec spec));
+    Assert.AreEqual(7, spec.LeftKey);
+    Assert.AreEqual(8, spec.RightKey);
+    Assert.AreEqual(7, spec.TextCenterKey);
+    Assert.AreEqual("COMPUTE", spec.Text);
+    Assert.IsTrue(CalcBracketLegendComponent.CoversKey(spec, 7));
+    Assert.IsTrue(CalcBracketLegendComponent.CoversKey(spec, 8));
+    Assert.IsFalse(CalcBracketLegendComponent.CoversKey(spec, 6));
+    Assert.IsFalse(CalcBracketLegendComponent.CoversKey(spec, 9));
+  }
+
+  [TestMethod]
+  public void ClearBracket_LayoutInsertsGutterExtraAboveCementRow()
+  {
+    CalcModelDefinition model = CalcModelCatalog.Resolve("HP-80");
+    CalcBodyLayout layout = Calc00dBodyLayout.Resolve("Classic", "HP-80", model);
+    IReadOnlyList<FaceplateCell> cells = CalcFaceplateLayout.GetPhysicalCells("Classic", "HP-80");
+    int clearRow = CalcBracketLegendComponent.FindBracketRow(cells, "HP-80");
+    Assert.IsTrue(clearRow >= 1);
+
+    FaceplateCell tl = cells.Single(c => c.KeyChartIndex == 7);
+    FaceplateCell above = cells.First(c => c.Row == clearRow - 1);
+    Assert.IsTrue(layout.TryGetKeySlot(tl.KeyChartIndex, out RectF tlSlot));
+    Assert.IsTrue(layout.TryGetKeySlot(above.KeyChartIndex, out RectF aboveSlot));
+
+    float gap = tlSlot.Y - (aboveSlot.Y + aboveSlot.Height);
+    Assert.AreEqual(CalcKeyPanelComponent.GutterRef + CalcBracketLegendComponent.GutterExtraAboveRef, gap, 0.05f);
+    float capFace = tlSlot.Height - CalcKeyPanelComponent.LabelAboveRef;
+    Assert.AreEqual(CalcKeyPanelComponent.PreferredCapHeightRef, capFace, 0.05f);
+  }
 }

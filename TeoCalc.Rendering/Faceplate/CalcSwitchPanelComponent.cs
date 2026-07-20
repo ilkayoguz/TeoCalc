@@ -139,7 +139,8 @@ public static class CalcSwitchPanelComponent
     float scale,
     IReadOnlyList<CalcSwitchSpec> specs,
     Func<int, CalcSwitchSpec, float> positionNormForIndex,
-    bool modernChrome = true)
+    bool modernChrome = true,
+    bool skipText = false)
   {
     if (modernChrome)
     {
@@ -169,6 +170,7 @@ public static class CalcSwitchPanelComponent
       scale,
       specs,
       positionNormForIndex,
-      modernChrome);
+      modernChrome,
+      skipText: skipText);
   }
 }

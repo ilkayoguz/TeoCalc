@@ -51,7 +51,8 @@ public static class CalcCardSlotComponent
     RectF panel,
     CalcChassisMetrics metrics,
     Vector2 origin,
-    IReadOnlyList<string>? labels = null)
+    IReadOnlyList<string>? labels = null,
+    bool skipText = false)
   {
     if (panel.Width <= 0f || panel.Height <= 0f)
     {
@@ -68,6 +69,11 @@ public static class CalcCardSlotComponent
       radius,
       ImDrawFlags.RoundCornersAll,
       thickness);
+
+    if (skipText)
+    {
+      return;
+    }
 
     IReadOnlyList<string> captions = labels is { Count: > 0 } ? labels : NoCardLabels;
     float fontSize = MathF.Max(11f * scale, panel.Height * 0.42f);

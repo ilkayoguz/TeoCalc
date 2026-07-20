@@ -2,7 +2,13 @@
   "Format": "TeoCalc.KeyFaceplate",
   "SchemaVersion": 1,
   "Model": "HP-38",
-  "Source": "HP-38E Owner's Handbook / Finseth hp38e — CapAbove=f (gold); CapSkirt=g (blue); CapFace letters on f/g at indices 8/9; financial n/i/PV/PMT/FV; STO RCL %; ENTER row CHS x↔y CL X; R/S CapFace; CLEAR CapAbove PREFIX FIN Σ ALL + CapSkirt CL P (no GoldRight dual)",
+  "Source": "HP-38E Owner's Handbook / Finseth hp38e — CapAbove=f (gold); CapSkirt=g (blue); CapFace letters on f/g at indices 8/9; financial n/i/PV/PMT/FV; STO RCL %; ENTER row CHS x↔y CL X; R/S CapFace; CLEAR CapAbove PREFIX FIN Σ ALL + CapSkirt CL P (no GoldRight dual); CLEAR bracket spans ENTER…CL X",
+  "ClearBracket": {
+    "LeftKey": 10,
+    "RightKey": 14,
+    "TextCenterKey": 12,
+    "Text": "CLEAR"
+  },
   "Keys": {
     "0":  { "Gold": "AMORT", "Blue": "12x" },
     "1":  { "Gold": "INT", "Blue": "12\u00f7" },

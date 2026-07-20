@@ -2,7 +2,14 @@
   "Format": "TeoCalc.KeyFaceplate",
   "SchemaVersion": 1,
   "Model": "HP-34",
-  "Source": "HP-34C Owner's Handbook / Finseth hp34c — CapAbove left=f (gold); CapAbove right=g (blue); trig CapAbove space-saving: Gold=SIN/COS/TAN + Blue=^-1 (superscript, dual ink); CapSkirt=h (black, contrast ink); CapFace A/B/GSB/f/g and h; CLEAR CapAbove MEM+PREFIX, CapSkirt MANT; Finseth ->D/->R as →D/→R; \\.Syx as ∫yx",
+  "Source": "HP-34C Owner's Handbook / Finseth hp34c — CapAbove left=f (gold); CapAbove right=g (blue); trig CapAbove space-saving: Gold=SIN/COS/TAN + Blue=^-1 (superscript, dual ink); CapSkirt=h (black, contrast ink); CapFace A/B/GSB/f/g and h; CLEAR CapAbove MEM+PREFIX, CapSkirt MANT; Finseth ->D/->R as →D/→R; \\.Syx as ∫yx; CLEAR bracket spans ENTER…CLX",
+  "ClearBracket": {
+    "LeftKey": 10,
+    "RightKey": 14,
+    "TextCenterKey": 12,
+    "Text": "CLEAR",
+    "LeftEdge": "Mid"
+  },
   "Keys": {
     "0":  { "Gold": "FIX", "Blue": "DEG", "Black": "DSP I" },
     "1":  { "Gold": "SCI", "Blue": "RAD", "Black": "RTN" },

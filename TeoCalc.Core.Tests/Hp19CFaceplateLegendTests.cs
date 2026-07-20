@@ -1,6 +1,7 @@
 using TeoCalc.Core;
 using TeoCalc.Core.Catalog;
 using TeoCalc.Rendering;
+using TeoCalc.Rendering.Faceplate;
 
 namespace TeoCalc.Core.Tests;
 
@@ -110,5 +111,105 @@ public sealed class Hp19CFaceplateLegendTests
     Assert.AreEqual(ShiftPreviewMode.Gold, preview.Mode);
     preview.HandleKeyPress(11, "HP19C");
     Assert.AreEqual(ShiftPreviewMode.Blue, preview.Mode);
+  }
+
+  [TestMethod]
+  public void ClearBracket_SpansEnterThroughClx()
+  {
+    Assert.IsTrue(CalcBracketLegendComponent.TryResolve("HP-19C", out CalcBracketLegendComponent.Spec spec));
+    Assert.AreEqual(6, spec.LeftKey);
+    Assert.AreEqual(10, spec.RightKey);
+    Assert.AreEqual(8, spec.TextCenterKey);
+    Assert.AreEqual("CLEAR", spec.Text);
+
+    // ENTER / CHS / EEX / CLX chart span (index 7 is the omitted wide-ENTER twin).
+    foreach (int index in new[] { 6, 8, 9, 10 })
+    {
+      Assert.IsTrue(CalcBracketLegendComponent.CoversKey(spec, index), $"Covered {index}");
+    }
+
+    Assert.IsFalse(CalcBracketLegendComponent.CoversKey(spec, 11));
+    Assert.IsFalse(CalcBracketLegendComponent.CoversKey(spec, 5));
+  }
+
+  [TestMethod]
+  public void ClearBracket_CapAboveLegends_RemainUnderBracket()
+  {
+    ProgramVocabulary vocabulary = LoadVocabulary();
+    Dictionary<int, string> expectedGold = new()
+    {
+      [6] = "PREFIX",
+      [8] = "PRGM",
+      [9] = "REG",
+      [10] = "\u03a3",
+    };
+
+    foreach ((int index, string gold) in expectedGold)
+    {
+      HpCalcKeyVisual visual = ClassicKeyFaceplateLegend.Resolve(
+        "HP-19C",
+        "HP19C",
+        vocabulary.KeyChart[index],
+        vocabulary,
+        FaceplateLabelStyle.Normal);
+      Assert.AreEqual(gold, visual.GoldShift, $"CapAbove gold at {index}");
+    }
+  }
+
+  [TestMethod]
+  public void ClearBracket_DoesNotShrinkCapFace_AndClearsCapAbove()
+  {
+    const float scale = 1f;
+    float labelAbove = CalcKeyPanelComponent.LabelAboveRef * scale;
+    float preferredCap = CalcKeyPanelComponent.PreferredCapHeightRef * scale;
+    float slotTop = 100f;
+    float capMinY = slotTop + labelAbove;
+
+    Assert.AreEqual(
+      preferredCap,
+      preferredCap,
+      0.01f,
+      "CapFace stays PreferredCapHeight — CLEAR uses expanded inter-row gutter, not CapFace.");
+
+    // CLEAR sits in the expanded gutter (lift 9 into GutterRef+GutterExtra ≈ 24).
+    float clearY = CalcBracketLegendComponent.CenterY(slotTop, scale);
+    Assert.AreEqual(slotTop - CalcBracketLegendComponent.LiftAboveSlotRef * scale, clearY, 0.01f);
+    Assert.IsTrue(clearY < slotTop);
+
+    float previousRowBottom = slotTop
+      - (CalcKeyPanelComponent.GutterRef + CalcBracketLegendComponent.GutterExtraAboveRef) * scale;
+    float clearTextTop = clearY - scale * 2.2f - 10.5f * scale * 0.5f;
+    Assert.IsTrue(
+      clearTextTop - previousRowBottom >= 6f * scale,
+      "CLEAR must have visible margin (~6+ ref px) from the row above.");
+
+    Assert.IsTrue(
+      CalcBracketLegendComponent.HasClearance(slotTop, capMinY, scale),
+      "CLEAR word must clear CapAbove legends without shrinking CapFace.");
+  }
+
+  [TestMethod]
+  public void ClearBracket_LayoutInsertsGutterExtraAboveEnterRow()
+  {
+    CalcModelDefinition model = CalcModelCatalog.Resolve("HP-19C");
+    CalcBodyLayout layout = Calc00dBodyLayout.Resolve("HP19C", "HP-19C", model);
+    IReadOnlyList<FaceplateCell> cells = CalcFaceplateLayout.GetPhysicalCells("HP19C", "HP-19C");
+    int clearRow = CalcBracketLegendComponent.FindBracketRow(cells, "HP-19C");
+    Assert.IsTrue(clearRow >= 1);
+
+    FaceplateCell enter = cells.Single(c => c.KeyChartIndex == 6);
+    FaceplateCell above = cells.First(c => c.Row == clearRow - 1);
+    Assert.IsTrue(layout.TryGetKeySlot(enter.KeyChartIndex, out RectF enterSlot));
+    Assert.IsTrue(layout.TryGetKeySlot(above.KeyChartIndex, out RectF aboveSlot));
+
+    float gap = enterSlot.Y - (aboveSlot.Y + aboveSlot.Height);
+    float expected =
+      CalcKeyPanelComponent.GutterRef + CalcBracketLegendComponent.GutterExtraAboveRef;
+    Assert.AreEqual(expected, gap, 0.05f, "ENTER row must sit Gutter+Extra below the previous row.");
+
+    // CapFace budget inside ENTER slot stays PreferredCapHeight (LabelAbove + Cap).
+    float capFace =
+      enterSlot.Height - CalcKeyPanelComponent.LabelAboveRef;
+    Assert.AreEqual(CalcKeyPanelComponent.PreferredCapHeightRef, capFace, 0.05f);
   }
 }

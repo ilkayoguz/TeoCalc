@@ -2,7 +2,13 @@
   "Format": "TeoCalc.KeyFaceplate",
   "SchemaVersion": 1,
   "Model": "HP-32",
-  "Source": "HP-32E Owner's Handbook / Finseth hp32e — CapAbove=f (gold); CapSkirt=g (blue); CapFace letters on f/g at indices 3/4; Σ+ CapFace at 9; CLEAR CapAbove PREFIX ALL REG Σ (ENTER Gold=PREFIX, Blue=MANT; no GoldRight dual)",
+  "Source": "HP-32E Owner's Handbook / Finseth hp32e — CapAbove=f (gold); CapSkirt=g (blue); CapFace letters on f/g at indices 3/4; Σ+ CapFace at 9; CLEAR CapAbove PREFIX ALL REG Σ (ENTER Gold=PREFIX, Blue=MANT; no GoldRight dual); CLEAR bracket spans ENTER…CLX",
+  "ClearBracket": {
+    "LeftKey": 10,
+    "RightKey": 14,
+    "TextCenterKey": 12,
+    "Text": "CLEAR"
+  },
   "Keys": {
     "0":  { "Gold": "FIX", "Blue": "x\u00b2" },
     "1":  { "Gold": "SCI", "Blue": "\u03c0" },

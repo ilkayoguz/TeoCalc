@@ -53,72 +53,173 @@ public static class CalcFaceplateView
     CalcFaceplateKeyboard.Update(session, session.Vocabulary, calcInputActive);
     int keyboardHeldKey = CalcFaceplateKeyboard.HeldKeyChartIndex;
 
-    CalcChassisRenderer.DrawShell(draw, origin, metrics, faceplateModel);
+    DrawFaceplateCore(
+      draw,
+      origin,
+      metrics,
+      cells,
+      session.Model,
+      faceplateModel,
+      session.Vocabulary,
+      session,
+      interactive: true,
+      calcInputActive,
+      keyboardHeldKey);
+
+    session.EndDisplayFrame();
+
+    ImGui.PopStyleVar(2);
+  }
+
+  /// <summary>
+  /// Non-interactive faceplate draw for launcher thumbnails — same chrome/keys path as live windows.
+  /// Defaults to <paramref name="skipText"/> = true so CapFace / legends / LED / switch / logo text are omitted.
+  /// </summary>
+  public static void DrawStaticPreview(
+    ImDrawListPtr draw,
+    Vector2 origin,
+    Vector2 available,
+    TeoCalcModelDefinition model,
+    CalcModelDefinition faceplateModel,
+    ProgramVocabulary? vocabulary,
+    CalcBodyLayout bodyLayout,
+    bool skipText = true)
+  {
+    CalcChassisMetrics metrics = CalcChassisGeometry.Fit(available, bodyLayout);
+    IReadOnlyList<FaceplateCell> cells = CalcFaceplateLayout.GetPhysicalCells(model.Family, model.Model);
+    DrawFaceplateCore(
+      draw,
+      origin,
+      metrics,
+      cells,
+      model,
+      faceplateModel,
+      vocabulary,
+      session: null,
+      interactive: false,
+      calcInputActive: false,
+      keyboardHeldKey: -1,
+      skipText: skipText);
+  }
+
+  private static void DrawFaceplateCore(
+    ImDrawListPtr draw,
+    Vector2 origin,
+    CalcChassisMetrics metrics,
+    IReadOnlyList<FaceplateCell> cells,
+    TeoCalcModelDefinition model,
+    CalcModelDefinition faceplateModel,
+    ProgramVocabulary? vocabulary,
+    CalcExplorerSession? session,
+    bool interactive,
+    bool calcInputActive,
+    int keyboardHeldKey,
+    bool skipText = false)
+  {
+    CalcChassisRenderer.DrawShell(draw, origin, metrics, faceplateModel, skipText: skipText);
 
     RectF display = ResolveDisplayRect(origin, metrics);
-    HandleDisplayPowerDoubleClick(display, session);
-    bool powerOn = session.PowerOn;
-
-    CalcChassisRenderer.DrawSliderSwitches(draw, origin, metrics, session);
-    if (metrics.Layout.HasCardSlots && CalcModernBody.IsActive)
+    if (interactive && session is not null)
     {
-      CalcChassisRenderer.DrawCardSlots(draw, origin, metrics, paintChrome: true);
+      HandleDisplayPowerDoubleClick(display, session);
     }
 
-    CalcChassisRenderer.SwitchPointerState switchPointer =
-      CalcChassisRenderer.HandleSwitchPointers(origin, metrics, session, powerOn);
+    bool powerOn = session?.PowerOn ?? true;
+    if (session is not null)
+    {
+      CalcChassisRenderer.DrawSliderSwitches(draw, origin, metrics, session, skipText: skipText);
+    }
+    else
+    {
+      DrawStaticSwitches(draw, origin, metrics, skipText);
+    }
+
+    if (metrics.Layout.HasCardSlots && CalcModernBody.IsActive)
+    {
+      CalcChassisRenderer.DrawCardSlots(draw, origin, metrics, paintChrome: true, skipText: skipText);
+    }
+
+    CalcChassisRenderer.SwitchPointerState switchPointer = interactive && session is not null
+      ? CalcChassisRenderer.HandleSwitchPointers(origin, metrics, session, powerOn)
+      : default;
     bool anySwitchHovered = switchPointer.Hovered;
     bool switchClickHandled = switchPointer.ClickHandled;
 
-    FirmwareDisplaySnapshot displaySnapshot = session.DisplaySnapshot;
-    CalcChassisRenderer.DrawLedDisplay(
-      draw,
-      display,
-      session.ProgramMode,
-      metrics.Scale,
-      displaySnapshot.Visible,
-      displaySnapshot.Text);
-
-    ShiftPreviewMode shiftPreview = session.ShiftPreview.Mode;
-    if (string.Equals(session.Model.Family, "Classic", StringComparison.OrdinalIgnoreCase)
-        && !CalcModernBody.IsActive
-        && IsHp65EnterRowGold(session.Model))
+    if (!skipText)
     {
-      CalcEnterRowLabels.Draw(draw, origin, metrics, shiftPreview);
+      FirmwareDisplaySnapshot displaySnapshot = session?.DisplaySnapshot
+        ?? new FirmwareDisplaySnapshot("0.00", Visible: true, BlankPulse: false, Revision: 0, StepCount: 0, ProgramCounter: 0);
+      CalcChassisRenderer.DrawLedDisplay(
+        draw,
+        display,
+        session?.ProgramMode ?? false,
+        metrics.Scale,
+        displaySnapshot.Visible,
+        displaySnapshot.Text);
     }
 
+    if (vocabulary is null)
+    {
+      return;
+    }
+
+    ShiftPreviewMode shiftPreview = skipText
+      ? ShiftPreviewMode.None
+      : session?.ShiftPreview.Mode ?? ShiftPreviewMode.None;
     bool anyKeyHovered = DrawKeypadRows(
       draw,
       origin,
       metrics,
       cells,
-      session,
+      model,
       faceplateModel,
+      vocabulary,
+      session,
       shiftPreview,
       calcInputActive,
       powerOn,
       switchClickHandled,
-      keyboardHeldKey);
+      keyboardHeldKey,
+      interactive,
+      skipText);
 
-    if (!ImGui.IsMouseDown(ImGuiMouseButton.Left))
+    if (interactive && session is not null)
     {
-      session.ReleaseMouseKey();
+      if (!ImGui.IsMouseDown(ImGuiMouseButton.Left))
+      {
+        session.ReleaseMouseKey();
+      }
+
+      CalcFaceplatePointer.ApplyHandCursorIfHovering(
+        origin,
+        metrics,
+        cells,
+        vocabulary.KeyChart,
+        anyKeyHovered,
+        anySwitchHovered,
+        powerOn,
+        session.ProgramMode,
+        session);
     }
+  }
 
-    CalcFaceplatePointer.ApplyHandCursorIfHovering(
-      origin,
-      metrics,
-      cells,
-      session.Vocabulary.KeyChart,
-      anyKeyHovered,
-      anySwitchHovered,
-      powerOn,
-      session.ProgramMode,
-      session);
-
-    session.EndDisplayFrame();
-
-    ImGui.PopStyleVar(2);
+  private static void DrawStaticSwitches(
+    ImDrawListPtr draw,
+    Vector2 origin,
+    CalcChassisMetrics metrics,
+    bool skipText)
+  {
+    float scale = metrics.Scale;
+    RectF slot = metrics.SwitchTrackRect(origin);
+    IReadOnlyList<CalcSwitchSpec> specs = metrics.Layout.Switches;
+    CalcSwitchPanelComponent.Draw(
+      draw,
+      slot,
+      scale,
+      specs,
+      static (_, _) => 1f,
+      modernChrome: CalcModernBody.IsActive,
+      skipText: skipText);
   }
 
   private static void HandleDisplayPowerDoubleClick(RectF display, CalcExplorerSession session)
@@ -147,13 +248,17 @@ public static class CalcFaceplateView
     Vector2 origin,
     CalcChassisMetrics metrics,
     IReadOnlyList<FaceplateCell> cells,
-    CalcExplorerSession session,
+    TeoCalcModelDefinition model,
     CalcModelDefinition faceplateModel,
+    ProgramVocabulary vocabulary,
+    CalcExplorerSession? session,
     ShiftPreviewMode shiftPreview,
     bool calcInputActive,
     bool powerOn,
     bool switchClickHandled,
-    int keyboardHeldKey)
+    int keyboardHeldKey,
+    bool interactive,
+    bool skipText)
   {
     bool anyKeyHovered = false;
 
@@ -162,15 +267,15 @@ public static class CalcFaceplateView
       List<KeypadDrawItem> rowItems = [];
       foreach (FaceplateCell cell in row)
       {
-        if (cell.KeyChartIndex >= session.Vocabulary!.KeyChart.Count)
+        if (cell.KeyChartIndex >= vocabulary.KeyChart.Count)
         {
           continue;
         }
 
-        ProgramKeyEntry key = session.Vocabulary.KeyChart[cell.KeyChartIndex];
+        ProgramKeyEntry key = vocabulary.KeyChart[cell.KeyChartIndex];
         // KeyCode 0 = blank chart slot, except Classic faceplate keys that share scancode 0
         // (HP-35 CLR, HP-45 gold, HP-55 BST).
-        if (key.KeyCode == 0 && !IsClassicKeyCodeZeroFaceplateSlot(session.Model.Model, cell.KeyChartIndex))
+        if (key.KeyCode == 0 && !IsClassicKeyCodeZeroFaceplateSlot(model.Model, cell.KeyChartIndex))
         {
           continue;
         }
@@ -182,29 +287,30 @@ public static class CalcFaceplateView
         }
 
         HpCalcKeyVisual visual = ClassicKeyFaceplateLegend.Resolve(
-          session.Model.Model,
-          session.Model.Family,
+          model.Model,
+          model.Family,
           key,
-          session.Vocabulary,
+          vocabulary,
           cell.LabelStyle);
-        if (IsHp65EnterRowGold(session.Model)
+        // HP-65 enter-row CapAbove (PREFIX/STK/REG/PRGM) comes from faceplate JSON Gold.
+        // Fallback if JSON omits Gold so Retro/Modern both keep authentic legends.
+        if (IsHp65EnterRowGold(model)
+            && string.IsNullOrEmpty(visual.GoldShift)
             && CalcEnterRowLabels.GoldLabelForKey(cell.KeyChartIndex) is { } enterRowGold)
         {
-          visual = visual with { GoldShift = enterRowGold, GoldInverseShift = enterRowGold };
+          visual = visual with { GoldShift = enterRowGold };
         }
 
         CalcButtonStyle style = CalcFaceplateKeyStyles.StyleForKey(
-          session.Model.Family,
-          session.Model.Model,
+          model.Family,
+          model.Model,
           cell.KeyChartIndex);
-        PreviewVisual preview = ApplyShiftPreview(visual, shiftPreview, style, session.Model.Model);
-        CalcButtonKind kind = CalcFaceplateLayout.ButtonKindForKey(key, cell, session.Model.Family);
+        PreviewVisual preview = ApplyShiftPreview(visual, shiftPreview, style, model.Model);
+        CalcButtonKind kind = CalcFaceplateLayout.ButtonKindForKey(key, cell, model.Family);
         CalcKeyVisual keyVisual = BuildKeyVisual(
           preview,
           style,
           kind,
-          cell.KeyChartIndex,
-          shiftPreview,
           faceplateModel);
 
         rowItems.Add(new KeypadDrawItem(
@@ -245,15 +351,30 @@ public static class CalcFaceplateView
         metrics.Scale,
         faceplateModel);
 
+      (int KeyChartIndex, RectF KeyRect)[] rowSpanKeys = new (int, RectF)[count];
+      for (int i = 0; i < count; i++)
+      {
+        rowSpanKeys[i] = (rowItems[i].Cell.KeyChartIndex, rowItems[i].KeyRect);
+      }
+
+      if (!skipText)
+      {
+        CalcBracketLegendComponent.TryDrawForRow(
+          draw,
+          model.Model,
+          rowSpanKeys,
+          metrics.Scale);
+      }
+
       for (int i = 0; i < count; i++)
       {
         KeypadDrawItem item = rowItems[i];
         bool leftAlign = item.Kind != CalcButtonKind.EnterWide && item.Cell.ColSpan >= 2;
-        bool keyboardPressed = calcInputActive && powerOn && !switchClickHandled
+        bool keyboardPressed = interactive && calcInputActive && powerOn && !switchClickHandled
           && item.Cell.KeyChartIndex == keyboardHeldKey;
         if (CalcKeyComponent.DrawAtCapBounds(
               draw,
-              $"##hpkey{item.Cell.KeyChartIndex}",
+              interactive ? $"##hpkey{item.Cell.KeyChartIndex}" : $"##thumbkey{item.Cell.KeyChartIndex}",
               slotMins[i],
               slotMaxs[i],
               capMins[i],
@@ -264,21 +385,25 @@ public static class CalcFaceplateView
               leftAlign,
               drawWell: !CalcModernBody.IsActive,
               forcePressed: keyboardPressed,
-              interactive: calcInputActive && powerOn && !switchClickHandled))
+              interactive: interactive && calcInputActive && powerOn && !switchClickHandled,
+              skipText: skipText))
         {
-          session.PressKey(item.Cell.KeyChartIndex, (byte)item.Key.KeyCode);
+          session?.PressKey(item.Cell.KeyChartIndex, (byte)item.Key.KeyCode);
         }
 
-        DrawShiftPreviewIndicator(
-          draw,
-          item.KeyRect,
-          item.Cell.KeyChartIndex,
-          shiftPreview,
-          session.Model.Family,
-          session.Model.Model,
-          metrics.Scale);
+        if (interactive && !skipText)
+        {
+          DrawShiftPreviewIndicator(
+            draw,
+            item.KeyRect,
+            item.Cell.KeyChartIndex,
+            shiftPreview,
+            model.Family,
+            model.Model,
+            metrics.Scale);
+        }
 
-        if (ImGui.IsItemHovered() && calcInputActive && powerOn)
+        if (interactive && ImGui.IsItemHovered() && calcInputActive && powerOn)
         {
           anyKeyHovered = true;
         }
@@ -446,14 +571,9 @@ public static class CalcFaceplateView
     PreviewVisual preview,
     CalcButtonStyle style,
     CalcButtonKind kind,
-    int keyChartIndex,
-    ShiftPreviewMode shiftPreview,
     CalcModelDefinition model)
   {
     List<CalcKeyAnnotation> annotations = [];
-    bool classicEnterRow =
-      string.Equals(model.DisplayName, "HP-65", StringComparison.OrdinalIgnoreCase)
-      || model.Id is "65";
     bool gOnCapAbove = CalcModifierPlacement.PrimaryAnchor(model, CalcModifierKey.G) == CalcLabelAnchor.CapAbove;
     bool fOnCapBelow = CalcModifierPlacement.PrimaryAnchor(model, CalcModifierKey.F) == CalcLabelAnchor.CapBelow;
     bool gOnCapBelow = CalcModifierPlacement.PrimaryAnchor(model, CalcModifierKey.G) == CalcLabelAnchor.CapBelow;
@@ -471,10 +591,7 @@ public static class CalcFaceplateView
     // CapAbove/CapBelow space-saving composites stay centered; other duals split L/R.
     bool splitDualBand = (dualCapAbove && !spaceSavingCapAbove)
       || (dualCapBelow && !spaceSavingCapBelow);
-    if (!string.IsNullOrEmpty(preview.GoldOnBody)
-      && (!classicEnterRow
-        || !CalcEnterRowLabels.IsEnterRowKey(keyChartIndex)
-        || shiftPreview is ShiftPreviewMode.Gold or ShiftPreviewMode.GoldInverse))
+    if (!string.IsNullOrEmpty(preview.GoldOnBody))
     {
       CalcLabelAlign goldAlign = splitDualBand || !string.IsNullOrEmpty(preview.GoldOnBodyRight)
         ? CalcLabelAlign.Left
@@ -486,10 +603,7 @@ public static class CalcFaceplateView
         align: goldAlign));
     }
 
-    if (!string.IsNullOrEmpty(preview.GoldOnBodyRight)
-      && (!classicEnterRow
-        || !CalcEnterRowLabels.IsEnterRowKey(keyChartIndex)
-        || shiftPreview is ShiftPreviewMode.Gold or ShiftPreviewMode.GoldInverse))
+    if (!string.IsNullOrEmpty(preview.GoldOnBodyRight))
     {
       annotations.Add(CalcModifierPlacement.Annotate(
         model,

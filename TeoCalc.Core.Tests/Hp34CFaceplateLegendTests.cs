@@ -249,4 +249,77 @@ public sealed class Hp34CFaceplateLegendTests
     Assert.AreEqual("HP-34", CalcModelIds.ToEngineId("HP-34C"));
     Assert.AreEqual("34C", CalcModelIds.ToShortId("HP-34C"));
   }
+
+  [TestMethod]
+  public void ClearBracket_SpansEnterThroughClx()
+  {
+    Assert.IsTrue(CalcBracketLegendComponent.TryResolve("HP-34", out CalcBracketLegendComponent.Spec spec));
+    Assert.AreEqual(10, spec.LeftKey);
+    Assert.AreEqual(14, spec.RightKey);
+    Assert.AreEqual(12, spec.TextCenterKey);
+    Assert.AreEqual("CLEAR", spec.Text);
+    Assert.AreEqual(CalcBracketLegendComponent.LeftEdgeAlign.MidKey, spec.LeftEdge);
+    Assert.IsTrue(CalcBracketLegendComponent.TryResolve("HP-34C", out _));
+  }
+
+  [TestMethod]
+  public void ClearBracket_LeftRuleStartsAtEnterMid()
+  {
+    Assert.IsTrue(CalcBracketLegendComponent.TryResolve("HP-34", out CalcBracketLegendComponent.Spec spec));
+    CalcModelDefinition model = CalcModelCatalog.Resolve("HP-34C");
+    CalcBodyLayout layout = Calc00dBodyLayout.Resolve("Spice", "HP-34", model);
+    Assert.IsTrue(layout.TryGetKeySlot(10, out RectF enter));
+    Assert.IsTrue(enter.Width > CalcKeyPanelComponent.PreferredCapHeightRef, "ENTER is wide");
+
+    const float scale = 1f;
+    float midX = enter.X + enter.Width * 0.5f;
+    Assert.AreEqual(
+      midX,
+      CalcBracketLegendComponent.LeftRuleOuterX(in spec, enter, scale),
+      0.01f);
+  }
+
+  [TestMethod]
+  public void ClearBracket_CapAboveLegends_RemainUnderBracket()
+  {
+    ProgramVocabulary vocabulary = LoadVocabulary();
+    // ENTER CapAbove: f=MEM (gold), g=PREFIX (blue dual CapAbove); CapSkirt h=MANT.
+    HpCalcKeyVisual enter = ClassicKeyFaceplateLegend.Resolve(
+      "HP-34", "Spice", vocabulary.KeyChart[10], vocabulary, FaceplateLabelStyle.Normal);
+    Assert.AreEqual("MEM", enter.GoldShift);
+    Assert.AreEqual("PREFIX", enter.BlueShift);
+
+    Dictionary<int, string> expectedGold = new()
+    {
+      [12] = "PRGM",
+      [13] = "REG",
+      [14] = "\u03a3",
+    };
+    foreach ((int index, string gold) in expectedGold)
+    {
+      HpCalcKeyVisual visual = ClassicKeyFaceplateLegend.Resolve(
+        "HP-34", "Spice", vocabulary.KeyChart[index], vocabulary, FaceplateLabelStyle.Normal);
+      Assert.AreEqual(gold, visual.GoldShift, $"CapAbove gold at {index}");
+    }
+  }
+
+  [TestMethod]
+  public void ClearBracket_LayoutInsertsGutterExtraAboveEnterRow()
+  {
+    CalcModelDefinition model = CalcModelCatalog.Resolve("HP-34C");
+    CalcBodyLayout layout = Calc00dBodyLayout.Resolve("Spice", "HP-34", model);
+    IReadOnlyList<FaceplateCell> cells = CalcFaceplateLayout.GetPhysicalCells("Spice", "HP-34");
+    int clearRow = CalcBracketLegendComponent.FindBracketRow(cells, "HP-34");
+    Assert.IsTrue(clearRow >= 1);
+
+    FaceplateCell enter = cells.Single(c => c.KeyChartIndex == 10);
+    FaceplateCell above = cells.First(c => c.Row == clearRow - 1);
+    Assert.IsTrue(layout.TryGetKeySlot(enter.KeyChartIndex, out RectF enterSlot));
+    Assert.IsTrue(layout.TryGetKeySlot(above.KeyChartIndex, out RectF aboveSlot));
+
+    float gap = enterSlot.Y - (aboveSlot.Y + aboveSlot.Height);
+    Assert.AreEqual(CalcKeyPanelComponent.GutterRef + CalcBracketLegendComponent.GutterExtraAboveRef, gap, 0.05f);
+    float capFace = enterSlot.Height - CalcKeyPanelComponent.LabelAboveRef;
+    Assert.AreEqual(CalcKeyPanelComponent.PreferredCapHeightRef, capFace, 0.05f);
+  }
 }

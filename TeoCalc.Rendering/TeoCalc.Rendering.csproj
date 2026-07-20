@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\TeoCave\TeoTheme\TeoTheme.csproj" />
     <ProjectReference Include="..\..\TeoCave\TeoTheme.Windows\TeoTheme.Windows.csproj" />
+    <ProjectReference Include="..\..\TeoCave\TeoGame\TeoGame.csproj" />
     <ProjectReference Include="..\TeoCalc.Game\TeoCalc.Game.csproj" />
     <ProjectReference Include="..\TeoCalc.Core\TeoCalc.Core.csproj" />
     <ProjectReference Include="..\TeoCalc.Formats\TeoCalc.Formats.csproj" />

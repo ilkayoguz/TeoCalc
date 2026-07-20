@@ -1,20 +1,30 @@
 using TeoCalc.Game.Launcher;
+using TeoGame.Presentation.Components;
 
 namespace TeoCalc.Rendering;
 
-/// <summary>Rendering adapter over <see cref="CalculatorLauncherPresenter"/>.</summary>
+/// <summary>Rendering adapter over <see cref="CalculatorLauncherPresenter"/> + TeoGame icon grid.</summary>
 public sealed class CalculatorLauncherModel
 {
+  public const int ColumnCount = 5;
+
   private readonly CalculatorLauncherPresenter _presenter;
   private readonly CalculatorLauncherEntry[] _entries;
+  private readonly IconGridComponent _iconGrid;
 
-  private CalculatorLauncherModel(CalculatorLauncherPresenter presenter, CalculatorLauncherEntry[] entries)
+  private CalculatorLauncherModel(
+    CalculatorLauncherPresenter presenter,
+    CalculatorLauncherEntry[] entries,
+    IconGridComponent iconGrid)
   {
     _presenter = presenter;
     _entries = entries;
+    _iconGrid = iconGrid;
   }
 
   public IReadOnlyList<CalculatorLauncherEntry> Entries => _entries;
+
+  public IconGridComponent IconGrid => _iconGrid;
 
   public int SelectedIndex
   {
@@ -39,6 +49,7 @@ public sealed class CalculatorLauncherModel
         return new CalculatorLauncherEntry(
           item.CatalogModelId,
           item.DisplayName,
+          item.ProductLabel,
           item.EngineModelId,
           item.Status,
           item.CanOpen,
@@ -46,11 +57,25 @@ public sealed class CalculatorLauncherModel
       })
       .ToArray();
 
-    return new CalculatorLauncherModel(presenter, entries);
+    IconGridComponent iconGrid = new("teo-calc-launcher");
+    iconGrid.Style = IconGridStyle.Tile;
+    iconGrid.SetItems(
+      entries
+        .Select(e => new IconGridItem(e.ModelId, e.LauncherLabel, iconGlyph: null, enabled: true))
+        .ToArray(),
+      ColumnCount);
+    iconGrid.SetFocusedIndexSilent(Math.Max(0, presenter.ViewModel.SelectedIndex));
+
+    CalculatorLauncherModel model = new(presenter, entries, iconGrid);
+    iconGrid.FocusedIndexChanged += index => model.SelectFromGrid(index);
+    return model;
   }
 
-  public void Select(int index) =>
+  public void Select(int index)
+  {
     _presenter.Select(index);
+    _iconGrid.SetFocusedIndexSilent(SelectedIndex);
+  }
 
   public void MoveSelection(int delta) =>
     _presenter.MoveSelection(delta);
@@ -79,5 +104,15 @@ public sealed class CalculatorLauncherModel
     }
 
     ReferenceCalculatorLauncher.TryLaunch(reference, out _);
+  }
+
+  private void SelectFromGrid(int index)
+  {
+    if (index == _presenter.ViewModel.SelectedIndex)
+    {
+      return;
+    }
+
+    _presenter.Select(index);
   }
 }

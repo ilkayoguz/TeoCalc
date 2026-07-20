@@ -82,7 +82,8 @@ public static class CalcKeyPanelComponent
     IReadOnlyList<FaceplateCell> cells,
     int skipTopRows = 0,
     bool includeTopGutter = true,
-    CalcModelDefinition? model = null)
+    CalcModelDefinition? model = null,
+    float clearBracketGutterExtra = 0f)
   {
     int rows = Math.Max(0, CountRows(cells) - Math.Max(0, skipTopRows));
     int cols = CountColumns(cells);
@@ -98,9 +99,10 @@ public static class CalcKeyPanelComponent
     float rowH = above + capH + below;
     float width = cols * cellW + (cols - 1) * g;
     float topGutter = includeTopGutter ? g : 0f;
+    float clearExtra = MathF.Max(0f, clearBracketGutterExtra);
     float height = rows == 0
       ? 0f
-      : topGutter + g + rows * rowH + (rows - 1) * g;
+      : topGutter + g + rows * rowH + (rows - 1) * g + clearExtra;
     return new PanelMetrics(width, height, cellW, rowH, capH, above, below, g, cols);
   }
 
@@ -110,13 +112,17 @@ public static class CalcKeyPanelComponent
   /// <summary>
   /// Full-width rows keep column geometry; shorter rows are justified L→R across the band.
   /// <paramref name="skipTopRows"/> omits leading rows (e.g. A–E owned by the card plate).
+  /// <paramref name="clearBracketRow"/> / <paramref name="clearBracketGutterExtra"/> insert
+  /// extra gap above the CLEAR/ENTER row without changing CapFace height.
   /// </summary>
   public static Dictionary<int, RectF> BuildKeySlots(
     RectF panel,
     IReadOnlyList<FaceplateCell> cells,
     PanelMetrics metrics,
     int skipTopRows = 0,
-    bool includeTopGutter = true)
+    bool includeTopGutter = true,
+    int clearBracketRow = -1,
+    float clearBracketGutterExtra = 0f)
   {
     Dictionary<int, RectF> slots = new();
     if (cells.Count == 0)
@@ -128,6 +134,7 @@ public static class CalcKeyPanelComponent
     float rowPitch = RowPitch(metrics);
     float originY = panel.Y + (includeTopGutter ? g : 0f);
     int skip = Math.Max(0, skipTopRows);
+    float clearExtra = clearBracketRow >= 0 ? MathF.Max(0f, clearBracketGutterExtra) : 0f;
 
     foreach (IGrouping<int, FaceplateCell> rowGroup in cells.GroupBy(cell => cell.Row).OrderBy(group => group.Key))
     {
@@ -139,6 +146,12 @@ public static class CalcKeyPanelComponent
 
       List<FaceplateCell> rowCells = rowGroup.OrderBy(cell => cell.Column).ToList();
       float rowY = originY + visualRow * (rowPitch + g);
+      // Push CLEAR/ENTER row (and everything below) down by the expanded CLEAR gutter.
+      if (clearExtra > 0f && rowGroup.Key >= clearBracketRow)
+      {
+        rowY += clearExtra;
+      }
+
       PlaceRow(slots, rowCells, panel.X, rowY, panel.Width, metrics, g);
     }
 

@@ -2,7 +2,13 @@
   "Format": "TeoCalc.KeyFaceplate",
   "SchemaVersion": 1,
   "Model": "HP-25",
-  "Source": "HP-25 Owner's Handbook / Finseth hp25a — CapAbove=f (gold); CapSkirt=g (blue); CapFace letters on f/g",
+  "Source": "HP-25 Owner's Handbook / Finseth hp25a — CapAbove=f (gold); CapSkirt=g (blue); CapFace letters on f/g; CLEAR bracket spans ENTER…CLX CapAbove (PREFIX/PRGM/REG/STK)",
+  "ClearBracket": {
+    "LeftKey": 10,
+    "RightKey": 14,
+    "TextCenterKey": 12,
+    "Text": "CLEAR"
+  },
   "Keys": {
     "0":  { "Gold": "FIX" },
     "1":  { "Gold": "SCI" },

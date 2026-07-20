@@ -23,6 +23,13 @@ public sealed class CalcFaceplateHost : IDisposable
   private const float DragThreshold = 4f;
   private const int MinWindowWidth = 280;
 
+  /// <summary>
+  /// Shared faceplate content width (px) for initial open. All models use this body width when
+  /// they fit in the work area, preserving each model's aspect ratio (height = width / aspect).
+  /// Kept modest so tall/narrow models rarely hit the height clamp (which would shrink width).
+  /// </summary>
+  private const float UnifiedBodyWidth = 500f;
+
   /// <summary>Outer bead frame thickness in screen px: 2q black + 1q gray + 1q light-gray = 4q.</summary>
   private const float BeadInset = Calc00dWireStyle.FitilWidthRef * 4f;
 
@@ -385,7 +392,7 @@ public sealed class CalcFaceplateHost : IDisposable
     draw.AddRectFilled(band.Min, band.Max, Calc00dWireStyle.SwitchPanelFill, radius, ImDrawFlags.RoundCornersTop);
 
     // Fixed-height bottom logo band mirroring the top title bar: inside the bead frame,
-    // rounded bottom corners, filled with the brushed-aluminum hp logo plate.
+    // rounded bottom corners, filled with the brushed-aluminum logo plate.
     RectF logoBand = new(
       cursor.X,
       cursor.Y + cursor.Height - LogoBandHeight,
@@ -889,21 +896,21 @@ public sealed class CalcFaceplateHost : IDisposable
   {
     float chromeW = ChromeWidth;
     float chromeH = ChromeHeight;
-    if (!TryGetWorkArea(out _, out _, out int workW, out int workH))
-    {
-      int w = 420;
-      float b = w - chromeW;
-      return new Vector2D<int>(w, (int)MathF.Round(b / aspect) + (int)chromeH);
-    }
+    // Fixed body width across models → uniform scale for shared column metrics; height follows aspect.
+    float bodyW = UnifiedBodyWidth;
+    float bodyH = bodyW / MathF.Max(0.01f, aspect);
 
-    float bodyMaxW = workW * DefaultWindowScale - chromeW;
-    float bodyMaxH = workH * DefaultWindowScale - chromeH;
-    float bodyW = bodyMaxW;
-    float bodyH = bodyW / aspect;
-    if (bodyH > bodyMaxH)
+    if (TryGetWorkArea(out _, out _, out int workW, out int workH))
     {
-      bodyH = bodyMaxH;
-      bodyW = bodyH * aspect;
+      float bodyMaxW = workW * DefaultWindowScale - chromeW;
+      float bodyMaxH = workH * DefaultWindowScale - chromeH;
+      bodyW = MathF.Min(UnifiedBodyWidth, bodyMaxW);
+      bodyH = bodyW / MathF.Max(0.01f, aspect);
+      if (bodyH > bodyMaxH)
+      {
+        bodyH = bodyMaxH;
+        bodyW = bodyH * aspect;
+      }
     }
 
     return new Vector2D<int>(
