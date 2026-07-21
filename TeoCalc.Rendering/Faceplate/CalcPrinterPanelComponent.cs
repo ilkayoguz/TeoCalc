@@ -2,21 +2,19 @@ using ImGuiNET;
 
 namespace TeoCalc.Rendering.Faceplate;
 
-/// <summary>Floating ImGui printer strip panel for models with a thermal printer.</summary>
+/// <summary>Thermal printer log UI — inline side strip or legacy floating window.</summary>
 public static class CalcPrinterPanelComponent
 {
-  public static void Draw(
-    ref bool open,
+  public const float PreferredWidthRef = 300f;
+
+  public static void DrawInline(
     IReadOnlyList<string> lines,
     Action? onTestPrint,
     Action? onClear)
   {
-    ImGui.SetNextWindowSize(new System.Numerics.Vector2(320f, 260f), ImGuiCond.FirstUseEver);
-    if (!ImGui.Begin("Printer", ref open, ImGuiWindowFlags.NoCollapse))
-    {
-      ImGui.End();
-      return;
-    }
+    ImGui.TextUnformatted("Printer");
+    ImGui.TextDisabled("Thermal strip");
+    ImGui.Separator();
 
     if (onTestPrint is not null && ImGui.Button("Test print"))
     {
@@ -54,6 +52,23 @@ public static class CalcPrinterPanelComponent
     }
 
     ImGui.EndChild();
+  }
+
+  [Obsolete("Use inline side panel via CalcCapabilitySidePanelComponent.")]
+  public static void Draw(
+    ref bool open,
+    IReadOnlyList<string> lines,
+    Action? onTestPrint,
+    Action? onClear)
+  {
+    ImGui.SetNextWindowSize(new System.Numerics.Vector2(320f, 260f), ImGuiCond.FirstUseEver);
+    if (!ImGui.Begin("Printer", ref open, ImGuiWindowFlags.NoCollapse))
+    {
+      ImGui.End();
+      return;
+    }
+
+    DrawInline(lines, onTestPrint, onClear);
     ImGui.End();
   }
 }

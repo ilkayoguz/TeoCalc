@@ -48,9 +48,11 @@ public static class CalcFaceplateView
     bool calcHovered = ImGui.IsWindowHovered(
       ImGuiHoveredFlags.AllowWhenBlockedByActiveItem | ImGuiHoveredFlags.ChildWindows);
     bool calcFocused = ImGui.IsWindowFocused();
-    bool calcInputActive = (calcFocused || calcHovered) && !ImGui.GetIO().WantTextInput;
+    bool calcPointerActive = calcFocused || calcHovered;
+    // Side-panel text fields set WantTextInput; still allow faceplate mouse keys while hovering the calc.
+    bool calcKeyboardActive = calcPointerActive && !ImGui.GetIO().WantTextInput;
 
-    CalcFaceplateKeyboard.Update(session, session.Vocabulary, calcInputActive);
+    CalcFaceplateKeyboard.Update(session, session.Vocabulary, calcKeyboardActive);
     int keyboardHeldKey = CalcFaceplateKeyboard.HeldKeyChartIndex;
 
     DrawFaceplateCore(
@@ -63,7 +65,8 @@ public static class CalcFaceplateView
       session.Vocabulary,
       session,
       interactive: true,
-      calcInputActive,
+      calcPointerActive,
+      calcKeyboardActive,
       keyboardHeldKey);
 
     session.EndDisplayFrame();
@@ -97,7 +100,8 @@ public static class CalcFaceplateView
       vocabulary,
       session: null,
       interactive: false,
-      calcInputActive: false,
+      calcPointerActive: false,
+      calcKeyboardActive: false,
       keyboardHeldKey: -1,
       skipText: skipText);
   }
@@ -112,7 +116,8 @@ public static class CalcFaceplateView
     ProgramVocabulary? vocabulary,
     CalcExplorerSession? session,
     bool interactive,
-    bool calcInputActive,
+    bool calcPointerActive,
+    bool calcKeyboardActive,
     int keyboardHeldKey,
     bool skipText = false)
   {
@@ -136,7 +141,16 @@ public static class CalcFaceplateView
 
     if (metrics.Layout.HasCardSlots && CalcModernBody.IsActive)
     {
-      CalcChassisRenderer.DrawCardSlots(draw, origin, metrics, paintChrome: true, skipText: skipText);
+      bool cardInserted = session?.CardInserted == true;
+      CalcChassisRenderer.DrawCardSlots(
+        draw,
+        origin,
+        metrics,
+        paintChrome: true,
+        skipText: skipText,
+        cardInserted: cardInserted,
+        labels: session?.CardStripLabels,
+        labelsEnabled: session?.CardStripLabelsEnabled);
     }
 
     CalcChassisRenderer.SwitchPointerState switchPointer = interactive && session is not null
@@ -176,7 +190,8 @@ public static class CalcFaceplateView
       vocabulary,
       session,
       shiftPreview,
-      calcInputActive,
+      calcPointerActive,
+      calcKeyboardActive,
       powerOn,
       switchClickHandled,
       keyboardHeldKey,
@@ -253,7 +268,8 @@ public static class CalcFaceplateView
     ProgramVocabulary vocabulary,
     CalcExplorerSession? session,
     ShiftPreviewMode shiftPreview,
-    bool calcInputActive,
+    bool calcPointerActive,
+    bool calcKeyboardActive,
     bool powerOn,
     bool switchClickHandled,
     int keyboardHeldKey,
@@ -370,7 +386,8 @@ public static class CalcFaceplateView
       {
         KeypadDrawItem item = rowItems[i];
         bool leftAlign = item.Kind != CalcButtonKind.EnterWide && item.Cell.ColSpan >= 2;
-        bool keyboardPressed = interactive && calcInputActive && powerOn && !switchClickHandled
+        bool keyReady = interactive && powerOn && !switchClickHandled;
+        bool keyboardPressed = keyReady && calcKeyboardActive
           && item.Cell.KeyChartIndex == keyboardHeldKey;
         if (CalcKeyComponent.DrawAtCapBounds(
               draw,
@@ -385,7 +402,7 @@ public static class CalcFaceplateView
               leftAlign,
               drawWell: !CalcModernBody.IsActive,
               forcePressed: keyboardPressed,
-              interactive: interactive && calcInputActive && powerOn && !switchClickHandled,
+              interactive: keyReady && calcPointerActive,
               skipText: skipText))
         {
           session?.PressKey(item.Cell.KeyChartIndex, (byte)item.Key.KeyCode);
@@ -403,7 +420,7 @@ public static class CalcFaceplateView
             metrics.Scale);
         }
 
-        if (interactive && ImGui.IsItemHovered() && calcInputActive && powerOn)
+        if (interactive && ImGui.IsItemHovered() && calcPointerActive && powerOn)
         {
           anyKeyHovered = true;
         }

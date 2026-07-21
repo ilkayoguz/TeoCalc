@@ -126,7 +126,9 @@ public static class CalcChassisRenderer
     CalcChassisMetrics metrics,
     bool paintChrome,
     IReadOnlyList<string>? labels = null,
-    bool skipText = false)
+    IReadOnlyList<bool>? labelsEnabled = null,
+    bool skipText = false,
+    bool cardInserted = false)
   {
     if (!metrics.Layout.HasCardSlots)
     {
@@ -136,7 +138,7 @@ public static class CalcChassisRenderer
     RectF band = metrics.CardSlotBandRect(origin);
     if (CalcModernBody.IsActive)
     {
-      CalcCardSlotComponent.Draw(draw, band, metrics, origin, labels, skipText: skipText);
+      CalcCardSlotComponent.Draw(draw, band, metrics, origin, labels, labelsEnabled, skipText: skipText, cardInserted: cardInserted);
       return;
     }
 

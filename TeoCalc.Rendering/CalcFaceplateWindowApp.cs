@@ -108,15 +108,13 @@ public sealed class CalcFaceplateHost : IDisposable
 
   private Vector2D<int> _dragStartWindowSize;
 
-  private bool _cardPanelOpen;
+  private CalcCapabilitySidePanelMode _sidePanelMode = CalcCapabilitySidePanelMode.None;
 
-  private bool _printerPanelOpen;
-
-  private string _cardPathBuffer = CalcCardPanelComponent.DefaultCardsDirectory()
-    + Path.DirectorySeparatorChar
-    + "program.hp65";
+  private string _cardPathBuffer;
 
   private string _cardStatusMessage = string.Empty;
+
+  private int _lastPrintLineCount;
 
   private CalcFaceplateHost(CalcExplorerSession session, float aspect, IWindow window, string catalogModelId, bool ownsGl)
   {
@@ -125,6 +123,7 @@ public sealed class CalcFaceplateHost : IDisposable
     _aspect = aspect;
     _window = window;
     _catalogModelId = catalogModelId;
+    _cardPathBuffer = CalcCardPanelComponent.DefaultCardPathForModel(catalogModelId);
     _ownsGl = ownsGl;
     Wire();
   }
@@ -133,6 +132,15 @@ public sealed class CalcFaceplateHost : IDisposable
   public CalcExplorerViewModel ExplorerViewModel => _explorerPresenter.ViewModel;
 
   public IWindow NativeWindow => _window;
+
+  private float SidePanelWidthPx =>
+    _sidePanelMode == CalcCapabilitySidePanelMode.None
+      ? 0f
+      : CalcCapabilitySidePanelComponent.PreferredWidthRef;
+
+  private float CalcBodyOffsetX => BandSide + SidePanelWidthPx;
+
+  private float CalcChromeWidth => ChromeWidth + SidePanelWidthPx;
 
   public bool IsClosing => _closeRequested || _window.IsClosing || _disposed;
 
@@ -322,6 +330,7 @@ public sealed class CalcFaceplateHost : IDisposable
       float delta = _lastFrameTime > 0d ? (float)(time - _lastFrameTime) : 0.016f;
       _lastFrameTime = time;
       _explorerPresenter.Tick(delta);
+      MonitorPrinterOutput();
       _window.MakeCurrent();
       _controller?.Update(delta);
     };
@@ -372,17 +381,30 @@ public sealed class CalcFaceplateHost : IDisposable
             display.X - BeadInset,
             BeadInset,
             hasCardSlot,
-            hasPrinter);
+            hasPrinter,
+            _sidePanelMode == CalcCapabilitySidePanelMode.Card,
+            _sidePanelMode == CalcCapabilitySidePanelMode.Printer);
 
-        ImGui.SetCursorPos(new System.Numerics.Vector2(BandSide, BandTop));
+        float contentHeight = MathF.Max(1f, display.Y - BandTop - LogoBandHeight - BeadInset);
+        if (SidePanelWidthPx > 0f)
+        {
+          CalcCapabilitySidePanelComponent.DrawChrome(
+            ImGui.GetWindowDrawList(),
+            BandSide,
+            BandTop,
+            SidePanelWidthPx,
+            contentHeight);
+          DrawSidePanelContent(contentHeight);
+        }
+
+        ImGui.SetCursorPos(new System.Numerics.Vector2(CalcBodyOffsetX, BandTop));
         CalcFaceplateView.Draw(
           _session,
           new System.Numerics.Vector2(
-            MathF.Max(1f, display.X - BandSide * 2f),
-            MathF.Max(1f, display.Y - BandTop - LogoBandHeight - BeadInset)));
+            MathF.Max(1f, display.X - CalcBodyOffsetX - BandSide),
+            contentHeight));
         HandleTitleAction(titleAction);
         HandleFramelessChrome();
-        DrawCapabilityPanels(hasCardSlot, hasPrinter);
 
         ImGui.End();
         ImGui.PopStyleColor();
@@ -516,23 +538,162 @@ public sealed class CalcFaceplateHost : IDisposable
       case CalcWindowTitlePanelComponent.TitleAction.OpenCard:
         if (ResolveCapabilityIcons().HasCardSlot)
         {
-          _cardPanelOpen = !_cardPanelOpen;
+          ToggleSidePanel(CalcCapabilitySidePanelMode.Card);
         }
 
         break;
       case CalcWindowTitlePanelComponent.TitleAction.OpenPrinter:
         if (ResolveCapabilityIcons().HasPrinter)
         {
-          _printerPanelOpen = !_printerPanelOpen;
-          if (_printerPanelOpen
-              && _session.PrintLines.Count == 0)
-          {
-            _session.AppendTestPrint("Printer ready.");
-          }
+          ToggleSidePanel(CalcCapabilitySidePanelMode.Printer);
         }
 
         break;
     }
+  }
+
+  private void ToggleSidePanel(CalcCapabilitySidePanelMode mode)
+  {
+    if (_sidePanelMode == mode)
+    {
+      SetSidePanel(CalcCapabilitySidePanelMode.None);
+      return;
+    }
+
+    SetSidePanel(mode);
+  }
+
+  private void SetSidePanel(CalcCapabilitySidePanelMode mode)
+  {
+    if (_sidePanelMode == mode)
+    {
+      return;
+    }
+
+    bool wasOpen = _sidePanelMode != CalcCapabilitySidePanelMode.None;
+    bool willOpen = mode != CalcCapabilitySidePanelMode.None;
+    if (!wasOpen && willOpen)
+    {
+      ExpandWindowLeft((int)MathF.Round(CalcCapabilitySidePanelComponent.PreferredWidthRef));
+    }
+    else if (wasOpen && !willOpen)
+    {
+      CollapseWindowLeft((int)MathF.Round(CalcCapabilitySidePanelComponent.PreferredWidthRef));
+    }
+
+    _sidePanelMode = mode;
+  }
+
+  private void MonitorPrinterOutput()
+  {
+    int count = _session.PrintLines.Count;
+    if (count <= _lastPrintLineCount)
+    {
+      return;
+    }
+
+    _lastPrintLineCount = count;
+    if (ResolveCapabilityIcons().HasPrinter)
+    {
+      SetSidePanel(CalcCapabilitySidePanelMode.Printer);
+    }
+  }
+
+  private void ExpandWindowLeft(int delta)
+  {
+    if (delta <= 0)
+    {
+      return;
+    }
+
+    _applyingAspect = true;
+    _ignoreNextResize = true;
+    try
+    {
+      Vector2D<int> pos = _window.Position;
+      Vector2D<int> size = _window.Size;
+      int targetX = pos.X - delta;
+      int targetWidth = size.X + delta;
+
+      // Keep the expanded window visible on the left edge; if we cannot grow left,
+      // shift the panel growth to the right.
+      if (TryGetWorkArea(out int workX, out _, out int workW, out _))
+      {
+        targetX = Math.Max(workX, targetX);
+        int maxWidthAtX = Math.Max(MinWindowWidth, (workX + workW) - targetX);
+        targetWidth = Math.Min(targetWidth, maxWidthAtX);
+      }
+
+      _window.Position = new Vector2D<int>(targetX, pos.Y);
+      _window.Size = new Vector2D<int>(targetWidth, size.Y);
+    }
+    finally
+    {
+      _applyingAspect = false;
+    }
+  }
+
+  private void CollapseWindowLeft(int delta)
+  {
+    if (delta <= 0)
+    {
+      return;
+    }
+
+    _applyingAspect = true;
+    _ignoreNextResize = true;
+    try
+    {
+      Vector2D<int> pos = _window.Position;
+      Vector2D<int> size = _window.Size;
+      int shrink = Math.Min(delta, Math.Max(0, size.X - MinWindowWidth));
+      _window.Position = new Vector2D<int>(pos.X + shrink, pos.Y);
+      _window.Size = new Vector2D<int>(size.X - shrink, size.Y);
+    }
+    finally
+    {
+      _applyingAspect = false;
+    }
+  }
+
+  private void DrawSidePanelContent(float contentHeight)
+  {
+    ImGui.SetCursorPos(new System.Numerics.Vector2(BandSide + 10f, BandTop + 10f));
+    ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, new System.Numerics.Vector2(8f, 8f));
+    ImGui.BeginChild(
+      "##cap-side-panel",
+      new System.Numerics.Vector2(MathF.Max(1f, SidePanelWidthPx - 20f), MathF.Max(1f, contentHeight - 20f)),
+      ImGuiChildFlags.None);
+    CalcCapabilitySidePanelComponent.DrawContent(
+      _sidePanelMode,
+      ref _cardPathBuffer,
+      ref _cardStatusMessage,
+      _session.SupportsCardProgram,
+      path =>
+      {
+        _ = _session.TryLoadCardProgram(path, out string? error);
+        return error;
+      },
+      path =>
+      {
+        _ = _session.TrySaveCardProgram(path, out string? error);
+        return error;
+      },
+      _session.CardProgramExtension,
+      _session.CardProgramCapacity,
+      _session.PrintLines,
+      onTestPrint: () => _session.AppendTestPrint($"Test {DateTime.Now:HH:mm:ss}"),
+      onClearPrint: () =>
+      {
+        _session.ClearPrintLines();
+        _lastPrintLineCount = 0;
+      },
+      cardInserted: _session.CardInserted,
+      loadedCardPath: _session.LoadedCardPath,
+      loadedTeoCard: _session.LoadedTeoCard,
+      onEjectCard: () => _session.EjectCard());
+    ImGui.EndChild();
+    ImGui.PopStyleVar();
   }
 
   private (bool HasCardSlot, bool HasPrinter) ResolveCapabilityIcons()
@@ -541,45 +702,6 @@ public sealed class CalcFaceplateHost : IDisposable
     return (
       CalcCardSlotComponent.ModelHasCardSlot(model),
       model.HasPrinter == true);
-  }
-
-  private void DrawCapabilityPanels(bool hasCardSlot, bool hasPrinter)
-  {
-    if (hasCardSlot && _cardPanelOpen)
-    {
-      ImGui.SetNextWindowPos(
-        new System.Numerics.Vector2(BeadInset + 12f, BandTop + 12f),
-        ImGuiCond.FirstUseEver);
-      CalcCardPanelComponent.Draw(
-        ref _cardPanelOpen,
-        ref _cardPathBuffer,
-        ref _cardStatusMessage,
-        _session.SupportsCardProgram,
-        path =>
-        {
-          _ = _session.TryLoadCardProgram(path, out string? error);
-          return error;
-        },
-        path =>
-        {
-          _ = _session.TrySaveCardProgram(path, out string? error);
-          return error;
-        },
-        _session.CardProgramExtension,
-        _session.CardProgramCapacity);
-    }
-
-    if (hasPrinter && _printerPanelOpen)
-    {
-      ImGui.SetNextWindowPos(
-        new System.Numerics.Vector2(BeadInset + 12f, BandTop + 12f),
-        ImGuiCond.FirstUseEver);
-      CalcPrinterPanelComponent.Draw(
-        ref _printerPanelOpen,
-        _session.PrintLines,
-        onTestPrint: () => _session.AppendTestPrint($"Test {DateTime.Now:HH:mm:ss}"),
-        onClear: () => _session.ClearPrintLines());
-    }
   }
 
   private void HandleFramelessChrome()
@@ -755,8 +877,8 @@ public sealed class CalcFaceplateHost : IDisposable
     int width = Math.Max(1, right - left);
     int height = Math.Max(1, bottom - top);
 
-    // Lock aspect on the calc body; the window also carries the fixed frame bands.
-    int chromeW = (int)ChromeWidth;
+    // Lock aspect on the calc body; side panel and frame bands are extra width.
+    int chromeW = (int)CalcChromeWidth;
     int chromeH = (int)ChromeHeight;
     bool horizontal = moveLeft || moveRight;
     bool vertical = moveTop || moveBottom;
@@ -913,7 +1035,8 @@ public sealed class CalcFaceplateHost : IDisposable
       return;
     }
 
-    float bodyW = MathF.Max(1f, size.X - ChromeWidth);
+    float sideW = SidePanelWidthPx;
+    float bodyW = MathF.Max(1f, size.X - CalcChromeWidth);
     int targetH = (int)MathF.Round(bodyW / _aspect) + (int)ChromeHeight;
     if (Math.Abs(targetH - size.Y) <= 1)
     {
@@ -956,7 +1079,7 @@ public sealed class CalcFaceplateHost : IDisposable
     }
 
     // Fill the work area height; keep the current horizontal position (no recentring).
-    float bodyMaxW = workW - ChromeWidth;
+    float bodyMaxW = workW - CalcChromeWidth;
     float bodyMaxH = workH - ChromeHeight;
     float bodyH = bodyMaxH;
     float bodyW = bodyH * _aspect;
@@ -966,7 +1089,7 @@ public sealed class CalcFaceplateHost : IDisposable
       bodyH = bodyW / _aspect;
     }
 
-    float width = bodyW + ChromeWidth;
+    float width = bodyW + CalcChromeWidth;
     float height = bodyH + ChromeHeight;
 
     int w = Math.Max(MinWindowWidth, (int)MathF.Round(width));

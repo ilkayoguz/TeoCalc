@@ -1,0 +1,24 @@
+[General]
+Format = "TeoCalc.CardText"
+SchemaVersion = "1"
+TargetCpu = "T-67"
+Profile = "T-67"
+Category = "Demo"
+Title = "Add 0+1"
+Description = "Demo kart: program 0 ENTER 1 + çalıştırır. DATA 0=12.5, 1=3, 25=-3."
+Usage = "Load → RUN. Programı R/S ile çalıştır. RCL 0 / RCL 1 / RCL 25 ile DATA sabitleri."
+RunHint = "RUN modunda R/S."
+Encoding = "mnemonic"
+Author = "TeoCalc"
+Created = "2026-03-21T00:00:00Z"
+Modified = "2026-07-21T00:00:00Z"
+
+[Code]
+0
+1
++
+
+[Data]
+0 = 12.5
+1 = 3
+25 = -3

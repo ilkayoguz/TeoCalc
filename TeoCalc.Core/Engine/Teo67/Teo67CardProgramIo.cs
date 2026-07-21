@@ -5,7 +5,7 @@ namespace TeoCalc.Core.Engine.Teo67;
 
 /// <summary>
 /// Apply / capture mag-card program + data against ACT program RAM (base 112, 224 steps)
-/// and the 26 data registers used by the reference .hp67 ASCII layout.
+/// and the 26 data registers used by T-67 card packing.
 /// </summary>
 public static class Teo67CardProgramIo
 {

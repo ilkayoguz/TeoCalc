@@ -1,0 +1,38 @@
+[General]
+Format = "TeoCalc.CardText"
+SchemaVersion = "1"
+TargetCpu = "T-65"
+Profile = "T-65"
+Category = "Demo"
+Title = "Add + GTO Demo"
+Description = "Demo kart: A tuşu X'e 123 ekler. Ayrıca LBL 1 rutini +456 içindir; RUN modda GTO → 1 → R/S ile çağrılır. DATA'da π, e, 42 (RCL)."
+Usage = "Load → RUN. A: +123. LBL 1: GTO → 1 → R/S (+456). Sabitler: RCL → 1 (π), RCL → 2 (e), RCL → 9 (42)."
+RunHint = "RUN: A tuşu +123. Numeric label: GTO → 1 → R/S."
+Encoding = "mnemonic"
+Author = "TeoCalc"
+Created = "2026-03-21T00:00:00Z"
+Modified = "2026-07-21T00:00:00Z"
+
+[Label]
+A = "+123", "X := X + 123"
+
+[Code]
+LBL
+A
+1
+2
+3
++
+RTN
+LBL
+1
+4
+5
+6
++
+RTN
+
+[Data]
+1 = 3.14
+2 = 2.718281828
+9 = 42

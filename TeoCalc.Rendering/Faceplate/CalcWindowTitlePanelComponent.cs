@@ -77,7 +77,9 @@ public static class CalcWindowTitlePanelComponent
     float rightEdge,
     float leftEdge = 0f,
     bool hasCardSlot = false,
-    bool hasPrinter = false)
+    bool hasPrinter = false,
+    bool cardPanelOpen = false,
+    bool printerPanelOpen = false)
   {
     ImDrawListPtr draw = ImGui.GetForegroundDrawList();
     TitleAction action = TitleAction.None;
@@ -85,7 +87,8 @@ public static class CalcWindowTitlePanelComponent
     float capX = leftEdge;
     if (hasCardSlot)
     {
-      if (Button(draw, "##cap-card", capX, top, height, HoverFill, IconColor, DrawCardIcon))
+      uint fill = cardPanelOpen ? 0x55FFFFFFu : HoverFill;
+      if (Button(draw, "##cap-card", capX, top, height, fill, IconColor, DrawCardIcon))
       {
         action = TitleAction.OpenCard;
       }
@@ -95,7 +98,8 @@ public static class CalcWindowTitlePanelComponent
 
     if (hasPrinter)
     {
-      if (Button(draw, "##cap-print", capX, top, height, HoverFill, IconColor, DrawPrinterIcon))
+      uint fill = printerPanelOpen ? 0x55FFFFFFu : HoverFill;
+      if (Button(draw, "##cap-print", capX, top, height, fill, IconColor, DrawPrinterIcon))
       {
         action = TitleAction.OpenPrinter;
       }

@@ -12,6 +12,9 @@ namespace TeoCalc.Rendering;
 /// <summary>Firmware timer, key, and display orchestration for all models via <see cref="ICalcFirmwareGateway"/>.</summary>
 public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
 {
+  /// <summary>ImGui click completes on mouse-up; firmware needs batches before KeyUp (prefix keys).</summary>
+  private const int KeySettleBatches = 40;
+
   private static readonly string[] ExplorerModels = TeoCalcModelCatalog.SupportedModels
     .Select(CalcModelIds.ToEngineId)
     .ToArray();
@@ -43,6 +46,16 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
   private int[] _faceplateSwitchIndices = [];
 
   private IReadOnlyList<CalcSwitchSpec> _faceplateSwitchSpecs = [];
+
+  private bool _cardInserted;
+
+  private string? _loadedCardPath;
+
+  private string[]? _cardStripLabels;
+
+  private bool[]? _cardStripLabelsEnabled;
+
+  private TeoCardDocument? _loadedTeoCard;
 
   public CalcExplorerSession(string engineRoot)
   {
@@ -222,14 +235,24 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
 
   public void SetKeyboardKeyHeld(bool held)
   {
+    if (_keyboardKeyHeld && !held)
+    {
+      _firmware?.KeyUp();
+    }
+
     _keyboardKeyHeld = held;
     _firmware?.SetKeyLineHeld(IsKeyHeld);
   }
 
   public void ReleaseMouseKey()
   {
+    if (_mouseKeyHeld)
+    {
+      _firmware?.KeyUp();
+    }
+
     _mouseKeyHeld = false;
-    _firmware?.SetKeyLineHeld(IsKeyHeld);
+    _firmware?.SetKeyLineHeld(_keyboardKeyHeld);
   }
 
   public void ClearShiftPreview() =>
@@ -444,6 +467,7 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
     _firmware.BatchCompleted += OnFirmwareBatchCompleted;
     _faceplateSwitchIndices = [];
     _faceplateSwitchSpecs = [];
+    ResetCardSlotState();
 
     Vocabulary = null;
     if (Model.Program?.Vocabulary is { Length: > 0 } vocabularyPath)
@@ -539,23 +563,161 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
 
     _mouseKeyHeld = true;
     _firmware?.KeyDown(key);
+    RunFirmwareTicks(KeySettleBatches);
+  }
+
+  private void SettleAfterCardImport()
+  {
+    ApplyNonPowerFaceplateSwitchesToFirmware();
+    RunFirmwareTicks(KeySettleBatches);
+  }
+
+  private void RunFirmwareTicks(int batches)
+  {
+    for (int i = 0; i < batches; i++)
+    {
+      _firmware?.Tick(0.05f);
+    }
   }
 
   public bool SupportsCardProgram =>
     _firmware?.SupportsCardProgram == true;
 
-  /// <summary>True when this session uses ACT card packing (.hp67), not Classic (.hp65).</summary>
+  /// <summary>True when this session uses ACT card packing (T-67), not Classic (T-65).</summary>
   public bool UsesActCardProgram =>
     _firmware is Teo67FirmwareGateway;
 
   public string CardProgramExtension =>
-    UsesActCardProgram ? ".hp67" : ".hp65";
+    UsesActCardProgram ? T6xDocument.Extension67 : T6xDocument.Extension65;
 
   public int CardProgramCapacity =>
     UsesActCardProgram ? Teo67CardProgramIo.ProgramCapacity : ClassicCardProgramIo.ProgramCapacity;
 
   public IReadOnlyList<string> PrintLines =>
     _firmware?.PrintLines ?? [];
+
+  /// <summary>True after a successful card load/save — faceplate strip shows inserted state.</summary>
+  public bool CardInserted => _cardInserted;
+
+  public string? LoadedCardPath => _loadedCardPath;
+
+  /// <summary>Strip captions when a card is inserted (falls back to blank columns in the component).</summary>
+  public IReadOnlyList<string>? CardStripLabels => _cardStripLabels;
+
+  /// <summary>False when a caption has no matching <c>LBL A</c>…<c>LBL E</c> subroutine.</summary>
+  public IReadOnlyList<bool>? CardStripLabelsEnabled => _cardStripLabelsEnabled;
+
+  /// <summary>Metadata when the loaded file carries TeoCard fields (null if unavailable).</summary>
+  public TeoCardDocument? LoadedTeoCard => _loadedTeoCard;
+
+  public string? CardTitle => _loadedTeoCard?.Title;
+
+  public string? CardDescription => _loadedTeoCard?.Description;
+
+  public string? CardUsage => _loadedTeoCard?.Usage;
+
+  public string? CardRunHint => _loadedTeoCard?.RunHint;
+
+  public void EjectCard() => ResetCardSlotState();
+
+  private void ResetCardSlotState()
+  {
+    _cardInserted = false;
+    _loadedCardPath = null;
+    _cardStripLabels = null;
+    _cardStripLabelsEnabled = null;
+    _loadedTeoCard = null;
+  }
+
+  private void MarkCardInserted(string path, TeoCardDocument? teoCard = null)
+  {
+    _cardInserted = true;
+    _loadedCardPath = path;
+    _loadedTeoCard = teoCard;
+    CardStripPresentation strip = ResolveStripPresentation(path, teoCard);
+    _cardStripLabels = strip.Captions;
+    _cardStripLabelsEnabled = strip.Enabled;
+  }
+
+  private CardStripPresentation ResolveStripPresentation(string path, TeoCardDocument? teoCard)
+  {
+    if (teoCard is not null)
+    {
+      if (ClassicCardStripLabels.HasAnyLabel(teoCard.Labels))
+      {
+        return ClassicCardStripLabels.Resolve(teoCard.Labels, teoCard.Program.Steps);
+      }
+
+      if (teoCard.Program.Steps.Count > 0)
+      {
+        return ClassicCardStripLabels.Resolve(
+          ClassicCardStripLabels.InferFromSteps(teoCard.Program.Steps),
+          teoCard.Program.Steps);
+      }
+    }
+
+    return InferStripPresentationFromLegacyFile(path);
+  }
+
+  private CardStripPresentation InferStripPresentationFromLegacyFile(string path)
+  {
+    if (Vocabulary is null)
+    {
+      return new CardStripPresentation();
+    }
+
+    try
+    {
+      if (CuveSoftCardPlistFormat.IsCuveSoftCardPath(path))
+      {
+        CuveSoftCardPlistSnapshot cuveSoft = CuveSoftCardPlistFormat.ReadFile(path);
+        ClassicCardSnapshot cuveSoftClassic = CuveSoftCardPlistFormat.ToClassicSnapshot(cuveSoft);
+        return ClassicCardStripLabels.ResolveFromClassicSnapshot(
+          cuveSoftClassic,
+          code => ClassicCardProgramIo.FormatMnemonic(Vocabulary, code),
+          cuveSoft.Labels);
+      }
+
+      if (TeoCardProgramFormat.IsTeoCardPath(path))
+      {
+        TeoCardDocument teoJson = TeoCardProgramFormat.ReadFile(path);
+        if (ClassicCardStripLabels.HasAnyLabel(teoJson.Labels))
+        {
+          return ClassicCardStripLabels.Resolve(teoJson.Labels, teoJson.Program.Steps);
+        }
+
+        if (teoJson.Program.Steps.Count > 0)
+        {
+          return ClassicCardStripLabels.Resolve(
+            ClassicCardStripLabels.InferFromSteps(teoJson.Program.Steps),
+            teoJson.Program.Steps);
+        }
+      }
+
+      if (IsCardTextPath(path))
+      {
+        T6xDocument t6x = T6xCardFormat.ReadFile(path);
+        TeoCardDocument teo = T6xCardFormat.ToTeoCardDocument(t6x);
+        if (ClassicCardStripLabels.HasAnyLabel(teo.Labels))
+        {
+          return ClassicCardStripLabels.Resolve(teo.Labels, teo.Program.Steps);
+        }
+
+        if (teo.Program.Steps.Count > 0)
+        {
+          return ClassicCardStripLabels.Resolve(
+            ClassicCardStripLabels.InferFromSteps(teo.Program.Steps),
+            teo.Program.Steps);
+        }
+      }
+
+      return new CardStripPresentation();
+    }
+    catch
+    {
+      return new CardStripPresentation();
+    }
+  }
 
   public bool TrySaveCardProgram(string path, out string? error)
   {
@@ -574,32 +736,62 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
 
     try
     {
-      if (_firmware is Teo67FirmwareGateway hp67)
+      if (IsCardTextPath(path))
       {
-        Teo67CardModeSnapshot? mode = null;
-        if (hp67.TryExportCardMode(out Teo67CardMode exported))
+        if (!TryBuildT6xDocument(codes, registers, out T6xDocument t6x, out error))
         {
-          mode = new Teo67CardModeSnapshot(
-            exported.Angle,
-            exported.Display,
-            exported.Digits,
-            exported.FlagsHi,
-            exported.FlagsLo);
+          return false;
         }
 
-        Teo67CardProgramFormat.WriteFile(
-          path,
-          new Teo67CardSnapshot(codes, registers, mode),
-          Teo67CardProgramIo.FormatMnemonic);
+        T6xCardFormat.WriteFile(path, t6x);
+        MarkCardInserted(path, T6xCardFormat.ToTeoCardDocument(t6x));
         return true;
       }
 
-      ClassicCardSnapshot snapshot = new(codes, registers);
-      ClassicCardProgramFormat.WriteFile(
-        path,
-        snapshot,
-        code => ClassicCardProgramIo.FormatMnemonic(Vocabulary, code));
-      return true;
+      if (CuveSoftCardPlistFormat.IsCuveSoftCardPath(path))
+      {
+        if (_firmware is Teo67FirmwareGateway)
+        {
+          error = "CuveSoft (.xml) export is only supported for T-65.";
+          return false;
+        }
+
+        if (Vocabulary is null)
+        {
+          error = "Program vocabulary is not available.";
+          return false;
+        }
+
+        if (!TryBuildT6xDocument(codes, registers, out T6xDocument t6x, out error))
+        {
+          return false;
+        }
+
+        CuveSoftCardPlistSnapshot plist = CuveSoftCardPlistFormat.FromT6xDocument(
+          t6x,
+          mnemonic => ClassicCardProgramIo.ResolveMnemonic(Vocabulary, mnemonic));
+        CuveSoftCardPlistFormat.WriteFile(path, plist);
+        MarkCardInserted(path, T6xCardFormat.ToTeoCardDocument(t6x));
+        return true;
+      }
+
+      if (TeoCardProgramFormat.IsTeoCardPath(path))
+      {
+        if (!TryBuildT6xDocument(codes, registers, out T6xDocument t6x, out error))
+        {
+          return false;
+        }
+
+        TeoCardDocument teo = T6xCardFormat.ToTeoCardDocument(t6x);
+        TeoCardProgramFormat.WriteFile(path, teo);
+        MarkCardInserted(path, teo);
+        return true;
+      }
+
+      error =
+        $"Unsupported card file extension '{Path.GetExtension(path)}'. " +
+        "Save as .t65/.t67, or Export as CuveSoft (.xml) / Teo (.json).";
+      return false;
     }
     catch (Exception ex)
     {
@@ -619,36 +811,25 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
 
     try
     {
-      if (_firmware is Teo67FirmwareGateway hp67)
+      if (CuveSoftCardPlistFormat.IsCuveSoftCardPath(path))
       {
-        Teo67CardSnapshot actSnapshot = Teo67CardProgramFormat.ReadFile(
-          path,
-          Teo67CardProgramIo.ResolveMnemonic);
-        if (!hp67.TryImportCardProgram(actSnapshot.ProgramCodes, actSnapshot.Registers))
-        {
-          error = "Failed to import program memory.";
-          return false;
-        }
-
-        if (actSnapshot.Mode is { } mode)
-        {
-          _ = hp67.TryImportCardMode(
-            new Teo67CardMode(mode.Angle, mode.Display, mode.Digits, mode.FlagsHi, mode.FlagsLo));
-        }
-
-        return true;
+        return TryLoadCuveSoftCardProgram(path, out error);
       }
 
-      ClassicCardSnapshot snapshot = ClassicCardProgramFormat.ReadFile(
-        path,
-        mnemonic => ClassicCardProgramIo.ResolveMnemonic(Vocabulary, mnemonic));
-      if (!_firmware.TryImportCardProgram(snapshot.ProgramCodes, snapshot.Registers))
+      if (TeoCardProgramFormat.IsTeoCardPath(path))
       {
-        error = "Failed to import program memory.";
-        return false;
+        return TryLoadTeoCardProgram(path, out error);
       }
 
-      return true;
+      if (IsCardTextPath(path))
+      {
+        return TryLoadT6xCardProgram(path, out error);
+      }
+
+      error =
+        $"Unsupported card file extension '{Path.GetExtension(path)}'. " +
+        "Use .t65/.t67, CuveSoft (.xml/.plist/.rpn65), or Teo (.json).";
+      return false;
     }
     catch (Exception ex)
     {
@@ -656,6 +837,161 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
       return false;
     }
   }
+
+  private bool TryBuildT6xDocument(
+    byte[] codes,
+    double[] registers,
+    out T6xDocument document,
+    out string? error)
+  {
+    document = null!;
+    error = null;
+
+    if (_firmware is Teo67FirmwareGateway hp67Save)
+    {
+      Teo67CardModeSnapshot? mode = null;
+      if (hp67Save.TryExportCardMode(out Teo67CardMode exported))
+      {
+        mode = new Teo67CardModeSnapshot(
+          exported.Angle,
+          exported.Display,
+          exported.Digits,
+          exported.FlagsHi,
+          exported.FlagsLo);
+      }
+
+      Teo67CardSnapshot actSnapshot = new(codes, registers, mode);
+      document = T6xCardFormat.FromTeo67Snapshot(
+        actSnapshot,
+        Teo67CardProgramIo.FormatMnemonic,
+        _loadedTeoCard);
+      return true;
+    }
+
+    if (Vocabulary is null)
+    {
+      error = "Program vocabulary is not available.";
+      return false;
+    }
+
+    ClassicCardSnapshot classicSnapshot = new(codes, registers);
+    string engineModelId = ExplorerModels[ModelIndex];
+    TeoCardDocument teo = TeoCardProgramFormat.FromClassicSnapshot(
+      classicSnapshot,
+      code => ClassicCardProgramIo.FormatMnemonic(Vocabulary, code),
+      engineModelId,
+      _loadedTeoCard);
+    document = T6xCardFormat.FromTeoCardDocument(teo);
+    return true;
+  }
+
+  private bool TryLoadCuveSoftCardProgram(string path, out string? error)
+  {
+    error = null;
+    if (Vocabulary is null)
+    {
+      error = "Program vocabulary is not available.";
+      return false;
+    }
+
+    CuveSoftCardPlistSnapshot snapshot = CuveSoftCardPlistFormat.ReadFile(path);
+    TeoCardDocument document = CuveSoftCardPlistFormat.ToTeoCardDocument(
+      snapshot,
+      code => ClassicCardProgramIo.FormatMnemonic(Vocabulary, code));
+    string engineModelId = ExplorerModels[ModelIndex];
+    if (!TeoCardProgramFormat.ModelMatches(document.Model, engineModelId, Model.Model))
+    {
+      error = $"Card model '{document.Model}' does not match active calculator '{engineModelId}'.";
+      return false;
+    }
+
+    if (_firmware is Teo67FirmwareGateway)
+    {
+      error = "CuveSoft (.xml) import for HP-67 is not supported.";
+      return false;
+    }
+
+    ClassicCardSnapshot classic = CuveSoftCardPlistFormat.ToClassicSnapshot(snapshot);
+    if (!_firmware!.TryImportCardProgram(classic.ProgramCodes, classic.Registers))
+    {
+      error = "Failed to import program memory.";
+      return false;
+    }
+
+    MarkCardInserted(path, document);
+    SettleAfterCardImport();
+    return true;
+  }
+
+  private bool TryLoadT6xCardProgram(string path, out string? error)
+  {
+    error = null;
+    if (Vocabulary is null)
+    {
+      error = "Program vocabulary is not available.";
+      return false;
+    }
+
+    T6xDocument t6x = T6xCardFormat.ReadFile(path);
+    return TryImportT6xDocument(path, t6x, out error);
+  }
+
+  private bool TryLoadTeoCardProgram(string path, out string? error)
+  {
+    error = null;
+    if (Vocabulary is null)
+    {
+      error = "Program vocabulary is not available.";
+      return false;
+    }
+
+    TeoCardDocument document = TeoCardProgramFormat.ReadFile(path);
+    T6xDocument t6x = T6xCardFormat.FromTeoCardDocument(document);
+    return TryImportT6xDocument(path, t6x, out error);
+  }
+
+  private bool TryImportT6xDocument(string path, T6xDocument t6x, out string? error)
+  {
+    error = null;
+    string engineModelId = ExplorerModels[ModelIndex];
+    if (!T6xCardFormat.TargetCpuMatches(t6x.TargetCpu, engineModelId, Model.Model))
+    {
+      error = $"Card TargetCpu '{t6x.TargetCpu}' does not match active calculator '{engineModelId}'.";
+      return false;
+    }
+
+    if (_firmware is Teo67FirmwareGateway hp67)
+    {
+      Teo67CardSnapshot snapshot = T6xCardFormat.ToTeo67Snapshot(t6x, Teo67CardProgramIo.ResolveMnemonic);
+      if (!hp67.TryImportCardProgram(snapshot.ProgramCodes, snapshot.Registers))
+      {
+        error = "Failed to import program memory.";
+        return false;
+      }
+
+      TeoCardDocument document = T6xCardFormat.ToTeoCardDocument(t6x);
+      MarkCardInserted(path, document);
+      SettleAfterCardImport();
+      return true;
+    }
+
+    ClassicCardSnapshot classic = T6xCardFormat.ToClassicSnapshot(
+      t6x,
+      mnemonic => ClassicCardProgramIo.ResolveMnemonic(Vocabulary!, mnemonic));
+    if (!_firmware!.TryImportCardProgram(classic.ProgramCodes, classic.Registers))
+    {
+      error = "Failed to import program memory.";
+      return false;
+    }
+
+    TeoCardDocument teoDocument = T6xCardFormat.ToTeoCardDocument(t6x);
+    MarkCardInserted(path, teoDocument);
+    SettleAfterCardImport();
+    return true;
+  }
+
+  private static bool IsCardTextPath(string path) =>
+    T6xCardFormat.IsCardTextPath(path);
 
   public void ClearPrintLines() =>
     _firmware?.ClearPrintLines();

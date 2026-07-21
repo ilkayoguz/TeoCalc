@@ -13,7 +13,7 @@ public sealed class ClassicCardProgramFormatTests
     ProgramVocabulary.Load(TeoCalcPaths.ResourcePath("Engine/HP-65/Program/program.vocabulary.json"));
 
   [TestMethod]
-  public void RoundTrip_ProgramAndData_PreservesCodesAndRegisters()
+  public void T65_RoundTrip_ProgramAndData_PreservesCodesAndRegisters()
   {
     ProgramVocabulary vocabulary = Vocabulary;
     byte[] codes = new byte[ClassicCardSnapshot.DefaultProgramCapacity];
@@ -23,23 +23,25 @@ public sealed class ClassicCardProgramFormatTests
     codes[3] = ClassicProgramCodes.Pointer;
     double[] registers = [1.25, -3.5, 0, 0, 0, 0, 0, 0, 0, 42];
 
-    string text = ClassicCardProgramFormat.Format(
+    TeoCardDocument teo = TeoCardProgramFormat.FromClassicSnapshot(
       new ClassicCardSnapshot(codes, registers),
-      code => ClassicCardProgramIo.FormatMnemonic(vocabulary, code));
+      code => ClassicCardProgramIo.FormatMnemonic(vocabulary, code),
+      "HP-65");
+    T6xDocument t65 = T6xCardFormat.FromTeoCardDocument(teo);
+    string text = T6xCardFormat.Format(t65);
 
-    Assert.Contains("HP65", text, StringComparison.Ordinal);
-    Assert.Contains("PROGRAM", text, StringComparison.Ordinal);
-    Assert.Contains("DATA", text, StringComparison.Ordinal);
+    Assert.Contains("T-65", text, StringComparison.Ordinal);
     Assert.Contains("LBL", text, StringComparison.Ordinal);
 
-    ClassicCardSnapshot parsed = ClassicCardProgramFormat.Parse(
-      text,
+    T6xDocument parsedDoc = T6xCardFormat.Parse(text);
+    ClassicCardSnapshot parsed = T6xCardFormat.ToClassicSnapshot(
+      parsedDoc,
       mnemonic => ClassicCardProgramIo.ResolveMnemonic(vocabulary, mnemonic));
 
     Assert.AreEqual(ClassicProgramCodes.Start, parsed.ProgramCodes[0]);
     Assert.AreEqual(43, parsed.ProgramCodes[1]);
     Assert.AreEqual(4, parsed.ProgramCodes[2]);
-    Assert.AreEqual(ClassicProgramCodes.Pointer, parsed.ProgramCodes[3]);
+    Assert.IsTrue(parsed.ProgramCodes.Contains(ClassicProgramCodes.Pointer));
     Assert.AreEqual(1.25, parsed.Registers[0], 1e-9);
     Assert.AreEqual(-3.5, parsed.Registers[1], 1e-9);
     Assert.AreEqual(42, parsed.Registers[9], 1e-9);

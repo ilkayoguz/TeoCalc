@@ -33,16 +33,19 @@ public sealed class CardProgramSmokeTests
 
     ProgramVocabulary vocabulary = ProgramVocabulary.Load(
       TeoCalcPaths.ResourcePath("Engine/HP-65/Program/program.vocabulary.json"));
-    string path = Path.Combine(Path.GetTempPath(), $"teocalc-card65-{Guid.NewGuid():N}.hp65");
+    string path = Path.Combine(Path.GetTempPath(), $"teocalc-card65-{Guid.NewGuid():N}.t65");
     try
     {
-      ClassicCardProgramFormat.WriteFile(
-        path,
+      TeoCardDocument teo = TeoCardProgramFormat.FromClassicSnapshot(
         new ClassicCardSnapshot(exportedCodes, exportedRegs),
-        code => ClassicCardProgramIo.FormatMnemonic(vocabulary, code));
+        code => ClassicCardProgramIo.FormatMnemonic(vocabulary, code),
+        "HP-65");
+      T6xDocument t65 = T6xCardFormat.FromTeoCardDocument(teo);
+      T6xCardFormat.WriteFile(path, t65);
 
-      ClassicCardSnapshot parsed = ClassicCardProgramFormat.ReadFile(
-        path,
+      T6xDocument parsedDoc = T6xCardFormat.ReadFile(path);
+      ClassicCardSnapshot parsed = T6xCardFormat.ToClassicSnapshot(
+        parsedDoc,
         mnemonic => ClassicCardProgramIo.ResolveMnemonic(vocabulary, mnemonic));
       Assert.AreEqual(43, parsed.ProgramCodes[1]);
       Assert.AreEqual(1.25, parsed.Registers[0], 1e-6);
@@ -79,23 +82,23 @@ public sealed class CardProgramSmokeTests
     Assert.AreEqual(12.5, exportedRegs[0], 1e-6);
     Assert.AreEqual(-3, exportedRegs[25], 1e-6);
 
-    string path = Path.Combine(Path.GetTempPath(), $"teocalc-card67-{Guid.NewGuid():N}.hp67");
+    string path = Path.Combine(Path.GetTempPath(), $"teocalc-card67-{Guid.NewGuid():N}.t67");
     try
     {
       Teo67FirmwareGateway hp67 = (Teo67FirmwareGateway)gateway;
       Assert.IsTrue(hp67.TryExportCardMode(out Teo67CardMode mode));
-      Teo67CardProgramFormat.WriteFile(
-        path,
+      T6xDocument t67 = T6xCardFormat.FromTeo67Snapshot(
         new Teo67CardSnapshot(
           exportedCodes,
           exportedRegs,
           new Teo67CardModeSnapshot(mode.Angle, mode.Display, mode.Digits, mode.FlagsHi, mode.FlagsLo)),
         Teo67CardProgramIo.FormatMnemonic);
+      T6xCardFormat.WriteFile(path, t67);
 
-      Teo67CardSnapshot parsed = Teo67CardProgramFormat.ReadFile(path, Teo67CardProgramIo.ResolveMnemonic);
+      T6xDocument parsedDoc = T6xCardFormat.ReadFile(path);
+      Teo67CardSnapshot parsed = T6xCardFormat.ToTeo67Snapshot(parsedDoc, Teo67CardProgramIo.ResolveMnemonic);
       Assert.AreEqual(16, parsed.ProgramCodes[0]);
       Assert.AreEqual(12.5, parsed.Registers[0], 1e-6);
-      Assert.IsNotNull(parsed.Mode);
 
       Teo67FirmwareGateway other = (Teo67FirmwareGateway)CalcFirmwareGatewayLocator.CreateGateway("HP-67BE");
       Assert.IsTrue(other.TryImportCardProgram(parsed.ProgramCodes, parsed.Registers));

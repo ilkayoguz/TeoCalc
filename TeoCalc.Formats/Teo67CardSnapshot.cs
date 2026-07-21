@@ -1,6 +1,6 @@
 namespace TeoCalc.Formats;
 
-/// <summary>Mag-card style program + register snapshot for ACT HasCardSlot models (.hp67 ASCII).</summary>
+/// <summary>Mag-card style program + register snapshot for ACT HasCardSlot models (T-67 packing).</summary>
 public sealed record Teo67CardSnapshot(
   IReadOnlyList<byte> ProgramCodes,
   IReadOnlyList<double> Registers,
@@ -11,7 +11,7 @@ public sealed record Teo67CardSnapshot(
   public const int DefaultRegisterCount = 26;
 }
 
-/// <summary>Optional MODE line from .hp67 ASCII cards.</summary>
+/// <summary>Optional calculator mode carried with a T-67 card snapshot.</summary>
 public sealed record Teo67CardModeSnapshot(
   string Angle,
   string Display,

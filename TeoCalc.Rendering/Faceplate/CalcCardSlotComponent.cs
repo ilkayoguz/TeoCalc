@@ -25,12 +25,18 @@ public static class CalcCardSlotComponent
   /// <summary>White legends inside the frame.</summary>
   public const uint LabelInk = 0xFFFFFFFF;
 
+  /// <summary>Caption present but no matching <c>LBL</c> subroutine.</summary>
+  public const uint LabelInkDisabled = 0xFF6E6E6E;
+
   /// <summary>White frame stroke.</summary>
   public const uint FrameInk = 0xFFFFFFFF;
 
   public const float FrameThicknessRef = 1.5f;
 
   public static readonly string[] NoCardLabels = CalcFaceplateLayout.CardSlotLabels;
+
+  /// <summary>Blank captions — physical card covers the default A–E legends.</summary>
+  public static readonly string[] InsertedStripLabels = ["", "", "", "", ""];
 
   public static bool ModelHasCardSlot(string modelId) =>
     HeuristicHasCardSlot(modelId);
@@ -58,7 +64,9 @@ public static class CalcCardSlotComponent
     CalcChassisMetrics metrics,
     Vector2 origin,
     IReadOnlyList<string>? labels = null,
-    bool skipText = false)
+    IReadOnlyList<bool>? labelsEnabled = null,
+    bool skipText = false,
+    bool cardInserted = false)
   {
     if (panel.Width <= 0f || panel.Height <= 0f)
     {
@@ -76,12 +84,23 @@ public static class CalcCardSlotComponent
       ImDrawFlags.RoundCornersAll,
       thickness);
 
+    if (cardInserted)
+    {
+      DrawInsertedFill(draw, metrics, origin, panel, scale);
+    }
+
     if (skipText)
     {
       return;
     }
 
-    IReadOnlyList<string> captions = labels is { Count: > 0 } ? labels : NoCardLabels;
+    IReadOnlyList<string> captions = cardInserted
+      ? labels is { Count: > 0 }
+        ? labels
+        : InsertedStripLabels
+      : labels is { Count: > 0 }
+        ? labels
+        : NoCardLabels;
     float fontSize = MathF.Max(11f * scale, panel.Height * 0.42f);
     float centerY = panel.Y + panel.Height * 0.5f;
 
@@ -112,7 +131,12 @@ public static class CalcCardSlotComponent
 
       ClassicFaceplateGlyphs.LabelSize size = ClassicFaceplateGlyphs.MeasureBodyLabel(caption, fontSize);
       Vector2 topLeft = new(centerX - size.Width * 0.5f, centerY - size.Height * 0.5f);
-      ClassicFaceplateGlyphs.DrawBodyLabel(draw, topLeft, caption, fontSize, LabelInk, scale);
+      uint ink = labelsEnabled is not null
+        && column < labelsEnabled.Count
+        && !labelsEnabled[column]
+        ? LabelInkDisabled
+        : LabelInk;
+      ClassicFaceplateGlyphs.DrawBodyLabel(draw, topLeft, caption, fontSize, ink, scale);
     }
   }
 
@@ -157,5 +181,32 @@ public static class CalcCardSlotComponent
     }
 
     return string.Equals(caption, NoCardLabels[column], StringComparison.Ordinal);
+  }
+
+  private static void DrawInsertedFill(
+    ImDrawListPtr draw,
+    CalcChassisMetrics metrics,
+    Vector2 origin,
+    RectF panel,
+    float scale)
+  {
+    uint fill = 0xFF2A2A2A;
+    float inset = MathF.Max(1f, scale * 1.5f);
+    for (int column = 0; column < CalcFaceplateLayout.Columns; column++)
+    {
+      if (!TryGetColumnCenterX(metrics, origin, column, panel, out float centerX))
+      {
+        continue;
+      }
+
+      float cellWidth = panel.Width / CalcFaceplateLayout.Columns;
+      float left = centerX - cellWidth * 0.5f + inset;
+      float right = centerX + cellWidth * 0.5f - inset;
+      draw.AddRectFilled(
+        new Vector2(left, panel.Y + inset),
+        new Vector2(right, panel.Max.Y - inset),
+        fill,
+        scale * 2f);
+    }
   }
 }
