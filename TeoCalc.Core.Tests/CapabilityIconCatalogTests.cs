@@ -1,4 +1,4 @@
-using TeoCalc.Core;
+﻿using TeoCalc.Core;
 using TeoCalc.Core.Catalog;
 using TeoCalc.Rendering.Faceplate;
 
@@ -24,7 +24,7 @@ public sealed class CapabilityIconCatalogTests
     Assert.IsFalse(model.HasPrinter == true);
     Assert.AreEqual(
       CalcWindowTitlePanelComponent.ButtonWidth,
-      CalcWindowTitlePanelComponent.CapabilityIconsWidth(hasCardSlot: true, hasPrinter: false));
+      CalcWindowTitlePanelComponent.CapabilityIconsWidth(hasCardSlot: true, hasPrinter: false, hasDebug: false));
   }
 
   [TestMethod]
@@ -35,7 +35,7 @@ public sealed class CapabilityIconCatalogTests
     Assert.IsTrue(model.HasPrinter == true);
     Assert.AreEqual(
       CalcWindowTitlePanelComponent.ButtonWidth,
-      CalcWindowTitlePanelComponent.CapabilityIconsWidth(hasCardSlot: false, hasPrinter: true));
+      CalcWindowTitlePanelComponent.CapabilityIconsWidth(hasCardSlot: false, hasPrinter: true, hasDebug: false));
   }
 
   [TestMethod]
@@ -46,6 +46,6 @@ public sealed class CapabilityIconCatalogTests
     Assert.IsFalse(model.HasPrinter == true);
     Assert.AreEqual(
       0f,
-      CalcWindowTitlePanelComponent.CapabilityIconsWidth(hasCardSlot: false, hasPrinter: false));
+      CalcWindowTitlePanelComponent.CapabilityIconsWidth(hasCardSlot: false, hasPrinter: false, hasDebug: false));
   }
 }

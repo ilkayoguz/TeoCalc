@@ -99,6 +99,24 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
 
   public int SelectedAddress { get; set; }
 
+  /// <summary>When true, microcode watch follows the live ROM fetch address while running / stepping.</summary>
+  public bool FollowRomWatch { get; set; } = true;
+
+  public bool ExecutionPaused
+  {
+    get => _firmware?.ExecutionPaused ?? false;
+    set
+    {
+      if (_firmware is not null)
+      {
+        _firmware.ExecutionPaused = value;
+      }
+    }
+  }
+
+  public bool SupportsInstructionStep =>
+    _firmware?.SupportsInstructionStep ?? false;
+
   public bool ProgramMode
   {
     get => _firmware?.ProgramMode ?? false;
@@ -513,19 +531,58 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
   public void Tick(float deltaSeconds) =>
     _firmware?.Tick(deltaSeconds);
 
-  public void StepCpu()
+  public void StepCpu() =>
+    StepInto();
+
+  public void StepInto()
   {
-    if (_firmware is null)
+    if (_firmware is null || !PowerOn)
     {
       return;
     }
 
-    _firmware.Step();
-    SelectedAddress = Math.Max(0, _firmware.LastBatch.ProgramCounter);
+    _firmware.StepInto();
+    SyncRomWatchFromBatch(_firmware.LastBatch);
   }
+
+  public void StepOver()
+  {
+    if (_firmware is null || !PowerOn)
+    {
+      return;
+    }
+
+    _firmware.StepOver();
+    SyncRomWatchFromBatch(_firmware.LastBatch);
+  }
+
+  public void BreakExecution() =>
+    ExecutionPaused = true;
+
+  public void ContinueExecution() =>
+    _firmware?.ContinueExecution();
+
+  public string CaptureDebugDump() =>
+    _firmware?.CaptureDebugDump() ?? "No firmware gateway.";
+
+  public FirmwareDebugRegisters? TryGetDebugRegisters() =>
+    _firmware?.TryGetDebugRegisters();
 
   public void Dispose() =>
     DisposeFirmware();
+
+  private void SyncRomWatchFromBatch(FirmwareBatchSnapshot batch)
+  {
+    _lastBatch = batch;
+    if (!FollowRomWatch)
+    {
+      return;
+    }
+
+    int address = Math.Max(0, batch.ProgramCounter);
+    SelectedAddress = address;
+    MicrocodeScroll = Math.Max(0, address - 6);
+  }
 
   private void DisposeFirmware()
   {
@@ -574,9 +631,11 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
 
   private void RunFirmwareTicks(int batches)
   {
+    // T-01 uses a 10ms timer; 40×50ms settle would burn its ~2s display hold (200 batches).
+    float delta = _firmware is Teo01FirmwareGateway ? 0.01f : 0.05f;
     for (int i = 0; i < batches; i++)
     {
-      _firmware?.Tick(0.05f);
+      _firmware?.Tick(delta);
     }
   }
 
@@ -1018,5 +1077,5 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
     _displaySnapshot = args.Snapshot;
 
   private void OnFirmwareBatchCompleted(object? sender, FirmwareBatchCompletedEventArgs args) =>
-    _lastBatch = args.Snapshot;
+    SyncRomWatchFromBatch(args.Snapshot);
 }

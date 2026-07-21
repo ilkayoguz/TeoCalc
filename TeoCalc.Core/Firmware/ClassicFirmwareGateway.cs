@@ -1,3 +1,4 @@
+using System.Text;
 using TeoCalc.Core.Engine.Classic;
 
 namespace TeoCalc.Core.Firmware;
@@ -65,15 +66,32 @@ public sealed class ClassicFirmwareGateway : CalcFirmwareGatewayBase
     RunInstructionBatch(KeyRunSteps);
   }
 
-  public override void Step()
+  public override void Step() =>
+    StepInto();
+
+  public override FirmwareDebugRegisters? TryGetDebugRegisters()
+  {
+    if (Cpu is null)
+    {
+      return null;
+    }
+
+    ClassicRegisterFile r = Cpu.State.Registers;
+    return FirmwareDebugOpcodes.FromClassicStyle(r.A, r.B, r.C, r.Y, r.Z, r.T, r.M);
+  }
+
+  protected override void AppendFamilyDebugDump(StringBuilder text)
   {
     if (Cpu is null)
     {
       return;
     }
 
-    Cpu.Step();
-    RefreshDisplayFromCpu();
+    ClassicCpuState state = Cpu.State;
+    text.AppendLine(
+      $"Fetch={state.FetchAddress:X4}  PC.reg={state.ProgramCounter:X4}  Flags={(byte)state.Flags:X2}  F={state.F:X2}");
+    text.AppendLine(
+      $"Ret0={state.ReturnStack[0]:X4}  Ret1={state.ReturnStack[1]:X4}  KeyState={state.KeyInputState}");
   }
 
   public override void PowerOff()
@@ -94,7 +112,7 @@ public sealed class ClassicFirmwareGateway : CalcFirmwareGatewayBase
     Cpu?.StepCount ?? 0;
 
   protected override int CurrentProgramCounter =>
-    Cpu?.State.ProgramCounter ?? 0;
+    Cpu?.State.FetchAddress ?? 0;
 
   protected override void OnPowerOffCpu()
   {
@@ -159,7 +177,7 @@ public sealed class ClassicFirmwareGateway : CalcFirmwareGatewayBase
     RefreshDisplayFromCpu();
     LastBatch = new FirmwareBatchSnapshot(
       Cpu.StepCount,
-      Cpu.State.ProgramCounter,
+      Cpu.State.FetchAddress,
       Cpu.State.Status,
       Cpu.State.KeyBuffer,
       lastHandlerId,

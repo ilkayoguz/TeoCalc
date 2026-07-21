@@ -1,6 +1,7 @@
 using System.Numerics;
 using ImGuiNET;
 using TeoCalc.Formats;
+using Session = TeoCalc.Rendering.CalcExplorerSession;
 
 namespace TeoCalc.Rendering.Faceplate;
 
@@ -9,13 +10,16 @@ public enum CalcCapabilitySidePanelMode
   None,
   Card,
   Printer,
+  Debug,
 }
 
-/// <summary>Left side strip for card / printer tools inside the calc window chrome.</summary>
+/// <summary>Left side strip for card / printer / debug tools inside the calc window chrome.</summary>
 public static class CalcCapabilitySidePanelComponent
 {
   public static float PreferredWidthRef =>
-    MathF.Max(CalcCardPanelComponent.PreferredWidthRef, CalcPrinterPanelComponent.PreferredWidthRef);
+    MathF.Max(
+      MathF.Max(CalcCardPanelComponent.PreferredWidthRef, CalcPrinterPanelComponent.PreferredWidthRef),
+      CalcDebugPanelComponent.PreferredWidthRef);
 
   public static void DrawChrome(ImDrawListPtr draw, float x, float y, float width, float height)
   {
@@ -31,8 +35,10 @@ public static class CalcCapabilitySidePanelComponent
 
   public static void DrawContent(
     CalcCapabilitySidePanelMode mode,
+    Session session,
     ref string cardPathBuffer,
     ref string cardStatusMessage,
+    ref string debugDumpStatus,
     bool canLoadSaveCard,
     Func<string, string?> loadCard,
     Func<string, string?> saveCard,
@@ -64,6 +70,9 @@ public static class CalcCapabilitySidePanelComponent
         break;
       case CalcCapabilitySidePanelMode.Printer:
         CalcPrinterPanelComponent.DrawInline(printLines, onTestPrint, onClearPrint);
+        break;
+      case CalcCapabilitySidePanelMode.Debug:
+        CalcDebugPanelComponent.DrawInline(session, ref debugDumpStatus);
         break;
     }
   }

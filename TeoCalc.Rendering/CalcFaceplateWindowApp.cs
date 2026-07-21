@@ -114,6 +114,8 @@ public sealed class CalcFaceplateHost : IDisposable
 
   private string _cardStatusMessage = string.Empty;
 
+  private string _debugDumpStatus = string.Empty;
+
   private int _lastPrintLineCount;
 
   private CalcFaceplateHost(CalcExplorerSession session, float aspect, IWindow window, string catalogModelId, bool ownsGl)
@@ -383,7 +385,9 @@ public sealed class CalcFaceplateHost : IDisposable
             hasCardSlot,
             hasPrinter,
             _sidePanelMode == CalcCapabilitySidePanelMode.Card,
-            _sidePanelMode == CalcCapabilitySidePanelMode.Printer);
+            _sidePanelMode == CalcCapabilitySidePanelMode.Printer,
+            hasDebug: true,
+            debugPanelOpen: _sidePanelMode == CalcCapabilitySidePanelMode.Debug);
 
         float contentHeight = MathF.Max(1f, display.Y - BandTop - LogoBandHeight - BeadInset);
         if (SidePanelWidthPx > 0f)
@@ -549,6 +553,9 @@ public sealed class CalcFaceplateHost : IDisposable
         }
 
         break;
+      case CalcWindowTitlePanelComponent.TitleAction.OpenDebug:
+        ToggleSidePanel(CalcCapabilitySidePanelMode.Debug);
+        break;
     }
   }
 
@@ -666,8 +673,10 @@ public sealed class CalcFaceplateHost : IDisposable
       ImGuiChildFlags.None);
     CalcCapabilitySidePanelComponent.DrawContent(
       _sidePanelMode,
+      _session,
       ref _cardPathBuffer,
       ref _cardStatusMessage,
+      ref _debugDumpStatus,
       _session.SupportsCardProgram,
       path =>
       {
@@ -716,7 +725,8 @@ public sealed class CalcFaceplateHost : IDisposable
       display.X - BeadInset,
       BeadInset,
       hasCardSlot,
-      hasPrinter);
+      hasPrinter,
+      hasDebug: true);
     bool onTitleStrip = mouse.Y >= 0f && mouse.Y <= BandTop;
 
     // A double-click on the calc's top bar always toggles maximize/restore.

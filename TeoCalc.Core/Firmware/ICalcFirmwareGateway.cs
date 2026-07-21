@@ -49,6 +49,32 @@ public interface ICalcFirmwareGateway
 
   void Step();
 
+  /// <summary>
+  /// When true, timer <see cref="Tick"/> batches are skipped so DEBUG/TRACE can single-step.
+  /// Key presses still run instruction batches.
+  /// </summary>
+  bool ExecutionPaused { get; set; }
+
+  /// <summary>True when this gateway can single-step microcode (native engines).</summary>
+  bool SupportsInstructionStep { get; }
+
+  /// <summary>Execute one microcode instruction and pause continuous run.</summary>
+  void StepInto();
+
+  /// <summary>
+  /// Step over a subroutine call when the next executed op is JSB; otherwise same as <see cref="StepInto"/>.
+  /// </summary>
+  void StepOver(int maxInstructions = 50_000);
+
+  /// <summary>Resume timer-driven execution after a break / step.</summary>
+  void ContinueExecution();
+
+  /// <summary>Text snapshot of CPU / batch / optional registers for bug reports.</summary>
+  string CaptureDebugDump();
+
+  /// <summary>Working register digests when the native CPU exposes them; otherwise null.</summary>
+  FirmwareDebugRegisters? TryGetDebugRegisters();
+
   void KeyDown(FirmwareKeyCommand key);
 
   void KeyUp(FirmwareKeyCommand? key = null);

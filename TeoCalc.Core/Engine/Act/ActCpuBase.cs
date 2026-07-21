@@ -230,6 +230,10 @@ public abstract class ActCpuBase : CpuBase, IActCpu
   /// <summary>When true, HP-19C gateway skips the next continuous S3 pulse (Panamatik <c>pikinstruction</c>).</summary>
   public bool SuppressNextStatusPulse { get; set; }
 
+  /// <summary>Test hook: run a dispatch alias without advancing ROM.</summary>
+  internal void InvokeOpcodeAliasForTests(string alias) =>
+    Execute(alias, opcode: 0);
+
   private void Execute(string alias, ushort opcode)
   {
     switch (alias)

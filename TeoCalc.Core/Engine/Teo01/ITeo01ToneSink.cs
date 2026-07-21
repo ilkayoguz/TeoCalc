@@ -2,7 +2,7 @@ namespace TeoCalc.Core.Engine.Teo01;
 
 /// <summary>
 /// Optional tone hook for T-01 alarm / stopwatch events.
-/// Default is <see cref="NullTeo01ToneSink"/> (no audio). Hosts may supply a real sink later.
+/// Default is <see cref="NullTeo01ToneSink"/>; hosts wire via <c>CalcFirmwareBootstrap.Teo01ToneSink</c>.
 /// </summary>
 public interface ITeo01ToneSink
 {

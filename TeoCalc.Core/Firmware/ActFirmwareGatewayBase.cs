@@ -1,3 +1,4 @@
+using System.Text;
 using TeoCalc.Core.Engine.Act;
 
 namespace TeoCalc.Core.Firmware;
@@ -44,6 +45,31 @@ public abstract class ActFirmwareGatewayBase<TCpu> : CalcFirmwareGatewayBase
     }
 
     RunInstructionBatch(KeyRunSteps);
+  }
+
+  public override FirmwareDebugRegisters? TryGetDebugRegisters()
+  {
+    if (Cpu is null)
+    {
+      return null;
+    }
+
+    ActRegisterFile r = Cpu.State.Registers;
+    return FirmwareDebugOpcodes.FromClassicStyle(r.A, r.B, r.C, r.Y, r.Z, r.T, r.M, r.N);
+  }
+
+  protected override void AppendFamilyDebugDump(StringBuilder text)
+  {
+    if (Cpu is null)
+    {
+      return;
+    }
+
+    ActCpuState state = Cpu.State;
+    text.AppendLine(
+      $"Flags={(byte)state.Flags:X2}  F={state.F:X2}  DelRom={state.DelRom:X1}  SP={state.StackPointer}");
+    text.AppendLine(
+      $"Ret0={state.ReturnStack[0]:X4}  Ret1={state.ReturnStack[1]:X4}  Instr={state.InstructionState}");
   }
 
   protected override bool CanRunBatch() =>

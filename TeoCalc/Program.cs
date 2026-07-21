@@ -11,6 +11,7 @@ internal class Program
   {
     try
     {
+      CalcFirmwareBootstrap.Teo01ToneSink = HostTeo01ToneSink.Instance;
       CalcFirmwareBootstrap.UseEmulatorAdapter();
 
       if (args.Length > 0 && args[0].Equals("models", StringComparison.OrdinalIgnoreCase))

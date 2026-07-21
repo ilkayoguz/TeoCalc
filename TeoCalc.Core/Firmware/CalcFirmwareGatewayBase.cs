@@ -1,3 +1,5 @@
+using System.Text;
+
 namespace TeoCalc.Core.Firmware;
 
 /// <summary>
@@ -22,6 +24,7 @@ public abstract class CalcFirmwareGatewayBase : ICalcFirmwareGateway
   private bool _keyLineHeld;
   private long _displayRevision;
   private FirmwareKeyCommand? _activeKey;
+  private bool _executionPaused;
 
   public event EventHandler<FirmwareDisplayChangedEventArgs>? DisplayChanged;
 
@@ -59,6 +62,14 @@ public abstract class CalcFirmwareGatewayBase : ICalcFirmwareGateway
 
   public bool KeyLineHeld => _keyLineHeld;
 
+  public bool ExecutionPaused
+  {
+    get => _executionPaused;
+    set => _executionPaused = value;
+  }
+
+  public virtual bool SupportsInstructionStep => true;
+
   public virtual bool SupportsCardProgram => false;
 
   public virtual IReadOnlyList<string> PrintLines => [];
@@ -95,7 +106,7 @@ public abstract class CalcFirmwareGatewayBase : ICalcFirmwareGateway
 
   public void Tick(float deltaSeconds)
   {
-    if (!CanRunBatch())
+    if (!CanRunBatch() || ExecutionPaused)
     {
       return;
     }
@@ -110,6 +121,79 @@ public abstract class CalcFirmwareGatewayBase : ICalcFirmwareGateway
   }
 
   public abstract void Step();
+
+  public virtual void StepInto()
+  {
+    if (!CanRunBatch())
+    {
+      return;
+    }
+
+    ExecutionPaused = true;
+    RunInstructionBatch(1);
+  }
+
+  public virtual void StepOver(int maxInstructions = 50_000)
+  {
+    if (!CanRunBatch())
+    {
+      return;
+    }
+
+    ExecutionPaused = true;
+    RunInstructionBatch(1);
+    if (!FirmwareDebugOpcodes.IsSubroutineCall(LastBatch.LastHandlerId))
+    {
+      return;
+    }
+
+    int depth = 1;
+    int guard = 0;
+    while (depth > 0 && guard++ < maxInstructions && CanRunBatch())
+    {
+      RunInstructionBatch(1);
+      if (FirmwareDebugOpcodes.IsSubroutineCall(LastBatch.LastHandlerId))
+      {
+        depth++;
+      }
+      else if (FirmwareDebugOpcodes.IsReturn(LastBatch.LastHandlerId))
+      {
+        depth--;
+      }
+    }
+  }
+
+  public void ContinueExecution() =>
+    ExecutionPaused = false;
+
+  public virtual string CaptureDebugDump()
+  {
+    FirmwareBatchSnapshot batch = LastBatch;
+    StringBuilder text = new();
+    text.AppendLine($"TeoCalc DEBUG DUMP  {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}Z");
+    text.AppendLine($"PowerOn={PowerOn}  Paused={ExecutionPaused}  ProgramMode={ProgramMode}");
+    text.AppendLine(
+      $"PC={batch.ProgramCounter:X4}  ROM={batch.Grp:X1}{batch.Rom:X1}  P={batch.P:X1}  S={batch.Status:X3}  steps={batch.StepCount}");
+    text.AppendLine($"Handler={batch.LastHandlerId ?? "-"}  KeyBuffer={batch.KeyBuffer:X2}");
+    text.AppendLine($"Display=\"{DisplayText}\"  visible={IsDisplayVisible()}");
+    FirmwareDebugRegisters? regs = TryGetDebugRegisters();
+    if (regs is not null)
+    {
+      foreach (FirmwareRegisterDigest dig in regs.Working)
+      {
+        text.AppendLine($"{dig.Name}={dig.DigitsHex}");
+      }
+    }
+
+    AppendFamilyDebugDump(text);
+    return text.ToString();
+  }
+
+  public virtual FirmwareDebugRegisters? TryGetDebugRegisters() => null;
+
+  /// <summary>Optional family-specific dump lines (RAM pointers, flags, …).</summary>
+  protected virtual void AppendFamilyDebugDump(StringBuilder text) =>
+    _ = text;
 
   public void KeyDown(FirmwareKeyCommand key)
   {
@@ -174,6 +258,7 @@ public abstract class CalcFirmwareGatewayBase : ICalcFirmwareGateway
     _runAccumulator = 0f;
     _activeKey = null;
     _keyLineHeld = false;
+    _executionPaused = false;
     SetDisplayState(string.Empty, blankPulse: false);
   }
 

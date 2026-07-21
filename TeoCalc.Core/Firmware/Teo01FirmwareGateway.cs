@@ -1,3 +1,4 @@
+using System.Text;
 using TeoCalc.Core.Engine.Teo01;
 
 namespace TeoCalc.Core.Firmware;
@@ -47,6 +48,29 @@ public sealed class Teo01FirmwareGateway : CalcFirmwareGatewayBase
     }
 
     RunInstructionBatch(InstructionStepsPerBatch);
+  }
+
+  public override FirmwareDebugRegisters? TryGetDebugRegisters()
+  {
+    if (Cpu is null)
+    {
+      return null;
+    }
+
+    Teo01CpuState s = Cpu.State;
+    return FirmwareDebugOpcodes.FromClassicStyle(s.A, s.B, s.C, s.Y, s.Z, s.T, s.M);
+  }
+
+  protected override void AppendFamilyDebugDump(StringBuilder text)
+  {
+    if (Cpu is null)
+    {
+      return;
+    }
+
+    Teo01CpuState s = Cpu.State;
+    text.AppendLine($"Flags={(byte)s.Flags:X2}  Extra={(byte)s.ExtraFlags:X2}  F={s.F:X2}  Sp={s.Sp}");
+    text.AppendLine($"Stack0={s.Stack[0]:X4}  Stack1={s.Stack[1]:X4}  Running={Cpu.Running}");
   }
 
   protected override bool CanRunBatch() =>

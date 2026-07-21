@@ -67,6 +67,10 @@ public sealed class EmulatorFirmwareGateway : ICalcFirmwareGateway, IDisposable
 
   public IReadOnlyList<string> PrintLines => [];
 
+  public bool ExecutionPaused { get; set; }
+
+  public bool SupportsInstructionStep => false;
+
   /// <summary>Timer quantum used by <see cref="Tick"/> (T-01 fallback uses 10ms).</summary>
   internal float RunTickSeconds => _runTickSeconds;
 
@@ -76,6 +80,7 @@ public sealed class EmulatorFirmwareGateway : ICalcFirmwareGateway, IDisposable
   public void PowerOnResume()
   {
     PowerOn = true;
+    ExecutionPaused = false;
     _engine.PowerOnResume();
     RunTimerBatch();
   }
@@ -84,6 +89,7 @@ public sealed class EmulatorFirmwareGateway : ICalcFirmwareGateway, IDisposable
   {
     _engine.PowerOff();
     PowerOn = false;
+    ExecutionPaused = false;
     _runAccumulator = 0f;
     ClearKeyLine();
     SetDisplayState(string.Empty, blankPulse: false);
@@ -112,7 +118,7 @@ public sealed class EmulatorFirmwareGateway : ICalcFirmwareGateway, IDisposable
 
   public void Tick(float deltaSeconds)
   {
-    if (!PowerOn)
+    if (!PowerOn || ExecutionPaused)
     {
       return;
     }
@@ -134,6 +140,34 @@ public sealed class EmulatorFirmwareGateway : ICalcFirmwareGateway, IDisposable
 
     RunTimerBatch();
   }
+
+  public void StepInto()
+  {
+    ExecutionPaused = true;
+    Step();
+  }
+
+  public void StepOver(int maxInstructions = 50_000)
+  {
+    _ = maxInstructions;
+    StepInto();
+  }
+
+  public void ContinueExecution() =>
+    ExecutionPaused = false;
+
+  public string CaptureDebugDump()
+  {
+    FirmwareBatchSnapshot batch = LastBatch;
+    return
+      $"TeoCalc DEBUG DUMP (emulator)  {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}Z{Environment.NewLine}"
+      + $"PowerOn={PowerOn}  Paused={ExecutionPaused}  ProgramMode={ProgramMode}{Environment.NewLine}"
+      + $"PC={batch.ProgramCounter:X4}  ROM={batch.Grp:X1}{batch.Rom:X1}  P={batch.P:X1}  S={batch.Status:X3}  steps={batch.StepCount}{Environment.NewLine}"
+      + $"Handler={batch.LastHandlerId ?? "-"}  Display=\"{DisplayText}\"{Environment.NewLine}"
+      + "(Single-step / registers require native firmware gateway.)";
+  }
+
+  public FirmwareDebugRegisters? TryGetDebugRegisters() => null;
 
   public void KeyDown(FirmwareKeyCommand key)
   {

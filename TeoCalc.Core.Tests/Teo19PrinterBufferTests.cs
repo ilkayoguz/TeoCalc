@@ -45,6 +45,31 @@ public sealed class Teo19PrinterBufferTests
     Assert.AreEqual(0, gateway.PrintLines.Count);
   }
 
+  [TestMethod]
+  public void Teo19FirmwareGateway_PikPrintAndMotor_FlushesLine()
+  {
+    Teo19Cpu cpu = CreateCpu();
+    Teo19FirmwareGateway gateway = new();
+    gateway.AttachCpu(cpu);
+    gateway.PowerOnResume();
+
+    cpu.State.Registers.C[0] = 4;
+    cpu.State.Registers.C[1] = 5;
+    cpu.State.Registers.C[2] = 6;
+    cpu.State.Registers.C[3] = 15;
+
+    cpu.InvokeOpcodeAliasForTests("op_pik_print");
+    cpu.InvokeOpcodeAliasForTests("op_pik_cr");
+
+    for (int i = 0; i < 1100; i++)
+    {
+      gateway.Tick(0.05f);
+    }
+
+    Assert.IsTrue(gateway.PrintLines.Count >= 1, string.Join(" | ", gateway.PrintLines));
+    StringAssert.Contains(gateway.PrintLines[^1], "6");
+  }
+
   private static Teo19Cpu CreateCpu()
   {
     string engineRoot = TeoCalcPaths.ResourcePath("Engine");

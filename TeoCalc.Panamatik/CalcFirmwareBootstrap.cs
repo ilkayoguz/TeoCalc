@@ -73,6 +73,12 @@ public static class CalcFirmwareBootstrap
     return NativeFamilyAssetsExist(engineId, "HP01");
   }
 
+  /// <summary>
+  /// Optional T-01 tone sink for alarm / stopwatch beeps. Hosts set this before
+  /// <see cref="UseEmulatorAdapter"/>; tests keep the default no-op sink.
+  /// </summary>
+  public static ITeo01ToneSink Teo01ToneSink { get; set; } = NullTeo01ToneSink.Instance;
+
   public static void UseEmulatorAdapter()
   {
     CalcFirmwareGatewayLocator.Create = CreateGateway;
@@ -196,7 +202,7 @@ public static class CalcFirmwareBootstrap
     string engineRoot = TeoCalcPaths.ResourcePath("Engine");
     string modelPath = Path.Combine(engineRoot, engineId, "Model.json");
     TeoCalcModelDefinition model = TeoCalcModelDefinition.Load(modelPath);
-    Teo01Cpu cpu = Teo01CpuFactory.Create(model, engineRoot);
+    Teo01Cpu cpu = Teo01CpuFactory.Create(model, engineRoot, Teo01ToneSink);
     Teo01FirmwareGateway gateway = new();
     gateway.AttachCpu(cpu);
     return gateway;

@@ -103,9 +103,27 @@ public static class CalcExplorerView
     CalcFaceplateThemeView.DrawThemeCombo();
 
     ImGui.SameLine();
-    if (ImGui.Button("Step"))
+    if (ImGui.Button("Break"))
     {
-      session.StepCpu();
+      session.BreakExecution();
+    }
+
+    ImGui.SameLine();
+    if (ImGui.Button("Continue"))
+    {
+      session.ContinueExecution();
+    }
+
+    ImGui.SameLine();
+    if (ImGui.Button("Step Into"))
+    {
+      session.StepInto();
+    }
+
+    ImGui.SameLine();
+    if (ImGui.Button("Step Over"))
+    {
+      session.StepOver();
     }
 
     ImGui.SameLine();
@@ -122,8 +140,16 @@ public static class CalcExplorerView
     }
 
     ImGui.SameLine();
+    bool follow = session.FollowRomWatch;
+    if (ImGui.Checkbox("Follow ROM", ref follow))
+    {
+      session.FollowRomWatch = follow;
+    }
+
+    ImGui.SameLine();
     ImGui.TextDisabled(
-      $"Engine=Firmware  PC={session.LastBatch.ProgramCounter:X4}  ROM={session.LastBatch.Rom}  steps={session.LastBatch.StepCount}");
+      $"Engine=Firmware  PC={session.LastBatch.ProgramCounter:X4}  ROM={session.LastBatch.Rom}  steps={session.LastBatch.StepCount}"
+      + (session.ExecutionPaused ? "  PAUSED" : string.Empty));
   }
 
   private static void DrawFirmwareInspector(CalcExplorerSession session)

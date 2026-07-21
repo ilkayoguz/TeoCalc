@@ -6,7 +6,10 @@ namespace TeoCalc.Core;
 
 public static class Teo01CpuFactory
 {
-  public static Teo01Cpu Create(TeoCalcModelDefinition model, string engineRoot)
+  public static Teo01Cpu Create(
+    TeoCalcModelDefinition model,
+    string engineRoot,
+    ITeo01ToneSink? tones = null)
   {
     string modelDir = Path.Combine(engineRoot, model.Model);
     string romPath = Path.Combine(modelDir, model.Firmware.RomBinary.Replace('/', Path.DirectorySeparatorChar));
@@ -15,7 +18,7 @@ public static class Teo01CpuFactory
     MicrocodeRom rom = MicrocodeRom.LoadBinary(romPath);
     MicrocodeHandlerCatalog handlers = MicrocodeHandlerCatalog.Load(handlerPath);
 
-    Teo01Cpu cpu = new(rom, handlers);
+    Teo01Cpu cpu = new(rom, handlers, tones);
     cpu.Reset();
     return cpu;
   }
