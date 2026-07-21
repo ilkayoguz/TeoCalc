@@ -136,9 +136,7 @@ public sealed class CalcFaceplateHost : IDisposable
   public IWindow NativeWindow => _window;
 
   private float SidePanelWidthPx =>
-    _sidePanelMode == CalcCapabilitySidePanelMode.None
-      ? 0f
-      : CalcCapabilitySidePanelComponent.PreferredWidthRef;
+    CalcCapabilitySidePanelComponent.WidthFor(_sidePanelMode);
 
   private float CalcBodyOffsetX => BandSide + SidePanelWidthPx;
 
@@ -387,7 +385,9 @@ public sealed class CalcFaceplateHost : IDisposable
             _sidePanelMode == CalcCapabilitySidePanelMode.Card,
             _sidePanelMode == CalcCapabilitySidePanelMode.Printer,
             hasDebug: true,
-            debugPanelOpen: _sidePanelMode == CalcCapabilitySidePanelMode.Debug);
+            debugPanelOpen: _sidePanelMode == CalcCapabilitySidePanelMode.Debug,
+            hasStudio: true,
+            studioPanelOpen: _sidePanelMode == CalcCapabilitySidePanelMode.Studio);
 
         float contentHeight = MathF.Max(1f, display.Y - BandTop - LogoBandHeight - BeadInset);
         if (SidePanelWidthPx > 0f)
@@ -556,6 +556,9 @@ public sealed class CalcFaceplateHost : IDisposable
       case CalcWindowTitlePanelComponent.TitleAction.OpenDebug:
         ToggleSidePanel(CalcCapabilitySidePanelMode.Debug);
         break;
+      case CalcWindowTitlePanelComponent.TitleAction.OpenStudio:
+        ToggleSidePanel(CalcCapabilitySidePanelMode.Studio);
+        break;
     }
   }
 
@@ -577,15 +580,16 @@ public sealed class CalcFaceplateHost : IDisposable
       return;
     }
 
-    bool wasOpen = _sidePanelMode != CalcCapabilitySidePanelMode.None;
-    bool willOpen = mode != CalcCapabilitySidePanelMode.None;
-    if (!wasOpen && willOpen)
+    int oldWidth = (int)MathF.Round(CalcCapabilitySidePanelComponent.WidthFor(_sidePanelMode));
+    int newWidth = (int)MathF.Round(CalcCapabilitySidePanelComponent.WidthFor(mode));
+    int delta = newWidth - oldWidth;
+    if (delta > 0)
     {
-      ExpandWindowLeft((int)MathF.Round(CalcCapabilitySidePanelComponent.PreferredWidthRef));
+      ExpandWindowLeft(delta);
     }
-    else if (wasOpen && !willOpen)
+    else if (delta < 0)
     {
-      CollapseWindowLeft((int)MathF.Round(CalcCapabilitySidePanelComponent.PreferredWidthRef));
+      CollapseWindowLeft(-delta);
     }
 
     _sidePanelMode = mode;
@@ -726,7 +730,8 @@ public sealed class CalcFaceplateHost : IDisposable
       BeadInset,
       hasCardSlot,
       hasPrinter,
-      hasDebug: true);
+      hasDebug: true,
+      hasStudio: true);
     bool onTitleStrip = mouse.Y >= 0f && mouse.Y <= BandTop;
 
     // A double-click on the calc's top bar always toggles maximize/restore.

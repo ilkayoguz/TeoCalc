@@ -248,7 +248,12 @@ public static class CalcExplorerApp
             _launcher.WindowState == WindowState.Maximized,
             CalcFramelessShell.BeadInset,
             CalcFramelessShell.TopBandHeight,
-            display.X - CalcFramelessShell.BeadInset);
+            display.X - CalcFramelessShell.BeadInset,
+            leftEdge: CalcFramelessShell.BeadInset,
+            hasCardSlot: false,
+            hasPrinter: false,
+            hasDebug: false,
+            hasStudio: false);
 
         CalculatorLauncherView.DrawContent(launcherModel, content);
         HandleLauncherTitleAction(titleAction);
@@ -391,7 +396,12 @@ public static class CalcExplorerApp
       mouse,
       CalcFramelessShell.BeadInset,
       CalcFramelessShell.TopBandHeight,
-      display.X - CalcFramelessShell.BeadInset);
+      display.X - CalcFramelessShell.BeadInset,
+      leftEdge: CalcFramelessShell.BeadInset,
+      hasCardSlot: false,
+      hasPrinter: false,
+      hasDebug: false,
+      hasStudio: false);
     bool onTitleStrip = mouse.Y >= 0f && mouse.Y <= CalcFramelessShell.BandTop;
 
     if (!_draggingWindow && !_resizingWindow && !overButtons && onTitleStrip

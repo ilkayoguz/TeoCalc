@@ -11,15 +11,28 @@ public enum CalcCapabilitySidePanelMode
   Card,
   Printer,
   Debug,
+  Studio,
 }
 
-/// <summary>Left side strip for card / printer / debug tools inside the calc window chrome.</summary>
+/// <summary>Left side strip for card / printer / debug / studio tools inside the calc window chrome.</summary>
 public static class CalcCapabilitySidePanelComponent
 {
   public static float PreferredWidthRef =>
     MathF.Max(
-      MathF.Max(CalcCardPanelComponent.PreferredWidthRef, CalcPrinterPanelComponent.PreferredWidthRef),
-      CalcDebugPanelComponent.PreferredWidthRef);
+      MathF.Max(
+        MathF.Max(CalcCardPanelComponent.PreferredWidthRef, CalcPrinterPanelComponent.PreferredWidthRef),
+        CalcDebugPanelComponent.PreferredWidthRef),
+      CalcStudioPanelComponent.PreferredWidthRef);
+
+  public static float WidthFor(CalcCapabilitySidePanelMode mode) =>
+    mode switch
+    {
+      CalcCapabilitySidePanelMode.Card => CalcCardPanelComponent.PreferredWidthRef,
+      CalcCapabilitySidePanelMode.Printer => CalcPrinterPanelComponent.PreferredWidthRef,
+      CalcCapabilitySidePanelMode.Debug => CalcDebugPanelComponent.PreferredWidthRef,
+      CalcCapabilitySidePanelMode.Studio => CalcStudioPanelComponent.PreferredWidthRef,
+      _ => 0f,
+    };
 
   public static void DrawChrome(ImDrawListPtr draw, float x, float y, float width, float height)
   {
@@ -73,6 +86,9 @@ public static class CalcCapabilitySidePanelComponent
         break;
       case CalcCapabilitySidePanelMode.Debug:
         CalcDebugPanelComponent.DrawInline(session, ref debugDumpStatus);
+        break;
+      case CalcCapabilitySidePanelMode.Studio:
+        CalcStudioPanelComponent.DrawInline(session);
         break;
     }
   }

@@ -3,7 +3,12 @@ using ImGuiNET;
 namespace TeoCalc.Rendering;
 
 /// <summary>
-/// Global explorer keys: F2 power, F4 PRGM, F5 continue, F9 break, F10 step over, F11 step into.
+/// Global explorer keys (VS-aligned debug transport where we have real capabilities):
+/// F2 power, F4 PRGM,
+/// F5 Continue, Shift+F5 Stop Debugging (leave pause / resume),
+/// F6 Break (pause; VS Break All is Ctrl+Alt+Break — awkward; F9 reserved for Toggle Breakpoint later),
+/// F10 Step Over, F11 Step Into.
+/// Shift+F11 Step Out is unbound — gateway has no StepOut yet.
 /// </summary>
 public static class CalcExplorerGlobalKeyboard
 {
@@ -36,24 +41,33 @@ public static class CalcExplorerGlobalKeyboard
       return;
     }
 
+    bool shift = IsShiftDown();
+
     if (ImGui.IsKeyPressed(ImGuiKey.F5, repeat: false))
     {
+      // F5 Continue; Shift+F5 Stop Debugging — both leave pause / resume free run.
+      // Stop is the VS “done stepping” muscle memory; panel stay open (title-bar Debug toggles it).
       session.ContinueExecution();
     }
 
-    if (ImGui.IsKeyPressed(ImGuiKey.F9, repeat: false))
+    if (!shift && ImGui.IsKeyPressed(ImGuiKey.F6, repeat: false))
     {
       session.BreakExecution();
     }
 
-    if (ImGui.IsKeyPressed(ImGuiKey.F10, repeat: true))
+    if (!shift && ImGui.IsKeyPressed(ImGuiKey.F10, repeat: true))
     {
       session.StepOver();
     }
 
-    if (ImGui.IsKeyPressed(ImGuiKey.F11, repeat: true))
+    if (!shift && ImGui.IsKeyPressed(ImGuiKey.F11, repeat: true))
     {
       session.StepInto();
     }
+
+    // Shift+F11 Step Out — not wired; ICalcFirmwareGateway has no StepOut.
   }
+
+  private static bool IsShiftDown() =>
+    ImGui.IsKeyDown(ImGuiKey.LeftShift) || ImGui.IsKeyDown(ImGuiKey.RightShift);
 }

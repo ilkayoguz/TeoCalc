@@ -55,26 +55,50 @@ public static class CalcDebugPanelComponent
       ImGui.BeginDisabled();
     }
 
-    if (ImGui.Button("Break"))
+    if (ImGui.Button("Break (F6)"))
     {
       session.BreakExecution();
     }
 
     ImGui.SameLine();
-    if (ImGui.Button("Continue"))
+    if (ImGui.Button("Continue (F5)"))
     {
       session.ContinueExecution();
     }
 
-    if (ImGui.Button("Step Into"))
+    ImGui.SameLine();
+    if (ImGui.Button("Stop (Shift+F5)"))
+    {
+      // Leave pause / resume free run (VS Stop Debugging). Does not power off.
+      session.ContinueExecution();
+    }
+
+    if (ImGui.Button("Step Into (F11)"))
     {
       session.StepInto();
     }
 
     ImGui.SameLine();
-    if (ImGui.Button("Step Over"))
+    if (ImGui.Button("Step Over (F10)"))
     {
       session.StepOver();
+    }
+
+    ImGui.SameLine();
+    if (powered)
+    {
+      ImGui.BeginDisabled();
+    }
+
+    ImGui.Button("Step Out (Shift+F11)");
+    if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
+    {
+      ImGui.SetTooltip("Step Out not supported yet.");
+    }
+
+    if (powered)
+    {
+      ImGui.EndDisabled();
     }
 
     if (!powered)
@@ -84,7 +108,7 @@ public static class CalcDebugPanelComponent
     }
     else
     {
-      ImGui.TextDisabled("F9 Break  F5 Cont  F11 Into  F10 Over");
+      ImGui.TextDisabled("F5 Cont  Shift+F5 Stop  F6 Break  F10 Over  F11 Into");
     }
   }
 

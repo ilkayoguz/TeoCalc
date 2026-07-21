@@ -99,6 +99,19 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
 
   public int SelectedAddress { get; set; }
 
+  /// <summary>Selected user-program step index in Studio / explorer listing.</summary>
+  public int SelectedProgramStep { get; set; }
+
+  /// <summary>
+  /// Card file <c>CodeEncoding</c> preference when loading/saving program text
+  /// (<see cref="CardCodeEncoding.Mnemonic"/> or <see cref="CardCodeEncoding.Machine"/>).
+  /// Studio UI always shows both encodings; clipboard copy is dual TSV.
+  /// </summary>
+  public string StudioCodeEncoding { get; set; } = CardCodeEncoding.Mnemonic;
+
+  /// <summary>Transient status for Studio copy/paste / apply feedback.</summary>
+  public string StudioStatusMessage { get; set; } = string.Empty;
+
   /// <summary>When true, microcode watch follows the live ROM fetch address while running / stepping.</summary>
   public bool FollowRomWatch { get; set; } = true;
 
@@ -646,6 +659,102 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
   public bool UsesActCardProgram =>
     _firmware is Teo67FirmwareGateway;
 
+  /// <summary>
+  /// Live user-program listing from card/RAM export — shared model for Studio editor and explorer.
+  /// </summary>
+  public bool TryGetProgramListing(out IReadOnlyList<ClassicProgramLine> lines)
+  {
+    lines = [];
+    if (_firmware is null || !_firmware.SupportsCardProgram)
+    {
+      return false;
+    }
+
+    if (!_firmware.TryExportCardProgram(out byte[] codes, out _))
+    {
+      return false;
+    }
+
+    lines = ClassicProgramListing.ToList(codes, FormatProgramCode);
+    return true;
+  }
+
+  public string FormatProgramListingText()
+  {
+    if (!TryGetProgramListing(out IReadOnlyList<ClassicProgramLine> lines))
+    {
+      return string.Empty;
+    }
+
+    // Studio shows both encodings; copy dual TSV without runtime START/PTR markers.
+    return UserProgramClipboard.FormatDual(StudioListingView.FilterForClipboard(lines));
+  }
+
+  /// <summary>
+  /// Replace user program steps from clipboard text. Dual TSV uses the machine column;
+  /// otherwise auto-detects mnemonic then machine. Registers are preserved.
+  /// </summary>
+  public bool TryPasteProgramListing(string text, out string? error)
+  {
+    error = null;
+    if (_firmware is null || !_firmware.SupportsCardProgram)
+    {
+      error = "Program memory not available for this engine.";
+      return false;
+    }
+
+    if (!UserProgramClipboard.TryParseAuto(
+          text,
+          ResolveProgramMnemonic,
+          out List<byte> pasted,
+          out error))
+    {
+      return false;
+    }
+
+    if (!_firmware.TryExportCardProgram(out _, out double[] registers))
+    {
+      error = "Could not read current program/registers.";
+      return false;
+    }
+
+    int capacity = CardProgramCapacity;
+    byte[] merged = new byte[capacity];
+    int count = Math.Min(capacity, pasted.Count);
+    for (int i = 0; i < count; i++)
+    {
+      merged[i] = pasted[i];
+    }
+
+    if (!_firmware.TryImportCardProgram(merged, registers))
+    {
+      error = "Could not apply pasted program.";
+      return false;
+    }
+
+    if (pasted.Count > capacity)
+    {
+      StudioStatusMessage = $"Pasted {capacity} of {pasted.Count} steps (capacity).";
+    }
+    else
+    {
+      StudioStatusMessage = $"Pasted {pasted.Count} step(s).";
+    }
+
+    SelectedProgramStep = Math.Clamp(SelectedProgramStep, 0, Math.Max(0, count - 1));
+    return true;
+  }
+
+  private string FormatProgramCode(byte code) =>
+    UsesActCardProgram
+      ? Teo67CardProgramIo.FormatMnemonic(code)
+      : ClassicCardProgramIo.FormatMnemonic(Vocabulary, code);
+
+  private byte? ResolveProgramMnemonic(string mnemonic) =>
+    UsesActCardProgram
+      ? Teo67CardProgramIo.ResolveMnemonic(mnemonic)
+      : ClassicCardProgramIo.ResolveMnemonic(Vocabulary, mnemonic);
+
   public string CardProgramExtension =>
     UsesActCardProgram ? T6xDocument.Extension67 : T6xDocument.Extension65;
 
@@ -693,6 +802,18 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
     _cardInserted = true;
     _loadedCardPath = path;
     _loadedTeoCard = teoCard;
+    if (teoCard?.Program.CodeEncoding is { Length: > 0 } encoding)
+    {
+      try
+      {
+        StudioCodeEncoding = CardCodeEncoding.Normalize(encoding);
+      }
+      catch (FormatException)
+      {
+        // Keep current Studio encoding when card metadata is unexpected.
+      }
+    }
+
     CardStripPresentation strip = ResolveStripPresentation(path, teoCard);
     _cardStripLabels = strip.Captions;
     _cardStripLabelsEnabled = strip.Enabled;

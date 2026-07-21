@@ -242,14 +242,13 @@ public static class CalcExplorerView
     ImGui.Text("User program");
     ImGui.BeginChild("program", new System.Numerics.Vector2(0, 0), ImGuiChildFlags.Border);
 
-    if (session.Model.Program is null)
+    if (!session.SupportsCardProgram && session.Model.Program is null)
     {
       ImGui.TextDisabled("User program view is not available for this model yet.");
     }
     else
     {
-      ImGui.TextDisabled("Program listing will follow emulator RAM in a later phase.");
-      ImGui.TextDisabled($"Max steps: {session.Model.Program.MaxSteps}");
+      CalcStudioPanelComponent.DrawListingOnly(session);
     }
 
     ImGui.EndChild();

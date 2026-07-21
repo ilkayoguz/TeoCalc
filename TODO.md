@@ -29,8 +29,9 @@ Ship a trustworthy running emulator before new UX.
 Make programs inspectable and steppable — core emulator workflow. **Foundation done;** remaining polish folds into Composite Dev Studio below.
 
 4. **DEBUG/TRACE: VS-like step-by-step** — foundation done
-   - [x] Break / Continue / Step Into / Step Over on native gateways; faceplate Debug side panel + F5/F9/F10/F11.
-   - Deferred polish → Studio epic (call-stack, Step Over edge cases).
+   - [x] Break / Continue / Step Into / Step Over on native gateways; faceplate Debug side panel.
+   - [x] VS-aligned shortcuts: F5 Continue, Shift+F5 Stop (leave pause), F6 Break, F10 Over, F11 Into. F9 reserved for Toggle Breakpoint later; Shift+F11 Step Out unbound (no gateway API yet).
+   - Deferred polish → Studio epic (call-stack, Step Out, Step Over edge cases, Stop closes debug panel).
 5. **While calc running: watch ROM code** — foundation done
    - [x] ROM watch list with Follow ROM (highlights live fetch address while running/stepping).
    - Deferred polish → Studio epic (dedicated live ROM pane, scroll-to-PC).
@@ -45,7 +46,7 @@ Make programs inspectable and steppable — core emulator workflow. **Foundation
 
 ## P2 — Composite Dev Studio (epic)
 
-**Vision:** One Visual Studio–like composite surface — not scattered micro-panels. Bidirectional **Code ↔ Flowchart (FC)** (edit either, stay in sync). Prefer **side-by-side** panes (code | FC); stacked (code top / FC bottom) as fallback. Same chrome hosts debug transport, DUMP, regs, and optional **realtime ROM step** watch. **Global execution speed** (up/down) lives high in UI (title bar / transport), not buried in debug-only.
+**Vision:** One Visual Studio–like composite surface — not scattered micro-panels. Bidirectional **Code ↔ Flowchart (FC)** (edit either, stay in sync). Layout: **`[Machine | Mnemonic | Flowchart]`** three columns (dual encodings row-aligned; FC is column 3). Stacked (code top / FC bottom) only as a narrow-panel fallback. Same chrome hosts debug transport, DUMP, regs, and optional **realtime ROM step** watch. **Global execution speed** (up/down) lives high in UI (title bar / transport), not buried in debug-only.
 
 This is large — ship in **staged MVPs**. Do not jump to editable FC or global speed before sync + layout exist.
 
@@ -56,16 +57,19 @@ Shared program model so editor listing and any future FC share one source of tru
 8. **Unified listing model**
    - Why: Sync requires one canonical step list (addr / mnemonic / machine / labels) before dual panes.
    - Deliver: in-memory listing from card/`[Code]`; PC highlight hook reusable by editor + ROM watch.
-9. **Editor: mnemonic or machine + copy/paste**
+   - [x] `ClassicProgramListing` enumerates from RAM or exported bytes; pointer highlight index; Studio/explorer consume same lines.
+9. **Editor: dual machine|mnemonic + copy/paste**
    - Why: Daily edit loop; dual encoding + clipboard are baseline for card work (feeds listing sync).
+   - [x] Studio side panel (`{ }` title icon): **both** encodings at once (Machine | Mnemonic grid, faceplate token colors on light code bg); Copy dual TSV / Paste auto; FC placeholder as **column 3**.
+   - Explorer Program column wired to the same dual listing/clipboard toolbar (no FC).
 
 ### Stage B — Side-by-side read-only FC (MVP1)
 
-Layout shell + flowchart as **visualization** of the listing (not yet editable).
+Layout shell + flowchart as **visualization** of the listing (not yet editable). **Column 3 slot already reserved in MVP0** (`[Machine | Mnemonic | Flowchart]`); MVP1 fills that pane with real nodes (not a separate side-by-side shell decision).
 
 10. **Composite chrome shell**
     - Why: One place for editor + FC + debug buttons, DUMP, compact regs — VS-like, not floating scraps.
-    - Layout: prefer code | FC side-by-side; stacked alternative; title-bar / global strip reserved for transport + speed (later).
+    - Layout: Machine | Mnemonic | FC (column 3); stacked alternative only if width collapses; title-bar / global strip reserved for transport + speed (later).
 11. **Flowchart pane (read-only)**
     - Why: See control flow next to code without leaving the composite screen.
     - Sync: selecting a listing line highlights FC node (and reverse selection → listing); PC highlight while stepping.

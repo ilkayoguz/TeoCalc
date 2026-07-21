@@ -24,7 +24,11 @@ public sealed class CapabilityIconCatalogTests
     Assert.IsFalse(model.HasPrinter == true);
     Assert.AreEqual(
       CalcWindowTitlePanelComponent.ButtonWidth,
-      CalcWindowTitlePanelComponent.CapabilityIconsWidth(hasCardSlot: true, hasPrinter: false, hasDebug: false));
+      CalcWindowTitlePanelComponent.CapabilityIconsWidth(
+        hasCardSlot: true,
+        hasPrinter: false,
+        hasDebug: false,
+        hasStudio: false));
   }
 
   [TestMethod]
@@ -35,7 +39,11 @@ public sealed class CapabilityIconCatalogTests
     Assert.IsTrue(model.HasPrinter == true);
     Assert.AreEqual(
       CalcWindowTitlePanelComponent.ButtonWidth,
-      CalcWindowTitlePanelComponent.CapabilityIconsWidth(hasCardSlot: false, hasPrinter: true, hasDebug: false));
+      CalcWindowTitlePanelComponent.CapabilityIconsWidth(
+        hasCardSlot: false,
+        hasPrinter: true,
+        hasDebug: false,
+        hasStudio: false));
   }
 
   [TestMethod]
@@ -46,6 +54,10 @@ public sealed class CapabilityIconCatalogTests
     Assert.IsFalse(model.HasPrinter == true);
     Assert.AreEqual(
       0f,
-      CalcWindowTitlePanelComponent.CapabilityIconsWidth(hasCardSlot: false, hasPrinter: false, hasDebug: false));
+      CalcWindowTitlePanelComponent.CapabilityIconsWidth(
+        hasCardSlot: false,
+        hasPrinter: false,
+        hasDebug: false,
+        hasStudio: false));
   }
 }

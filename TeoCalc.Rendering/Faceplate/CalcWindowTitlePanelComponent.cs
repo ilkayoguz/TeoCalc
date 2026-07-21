@@ -33,11 +33,19 @@ public static class CalcWindowTitlePanelComponent
     OpenCard,
     OpenPrinter,
     OpenDebug,
+    OpenStudio,
   }
 
-  public static float CapabilityIconsWidth(bool hasCardSlot, bool hasPrinter, bool hasDebug = true)
+  public static float CapabilityIconsWidth(
+    bool hasCardSlot,
+    bool hasPrinter,
+    bool hasDebug = true,
+    bool hasStudio = true)
   {
-    int count = (hasCardSlot ? 1 : 0) + (hasPrinter ? 1 : 0) + (hasDebug ? 1 : 0);
+    int count = (hasCardSlot ? 1 : 0)
+      + (hasPrinter ? 1 : 0)
+      + (hasDebug ? 1 : 0)
+      + (hasStudio ? 1 : 0);
     return ButtonWidth * count;
   }
 
@@ -50,7 +58,8 @@ public static class CalcWindowTitlePanelComponent
     float leftEdge = 0f,
     bool hasCardSlot = false,
     bool hasPrinter = false,
-    bool hasDebug = true)
+    bool hasDebug = true,
+    bool hasStudio = true)
   {
     if (mouse.Y < top || mouse.Y > top + height)
     {
@@ -62,7 +71,7 @@ public static class CalcWindowTitlePanelComponent
       return true;
     }
 
-    float capWidth = CapabilityIconsWidth(hasCardSlot, hasPrinter, hasDebug);
+    float capWidth = CapabilityIconsWidth(hasCardSlot, hasPrinter, hasDebug, hasStudio);
     return capWidth > 0f
       && mouse.X >= leftEdge
       && mouse.X <= leftEdge + capWidth;
@@ -83,7 +92,9 @@ public static class CalcWindowTitlePanelComponent
     bool cardPanelOpen = false,
     bool printerPanelOpen = false,
     bool hasDebug = true,
-    bool debugPanelOpen = false)
+    bool debugPanelOpen = false,
+    bool hasStudio = true,
+    bool studioPanelOpen = false)
   {
     ImDrawListPtr draw = ImGui.GetForegroundDrawList();
     TitleAction action = TitleAction.None;
@@ -117,6 +128,17 @@ public static class CalcWindowTitlePanelComponent
       if (Button(draw, "##cap-debug", capX, top, height, fill, IconColor, DrawDebugIcon))
       {
         action = TitleAction.OpenDebug;
+      }
+
+      capX += ButtonWidth;
+    }
+
+    if (hasStudio)
+    {
+      uint fill = studioPanelOpen ? 0x55FFFFFFu : HoverFill;
+      if (Button(draw, "##cap-studio", capX, top, height, fill, IconColor, DrawStudioIcon))
+      {
+        action = TitleAction.OpenStudio;
       }
     }
 
@@ -214,5 +236,15 @@ public static class CalcWindowTitlePanelComponent
     // Breakpoint-style circle + stem (VS-ish cue).
     draw.AddCircleFilled(new Vector2(cx - 2f, cy - 1f), 4.2f, color, 12);
     draw.AddLine(new Vector2(cx + 2f, cy + 1f), new Vector2(cx + 6f, cy + 5f), color, 1.4f);
+  }
+
+  private static void DrawStudioIcon(ImDrawListPtr draw, float x, float cy, uint color)
+  {
+    float cx = x + ButtonWidth * 0.5f;
+    // Code brackets { } — Studio / listing cue.
+    draw.AddLine(new Vector2(cx - 5f, cy - 5f), new Vector2(cx - 7f, cy), color, 1.3f);
+    draw.AddLine(new Vector2(cx - 7f, cy), new Vector2(cx - 5f, cy + 5f), color, 1.3f);
+    draw.AddLine(new Vector2(cx + 5f, cy - 5f), new Vector2(cx + 7f, cy), color, 1.3f);
+    draw.AddLine(new Vector2(cx + 7f, cy), new Vector2(cx + 5f, cy + 5f), color, 1.3f);
   }
 }
