@@ -38,7 +38,7 @@ internal static class SampleCardExporter
       Profile = "T-65",
       Category = "Demo",
       Title = "Add + GTO Demo",
-      Encoding = "mnemonic",
+      CodeEncoding = CardCodeEncoding.Mnemonic,
       Labels =
       [
         new T6xLabelEntry { Key = "A", Caption = "+123", Hint = "X := X + 123" },
@@ -69,7 +69,7 @@ internal static class SampleCardExporter
       Profile = "T-67",
       Category = "Demo",
       Title = "Add 0+1",
-      Encoding = "mnemonic",
+      CodeEncoding = CardCodeEncoding.Mnemonic,
       Code = ["0", "1", "+"],
       Data = new Dictionary<int, double>
       {

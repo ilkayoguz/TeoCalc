@@ -101,7 +101,7 @@ public static class CuveSoftCardPlistFormat
       Labels = labels,
       Program = new TeoCardProgramSection
       {
-        Encoding = "mnemonic",
+        CodeEncoding = CardCodeEncoding.Mnemonic,
         Steps = steps,
       },
       Data = new TeoCardDataSection

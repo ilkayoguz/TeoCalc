@@ -42,9 +42,15 @@ public sealed class T6xCardFormatTests
     try
     {
       T6xCardFormat.WriteFile(temp, original);
+      string written = File.ReadAllText(temp);
+      Assert.Contains("CodeEncoding = \"mnemonic\"", written, StringComparison.Ordinal);
+      Assert.IsFalse(
+        written.Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries)
+          .Any(static line => line.StartsWith("Encoding =", StringComparison.Ordinal)));
       T6xDocument roundTrip = T6xCardFormat.ReadFile(temp);
       CollectionAssert.AreEqual(original.Code, roundTrip.Code);
       Assert.AreEqual(original.Title, roundTrip.Title);
+      Assert.AreEqual(CardCodeEncoding.Mnemonic, roundTrip.CodeEncoding);
       Assert.AreEqual(original.Labels[0].Caption, roundTrip.Labels[0].Caption);
       Assert.AreEqual(original.Labels[0].Hint, roundTrip.Labels[0].Hint);
       Assert.AreEqual(original.Data[9], roundTrip.Data[9], 1e-6);
@@ -128,7 +134,7 @@ public sealed class T6xCardFormatTests
       Format = "TeoCalc.CardText"
       SchemaVersion = "1"
       TargetCpu = "T-65"
-      Encoding = "mnemonic"
+      CodeEncoding = "mnemonic"
       // Title = "ignored"
       Title = "Commented"
 
@@ -142,7 +148,113 @@ public sealed class T6xCardFormatTests
 
     T6xDocument document = T6xCardFormat.Parse(text);
     Assert.AreEqual("Commented", document.Title);
+    Assert.AreEqual(CardCodeEncoding.Mnemonic, document.CodeEncoding);
     CollectionAssert.AreEqual(new[] { "LBL", "A", "RTN" }, document.Code);
+  }
+
+  [TestMethod]
+  public void Parse_AcceptsLegacyEncodingKey()
+  {
+    const string text = """
+      [General]
+      Format = "TeoCalc.CardText"
+      SchemaVersion = "1"
+      TargetCpu = "T-65"
+      Encoding = "mnemonic"
+      Title = "Legacy"
+
+      [Code]
+      RTN
+      """;
+
+    T6xDocument document = T6xCardFormat.Parse(text);
+    Assert.AreEqual(CardCodeEncoding.Mnemonic, document.CodeEncoding);
+  }
+
+  [TestMethod]
+  public void Parse_MachineMode_OneInternalBytePerLine()
+  {
+    const string text = """
+      [General]
+      Format = "TeoCalc.CardText"
+      SchemaVersion = "1"
+      TargetCpu = "T-65"
+      CodeEncoding = "machine"
+      Title = "Machine bytes"
+
+      [Code]
+      43
+      10
+      46
+      """;
+
+    T6xDocument document = T6xCardFormat.Parse(text);
+    Assert.AreEqual(CardCodeEncoding.Machine, document.CodeEncoding);
+    CollectionAssert.AreEqual(new[] { "43", "10", "46" }, document.Code);
+
+    ClassicCardSnapshot snapshot = T6xCardFormat.ToClassicSnapshot(
+      document,
+      mnemonic => ClassicCardProgramIo.ResolveMnemonic(Vocabulary, mnemonic));
+
+    Assert.AreEqual(ClassicProgramCodes.Start, snapshot.ProgramCodes[0]);
+    Assert.AreEqual(43, snapshot.ProgramCodes[1]);
+    Assert.AreEqual(10, snapshot.ProgramCodes[2]);
+    Assert.AreEqual(46, snapshot.ProgramCodes[3]);
+    Assert.AreEqual(ClassicProgramCodes.Pointer, snapshot.ProgramCodes[4]);
+  }
+
+  [TestMethod]
+  public void Parse_MachineMode_RejectsMnemonicToken()
+  {
+    const string text = """
+      [General]
+      Format = "TeoCalc.CardText"
+      SchemaVersion = "1"
+      TargetCpu = "T-65"
+      CodeEncoding = "machine"
+
+      [Code]
+      LBL
+      """;
+
+    Assert.ThrowsExactly<FormatException>(() => T6xCardFormat.Parse(text));
+  }
+
+  [TestMethod]
+  public void Parse_MachineMode_RejectsMultiTokenLine()
+  {
+    const string text = """
+      [General]
+      Format = "TeoCalc.CardText"
+      SchemaVersion = "1"
+      TargetCpu = "T-65"
+      CodeEncoding = "machine"
+
+      [Code]
+      34 01
+      """;
+
+    Assert.ThrowsExactly<FormatException>(() => T6xCardFormat.Parse(text));
+  }
+
+  [TestMethod]
+  public void Parse_RejectsSeparateMachineSection()
+  {
+    const string text = """
+      [General]
+      Format = "TeoCalc.CardText"
+      SchemaVersion = "1"
+      TargetCpu = "T-65"
+      CodeEncoding = "mnemonic"
+
+      [Code]
+      RTN
+
+      [Machine]
+      43
+      """;
+
+    Assert.ThrowsExactly<FormatException>(() => T6xCardFormat.Parse(text));
   }
 
   [TestMethod]

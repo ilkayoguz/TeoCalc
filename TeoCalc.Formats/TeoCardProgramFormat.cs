@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 
 namespace TeoCalc.Formats;
@@ -27,7 +28,8 @@ public static class TeoCardProgramFormat
   public static TeoCardDocument Parse(string json)
   {
     ArgumentNullException.ThrowIfNull(json);
-    TeoCardDocument? document = JsonSerializer.Deserialize<TeoCardDocument>(json, JsonOptions)
+    string normalized = NormalizeLegacyProgramEncodingKey(json);
+    TeoCardDocument? document = JsonSerializer.Deserialize<TeoCardDocument>(normalized, JsonOptions)
       ?? throw new FormatException("TeoCard document is empty.");
 
     if (!string.Equals(document.Format, TeoCardDocument.FormatId, StringComparison.Ordinal))
@@ -46,9 +48,22 @@ public static class TeoCardProgramFormat
       throw new FormatException("Model is required.");
     }
 
-    if (!string.Equals(document.Program.Encoding, "mnemonic", StringComparison.OrdinalIgnoreCase))
+    string encoding = CardCodeEncoding.Normalize(document.Program.CodeEncoding);
+    if (CardCodeEncoding.IsMachine(encoding))
     {
-      throw new FormatException($"Unsupported Program.Encoding '{document.Program.Encoding}'.");
+      foreach (string step in document.Program.Steps)
+      {
+        string trimmed = step.Trim();
+        if (trimmed.Length > 0)
+        {
+          _ = CardCodeEncoding.ParseMachineByte(trimmed);
+        }
+      }
+    }
+
+    if (!string.Equals(document.Program.CodeEncoding, encoding, StringComparison.Ordinal))
+    {
+      document = CloneWithCodeEncoding(document, encoding);
     }
 
     return document;
@@ -65,7 +80,10 @@ public static class TeoCardProgramFormat
   public static string Format(TeoCardDocument document)
   {
     ArgumentNullException.ThrowIfNull(document);
-    return JsonSerializer.Serialize(document, JsonWriteOptions);
+    TeoCardDocument normalized = CloneWithCodeEncoding(
+      document,
+      CardCodeEncoding.Normalize(document.Program.CodeEncoding));
+    return JsonSerializer.Serialize(normalized, JsonWriteOptions);
   }
 
   public static ClassicCardSnapshot ToClassicSnapshot(
@@ -80,6 +98,7 @@ public static class TeoCardProgramFormat
     byte[] program = new byte[programCapacity];
     int programWrite = 0;
     program[programWrite++] = ClassicStartCode;
+    string encoding = CardCodeEncoding.Normalize(document.Program.CodeEncoding);
 
     foreach (string rawStep in document.Program.Steps)
     {
@@ -89,18 +108,13 @@ public static class TeoCardProgramFormat
         continue;
       }
 
-      byte? code = codeForMnemonic(step);
-      if (code is null)
-      {
-        throw new FormatException($"Mnemonic not found: {step}");
-      }
-
+      byte code = CardCodeEncoding.ResolveStep(encoding, step, codeForMnemonic);
       if (programWrite >= programCapacity)
       {
         throw new FormatException("Program too large");
       }
 
-      program[programWrite++] = code.Value;
+      program[programWrite++] = code;
     }
 
     double[] registers = new double[registerCount];
@@ -174,7 +188,7 @@ public static class TeoCardProgramFormat
       Labels = labels,
       Program = new TeoCardProgramSection
       {
-        Encoding = "mnemonic",
+        CodeEncoding = CardCodeEncoding.Mnemonic,
         Steps = steps,
       },
       Data = new TeoCardDataSection
@@ -229,6 +243,49 @@ public static class TeoCardProgramFormat
 
     return string.Equals(ShortId(card), ShortId(engineModelId), StringComparison.OrdinalIgnoreCase);
   }
+
+  private static string NormalizeLegacyProgramEncodingKey(string json)
+  {
+    JsonNode? root = JsonNode.Parse(json);
+    if (root is null)
+    {
+      return json;
+    }
+
+    if (root["Program"] is JsonObject program
+        && program["CodeEncoding"] is null
+        && program["Encoding"] is JsonNode legacy)
+    {
+      program["CodeEncoding"] = legacy.DeepClone();
+      program.Remove("Encoding");
+    }
+
+    return root.ToJsonString();
+  }
+
+  private static TeoCardDocument CloneWithCodeEncoding(TeoCardDocument document, string encoding) =>
+    new()
+    {
+      Format = document.Format,
+      SchemaVersion = document.SchemaVersion,
+      Model = document.Model,
+      InteropMagic = document.InteropMagic,
+      Title = document.Title,
+      Description = document.Description,
+      Usage = document.Usage,
+      Category = document.Category,
+      RunHint = document.RunHint,
+      Labels = document.Labels,
+      LabelHints = document.LabelHints,
+      Program = new TeoCardProgramSection
+      {
+        CodeEncoding = encoding,
+        Steps = document.Program.Steps,
+      },
+      Data = document.Data,
+      Created = document.Created,
+      Modified = document.Modified,
+    };
 
   private static JsonSerializerOptions JsonOptions => new()
   {

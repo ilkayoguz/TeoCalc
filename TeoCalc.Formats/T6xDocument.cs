@@ -34,7 +34,11 @@ public sealed class T6xDocument
 
   public string? RunHint { get; init; }
 
-  public string Encoding { get; init; } = "mnemonic";
+  /// <summary>
+  /// Exclusive <c>[Code]</c> mode: <c>mnemonic</c> (default) or <c>machine</c> (one internal byte per line).
+  /// Written as <c>CodeEncoding</c>; legacy <c>Encoding</c> is accepted when reading.
+  /// </summary>
+  public string CodeEncoding { get; init; } = CardCodeEncoding.Default;
 
   public string? Author { get; init; }
 
@@ -45,7 +49,10 @@ public sealed class T6xDocument
   /// <summary>Strip columns A–E (caption + optional tooltip).</summary>
   public List<T6xLabelEntry> Labels { get; init; } = [];
 
-  /// <summary>User program mnemonics (one per line). No internal <c>PTR</c> marker.</summary>
+  /// <summary>
+  /// User program steps (one per line). Mnemonics or decimal internal bytes per <see cref="CodeEncoding"/>.
+  /// No internal <c>PTR</c> marker. Single <c>[Code]</c> section only — no separate machine section.
+  /// </summary>
   public List<string> Code { get; init; } = [];
 
   /// <summary>Sparse 1-based register map (HP-65 RCL n ↔ index n).</summary>

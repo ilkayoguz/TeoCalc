@@ -58,8 +58,12 @@ public sealed class TeoCardDocument
 
 public sealed class TeoCardProgramSection
 {
-  [JsonPropertyName("Encoding")]
-  public string Encoding { get; init; } = "mnemonic";
+  /// <summary>
+  /// Exclusive program encoding: <c>mnemonic</c> (default) or <c>machine</c>.
+  /// JSON key is <c>CodeEncoding</c>; legacy <c>Encoding</c> is accepted when reading.
+  /// </summary>
+  [JsonPropertyName("CodeEncoding")]
+  public string CodeEncoding { get; init; } = CardCodeEncoding.Default;
 
   [JsonPropertyName("Steps")]
   public List<string> Steps { get; init; } = [];

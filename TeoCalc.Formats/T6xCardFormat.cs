@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
+using TeoCalc.Core.Engine.Classic;
 
 namespace TeoCalc.Formats;
 
@@ -90,16 +91,20 @@ public static partial class T6xCardFormat
     }
 
     string targetCpu = Require(general, "TargetCpu");
-    string encoding = GetOptional(general, "Encoding") ?? "mnemonic";
-    if (!string.Equals(encoding, "mnemonic", StringComparison.OrdinalIgnoreCase))
-    {
-      throw new FormatException($"Unsupported Encoding '{encoding}'.");
-    }
+    // Prefer CodeEncoding; accept legacy Encoding for older card text files.
+    string encoding = CardCodeEncoding.Normalize(
+      GetOptional(general, CardCodeEncoding.Key) ?? GetOptional(general, CardCodeEncoding.LegacyKey));
 
     List<T6xLabelEntry> labels = [];
     if (sections.TryGetValue("Label", out List<string>? labelLines))
     {
       labels = ParseLabels(labelLines);
+    }
+
+    if (sections.ContainsKey("Machine"))
+    {
+      throw new FormatException(
+        $"Separate [Machine] section is not supported. Use {CardCodeEncoding.Key} = \"{CardCodeEncoding.Machine}\" with a single [Code] section.");
     }
 
     List<string> code = [];
@@ -127,6 +132,14 @@ public static partial class T6xCardFormat
       }
     }
 
+    if (CardCodeEncoding.IsMachine(encoding))
+    {
+      foreach (string step in code)
+      {
+        _ = CardCodeEncoding.ParseMachineByte(step);
+      }
+    }
+
     Dictionary<int, double> data = new();
     if (sections.TryGetValue("Data", out List<string>? dataLines))
     {
@@ -144,7 +157,7 @@ public static partial class T6xCardFormat
       Description = GetOptional(general, "Description"),
       Usage = GetOptional(general, "Usage"),
       RunHint = GetOptional(general, "RunHint"),
-      Encoding = encoding,
+      CodeEncoding = encoding,
       Author = GetOptional(general, "Author"),
       Created = ParseTimestamp(GetOptional(general, "Created")),
       Modified = ParseTimestamp(GetOptional(general, "Modified")),
@@ -168,7 +181,7 @@ public static partial class T6xCardFormat
     WriteOptional(sb, "Description", document.Description);
     WriteOptional(sb, "Usage", document.Usage);
     WriteOptional(sb, "RunHint", document.RunHint);
-    WriteKv(sb, "Encoding", string.IsNullOrWhiteSpace(document.Encoding) ? "mnemonic" : document.Encoding);
+    WriteKv(sb, CardCodeEncoding.Key, CardCodeEncoding.Normalize(document.CodeEncoding));
     WriteOptional(sb, "Author", document.Author);
     if (document.Created is { } created)
     {
@@ -273,7 +286,7 @@ public static partial class T6xCardFormat
       LabelHints = hints.ToList(),
       Program = new TeoCardProgramSection
       {
-        Encoding = document.Encoding,
+        CodeEncoding = CardCodeEncoding.Normalize(document.CodeEncoding),
         Steps = document.Code
           .Where(step => !string.Equals(step.Trim(), "PTR", StringComparison.OrdinalIgnoreCase))
           .Select(step => step.Trim())
@@ -333,7 +346,7 @@ public static partial class T6xCardFormat
       Description = document.Description,
       Usage = document.Usage,
       RunHint = document.RunHint,
-      Encoding = document.Program.Encoding,
+      CodeEncoding = CardCodeEncoding.Normalize(document.Program.CodeEncoding),
       Created = document.Created,
       Modified = document.Modified ?? DateTimeOffset.UtcNow,
       Labels = labels,
@@ -354,11 +367,20 @@ public static partial class T6xCardFormat
   {
     TeoCardDocument teo = ToTeoCardDocument(document);
     List<string> steps = [.. teo.Program.Steps];
-    EnsureMissingStripLabelStubs(steps);
-    // Classic program RAM needs an internal pointer marker; authoring format never writes PTR.
-    if (!steps.Exists(step => string.Equals(step, "PTR", StringComparison.OrdinalIgnoreCase)))
+    string encoding = CardCodeEncoding.Normalize(teo.Program.CodeEncoding);
+    if (CardCodeEncoding.IsMnemonic(encoding))
     {
-      steps.Add("PTR");
+      EnsureMissingStripLabelStubs(steps);
+      // Classic program RAM needs an internal pointer marker; authoring format never writes PTR.
+      if (!steps.Exists(step => string.Equals(step, "PTR", StringComparison.OrdinalIgnoreCase)))
+      {
+        steps.Add("PTR");
+      }
+    }
+    else if (!steps.Exists(IsClassicPointerStep))
+    {
+      // Machine mode: pointer is the internal Classic byte, not the PTR mnemonic.
+      steps.Add(ClassicProgramCodes.Pointer.ToString(CultureInfo.InvariantCulture));
     }
 
     TeoCardDocument withPointer = new()
@@ -376,7 +398,7 @@ public static partial class T6xCardFormat
       LabelHints = teo.LabelHints,
       Program = new TeoCardProgramSection
       {
-        Encoding = teo.Program.Encoding,
+        CodeEncoding = encoding,
         Steps = steps,
       },
       Data = teo.Data,
@@ -391,6 +413,14 @@ public static partial class T6xCardFormat
       registerCount);
   }
 
+  private static bool IsClassicPointerStep(string step)
+  {
+    string trimmed = step.Trim();
+    return string.Equals(trimmed, "PTR", StringComparison.OrdinalIgnoreCase)
+      || (byte.TryParse(trimmed, NumberStyles.Integer, CultureInfo.InvariantCulture, out byte value)
+          && value == ClassicProgramCodes.Pointer);
+  }
+
   public static Teo67CardSnapshot ToTeo67Snapshot(
     T6xDocument document,
     Func<string, byte?> codeForMnemonic,
@@ -402,6 +432,7 @@ public static partial class T6xCardFormat
 
     byte[] program = new byte[programCapacity];
     int write = 0;
+    string encoding = CardCodeEncoding.Normalize(document.CodeEncoding);
     foreach (string rawStep in document.Code)
     {
       string step = rawStep.Trim();
@@ -411,18 +442,13 @@ public static partial class T6xCardFormat
         continue;
       }
 
-      byte? code = codeForMnemonic(step);
-      if (code is null)
-      {
-        throw new FormatException($"Mnemonic not found: {step}");
-      }
-
+      byte code = CardCodeEncoding.ResolveStep(encoding, step, codeForMnemonic);
       if (write >= programCapacity)
       {
         throw new FormatException("Program too large");
       }
 
-      program[write++] = code.Value;
+      program[write++] = code;
     }
 
     double[] registers = new double[registerCount];
@@ -509,7 +535,7 @@ public static partial class T6xCardFormat
       Description = metadata?.Description,
       Usage = metadata?.Usage,
       RunHint = metadata?.RunHint,
-      Encoding = "mnemonic",
+      CodeEncoding = CardCodeEncoding.Mnemonic,
       Created = metadata?.Created,
       Modified = DateTimeOffset.UtcNow,
       Labels = labels,
