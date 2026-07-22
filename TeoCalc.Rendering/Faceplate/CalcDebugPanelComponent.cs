@@ -75,13 +75,13 @@ public static class CalcDebugPanelComponent
 
     if (ImGui.Button("Step Into (F11)"))
     {
-      session.StepInto();
+      session.StepMicrocodeInto();
     }
 
     ImGui.SameLine();
     if (ImGui.Button("Step Over (F10)"))
     {
-      session.StepOver();
+      session.StepMicrocodeOver();
     }
 
     ImGui.SameLine();
@@ -108,7 +108,7 @@ public static class CalcDebugPanelComponent
     }
     else
     {
-      ImGui.TextDisabled("F5 Cont  Shift+F5 Stop  F6 Break  F10 Over  F11 Into");
+      ImGui.TextDisabled("F5 Cont  Shift+F5 Stop  F6 Break  |  Buttons = microcode F10/F11");
     }
   }
 

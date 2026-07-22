@@ -28,6 +28,9 @@ public static class CalcCardSlotComponent
   /// <summary>Caption present but no matching <c>LBL</c> subroutine.</summary>
   public const uint LabelInkDisabled = 0xFF6E6E6E;
 
+  /// <summary>Inserted mag-card column fill (near-black under white captions).</summary>
+  public const uint CaptionChipFill = 0xFF2A2A2A;
+
   /// <summary>White frame stroke.</summary>
   public const uint FrameInk = 0xFFFFFFFF;
 
@@ -190,7 +193,7 @@ public static class CalcCardSlotComponent
     RectF panel,
     float scale)
   {
-    uint fill = 0xFF2A2A2A;
+    uint fill = CaptionChipFill;
     float inset = MathF.Max(1f, scale * 1.5f);
     for (int column = 0; column < CalcFaceplateLayout.Columns; column++)
     {

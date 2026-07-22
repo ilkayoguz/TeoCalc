@@ -1,0 +1,58 @@
+[General]
+Format = "TeoCalc.CardText"
+SchemaVersion = "1"
+TargetCpu = "T-65"
+Profile = "T-65"
+Category = "Math Pac 2"
+Title = "Chebyshev Polynomial"
+Description = "HP-65 Math Pac 2 (hpmuseum.org/software/65chebys.htm): computes Tn(x) via Tn+1(x)=2x·Tn(x)−Tn−1(x) with T0=1, T1=x; n is a nonnegative integer."
+Usage = "Load → RUN. Enter n ENTER x then A → Tn(x). Example: 3 ENTER 0.4 A → −0.94 (=T3(0.4))."
+RunHint = "RUN: n ENTER x A → Tn(x). Ex: 3 ENTER .4 A."
+CodeEncoding = "mnemonic"
+Author = "Hewlett-Packard (HP Museum)"
+Created = "1974-01-01T00:00:00Z"
+Modified = "2026-07-22T00:00:00Z"
+
+[Label]
+A = "Tn(x)", "Chebyshev polynomial Tn(x)"
+
+[Code]
+LBL
+A
+STO 1
+2
+STO 2
+*
+STO 3
+CLX
+X<>Y
+x<=y?
+1
+RTN
+1
+STO 4
+x=y?
+RCL 1
+RTN
+LBL
+1
+CLX
+RCL 3
+RCL 1
+*
+RCL 4
+LSTX
+STO 4
+RDOWN
+-
+STO 1
+CLX
+RCL 2
+1
++
+STO 2
+x<=y?
+GTO
+1
+RCL 1
+RTN

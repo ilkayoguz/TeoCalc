@@ -383,6 +383,14 @@ public static class ClassicFaceplateGlyphs
         continue;
       }
 
+      if (TryConsume(text, ref i, "\u221a", out _) || TryConsume(text, ref i, "√", out _))
+      {
+        float w = MeasureSqrtRadicalOnlyWidth(fontSize);
+        union = CalcFaceplateBandLabel.Union(union, CalcFaceplateBandLabel.BoxAt(x, rowMidY - fontSize * 0.5f, w, fontSize));
+        x += w;
+        continue;
+      }
+
       if (TryConsume(text, ref i, "R\u2192P", out _) || TryConsume(text, ref i, "P\u2192R", out _))
       {
         float w = MeasureArrowBetweenTextWidth("R", "P", fontSize);
@@ -865,6 +873,14 @@ public static class ClassicFaceplateGlyphs
         float h = MeasureCardSlotLabel(1, fontSize).Height;
         float top = useRowMid ? rowMidY - h * 0.5f : y + (bandMode ? fontSize * 0.04f : 0f);
         x += DrawSqrtXAt(draw, x, top, fontSize, color, scale);
+        continue;
+      }
+
+      if (TryConsume(text, ref i, "\u221a", out _) || TryConsume(text, ref i, "√", out _))
+      {
+        float h = fontSize * 0.92f;
+        float top = useRowMid ? rowMidY - h * 0.5f : y + (bandMode ? fontSize * 0.04f : 0f);
+        x += DrawSqrtRadicalOnlyAt(draw, x, top, fontSize, color, scale);
         continue;
       }
 
@@ -2338,6 +2354,28 @@ public static class ClassicFaceplateGlyphs
   private static float MeasureSqrtXWidth(float fontSize) =>
     MeasureCardSlotLabel(1, fontSize).Width;
 
+  /// <summary>Radical only (for algebraic <c>√R1</c> — not the CapAbove √x compound).</summary>
+  private static float MeasureSqrtRadicalOnlyWidth(float fontSize)
+  {
+    float xHeight = MathGlyphSize("x", fontSize * CardSlotMathXScale).Y;
+    return CardSlotSqrtArt.MeasureHookWidth(xHeight);
+  }
+
+  private static float DrawSqrtRadicalOnlyAt(
+    ImDrawListPtr draw,
+    float x,
+    float y,
+    float fontSize,
+    uint color,
+    float scale)
+  {
+    float xSize = fontSize * CardSlotMathXScale;
+    Vector2 xDim = MathGlyphSize("x", xSize);
+    float radicalW = CardSlotSqrtArt.MeasureHookWidth(xDim.Y);
+    CardSlotSqrtArt.Draw(draw, x, y, xDim.Y, scale, color, withVinculum: false);
+    return radicalW;
+  }
+
   private static float MeasureInverseXWidth(float fontSize) =>
     fontSize * 1.52f;
 
@@ -2916,6 +2954,7 @@ public static class ClassicFaceplateGlyphs
       if (TryConsume(text, ref i, "x\u2265y", out _)) { width += fontSize * 2.05f; continue; }
       if (TryConsume(text, ref i, "x!/y", out _)) { width += fontSize * 1.8f; continue; }
       if (TryConsume(text, ref i, "\u221ax", out _) || TryConsume(text, ref i, "√x", out _)) { width += MeasureSqrtXWidth(fontSize); continue; }
+      if (TryConsume(text, ref i, "\u221a", out _) || TryConsume(text, ref i, "√", out _)) { width += MeasureSqrtRadicalOnlyWidth(fontSize); continue; }
       if (TryConsume(text, ref i, "\u03c0", out _) || TryConsume(text, ref i, "π", out _))
       {
         float piSize = fontSize * 0.92f;
@@ -3187,6 +3226,7 @@ public static class ClassicFaceplateGlyphs
       || tail.StartsWith("x!/y")
       || tail.StartsWith("\u221ax")
       || tail.StartsWith("√x")
+      || (tail.Length > 0 && (tail[0] == '\u221a' || tail[0] == '√'))
       || tail.StartsWith("y^x")
       || tail.StartsWith("x^y")
       || tail.StartsWith("e^x")

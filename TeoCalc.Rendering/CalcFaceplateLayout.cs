@@ -1,5 +1,6 @@
 using System.Numerics;
 using TeoCalc.Core.Catalog;
+using TeoCalc.Formats;
 
 namespace TeoCalc.Rendering;
 
@@ -24,7 +25,8 @@ public static class CalcFaceplateLayout
 
   public const int Columns = 5;
 
-  public static readonly string[] CardSlotLabels = ["1/x", "\u221ax", "y^x", "R\u2193", "x\u2194y"];
+  /// <summary>No-card A–E strip legends; canonical source is <see cref="ClassicCardStripLabels.DefaultNoCardCaptions"/>.</summary>
+  public static readonly string[] CardSlotLabels = ClassicCardStripLabels.DefaultNoCardCaptions;
 
   public static Vector2 OnOffSwitchNorm
   {

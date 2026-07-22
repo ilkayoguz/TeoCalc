@@ -15,6 +15,14 @@ public static class ClassicCardStripLabels
 {
   private static readonly string[] StripLetters = ["A", "B", "C", "D", "E"];
 
+  /// <summary>
+  /// Built-in HP-65 faceplate strip legends when no mag-card is inserted
+  /// (same Unicode as <c>CalcFaceplateLayout.CardSlotLabels</c> / no-card chrome).
+  /// A=<c>1/x</c>, B=<c>√x</c>, C=<c>y^x</c>, D=<c>R↓</c>, E=<c>x↔y</c>.
+  /// </summary>
+  public static readonly string[] DefaultNoCardCaptions =
+    ["1/x", "\u221ax", "y^x", "R\u2193", "x\u2194y"];
+
   private static readonly HashSet<string> SubroutineStopMnemonics =
     new(StringComparer.OrdinalIgnoreCase)
     {
@@ -169,6 +177,120 @@ public static class ClassicCardStripLabels
     }
 
     return false;
+  }
+
+  /// <summary>Map target letter <c>A</c>…<c>E</c> to strip column 0…4.</summary>
+  public static bool TryGetStripColumn(string? letter, out int column)
+  {
+    column = -1;
+    if (string.IsNullOrWhiteSpace(letter))
+    {
+      return false;
+    }
+
+    column = Array.FindIndex(
+      StripLetters,
+      candidate => string.Equals(candidate, letter.Trim(), StringComparison.OrdinalIgnoreCase));
+    return column >= 0;
+  }
+
+  /// <summary>Faceplate label keys: strip columns A–E and numeric label digits 0–9.</summary>
+  public static bool IsFaceplateLabelKey(string? key)
+  {
+    if (TryGetStripColumn(key, out _))
+    {
+      return true;
+    }
+
+    if (string.IsNullOrWhiteSpace(key))
+    {
+      return false;
+    }
+
+    string t = key.Trim();
+    return t.Length == 1 && t[0] is >= '0' and <= '9';
+  }
+
+  /// <summary>
+  /// Caption for strip column <paramref name="letter"/>.
+  /// When <paramref name="captions"/> is null (no card), uses <see cref="DefaultNoCardCaptions"/>.
+  /// When captions are provided (card loaded), empty columns stay empty.
+  /// Empty when not A–E.
+  /// </summary>
+  public static string CaptionForLetter(IReadOnlyList<string>? captions, string? letter)
+  {
+    if (!TryGetStripColumn(letter, out int column))
+    {
+      return string.Empty;
+    }
+
+    IReadOnlyList<string> source = captions ?? DefaultNoCardCaptions;
+    if (column >= source.Count)
+    {
+      return string.Empty;
+    }
+
+    string caption = source[column] ?? string.Empty;
+    return caption.Trim();
+  }
+
+  /// <summary>True when Studio should paint no-card strip chrome (not mag-card chip).</summary>
+  public static bool UsesNoCardStripChrome(IReadOnlyList<string>? captions) => captions is null;
+
+  /// <summary>
+  /// Remove Classic fall-through stubs (<c>LBL</c> A–E + only <c>NOP</c>/<c>RTN</c>) from a
+  /// mnemonic step list. Used when exporting RAM so authoring files stay sparse.
+  /// </summary>
+  public static void RemoveEmptyStripLabelStubs(List<string> steps)
+  {
+    ArgumentNullException.ThrowIfNull(steps);
+    for (int i = 0; i < steps.Count - 1; )
+    {
+      if (!string.Equals(steps[i].Trim(), "LBL", StringComparison.OrdinalIgnoreCase)
+          || !TryGetStripColumn(steps[i + 1], out _))
+      {
+        i++;
+        continue;
+      }
+
+      int bodyStart = i + 2;
+      int bodyEnd = bodyStart;
+      while (bodyEnd < steps.Count)
+      {
+        string m = steps[bodyEnd].Trim();
+        if (string.Equals(m, "LBL", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(m, "END", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(m, "PTR", StringComparison.OrdinalIgnoreCase))
+        {
+          break;
+        }
+
+        bodyEnd++;
+      }
+
+      bool emptyStub = true;
+      for (int b = bodyStart; b < bodyEnd; b++)
+      {
+        string m = steps[b].Trim();
+        if (m.Length == 0
+            || string.Equals(m, "NOP", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(m, "RTN", StringComparison.OrdinalIgnoreCase))
+        {
+          continue;
+        }
+
+        emptyStub = false;
+        break;
+      }
+
+      if (emptyStub)
+      {
+        steps.RemoveRange(i, bodyEnd - i);
+        continue;
+      }
+
+      i = bodyEnd;
+    }
   }
 
   private static string SummarizeSubroutine(IReadOnlyList<string> steps, int startIndex)

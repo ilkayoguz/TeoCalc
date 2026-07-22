@@ -13,6 +13,40 @@ namespace TeoCalc.Core.Tests;
 public sealed class CardProgramSmokeTests
 {
   [TestMethod]
+  public void Classic65_ImportSparseSample_DoesNotAppendBuiltinStripBodies()
+  {
+    ProgramVocabulary vocabulary = ProgramVocabulary.Load(
+      TeoCalcPaths.ResourcePath("Engine/HP-65/Program/program.vocabulary.json"));
+    string path = Path.Combine(
+      TeoCalc.Rendering.Faceplate.CalcCardPanelComponent.SampleCardsDirectory(),
+      TeoCalc.Rendering.Faceplate.CalcCardPanelComponent.SampleHp65T65FileName);
+    T6xDocument document = T6xCardFormat.ReadFile(path);
+    ClassicCardSnapshot snapshot = T6xCardFormat.ToClassicSnapshot(
+      document,
+      mnemonic => ClassicCardProgramIo.ResolveMnemonic(vocabulary, mnemonic));
+
+    ICalcFirmwareGateway gateway = CalcFirmwareGatewayLocator.CreateGateway("HP-65");
+    Assert.IsTrue(gateway.TryImportCardProgram(snapshot.ProgramCodes, snapshot.Registers));
+    Assert.IsTrue(gateway.TryExportCardProgram(out byte[] exported, out _));
+
+    List<string> mnemonics = [];
+    for (int i = 0; i < exported.Length; i++)
+    {
+      if (exported[i] == 0 && i > 1)
+      {
+        break;
+      }
+
+      mnemonics.Add(ClassicCardProgramIo.FormatMnemonic(vocabulary, exported[i]));
+    }
+
+    string joined = string.Join(' ', mnemonics);
+    Assert.IsFalse(
+      joined.Contains("X<>Y", StringComparison.OrdinalIgnoreCase),
+      "Import left built-in E body: " + joined);
+  }
+
+  [TestMethod]
   public void Classic65_Gateway_CardRoundTrip_PreservesProgramAndData()
   {
     ICalcFirmwareGateway gateway = CalcFirmwareGatewayLocator.CreateGateway("HP-65");

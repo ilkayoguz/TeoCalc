@@ -8,6 +8,25 @@ namespace TeoCalc.Core.Tests;
 public sealed class StudioMnemonicPaintTests
 {
   [TestMethod]
+  public void ChromeForToken_LabelLetters_AreFixedBlackCapWhiteInk()
+  {
+    foreach (string letter in new[] { "A", "B", "C", "D", "E" })
+    {
+      StudioMnemonicPaint.ChromeForToken(letter, "HP-65", out uint face, out uint ink);
+      Assert.AreEqual(CalcChassisPalette.KeyBlackFace, face, letter);
+      Assert.AreEqual(CalcKeyLabelPalette.PrimaryOnCap(CalcButtonStyle.Black), ink, letter);
+    }
+  }
+
+  [TestMethod]
+  public void ChromeForLabelKey_NumericLabel_IsBlackCapWhiteInk()
+  {
+    StudioMnemonicPaint.ChromeForLabelKey(out uint face, out uint ink);
+    Assert.AreEqual(CalcChassisPalette.KeyBlackFace, face);
+    Assert.AreEqual(CalcKeyLabelPalette.PrimaryOnCap(CalcButtonStyle.Black), ink);
+  }
+
+  [TestMethod]
   public void ChromeForToken_MapsFaceplateRoles()
   {
     StudioMnemonicPaint.ChromeForToken("f", null, out uint fFace, out uint fInk);
@@ -342,6 +361,12 @@ public sealed class StudioMuseumKeycodesTests
     Assert.IsTrue(StudioMuseumKeycodes.TryParseFusedStoRcl("RCL 1", out string op, out int d));
     Assert.AreEqual("RCL", op);
     Assert.AreEqual(1, d);
+    Assert.IsTrue(StudioMuseumKeycodes.TryParseFusedStoRcl("STO4", out op, out d));
+    Assert.AreEqual("STO", op);
+    Assert.AreEqual(4, d);
+    Assert.IsTrue(StudioMuseumKeycodes.TryParseFusedStoRcl("RCL1", out op, out d));
+    Assert.AreEqual("RCL", op);
+    Assert.AreEqual(1, d);
     Assert.IsFalse(StudioMuseumKeycodes.TryParseFusedStoRcl("RCL 9", out _, out _));
     Assert.IsFalse(StudioMuseumKeycodes.TryParseFusedStoRcl("RCL", out _, out _));
   }
@@ -365,9 +390,70 @@ public sealed class StudioListingViewTests
     Assert.AreEqual(1, rows.Count);
     Assert.AreEqual(StudioListingView.MergeKind.LabelPair, rows[0].Kind);
     Assert.AreEqual("LBL A", rows[0].DisplayMnemonic);
-    // RAM address of first user step remains 2 (0=START, 1=PTR); Studio # column
-    // paints a separate 1-based display sequence over visible rows.
+    // RAM address of first user step remains 2 (0=START, 1=PTR). Studio # uses
+    // DisplayStepNumber (1-based filtered span), not the RAM Index.
     Assert.AreEqual(2, rows[0].Index);
+    Assert.AreEqual(1, StudioListingView.DisplayStepNumber(rows, 0));
+  }
+
+  [TestMethod]
+  public void DisplayStepNumber_FusedStoRegister_AdvancesByTwo()
+  {
+    IReadOnlyList<StudioListingView.Row> rows =
+    [
+      new(0, ClassicProgramCodes.Label, "LBL", 11, "A", StudioListingView.MergeKind.LabelPair),
+      new(2, 45, "STO 1", null, null, StudioListingView.MergeKind.Single),
+      new(3, 1, "2", null, null, StudioListingView.MergeKind.Single),
+      new(4, 45, "STO 2", null, null, StudioListingView.MergeKind.Single),
+    ];
+
+    Assert.AreEqual(2, rows[1].StepSpan);
+    Assert.AreEqual(1, StudioListingView.DisplayStepNumber(rows, 0));
+    Assert.AreEqual(3, StudioListingView.DisplayStepNumber(rows, 1));
+    Assert.AreEqual(5, StudioListingView.DisplayStepNumber(rows, 2));
+    Assert.AreEqual(6, StudioListingView.DisplayStepNumber(rows, 3));
+  }
+
+  [TestMethod]
+  public void Build_MergesGtoTargetPair()
+  {
+    ClassicProgramLine[] lines =
+    [
+      new(0, ClassicProgramCodes.Label, "LBL"),
+      new(1, 11, "A"),
+      new(2, 22, "GTO"),
+      new(3, 1, "1"),
+      new(4, 24, "RTN"),
+    ];
+
+    IReadOnlyList<StudioListingView.Row> rows = StudioListingView.Build(lines);
+    Assert.AreEqual(2, rows.Count(r => r.Kind != StudioListingView.MergeKind.LabelPair));
+    StudioListingView.Row branch = rows.First(r => r.DisplayMnemonic.StartsWith("GTO", StringComparison.OrdinalIgnoreCase));
+    Assert.AreEqual(StudioListingView.MergeKind.BranchPair, branch.Kind);
+    Assert.AreEqual("GTO 1", branch.DisplayMnemonic);
+    Assert.AreEqual(2, branch.StepSpan);
+  }
+
+  [TestMethod]
+  public void DisplayStepNumber_AdvancesByStepSpan_OnMergedPairs()
+  {
+    // LBL+A (span 2) → #1; next single → #3; shift pair (span 2) → #4; last → #6
+    IReadOnlyList<StudioListingView.Row> rows =
+    [
+      new(0, ClassicProgramCodes.Label, "LBL", 11, "A", StudioListingView.MergeKind.LabelPair),
+      new(2, 1, "1", null, null, StudioListingView.MergeKind.Single),
+      new(3, 8, "g", 22, "GTO", StudioListingView.MergeKind.ShiftPair),
+      new(5, 24, "RTN", null, null, StudioListingView.MergeKind.Single),
+    ];
+
+    Assert.AreEqual(2, rows[0].StepSpan);
+    Assert.AreEqual(1, rows[1].StepSpan);
+    Assert.AreEqual(2, rows[2].StepSpan);
+    Assert.AreEqual(1, StudioListingView.DisplayStepNumber(rows, 0));
+    Assert.AreEqual(3, StudioListingView.DisplayStepNumber(rows, 1));
+    Assert.AreEqual(4, StudioListingView.DisplayStepNumber(rows, 2));
+    Assert.AreEqual(6, StudioListingView.DisplayStepNumber(rows, 3));
+    Assert.AreEqual(6, StudioListingView.MaxDisplayStepNumber(rows));
   }
 
   [TestMethod]
@@ -435,6 +521,113 @@ public sealed class StudioListingViewTests
   }
 
   [TestMethod]
+  public void ResolvePaint_LabelPair_LblA_ShowsStripCaptionAsCardStrip()
+  {
+    string[] captions = ["+123", "", "", "", ""];
+    StudioListingView.Row row = new(
+      Index: 2,
+      Code: 43,
+      Mnemonic: "LBL",
+      SecondCode: 11,
+      SecondMnemonic: "A",
+      Kind: StudioListingView.MergeKind.LabelPair);
+    StudioListingView.Paint paint = StudioListingView.ResolvePaint(row, "HP-65", captions);
+    Assert.AreEqual("LBL A", paint.KeysMnemonic);
+    Assert.AreEqual("+123", paint.Legend);
+    Assert.AreEqual(StudioShiftLegend.ShiftKind.CardStrip, paint.LegendKind);
+  }
+
+  [TestMethod]
+  public void ResolvePaint_LabelPair_NoCaption_LegendEmpty()
+  {
+    string[] captions = ["+123", "", "", "", ""];
+    StudioListingView.Row row = new(
+      Index: 4,
+      Code: 43,
+      Mnemonic: "LBL",
+      SecondCode: 12,
+      SecondMnemonic: "B",
+      Kind: StudioListingView.MergeKind.LabelPair);
+    StudioListingView.Paint paint = StudioListingView.ResolvePaint(row, "HP-65", captions);
+    Assert.AreEqual("LBL B", paint.KeysMnemonic);
+    Assert.AreEqual(string.Empty, paint.Legend);
+    Assert.AreEqual(StudioShiftLegend.ShiftKind.None, paint.LegendKind);
+  }
+
+  [TestMethod]
+  public void ResolvePaint_LabelPair_NoCard_FallsBackToBuiltInStripLegends()
+  {
+    StudioListingView.Row rowA = new(
+      Index: 2,
+      Code: 43,
+      Mnemonic: "LBL",
+      SecondCode: 11,
+      SecondMnemonic: "A",
+      Kind: StudioListingView.MergeKind.LabelPair);
+    StudioListingView.Paint paintA = StudioListingView.ResolvePaint(rowA, "HP-65", cardStripCaptions: null);
+    Assert.AreEqual("LBL A", paintA.KeysMnemonic);
+    Assert.AreEqual("1/x", paintA.Legend);
+    Assert.AreEqual(StudioShiftLegend.ShiftKind.NoCardStrip, paintA.LegendKind);
+
+    StudioListingView.Row rowB = new(
+      Index: 4,
+      Code: 43,
+      Mnemonic: "LBL",
+      SecondCode: 12,
+      SecondMnemonic: "B",
+      Kind: StudioListingView.MergeKind.LabelPair);
+    StudioListingView.Paint paintB = StudioListingView.ResolvePaint(rowB, "HP-65");
+    Assert.AreEqual("\u221ax", paintB.Legend);
+    Assert.AreEqual(StudioShiftLegend.ShiftKind.NoCardStrip, paintB.LegendKind);
+
+    StudioListingView.Row rowC = new(
+      Index: 6,
+      Code: 43,
+      Mnemonic: "LBL",
+      SecondCode: 13,
+      SecondMnemonic: "C",
+      Kind: StudioListingView.MergeKind.LabelPair);
+    Assert.AreEqual("y^x", StudioListingView.ResolvePaint(rowC, "HP-65").Legend);
+
+    StudioListingView.Row rowD = new(
+      Index: 8,
+      Code: 43,
+      Mnemonic: "LBL",
+      SecondCode: 14,
+      SecondMnemonic: "D",
+      Kind: StudioListingView.MergeKind.LabelPair);
+    Assert.AreEqual("R\u2193", StudioListingView.ResolvePaint(rowD, "HP-65").Legend);
+
+    StudioListingView.Row rowE = new(
+      Index: 10,
+      Code: 43,
+      Mnemonic: "LBL",
+      SecondCode: 15,
+      SecondMnemonic: "E",
+      Kind: StudioListingView.MergeKind.LabelPair);
+    StudioListingView.Paint paintE = StudioListingView.ResolvePaint(rowE, "HP-65");
+    Assert.AreEqual("x\u2194y", paintE.Legend);
+    Assert.AreEqual(StudioShiftLegend.ShiftKind.NoCardStrip, paintE.LegendKind);
+  }
+
+  [TestMethod]
+  public void ResolvePaint_FusedLblA_ShowsStripCaption()
+  {
+    string[] captions = ["+123", "GTO1", "", "", ""];
+    StudioListingView.Row row = new(
+      Index: 2,
+      Code: 43,
+      Mnemonic: "LBL A",
+      SecondCode: null,
+      SecondMnemonic: null,
+      Kind: StudioListingView.MergeKind.Single);
+    StudioListingView.Paint paint = StudioListingView.ResolvePaint(row, "HP-65", captions);
+    Assert.AreEqual("LBL A", paint.KeysMnemonic);
+    Assert.AreEqual("+123", paint.Legend);
+    Assert.AreEqual(StudioShiftLegend.ShiftKind.CardStrip, paint.LegendKind);
+  }
+
+  [TestMethod]
   public void FilterForClipboard_DropsRuntimeMarkers()
   {
     ClassicProgramLine[] lines =
@@ -463,5 +656,25 @@ public sealed class StudioListingViewTests
     ];
     IReadOnlyList<StudioListingView.Row> rows = StudioListingView.Build(lines);
     Assert.AreEqual(2, StudioListingView.ResolvePointerHighlightIndex(lines, rows));
+  }
+
+  [TestMethod]
+  public void Build_PtrBetweenLabelPair_StillMerges()
+  {
+    // SST parked between LBL and A must not split the Studio row / shrink the listing.
+    ClassicProgramLine[] lines =
+    [
+      new(0, ClassicProgramCodes.Start, "START"),
+      new(1, 43, "LBL"),
+      new(2, ClassicProgramCodes.Pointer, "PTR"),
+      new(3, 11, "A"),
+      new(4, 1, "1"),
+      new(5, 24, "RTN"),
+    ];
+    IReadOnlyList<StudioListingView.Row> rows = StudioListingView.Build(lines);
+    Assert.AreEqual(StudioListingView.MergeKind.LabelPair, rows[0].Kind);
+    Assert.AreEqual("LBL", rows[0].Mnemonic);
+    Assert.AreEqual("A", rows[0].SecondMnemonic);
+    Assert.IsTrue(rows.Count >= 3);
   }
 }

@@ -17,6 +17,10 @@ public static class StudioShiftLegend
     GoldInverse,
     /// <summary>HP-67 / Spice h-shift (black skirt ink on most models).</summary>
     Black,
+    /// <summary>Inserted mag-card A–E caption (white on near-black chip).</summary>
+    CardStrip,
+    /// <summary>No-card built-in A–E legends (white on chassis chrome, no chip).</summary>
+    NoCardStrip,
   }
 
   public static bool IsShiftPrefix(string token) =>

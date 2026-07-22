@@ -68,14 +68,14 @@ public static class CalcCapabilitySidePanelComponent
     switch (mode)
     {
       case CalcCapabilitySidePanelMode.Card:
-        CalcCardPanelComponent.DrawInline(
+        goto case CalcCapabilitySidePanelMode.Studio;
+      case CalcCapabilitySidePanelMode.Studio:
+        CalcStudioPanelComponent.DrawInline(
+          session,
           ref cardPathBuffer,
           ref cardStatusMessage,
           canLoadSaveCard,
           loadCard,
-          saveCard,
-          cardFileExtension,
-          cardProgramCapacity,
           cardInserted,
           loadedCardPath,
           loadedTeoCard,
@@ -86,9 +86,6 @@ public static class CalcCapabilitySidePanelComponent
         break;
       case CalcCapabilitySidePanelMode.Debug:
         CalcDebugPanelComponent.DrawInline(session, ref debugDumpStatus);
-        break;
-      case CalcCapabilitySidePanelMode.Studio:
-        CalcStudioPanelComponent.DrawInline(session);
         break;
     }
   }

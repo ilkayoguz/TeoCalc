@@ -246,6 +246,7 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
   {
     _firmware?.PowerOnResume();
     SyncPowerSwitchIndicesOn();
+    TryRestoreInsertedCardProgram();
     ApplyNonPowerFaceplateSwitchesToFirmware();
   }
 
@@ -545,9 +546,38 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
     _firmware?.Tick(deltaSeconds);
 
   public void StepCpu() =>
-    StepInto();
+    StepMicrocodeInto();
 
+  /// <summary>
+  /// F11 when card program: one Classic keystroke / FC element. Else microcode into.
+  /// </summary>
   public void StepInto()
+  {
+    if (SupportsCardProgram)
+    {
+      StepStudioKey();
+      return;
+    }
+
+    StepMicrocodeInto();
+  }
+
+  /// <summary>
+  /// F10 when card program: one Code row / FC box. Else microcode over.
+  /// </summary>
+  public void StepOver()
+  {
+    if (SupportsCardProgram)
+    {
+      StepStudioLine();
+      return;
+    }
+
+    StepMicrocodeOver();
+  }
+
+  /// <summary>True microcode single-step (Debug panel).</summary>
+  public void StepMicrocodeInto()
   {
     if (_firmware is null || !PowerOn)
     {
@@ -558,7 +588,8 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
     SyncRomWatchFromBatch(_firmware.LastBatch);
   }
 
-  public void StepOver()
+  /// <summary>True microcode step-over (Debug panel).</summary>
+  public void StepMicrocodeOver()
   {
     if (_firmware is null || !PowerOn)
     {
@@ -567,6 +598,241 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
 
     _firmware.StepOver();
     SyncRomWatchFromBatch(_firmware.LastBatch);
+  }
+
+  /// <summary>
+  /// F10 / Studio Over: one Code listing row or one FC box.
+  /// Uses SeekPointer (not SST key) so one keypress always advances one grain.
+  /// </summary>
+  public void StepStudioLine()
+  {
+    if (_firmware is null || !PowerOn)
+    {
+      return;
+    }
+
+    if (_firmware is not ClassicFirmwareGateway { Cpu: { } cpu })
+    {
+      StepMicrocodeOver();
+      return;
+    }
+
+    ExecutionPaused = true;
+    if (!TryGetProgramListing(out IReadOnlyList<ClassicProgramLine> lines) || lines.Count == 0)
+    {
+      StepStudioKey();
+      return;
+    }
+
+    IReadOnlyList<StudioListingView.Row> rows = StudioListingView.Build(
+      lines,
+      LoadedTeoCard?.Program.Steps);
+    if (rows.Count == 0)
+    {
+      return;
+    }
+
+    int ptr = cpu.Program.PointerPosition();
+    int rowIdx = FindStudioRowIndex(rows, ptr);
+
+    if (StudioPaneSync.Focus == StudioPaneSync.StudioFocus.Flowchart)
+    {
+      StepStudioFlowchartBox(cpu, rows, ptr);
+      return;
+    }
+
+    if (rowIdx < 0)
+    {
+      cpu.Program.AdvancePointer();
+      SyncStudioToPointer(cpu);
+      return;
+    }
+
+    // On RTN / R/S row: one F10 returns to that routine’s LBL (do not enter next label).
+    if (IsStudioExitRow(rows[rowIdx]))
+    {
+      _ = TryWrapRoutineEnd(cpu, forceFromRow: rows[rowIdx].Index);
+      return;
+    }
+
+    int next = rowIdx + 1;
+    if (next >= rows.Count)
+    {
+      return;
+    }
+
+    cpu.Program.SeekPointer(rows[next].Index);
+    SyncStudioToPointer(cpu);
+  }
+
+  /// <summary>
+  /// F11 / Studio Step: one Classic keystroke (one RAM slot / one element inside an FC box).
+  /// </summary>
+  public void StepStudioKey()
+  {
+    if (_firmware is null || !PowerOn)
+    {
+      return;
+    }
+
+    if (_firmware is not ClassicFirmwareGateway { Cpu: { } cpu })
+    {
+      StepMicrocodeInto();
+      return;
+    }
+
+    ExecutionPaused = true;
+    // Already sitting just after RTN → wrap to LBL on the next keystroke step.
+    if (TryWrapRoutineEnd(cpu, forceFromRow: -1))
+    {
+      return;
+    }
+
+    cpu.Program.AdvancePointer();
+    SyncStudioToPointer(cpu);
+  }
+
+  /// <summary>Legacy alias — keystroke step.</summary>
+  public void StepStudioVisible() => StepStudioKey();
+
+  private void StepStudioFlowchartBox(
+    ClassicCpu cpu,
+    IReadOnlyList<StudioListingView.Row> rows,
+    int ptr)
+  {
+    StudioFlowchartGraph.Graph graph = StudioFlowchartGraph.Build(
+      rows,
+      EngineModelId,
+      CardStripLabels);
+    int nodeId = StudioFlowchartGraph.FindNodeIdForStep(graph, ptr);
+    if (nodeId < 0)
+    {
+      cpu.Program.AdvancePointer();
+      SyncStudioToPointer(cpu);
+      return;
+    }
+
+    StudioFlowchartGraph.Node node = graph.Nodes[nodeId];
+    if (node.Kind == StudioFlowchartGraph.NodeKind.End
+        || (node.FirstStep >= 0
+            && IsClassicRoutineEnd(cpu.Program.ReadCode(Math.Max(1, node.LastStep)))))
+    {
+      _ = TryWrapRoutineEnd(cpu, forceFromRow: node.FirstStep >= 0 ? node.FirstStep : ptr);
+      return;
+    }
+
+    // Next node in routine order (by FirstStep).
+    int bestId = -1;
+    int bestStep = int.MaxValue;
+    int after = node.LastStep >= 0 ? node.LastStep : ptr;
+    foreach (StudioFlowchartGraph.Node other in graph.Nodes)
+    {
+      if (other.RoutineId != node.RoutineId || other.FirstStep <= after)
+      {
+        continue;
+      }
+
+      if (other.FirstStep < bestStep)
+      {
+        bestStep = other.FirstStep;
+        bestId = other.Id;
+      }
+    }
+
+    if (bestId < 0)
+    {
+      _ = TryWrapRoutineEnd(cpu, forceFromRow: after);
+      return;
+    }
+
+    cpu.Program.SeekPointer(bestStep);
+    SyncStudioToPointer(cpu);
+  }
+
+  private static int FindStudioRowIndex(IReadOnlyList<StudioListingView.Row> rows, int ptr)
+  {
+    for (int i = 0; i < rows.Count; i++)
+    {
+      if (rows[i].ContainsIndex(ptr) || rows[i].Index == ptr)
+      {
+        return i;
+      }
+    }
+
+    for (int i = 0; i < rows.Count; i++)
+    {
+      if (rows[i].Index >= ptr)
+      {
+        return i;
+      }
+    }
+
+    return rows.Count > 0 ? rows.Count - 1 : -1;
+  }
+
+  private static bool IsStudioExitRow(StudioListingView.Row row)
+  {
+    string m = row.DisplayMnemonic.Trim();
+    return string.Equals(m, "RTN", StringComparison.OrdinalIgnoreCase)
+      || string.Equals(m, "R/S", StringComparison.OrdinalIgnoreCase)
+      || string.Equals(row.Mnemonic.Trim(), "RTN", StringComparison.OrdinalIgnoreCase)
+      || string.Equals(row.Mnemonic.Trim(), "R/S", StringComparison.OrdinalIgnoreCase);
+  }
+
+  private bool TryWrapRoutineEnd(ClassicCpu cpu, int forceFromRow)
+  {
+    int ptr = cpu.Program.PointerPosition();
+    int from = forceFromRow >= 0 ? forceFromRow : ptr - 1;
+    if (forceFromRow < 0)
+    {
+      if (ptr <= 1 || !IsClassicRoutineEnd(cpu.Program.ReadCode(ptr - 1)))
+      {
+        return false;
+      }
+
+      from = ptr - 1;
+    }
+
+    if (!TryFindRoutineLabelIndex(cpu, from, out int lblIndex))
+    {
+      return false;
+    }
+
+    cpu.Program.SeekPointer(lblIndex);
+    SyncStudioToPointer(cpu);
+    return true;
+  }
+
+  private void SyncStudioToPointer(ClassicCpu cpu)
+  {
+    int ptr = cpu.Program.PointerPosition();
+    SelectedProgramStep = ptr;
+    StudioPaneSync.OnFlowchartSelected(ptr);
+    StudioPaneSync.OnCodeSelected(ptr);
+    if (_firmware is not null)
+    {
+      SyncRomWatchFromBatch(_firmware.LastBatch);
+    }
+  }
+
+  private static bool IsClassicRoutineEnd(byte code) =>
+    code is 42 /* RTN */ or 34 /* R/S */;
+
+  private static bool TryFindRoutineLabelIndex(ClassicCpu cpu, int fromIndex, out int labelIndex)
+  {
+    labelIndex = -1;
+    for (int i = Math.Min(fromIndex, cpu.Program.LastContentIndex()); i >= 1; i--)
+    {
+      if (cpu.Program.ReadCode(i) != ClassicProgramCodes.Label)
+      {
+        continue;
+      }
+
+      labelIndex = i;
+      return true;
+    }
+
+    return false;
   }
 
   public void BreakExecution() =>
@@ -642,6 +908,47 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
     RunFirmwareTicks(KeySettleBatches);
   }
 
+  /// <summary>
+  /// Classic power-off clears program RAM; re-import the inserted card so Studio/FC stay in sync.
+  /// </summary>
+  private void TryRestoreInsertedCardProgram()
+  {
+    if (!_cardInserted || _firmware is null || !_firmware.SupportsCardProgram || Vocabulary is null)
+    {
+      return;
+    }
+
+    if (_loadedTeoCard is not null)
+    {
+      T6xDocument t6x = T6xCardFormat.FromTeoCardDocument(_loadedTeoCard);
+      if (_firmware is Teo67FirmwareGateway hp67)
+      {
+        Teo67CardSnapshot snapshot = T6xCardFormat.ToTeo67Snapshot(t6x, Teo67CardProgramIo.ResolveMnemonic);
+        if (hp67.TryImportCardProgram(snapshot.ProgramCodes, snapshot.Registers))
+        {
+          SettleAfterCardImport();
+        }
+      }
+      else
+      {
+        ClassicCardSnapshot classic = T6xCardFormat.ToClassicSnapshot(
+          t6x,
+          mnemonic => ClassicCardProgramIo.ResolveMnemonic(Vocabulary, mnemonic));
+        if (_firmware.TryImportCardProgram(classic.ProgramCodes, classic.Registers))
+        {
+          SettleAfterCardImport();
+        }
+      }
+
+      return;
+    }
+
+    if (!string.IsNullOrEmpty(_loadedCardPath) && File.Exists(_loadedCardPath))
+    {
+      _ = TryLoadCardProgram(_loadedCardPath, out _);
+    }
+  }
+
   private void RunFirmwareTicks(int batches)
   {
     // T-01 uses a 10ms timer; 40×50ms settle would burn its ~2s display hold (200 batches).
@@ -677,6 +984,61 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
 
     lines = ClassicProgramListing.ToList(codes, FormatProgramCode);
     return true;
+  }
+
+  /// <summary>Move Classic PTR to <paramref name="stepIndex"/> (Studio “Set start point”).</summary>
+  public bool TrySetProgramStartStep(int stepIndex)
+  {
+    if (_firmware is not ClassicFirmwareGateway { Cpu: { } cpu })
+    {
+      return false;
+    }
+
+    int last = cpu.Program.LastContentIndex();
+    int target = Math.Clamp(stepIndex, 1, last);
+    // Prefer landing on a real instruction (not NOP filler) when the selection is past content.
+    while (target > 1 && cpu.Program.ReadCode(target) == 0)
+    {
+      target--;
+    }
+
+    cpu.Program.SeekPointer(target);
+    SelectedProgramStep = target;
+    return true;
+  }
+
+  /// <summary>Live DATA registers from firmware RAM (updates after RUN STO/RCL).</summary>
+  public bool TryGetLiveRegisters(out IReadOnlyList<double> registers)
+  {
+    registers = [];
+    if (_firmware is null || !_firmware.SupportsCardProgram)
+    {
+      return false;
+    }
+
+    if (!_firmware.TryExportCardProgram(out _, out double[] regs))
+    {
+      return false;
+    }
+
+    registers = regs;
+    return true;
+  }
+
+  /// <summary>Write DATA registers into firmware RAM (keeps current program bytes).</summary>
+  public bool TrySetLiveRegisters(IReadOnlyList<double> registers)
+  {
+    if (_firmware is null || !_firmware.SupportsCardProgram)
+    {
+      return false;
+    }
+
+    if (!_firmware.TryExportCardProgram(out byte[] codes, out _))
+    {
+      return false;
+    }
+
+    return _firmware.TryImportCardProgram(codes, registers);
   }
 
   public string FormatProgramListingText()
@@ -786,7 +1148,17 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
 
   public string? CardRunHint => _loadedTeoCard?.RunHint;
 
-  public void EjectCard() => ResetCardSlotState();
+  public void EjectCard()
+  {
+    ResetCardSlotState();
+    // Card metadata is cleared, but Classic RAM still holds the ejected program —
+    // reboot into firmware no-card defaults so Studio/FC match the empty slot.
+    if (PowerOn)
+    {
+      PowerOff();
+      PowerOnResume();
+    }
+  }
 
   private void ResetCardSlotState()
   {

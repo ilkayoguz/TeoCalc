@@ -7,7 +7,8 @@ namespace TeoCalc.Rendering;
 /// F2 power, F4 PRGM,
 /// F5 Continue, Shift+F5 Stop Debugging (leave pause / resume),
 /// F6 Break (pause; VS Break All is Ctrl+Alt+Break — awkward; F9 reserved for Toggle Breakpoint later),
-/// F10 Step Over, F11 Step Into.
+/// F10 Step Over (Studio: Code row / FC box; else microcode),
+/// F11 Step Into (Studio: one keystroke / FC element; else microcode).
 /// Shift+F11 Step Out is unbound — gateway has no StepOut yet.
 /// </summary>
 public static class CalcExplorerGlobalKeyboard
@@ -46,7 +47,6 @@ public static class CalcExplorerGlobalKeyboard
     if (ImGui.IsKeyPressed(ImGuiKey.F5, repeat: false))
     {
       // F5 Continue; Shift+F5 Stop Debugging — both leave pause / resume free run.
-      // Stop is the VS “done stepping” muscle memory; panel stay open (title-bar Debug toggles it).
       session.ContinueExecution();
     }
 

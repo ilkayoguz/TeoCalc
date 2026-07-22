@@ -91,4 +91,63 @@ public sealed class ClassicProgramMemoryTests
     Assert.AreEqual(ClassicProgramCodes.Start, cpu.Program.ReadCode(0));
     Assert.AreEqual(ClassicProgramCodes.Pointer, cpu.Program.ReadCode(1));
   }
+
+  [TestMethod]
+  public void SeekPointer_MovesMarkerToTargetIndex()
+  {
+    ClassicCpu cpu = CreateCpu();
+    cpu.Reset();
+    Assert.AreEqual(1, cpu.Program.PointerPosition());
+    cpu.Program.SeekPointer(5);
+    Assert.AreEqual(5, cpu.Program.PointerPosition());
+    Assert.AreEqual(ClassicProgramCodes.Pointer, cpu.Program.ReadCode(5));
+  }
+
+  [TestMethod]
+  public void SeekPointer_PastTrailingZeros_DoesNotDestroyProgram()
+  {
+    ClassicCpu cpu = CreateCpu();
+    cpu.Reset();
+    // Insert a short body after PTR: LBL A, 1, RTN
+    cpu.State.Buffer = ClassicProgramCodes.Label;
+    cpu.Program.InsertFromBuffer();
+    cpu.State.Buffer = 11; // A
+    cpu.Program.InsertFromBuffer();
+    cpu.State.Buffer = 1;
+    cpu.Program.InsertFromBuffer();
+    cpu.State.Buffer = 24; // RTN
+    cpu.Program.InsertFromBuffer();
+
+    byte[] before = new byte[cpu.Program.MemLength];
+    for (int i = 0; i < before.Length; i++)
+    {
+      before[i] = cpu.Program.ReadCode(i);
+    }
+
+    int last = cpu.Program.LastContentIndex();
+    cpu.Program.SeekPointer(last + 40); // would have pulled zeros into the body
+    Assert.AreEqual(last, cpu.Program.PointerPosition());
+
+    int nonZeroBefore = before.Count(b => b != 0);
+    int nonZeroAfter = 0;
+    for (int i = 0; i < cpu.Program.MemLength; i++)
+    {
+      if (cpu.Program.ReadCode(i) != 0)
+      {
+        nonZeroAfter++;
+      }
+    }
+
+    Assert.AreEqual(nonZeroBefore, nonZeroAfter);
+  }
+
+  [TestMethod]
+  public void AdvancePointer_MovesMarkerForwardOneSlot()
+  {
+    ClassicCpu cpu = CreateCpu();
+    cpu.Reset();
+    Assert.AreEqual(1, cpu.Program.PointerPosition());
+    cpu.Program.AdvancePointer();
+    Assert.AreEqual(2, cpu.Program.PointerPosition());
+  }
 }

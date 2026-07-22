@@ -12,7 +12,7 @@ namespace TeoCalc.Rendering.Faceplate;
 public static class StudioMuseumKeycodes
 {
   private static readonly Regex FusedStoRcl = new(
-    @"^(STO|RCL)\s+([1-8])$",
+    @"^(STO|RCL)\s*([1-8])$",
     RegexOptions.CultureInvariant | RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
   /// <summary>

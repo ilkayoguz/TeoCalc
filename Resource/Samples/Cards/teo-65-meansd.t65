@@ -1,0 +1,104 @@
+[General]
+Format = "TeoCalc.CardText"
+SchemaVersion = "1"
+TargetCpu = "T-65"
+Profile = "T-65"
+Category = "Standard Pac"
+Title = "Mean, Standard Deviation, Standard Error"
+Description = "HP-65 Standard Pac (hpmuseum.org/software/65meansd.htm): mean, sample/population standard deviation, and standard error for one-variable data. R1=n, R2=Σx, R3=Σx²."
+Usage = "Load → RUN. RTN R/S to clear (0.00). Enter each xᵢ then A (count shown). Wrong entry: key x then E. B=mean; C=std (R/S=std'); D=std error (R/S=alt)."
+RunHint = "RUN: RTN R/S clear; xᵢ A; B mean; C / R/S std; D / R/S stderr; E undo."
+CodeEncoding = "mnemonic"
+Author = "Hewlett-Packard (HP Museum)"
+Created = "1974-01-01T00:00:00Z"
+Modified = "2026-07-22T00:00:00Z"
+
+[Label]
+A = "Σ+", "Accumulate xᵢ (show n)"
+B = "x̄", "Mean(x)"
+C = "Std Dev.", "std(x); R/S → std'(x)"
+D = "Std Err.", "std error; R/S → alt"
+E = "Σ-", "Remove erroneous xᵢ"
+
+[Code]
+0
+STO 1
+STO 2
+STO 3
+R/S
+LBL
+A
+STO
++
+2
+f-1
+9
+STO
++
+3
+RCL 1
+1
++
+STO 1
+RTN
+LBL
+B
+RCL 2
+RCL 1
+/
+RTN
+LBL
+C
+RCL 3
+RCL 2
+RCL 1
+/
+f-1
+9
+RCL 1
+*
+-
+RCL 1
+/
+f
+9
+RCL 1
+RCL 1
+1
+-
+/
+f
+9
+*
+RTN
+X<>Y
+R/S
+LBL
+D
+C
+RCL 1
+f
+9
+/
+X<>Y
+LSTX
+/
+X<>Y
+R/S
+X<>Y
+RTN
+LBL
+E
+STO
+-
+2
+f-1
+9
+STO
+-
+3
+RCL 1
+1
+-
+STO 1
+RTN

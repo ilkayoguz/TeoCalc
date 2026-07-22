@@ -193,7 +193,8 @@ public static class CalcCardPanelComponent
       }
 
       ImGui.SameLine();
-      if (ImGui.Button("Browse…"))
+      ImGui.PushFont(CalcFaceplateFonts.Arial);
+      if (ImGui.Button("Browse\u2026"))
       {
         string? initialDir = Path.GetDirectoryName(pathBuffer.Trim());
         if (string.IsNullOrWhiteSpace(initialDir) || !Directory.Exists(initialDir))
@@ -208,6 +209,8 @@ public static class CalcCardPanelComponent
           statusMessage = $"Selected: {Path.GetFileName(picked)}";
         }
       }
+
+      ImGui.PopFont();
 
       ImGui.SameLine();
       if (ImGui.Button("Export"))

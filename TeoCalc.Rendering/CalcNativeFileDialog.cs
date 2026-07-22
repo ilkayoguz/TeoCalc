@@ -26,6 +26,18 @@ public static class CalcNativeFileDialog
     out string path) =>
     TryPick(initialDirectory, save: true, suggestedFileName, format, out path);
 
+  /// <summary>Windows folder picker (IFileOpenDialog + FOS_PICKFOLDERS).</summary>
+  public static bool TryPickFolder(string? initialDirectory, out string path)
+  {
+    path = string.Empty;
+    if (!OperatingSystem.IsWindows())
+    {
+      return false;
+    }
+
+    return WindowsPickFolder(initialDirectory, out path);
+  }
+
   private static bool TryPick(
     string? initialDirectory,
     bool save,
@@ -43,6 +55,88 @@ public static class CalcNativeFileDialog
       ? WindowsSave(initialDirectory, suggestedFileName, exportFormat, out path)
       : WindowsOpen(initialDirectory, out path);
   }
+
+  private static bool WindowsPickFolder(string? initialDirectory, out string path)
+  {
+    path = string.Empty;
+    nint title = Marshal.StringToCoTaskMemUni("Choose cards folder");
+    nint display = Marshal.AllocCoTaskMem(260 * 2);
+    try
+    {
+      BrowseInfo bi = new()
+      {
+        HwndOwner = 0,
+        PidlRoot = 0,
+        DisplayName = display,
+        Title = title,
+        Flags = BifReturnOnlyFsDirs | BifNewDialogStyle,
+        Callback = 0,
+        LParam = 0,
+        Image = 0,
+      };
+
+      nint pidl = SHBrowseForFolderW(ref bi);
+      if (pidl == 0)
+      {
+        return false;
+      }
+
+      try
+      {
+        nint pathBuf = Marshal.AllocCoTaskMem(260 * 2);
+        try
+        {
+          if (!SHGetPathFromIDListW(pidl, pathBuf))
+          {
+            return false;
+          }
+
+          path = Marshal.PtrToStringUni(pathBuf) ?? string.Empty;
+          return path.Length > 0 && Directory.Exists(path);
+        }
+        finally
+        {
+          Marshal.FreeCoTaskMem(pathBuf);
+        }
+      }
+      finally
+      {
+        CoTaskMemFree(pidl);
+      }
+    }
+    finally
+    {
+      Marshal.FreeCoTaskMem(title);
+      Marshal.FreeCoTaskMem(display);
+    }
+  }
+
+  private const int BifReturnOnlyFsDirs = 0x0001;
+  private const int BifNewDialogStyle = 0x0040;
+
+  [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+  private struct BrowseInfo
+  {
+    public nint HwndOwner;
+    public nint PidlRoot;
+    public nint DisplayName;
+    public nint Title;
+    public int Flags;
+    public nint Callback;
+    public nint LParam;
+    public int Image;
+  }
+
+#pragma warning disable SYSLIB1054
+  [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
+  private static extern nint SHBrowseForFolderW(ref BrowseInfo lpbi);
+
+  [DllImport("shell32.dll", CharSet = CharSet.Unicode)]
+  private static extern bool SHGetPathFromIDListW(nint pidl, nint pszPath);
+
+  [DllImport("ole32.dll")]
+  private static extern void CoTaskMemFree(nint pv);
+#pragma warning restore SYSLIB1054
 
   private static bool WindowsOpen(string? initialDirectory, out string path)
   {

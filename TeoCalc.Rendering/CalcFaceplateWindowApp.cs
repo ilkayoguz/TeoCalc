@@ -245,6 +245,8 @@ public sealed class CalcFaceplateHost : IDisposable
     _disposed = true;
     _closeRequested = true;
     _session.Dispose();
+    CalcFaceplatePointer.UnbindMouseWheelSource();
+    CalcImGuiTouchInput.Detach();
     _controller = null;
     _input = null;
     _gl = null;
@@ -288,6 +290,8 @@ public sealed class CalcFaceplateHost : IDisposable
       _controller = null;
     }
 
+    CalcFaceplatePointer.UnbindMouseWheelSource();
+    CalcImGuiTouchInput.Detach();
     _input?.Dispose();
     _input = null;
 
@@ -312,7 +316,9 @@ public sealed class CalcFaceplateHost : IDisposable
       {
         _gl = _window.CreateOpenGL();
         _input = _window.CreateInput();
+        CalcFaceplatePointer.BindMouseWheelSource(_input);
         _controller = new ImGuiController(_gl, _window, _input, onConfigureIO: CalcFaceplateFonts.Configure);
+        CalcImGuiTouchInput.Attach(_window.Handle);
         CalcFramelessShell.ApplyRoundedCorners(_window.Handle);
         // Shared GL context: launcher already owns SVG textures — do not rebind/dispose them here.
         _loaded = true;
@@ -333,6 +339,8 @@ public sealed class CalcFaceplateHost : IDisposable
       MonitorPrinterOutput();
       _window.MakeCurrent();
       _controller?.Update(delta);
+      CalcFaceplatePointer.CaptureFrameMouseWheel();
+      CalcImGuiTouchInput.ApplyAfterImGuiUpdate();
     };
 
     _window.Render += _ =>
@@ -372,7 +380,7 @@ public sealed class CalcFaceplateHost : IDisposable
         System.Numerics.Vector2 display = ImGui.GetIO().DisplaySize;
         DrawUnifiedChrome(ImGui.GetWindowDrawList(), display);
 
-        (bool hasCardSlot, bool hasPrinter) = ResolveCapabilityIcons();
+        (bool _, bool hasPrinter) = ResolveCapabilityIcons();
         CalcWindowTitlePanelComponent.TitleAction titleAction =
           CalcWindowTitlePanelComponent.Draw(
             _fittedToWorkArea,
@@ -380,9 +388,9 @@ public sealed class CalcFaceplateHost : IDisposable
             TopBandHeight,
             display.X - BeadInset,
             BeadInset,
-            hasCardSlot,
+            hasCardSlot: false,
             hasPrinter,
-            _sidePanelMode == CalcCapabilitySidePanelMode.Card,
+            cardPanelOpen: false,
             _sidePanelMode == CalcCapabilitySidePanelMode.Printer,
             hasDebug: true,
             debugPanelOpen: _sidePanelMode == CalcCapabilitySidePanelMode.Debug,
@@ -540,11 +548,7 @@ public sealed class CalcFaceplateHost : IDisposable
         RequestClose();
         break;
       case CalcWindowTitlePanelComponent.TitleAction.OpenCard:
-        if (ResolveCapabilityIcons().HasCardSlot)
-        {
-          ToggleSidePanel(CalcCapabilitySidePanelMode.Card);
-        }
-
+        ToggleSidePanel(CalcCapabilitySidePanelMode.Studio);
         break;
       case CalcWindowTitlePanelComponent.TitleAction.OpenPrinter:
         if (ResolveCapabilityIcons().HasPrinter)
@@ -575,6 +579,11 @@ public sealed class CalcFaceplateHost : IDisposable
 
   private void SetSidePanel(CalcCapabilitySidePanelMode mode)
   {
+    if (mode == CalcCapabilitySidePanelMode.Card)
+    {
+      mode = CalcCapabilitySidePanelMode.Studio;
+    }
+
     if (_sidePanelMode == mode)
     {
       return;
@@ -671,10 +680,25 @@ public sealed class CalcFaceplateHost : IDisposable
   {
     ImGui.SetCursorPos(new System.Numerics.Vector2(BandSide + 10f, BandTop + 10f));
     ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, new System.Numerics.Vector2(8f, 8f));
+    // Studio pins Lines/Data footer — outer side-panel scroll would hide R1–R9.
+    ImGuiWindowFlags sideFlags = _sidePanelMode == CalcCapabilitySidePanelMode.Studio
+      || _sidePanelMode == CalcCapabilitySidePanelMode.Card
+      ? ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse
+      : ImGuiWindowFlags.None;
     ImGui.BeginChild(
       "##cap-side-panel",
       new System.Numerics.Vector2(MathF.Max(1f, SidePanelWidthPx - 20f), MathF.Max(1f, contentHeight - 20f)),
-      ImGuiChildFlags.None);
+      ImGuiChildFlags.None,
+      sideFlags);
+    if (ImGui.IsWindowHovered(
+          ImGuiHoveredFlags.AllowWhenBlockedByActiveItem
+          | ImGuiHoveredFlags.AllowWhenBlockedByPopup
+          | ImGuiHoveredFlags.ChildWindows))
+    {
+      // Side panel (Studio code/FC, Debug, …) owns wheel + drag-to-scroll.
+      CalcFaceplatePointer.MarkScrollableUiHovered();
+    }
+
     CalcCapabilitySidePanelComponent.DrawContent(
       _sidePanelMode,
       _session,
@@ -721,14 +745,14 @@ public sealed class CalcFaceplateHost : IDisposable
   {
     System.Numerics.Vector2 display = ImGui.GetIO().DisplaySize;
     System.Numerics.Vector2 mouse = ImGui.GetIO().MousePos;
-    (bool hasCardSlot, bool hasPrinter) = ResolveCapabilityIcons();
+    (bool _, bool hasPrinter) = ResolveCapabilityIcons();
     bool overButtons = CalcWindowTitlePanelComponent.IsOverButtons(
       mouse,
       BeadInset,
       TopBandHeight,
       display.X - BeadInset,
       BeadInset,
-      hasCardSlot,
+      hasCardSlot: false,
       hasPrinter,
       hasDebug: true,
       hasStudio: true);
@@ -775,8 +799,22 @@ public sealed class CalcFaceplateHost : IDisposable
       return;
     }
 
-    // Keys and switches keep their own hand cursor and consume their own clicks.
-    bool canStartDrag = onTitleStrip || !CalcFaceplatePointer.IsOverInteractive;
+    // Keys/switches and scrollable Studio/side-panel children keep their own input.
+    // Background chassis (not title strip) may still drag the frameless host.
+    // Geometric side-panel check covers touch taps where ImGui hover is stale.
+    bool overSidePanel = SidePanelWidthPx > 0f
+      && mouse.X >= BandSide
+      && mouse.X < BandSide + SidePanelWidthPx
+      && mouse.Y >= BandTop
+      && mouse.Y < BandTop + MathF.Max(1f, display.Y - BandTop - LogoBandHeight - BeadInset);
+    if (overSidePanel)
+    {
+      CalcFaceplatePointer.MarkScrollableUiHovered();
+    }
+
+    bool canStartDrag = onTitleStrip
+      || (!CalcFaceplatePointer.IsOverInteractive
+          && !CalcFaceplatePointer.IsOverScrollableUi);
     if (!canStartDrag)
     {
       return;

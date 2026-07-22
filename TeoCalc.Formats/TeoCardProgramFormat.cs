@@ -157,6 +157,9 @@ public static class TeoCardProgramFormat
       steps.Add(mnemonic);
     }
 
+    // Import may have injected A–E LBL/RTN fall-through stubs; authoring export stays sparse.
+    ClassicCardStripLabels.RemoveEmptyStripLabelStubs(steps);
+
     List<double> registers = [];
     int registerCount = Math.Max(ClassicCardSnapshot.DefaultRegisterCount, snapshot.Registers.Count);
     for (int i = 0; i < registerCount; i++)

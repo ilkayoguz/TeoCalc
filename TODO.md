@@ -46,7 +46,7 @@ Make programs inspectable and steppable — core emulator workflow. **Foundation
 
 ## P2 — Composite Dev Studio (epic)
 
-**Vision:** One Visual Studio–like composite surface — not scattered micro-panels. Bidirectional **Code ↔ Flowchart (FC)** (edit either, stay in sync). Layout: **`[Machine | Mnemonic | Flowchart]`** three columns (dual encodings row-aligned; FC is column 3). Stacked (code top / FC bottom) only as a narrow-panel fallback. Same chrome hosts debug transport, DUMP, regs, and optional **realtime ROM step** watch. **Global execution speed** (up/down) lives high in UI (title bar / transport), not buried in debug-only.
+**Vision:** One Visual Studio–like composite surface — not scattered micro-panels. Bidirectional **Code ↔ Flowchart (FC)** (edit either, stay in sync). Layout: **`[Machine | Mnemonic | Flowchart]`** three columns (dual encodings row-aligned; FC is column 3). Stacked (code top / FC bottom) only as a narrow-panel fallback. **Studio chrome:** toolbar **above** the code grid — card I/O left, debug transport right; separate Debug panel = **monitoring** (ROM watch, regs). **Global execution speed** (up/down) lives high in UI (title bar / transport), not buried in debug-only.
 
 This is large — ship in **staged MVPs**. Do not jump to editable FC or global speed before sync + layout exist.
 
@@ -62,17 +62,23 @@ Shared program model so editor listing and any future FC share one source of tru
    - Why: Daily edit loop; dual encoding + clipboard are baseline for card work (feeds listing sync).
    - [x] Studio side panel (`{ }` title icon): **both** encodings at once (Machine | Mnemonic grid, faceplate token colors on light code bg); Copy dual TSV / Paste auto; FC placeholder as **column 3**.
    - Explorer Program column wired to the same dual listing/clipboard toolbar (no FC).
+   - [x] PC vs selection: live PTR/step = ▶ in `#` only (no full-row yellow); click/keyboard selection = soft blue-gray row highlight.
+   - [ ] Double-click listing row → GTO / jump (set Classic PTR) and optionally run from that step. Useful for debug; needs a safe program-pointer API (not just UI).
 
 ### Stage B — Side-by-side read-only FC (MVP1)
 
 Layout shell + flowchart as **visualization** of the listing (not yet editable). **Column 3 slot already reserved in MVP0** (`[Machine | Mnemonic | Flowchart]`); MVP1 fills that pane with real nodes (not a separate side-by-side shell decision).
 
+**Chrome consolidation (agreed):** Prefer a **toolbar ABOVE the code grid** (VS-like): card I/O (Open/Save/Export) on the **left**, debug transport (Break / Continue / Step / DUMP) on the **right**. Keep the separate Debug side panel as **monitoring** (ROM watch, registers) — not the home for transport buttons. Stage under item 10 / 18; not implemented yet.
+
 10. **Composite chrome shell**
     - Why: One place for editor + FC + debug buttons, DUMP, compact regs — VS-like, not floating scraps.
     - Layout: Machine | Mnemonic | FC (column 3); stacked alternative only if width collapses; title-bar / global strip reserved for transport + speed (later).
+    - [ ] Studio top toolbar: card I/O left + debug transport right (above grid); Debug panel stays monitoring-only.
 11. **Flowchart pane (read-only)**
     - Why: See control flow next to code without leaving the composite screen.
     - Sync: selecting a listing line highlights FC node (and reverse selection → listing); PC highlight while stepping.
+    - [x] Classic flowchart symbols (START / PROCESS / DECISION / END) per LBL routine; cross-LBL GTO/GSB arrows; ImGui drawlist (no node-editor lib); selection + PTR sync (`StudioFlowchartGraph` / `StudioFlowchartView`).
 12. **Optional ROM live pane**
     - Why: When opened, follow overall ROM fetch live (extends P1 Follow ROM); not a permanent micro-panel — dockable in composite.
 

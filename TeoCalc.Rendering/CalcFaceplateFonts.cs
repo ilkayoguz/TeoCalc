@@ -43,7 +43,13 @@ public static class CalcFaceplateFonts
     {
       if (!_glyphRangeHandle.IsAllocated)
       {
-        ushort[] ranges = [0x0020, 0x00FF, 0x03C0, 0x03C0, 0];
+        ushort[] ranges =
+        [
+          0x0020, 0x00FF, // Basic Latin + Latin-1
+          0x03C0, 0x03C0, // π
+          0x2026, 0x2026, // …
+          0,
+        ];
         _glyphRangeHandle = GCHandle.Alloc(ranges, GCHandleType.Pinned);
       }
 
@@ -276,6 +282,13 @@ public static class CalcFaceplateFonts
   /// <summary>Tight painted bounds of LED-font text relative to the draw origin (top-left pen).</summary>
   public static FontInkBounds MeasureLedInk(string text, float size) =>
     MeasureInkBounds(LedDisplay, size, IsLedDisplayReady, text);
+
+  /// <summary>
+  /// Glyph ink bounds for any loaded ImGui font (ascent/descent via glyph Y0/Y1), relative to
+  /// <see cref="ImDrawListPtr.AddText(ImFontPtr, float, Vector2, uint, string)"/> origin.
+  /// </summary>
+  public static FontInkBounds MeasureFontInk(ImFontPtr font, float size, string text) =>
+    MeasureInkBounds(font, size, ready: true, text);
 
   public static Vector2 ArialBoldTopLeftForBandCenter(Vector2 bandCenter, string text, float size) =>
     ArialBoldTopLeftForBandCenter(bandCenter, text, size, verticalBiasRatio: 0f);

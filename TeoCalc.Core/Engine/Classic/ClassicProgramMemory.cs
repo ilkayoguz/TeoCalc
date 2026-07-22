@@ -84,6 +84,21 @@ public sealed class ClassicProgramMemory
     return index == MemLength ? 1 : index;
   }
 
+  /// <summary>
+  /// Last RAM index that still holds a non-zero program byte (or the pointer marker).
+  /// Trailing zeros are empty capacity — seeking into them would shift zeros into the program.
+  /// </summary>
+  public int LastContentIndex()
+  {
+    int last = MemLength - 1;
+    while (last > 1 && ReadCode(last) == 0)
+    {
+      last--;
+    }
+
+    return Math.Max(1, last);
+  }
+
   public int LabelPosition(int startIndex, int labelDigit)
   {
     int index = startIndex;
@@ -209,6 +224,41 @@ public sealed class ClassicProgramMemory
       InsertAt(1, currentCode);
     }
 
+    Cleanup(7);
+  }
+
+  /// <summary>Move the Classic PTR marker to <paramref name="targetIndex"/> (program start / SST point).</summary>
+  public void SeekPointer(int targetIndex)
+  {
+    int last = LastContentIndex();
+    if (targetIndex < 1 || targetIndex > last)
+    {
+      targetIndex = Math.Clamp(targetIndex, 1, last);
+    }
+
+    int pointer = PointerPosition();
+    if (pointer == targetIndex)
+    {
+      return;
+    }
+
+    byte marker = ReadCode(pointer);
+    if (targetIndex > pointer)
+    {
+      for (int i = pointer; i < targetIndex; i++)
+      {
+        WriteCode(i, ReadCode(i + 1));
+      }
+    }
+    else
+    {
+      for (int i = pointer; i > targetIndex; i--)
+      {
+        WriteCode(i, ReadCode(i - 1));
+      }
+    }
+
+    WriteCode(targetIndex, marker);
     Cleanup(7);
   }
 

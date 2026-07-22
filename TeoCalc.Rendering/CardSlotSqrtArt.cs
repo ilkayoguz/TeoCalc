@@ -24,6 +24,10 @@ public static class CardSlotSqrtArt
   public static float MeasureWidth(float xHeight) =>
     xHeight * 1.22f + 1f;
 
+  /// <summary>Narrow width for radical-only (no vinculum / overline bar).</summary>
+  public static float MeasureHookWidth(float xHeight) =>
+    xHeight * 0.72f + 1f;
+
   public static float VinculumWidth(float xHeight)
   {
     float radicalW = MeasureWidth(xHeight);
@@ -47,10 +51,24 @@ public static class CardSlotSqrtArt
     float xTop,
     float xHeight,
     float scale,
-    uint color)
+    uint color) =>
+    Draw(draw, x, xTop, xHeight, scale, color, withVinculum: true);
+
+  /// <summary>
+  /// Draw the radical check/hook. When <paramref name="withVinculum"/> is false,
+  /// omit the upper bar (used for algebraic <c>√R1</c> where R1 sits beside the mark).
+  /// </summary>
+  public static float Draw(
+    ImDrawListPtr draw,
+    float x,
+    float xTop,
+    float xHeight,
+    float scale,
+    uint color,
+    bool withVinculum)
   {
     float xBottom = xTop + xHeight;
-    float radicalW = MeasureWidth(xHeight);
+    float radicalW = withVinculum ? MeasureWidth(xHeight) : MeasureHookWidth(xHeight);
     float radicalH = MathF.Max(1f, (xHeight * 1.28f - 2f) * 0.5f) + 2f;
     float bottom = xBottom + xHeight * 0.02f;
     float anchorFrac = (ViewBottomY - ViewBoxMinY) / ViewHeight;
@@ -59,7 +77,7 @@ public static class CardSlotSqrtArt
     float drawRadicalH = radicalH + radicalHeightExtra;
     float thickness = MathF.Max(1.5f, SvgStrokeWidth / ViewHeight * drawRadicalH * MathF.Max(1f, scale * 0.95f));
 
-    DrawRadicalPath(draw, x + 2f, top, radicalW, drawRadicalH, thickness, color);
+    DrawRadicalPath(draw, x + 2f, top, radicalW, drawRadicalH, thickness, color, withVinculum);
     return radicalW;
   }
 
@@ -70,21 +88,34 @@ public static class CardSlotSqrtArt
     float width,
     float height,
     float thickness,
-    uint color)
+    uint color,
+    bool withVinculum)
   {
-    float MapX(float svgX) => left + (svgX - ViewBoxMinX) / ViewWidth * width;
+    float MapViewW = withVinculum ? ViewWidth : 12.5f;
+    float MapX(float svgX) => left + (svgX - ViewBoxMinX) / MapViewW * width;
     float MapY(float svgY) => top + (svgY - ViewBoxMinY) / ViewHeight * height;
 
+    // Shared check / hook from sqrt-radical.svg (up to the peak).
     draw.PathClear();
     draw.PathLineTo(M(MapX, MapY, 3f, 12f));
     draw.PathLineTo(M(MapX, MapY, 4.31f, 12f));
     AppendSvgArc(draw, MapX, MapY, 4.31f, 12f, 1f, 1f, 0.93f, 0.65f, sweep: true);
     draw.PathLineTo(M(MapX, MapY, 8f, 20f));
     draw.PathLineTo(M(MapX, MapY, 10.85f, 4.82f));
-    AppendSvgArc(draw, MapX, MapY, 10.85f, 4.82f, 1f, 1f, 1f, -0.82f, sweep: true);
-    draw.PathLineTo(M(MapX, MapY, 30.5f, 4f));
-    AppendSvgArc(draw, MapX, MapY, 30.5f, 4f, 1f, 1f, 1f, 0.82f, sweep: true);
-    draw.PathLineTo(M(MapX, MapY, 32.49f, 7.22f));
+    if (withVinculum)
+    {
+      // CapAbove √x — short ear + vinculum over the following x.
+      AppendSvgArc(draw, MapX, MapY, 10.85f, 4.82f, 1f, 1f, 1f, -0.82f, sweep: true);
+      draw.PathLineTo(M(MapX, MapY, 30.5f, 4f));
+      AppendSvgArc(draw, MapX, MapY, 30.5f, 4f, 1f, 1f, 1f, 0.82f, sweep: true);
+      draw.PathLineTo(M(MapX, MapY, 32.49f, 7.22f));
+    }
+    else
+    {
+      // Algebraic √R1 — stop at the peak; no floating overline beside R1.
+      AppendSvgArc(draw, MapX, MapY, 10.85f, 4.82f, 1f, 1f, 0.55f, -0.35f, sweep: true);
+    }
+
     draw.PathStroke(color, ImDrawFlags.None, thickness);
   }
 

@@ -1,5 +1,6 @@
 using System.Numerics;
 using ImGuiNET;
+using TeoCalc.Formats;
 
 namespace TeoCalc.Rendering.Faceplate;
 
@@ -22,8 +23,17 @@ public static class StudioMnemonicPaint
   /// <summary>Default ink on dark code background (non-keycap UI).</summary>
   public const uint DefaultInk = 0xFFE8E6E2u;
 
-  /// <summary>Soft pointer / PC row highlight on dark background.</summary>
-  public const uint PointerRowBg = 0x6628A0FFu;
+  /// <summary>Live program step / PTR marker (▶ in # column) — amber, not a row wash.</summary>
+  public const uint PointerMarkerInk = 0xFF3AD4FFu;
+
+  /// <summary>Selected listing row (cursor / click) — soft cool blue-gray, distinct from PC arrow.</summary>
+  public const uint SelectionRowBg = 0x50786848u;
+
+  /// <summary>Selected row hover.</summary>
+  public const uint SelectionRowHoveredBg = 0x62887858u;
+
+  /// <summary>Selected row active / pressed.</summary>
+  public const uint SelectionRowActiveBg = 0x74988868u;
 
   public const uint KeycapBezel = 0xFF141618u;
 
@@ -32,6 +42,12 @@ public static class StudioMnemonicPaint
 
   /// <summary>Gap between paired listing keycaps (ref units).</summary>
   public const float KeycapGapRef = 4f;
+
+  /// <summary>
+  /// Vertical pad inside listing keycaps (ref units × <see cref="StudioListingScale"/>).
+  /// Slightly above the old 2 px-ref so descenders clear the bezel after ink centering.
+  /// </summary>
+  public const float KeycapPadYRef = 3.25f;
 
   public static void PushListingScale() => ImGui.SetWindowFontScale(StudioListingScale);
 
@@ -67,11 +83,40 @@ public static class StudioMnemonicPaint
     return tokenCount * KeycapWidthRef + Math.Max(0, tokenCount - 1) * KeycapGapRef;
   }
 
+  /// <summary>
+  /// Listing row / keycap content height under the current font + <see cref="StudioListingScale"/>.
+  /// Uses typographic ascent−descent (em-box), not glyph ink.
+  /// </summary>
+  public static float ListingRowContentHeight()
+  {
+    float s = StudioListingScale;
+    return TypographicEmHeight() + KeycapPadYRef * s * 2f;
+  }
+
+  /// <summary>Scaled em-box height from font ascent/descent (fallback: text line height).</summary>
+  public static float TypographicEmHeight()
+  {
+    ImFontPtr font = ImGui.GetFont();
+    float fontSize = ImGui.GetFontSize();
+    float ascent = font.Ascent;
+    float descent = font.Descent;
+    float baseSize = font.FontSize;
+    if (baseSize > 0.01f && (ascent - descent) > 0.01f)
+    {
+      return (ascent - descent) * (fontSize / baseSize);
+    }
+
+    return MathF.Max(fontSize, ImGui.GetTextLineHeight());
+  }
+
   public static uint ColorForToken(string token)
   {
     ChromeForToken(token, null, out _, out uint ink);
     return ink;
   }
+
+  public static void ChromeForLabelKey(out uint face, out uint ink) =>
+    ApplyStyle(CalcButtonStyle.Black, out face, out ink);
 
   public static void ChromeForToken(string token, string? modelId, out uint face, out uint ink)
   {
@@ -85,6 +130,13 @@ public static class StudioMnemonicPaint
     string t = token.Trim();
     if (t.Length == 0)
     {
+      return;
+    }
+
+    // A–E strip label keys: fixed black cap, white ink (never faceplate style overrides).
+    if (ClassicCardStripLabels.TryGetStripColumn(t, out _))
+    {
+      ChromeForLabelKey(out face, out ink);
       return;
     }
 
@@ -140,7 +192,8 @@ public static class StudioMnemonicPaint
     string mnemonic,
     string? modelId,
     string? previousMnemonic = null,
-    float align = 0f)
+    float align = 0f,
+    StudioListingView.MergeKind? rowKind = null)
   {
     _ = previousMnemonic;
     if (string.IsNullOrEmpty(mnemonic))
@@ -175,17 +228,93 @@ public static class StudioMnemonicPaint
         ImGui.SetCursorPos(new Vector2(startX, y));
       }
 
-      ChromeForToken(token, modelId, out uint face, out uint ink);
-      DrawKeycap(token, face, ink);
+      if (IsLabelTargetKeycap(token, i, tokens, rowKind))
+      {
+        ChromeForLabelKey(out uint face, out uint ink);
+        DrawKeycap(token, face, ink);
+      }
+      else
+      {
+        ChromeForToken(token, modelId, out uint face, out uint ink);
+        DrawKeycap(token, face, ink);
+      }
+
       wrote = true;
     }
+  }
+
+  /// <summary>
+  /// Faceplate label keys (A–E, numeric LBL/GTO/GSB targets): black cap, white ink.
+  /// </summary>
+  private static bool IsLabelTargetKeycap(
+    string token,
+    int index,
+    IReadOnlyList<string> tokens,
+    StudioListingView.MergeKind? rowKind)
+  {
+    if (!ClassicCardStripLabels.IsFaceplateLabelKey(token))
+    {
+      return false;
+    }
+
+    if (ClassicCardStripLabels.TryGetStripColumn(token, out _))
+    {
+      return true;
+    }
+
+    if (rowKind == StudioListingView.MergeKind.LabelPair)
+    {
+      return true;
+    }
+
+    if (index > 0)
+    {
+      string prev = tokens[index - 1];
+      if (string.Equals(prev, "LBL", StringComparison.OrdinalIgnoreCase)
+          || string.Equals(prev, "GTO", StringComparison.OrdinalIgnoreCase)
+          || string.Equals(prev, "GSB", StringComparison.OrdinalIgnoreCase))
+      {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /// <summary>
+  /// CapAbove / CapSkirt listing font size (larger than keycap face for readability).
+  /// </summary>
+  public static float LegendFontSize() => MathF.Max(14f, ImGui.GetFontSize() * 1.28f);
+
+  /// <summary>Draw scale for <see cref="ClassicFaceplateGlyphs.DrawBodyLabel"/> in Studio chrome.</summary>
+  public static float LegendDrawScale() => MathF.Max(1f, StudioListingScale);
+
+  /// <summary>
+  /// Legend string ready for <see cref="ClassicFaceplateGlyphs"/> — ASCII fallback only when
+  /// neither Arial Latin-1/π nor known vector patterns can paint a leftover codepoint.
+  /// </summary>
+  public static string PrepareDrawableLegend(string legend)
+  {
+    if (string.IsNullOrEmpty(legend))
+    {
+      return legend;
+    }
+
+    if (!IsAllDrawableFaceplateLegend(legend) && !StudioShiftLegend.IsAllAscii(legend))
+    {
+      return StudioShiftLegend.ToAsciiLegend(legend);
+    }
+
+    return legend;
   }
 
   /// <summary>
   /// Content width for a Legend cell (same measure path as <see cref="DrawLegend"/>).
   /// Call under <see cref="PushListingScale"/>.
   /// </summary>
-  public static float MeasureLegendContentWidth(string legend)
+  public static float MeasureLegendContentWidth(
+    string legend,
+    StudioShiftLegend.ShiftKind kind = StudioShiftLegend.ShiftKind.None)
   {
     if (string.IsNullOrEmpty(legend))
     {
@@ -193,21 +322,23 @@ public static class StudioMnemonicPaint
     }
 
     float s = StudioListingScale;
-    float fontSize = MathF.Max(14f, ImGui.GetFontSize() * 1.28f);
-    string drawText = legend;
+    float fontSize = LegendFontSize();
+    string drawText = PrepareDrawableLegend(legend);
     ClassicFaceplateGlyphs.LabelSize size = ClassicFaceplateGlyphs.MeasureBodyLabel(drawText, fontSize);
-    if (!IsAllDrawableFaceplateLegend(legend) && !StudioShiftLegend.IsAllAscii(legend))
+
+    float textW = MathF.Max(4f * s, size.Width);
+    if (kind == StudioShiftLegend.ShiftKind.CardStrip)
     {
-      drawText = StudioShiftLegend.ToAsciiLegend(legend);
-      size = ClassicFaceplateGlyphs.MeasureBodyLabel(drawText, fontSize);
+      return textW + CardStripChipPadX(s) * 2f;
     }
 
-    return MathF.Max(4f * s, size.Width);
+    return textW;
   }
 
   /// <summary>
   /// Shift/function legend in its own table column — same CapAbove glyph path as the faceplate
   /// (<see cref="ClassicFaceplateGlyphs.DrawBodyLabel"/>), not ImGui default-font text.
+  /// Mag-card captions use near-black chip + white text; no-card built-ins use white strip ink only.
   /// </summary>
   public static void DrawLegend(string legend, StudioShiftLegend.ShiftKind kind, float align = 0.5f)
   {
@@ -217,28 +348,27 @@ public static class StudioMnemonicPaint
       return;
     }
 
+    float s = StudioListingScale;
+    float fontSize = LegendFontSize();
+    float scale = LegendDrawScale();
+    string drawText = PrepareDrawableLegend(legend);
+    ClassicFaceplateGlyphs.LabelSize size = ClassicFaceplateGlyphs.MeasureBodyLabel(drawText, fontSize);
+
+    if (kind == StudioShiftLegend.ShiftKind.CardStrip)
+    {
+      DrawCardStripCaptionChip(drawText, size, fontSize, scale, s, align);
+      return;
+    }
+
     uint legendColor = kind switch
     {
       StudioShiftLegend.ShiftKind.Blue => CalcChassisPalette.BlueLabel,
       StudioShiftLegend.ShiftKind.GoldInverse => CalcChassisPalette.GoldLabel,
       StudioShiftLegend.ShiftKind.Black => CalcChassisPalette.KeyCapDarkText,
       StudioShiftLegend.ShiftKind.Gold => CalcChassisPalette.GoldLabel,
+      StudioShiftLegend.ShiftKind.NoCardStrip => CalcCardSlotComponent.LabelInk,
       _ => DefaultInk,
     };
-
-    float s = StudioListingScale;
-    // CapAbove / CapSkirt glyphs must read clearly in the listing (larger than keycap face).
-    float fontSize = MathF.Max(14f, ImGui.GetFontSize() * 1.28f);
-    float scale = MathF.Max(1f, s);
-    ClassicFaceplateGlyphs.LabelSize size = ClassicFaceplateGlyphs.MeasureBodyLabel(legend, fontSize);
-    // Vector glyphs always available for faceplate patterns; Arial atlas covers Latin-1 + π.
-    // Fall back to ASCII only when neither path can paint a non-ASCII leftover.
-    string drawText = legend;
-    if (!IsAllDrawableFaceplateLegend(legend) && !StudioShiftLegend.IsAllAscii(legend))
-    {
-      drawText = StudioShiftLegend.ToAsciiLegend(legend);
-      size = ClassicFaceplateGlyphs.MeasureBodyLabel(drawText, fontSize);
-    }
 
     float contentW = MathF.Max(4f * s, size.Width);
     AlignCursorForContent(contentW, align);
@@ -254,6 +384,81 @@ public static class StudioMnemonicPaint
       legendColor,
       scale);
     ImGui.Dummy(new Vector2(contentW, h));
+  }
+
+  /// <summary>
+  /// Draw a CapAbove / CapSkirt legend string at an absolute screen position
+  /// (flowchart symbols, overlays) — not ImGui default-font <c>AddText</c>.
+  /// </summary>
+  public static void DrawDrawableLegendAt(
+    ImDrawListPtr draw,
+    Vector2 topLeft,
+    string legend,
+    uint color)
+  {
+    if (string.IsNullOrEmpty(legend))
+    {
+      return;
+    }
+
+    string drawText = PrepareDrawableLegend(legend);
+    ClassicFaceplateGlyphs.DrawBodyLabel(
+      draw,
+      topLeft,
+      drawText,
+      LegendFontSize(),
+      color,
+      LegendDrawScale());
+  }
+
+  /// <summary>Measure one drawable legend line (after <see cref="PrepareDrawableLegend"/>).</summary>
+  public static ClassicFaceplateGlyphs.LabelSize MeasureDrawableLegend(string legend)
+  {
+    string drawText = PrepareDrawableLegend(legend ?? string.Empty);
+    return ClassicFaceplateGlyphs.MeasureBodyLabel(drawText, LegendFontSize());
+  }
+
+  private static float CardStripChipPadX(float listingScale) => MathF.Max(3f, 4f * listingScale);
+
+  private static float CardStripChipPadY(float listingScale) => MathF.Max(1f, 2f * listingScale);
+
+  /// <summary>
+  /// Mag-card strip look: near-black rounded chip + white caption (same fill/ink as inserted card).
+  /// </summary>
+  private static void DrawCardStripCaptionChip(
+    string drawText,
+    ClassicFaceplateGlyphs.LabelSize size,
+    float fontSize,
+    float scale,
+    float listingScale,
+    float align)
+  {
+    float padX = CardStripChipPadX(listingScale);
+    float padY = CardStripChipPadY(listingScale);
+    float textW = MathF.Max(4f * listingScale, size.Width);
+    float chipW = textW + padX * 2f;
+    float lineH = ImGui.GetTextLineHeight();
+    float chipH = MathF.Max(lineH, size.Height + padY * 2f);
+    float radius = MathF.Max(1f, 2f * listingScale);
+
+    AlignCursorForContent(chipW, align);
+    Vector2 p0 = ImGui.GetCursorScreenPos();
+    ImDrawListPtr draw = ImGui.GetWindowDrawList();
+    draw.AddRectFilled(
+      p0,
+      new Vector2(p0.X + chipW, p0.Y + chipH),
+      CalcCardSlotComponent.CaptionChipFill,
+      radius);
+    float textX = p0.X + (chipW - size.Width) * 0.5f;
+    float textY = p0.Y + MathF.Max(0f, (chipH - size.Height) * 0.5f);
+    ClassicFaceplateGlyphs.DrawBodyLabel(
+      draw,
+      new Vector2(textX, textY),
+      drawText,
+      fontSize,
+      CalcCardSlotComponent.LabelInk,
+      scale);
+    ImGui.Dummy(new Vector2(chipW, chipH));
   }
 
   /// <summary>
@@ -344,23 +549,95 @@ public static class StudioMnemonicPaint
   public static void DrawKeycap(string label, uint face, uint ink)
   {
     float s = StudioListingScale;
-    Vector2 textSize = ImGui.CalcTextSize(label);
-    float padY = 2f * s;
-    // Fixed footprint so Keys column stays content-sized (pair of caps + gap).
     float w = KeycapWidthRef * s;
-    float h = MathF.Max(ImGui.GetTextLineHeight() + 2f * s, textSize.Y + padY * 2f);
+    float h = ListingRowContentHeight();
     Vector2 p0 = ImGui.GetCursorScreenPos();
+    DrawKeycapAt(ImGui.GetWindowDrawList(), p0, label, face, ink);
+    ImGui.Dummy(new Vector2(w, h));
+  }
+
+  /// <summary>
+  /// Keycap at an absolute screen position (flowchart START chrome) — no ImGui Dummy.
+  /// </summary>
+  public static void DrawKeycapAt(
+    ImDrawListPtr draw,
+    Vector2 topLeft,
+    string label,
+    uint face,
+    uint ink)
+  {
+    float s = StudioListingScale;
+    ImFontPtr font = ImGui.GetFont();
+    float fontSize = ImGui.GetFontSize();
+    float padY = KeycapPadYRef * s;
+    float w = KeycapWidthRef * s;
+    float h = ListingRowContentHeight();
+    Vector2 p0 = topLeft;
     Vector2 p1 = p0 + new Vector2(w, h);
-    ImDrawListPtr draw = ImGui.GetWindowDrawList();
     float rounding = 3f * s;
     float bezel = MathF.Max(1f, 1f * s);
     draw.AddRectFilled(p0, p1, face, rounding);
     draw.AddRect(p0, p1, KeycapBezel, rounding, ImDrawFlags.None, bezel);
-    Vector2 textPos = new(
-      p0.X + (w - textSize.X) * 0.5f,
-      p0.Y + (h - textSize.Y) * 0.5f);
-    draw.AddText(textPos, ink, label);
-    ImGui.Dummy(new Vector2(w, h));
+
+    CalcFaceplateFonts.FontInkBounds inkBounds =
+      CalcFaceplateFonts.MeasureFontInk(font, fontSize, label);
+    Vector2 textPos;
+    if (inkBounds.Height > 0.01f)
+    {
+      textPos = CalcFaceplateBandLabel.TopLeftForBandInk(p0, p1, inkBounds);
+    }
+    else
+    {
+      Vector2 textSize = font.CalcTextSizeA(fontSize, float.MaxValue, 0f, label);
+      float emH = TypographicEmHeight();
+      textPos = new(
+        p0.X + (w - textSize.X) * 0.5f,
+        p0.Y + padY + MathF.Max(0f, (emH - textSize.Y) * 0.5f));
+    }
+
+    draw.AddText(font, fontSize, textPos, ink, label);
+  }
+
+  /// <summary>
+  /// Mag-card strip chip + white legend at an absolute position (no ImGui Dummy).
+  /// </summary>
+  public static void DrawCardStripLegendAt(
+    ImDrawListPtr draw,
+    Vector2 topLeft,
+    string legend,
+    float maxWidth,
+    float rowHeight)
+  {
+    if (string.IsNullOrEmpty(legend))
+    {
+      return;
+    }
+
+    float s = StudioListingScale;
+    float fontSize = LegendFontSize();
+    float scale = LegendDrawScale();
+    string drawText = PrepareDrawableLegend(legend);
+    ClassicFaceplateGlyphs.LabelSize size = ClassicFaceplateGlyphs.MeasureBodyLabel(drawText, fontSize);
+    float padX = CardStripChipPadX(s);
+    float padY = CardStripChipPadY(s);
+    float textW = MathF.Min(MathF.Max(4f * s, size.Width), MathF.Max(4f, maxWidth - padX * 2f));
+    float chipW = MathF.Min(maxWidth, textW + padX * 2f);
+    float chipH = MathF.Max(rowHeight, size.Height + padY * 2f);
+    float radius = MathF.Max(1f, 2f * s);
+    draw.AddRectFilled(
+      topLeft,
+      new Vector2(topLeft.X + chipW, topLeft.Y + chipH),
+      CalcCardSlotComponent.CaptionChipFill,
+      radius);
+    float textX = topLeft.X + (chipW - size.Width) * 0.5f;
+    float textY = topLeft.Y + MathF.Max(0f, (chipH - size.Height) * 0.5f);
+    ClassicFaceplateGlyphs.DrawBodyLabel(
+      draw,
+      new Vector2(textX, textY),
+      drawText,
+      fontSize,
+      CalcCardSlotComponent.LabelInk,
+      scale);
   }
 
   public static List<string> Tokenize(string mnemonic)

@@ -204,6 +204,9 @@ public sealed class CalcFaceplateLayoutTests
     CollectionAssert.AreEqual(
       new[] { "1/x", "\u221ax", "y^x", "R\u2193", "x\u2194y" },
       CalcFaceplateLayout.CardSlotLabels);
+    Assert.AreSame(
+      TeoCalc.Formats.ClassicCardStripLabels.DefaultNoCardCaptions,
+      CalcFaceplateLayout.CardSlotLabels);
   }
 
   [TestMethod]

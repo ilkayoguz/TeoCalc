@@ -547,6 +547,9 @@ public static partial class T6xCardFormat
   /// <summary>
   /// Authoring files stay sparse (omit unused A–E). Classic RUN keys A–E still need a stop
   /// target so undefined columns do not fall through into the next routine.
+  /// Injected <c>LBL</c>/<c>RTN</c> stubs stay in RAM only; Studio listing / FC / export
+  /// omit them (see <c>StudioListingView.OmitEmptyStubRoutines</c> /
+  /// <c>ClassicCardStripLabels.RemoveEmptyStripLabelStubs</c>).
   /// </summary>
   private static void EnsureMissingStripLabelStubs(List<string> steps)
   {
