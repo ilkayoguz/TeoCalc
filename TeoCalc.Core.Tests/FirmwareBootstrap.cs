@@ -1,4 +1,4 @@
-using TeoCalc.Panamatik;
+using TeoCalc.ReferenceEmulator;
 
 namespace TeoCalc.Core.Tests;
 

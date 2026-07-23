@@ -1,5 +1,6 @@
 using System.Numerics;
 using ImGuiNET;
+using TeoCalc.Core.Catalog;
 using TeoCalc.Rendering;
 
 namespace TeoCalc.Rendering.Faceplate;
@@ -44,16 +45,9 @@ public static class CalcCardSlotComponent
   public static bool ModelHasCardSlot(string modelId) =>
     HeuristicHasCardSlot(modelId);
 
-  public static bool HeuristicHasCardSlot(string modelId)
-  {
-    string id = modelId.Trim();
-    if (id.StartsWith("HP-", StringComparison.OrdinalIgnoreCase))
-    {
-      id = id[3..];
-    }
-
-    return id is "65" or "67";
-  }
+  public static bool HeuristicHasCardSlot(string modelId) =>
+    CalcModelIds.IsEngine(modelId, "T-65")
+    || CalcModelIds.IsEngine(modelId, "T-67");
 
   public static bool ModelHasCardSlot(CalcModelDefinition model) =>
     model.HasCardSlot ?? HeuristicHasCardSlot(model.Id);

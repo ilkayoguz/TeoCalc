@@ -30,7 +30,7 @@ public static class StudioFlowchartView
   private static readonly uint Border = 0xFF6A7078u;
   private static readonly uint BorderSelected = 0xFFC8B090u;
   private static readonly uint BorderPointer = StudioMnemonicPaint.PointerMarkerInk;
-  private static readonly uint TitleInk = StudioMnemonicPaint.DefaultInk;
+  private static uint TitleInk => StudioMnemonicPaint.DefaultInk;
   private static readonly uint EdgeInk = 0xFF8A929Au;
   /// <summary>DECISION TRUE path (ImGui ABGR: R in low byte).</summary>
   private static readonly uint EdgeYesInk = 0xFF6AC83Cu;
@@ -580,7 +580,7 @@ public static class StudioFlowchartView
 
       if (hovered)
       {
-        ImGui.SetTooltip(FormatNodeTooltip(node, session.CardStripLabels));
+        CalcAppTooltip.Set(FormatNodeTooltip(node, session.CardStripLabels));
       }
     }
 

@@ -1,0 +1,34 @@
+{
+  "Format": "TeoCalc.Model",
+  "SchemaVersion": 1,
+  "Model": "T-55",
+  "DisplayName": "T-55",
+  "Inherits": "Classic",
+  "Family": "Classic",
+  "FamilyConfig": "../Classic/Family.json",
+  "Hardware": {
+    "ButtonCount": 35,
+    "RamBytes": 448,
+    "RegisterDigits": 14,
+    "ProgramRamBase": 0,
+    "RomWordCount": 3072
+  },
+  "Program": {
+    "MaxSteps": 49,
+    "Vocabulary": "Program/program.vocabulary.json"
+  },
+  "Firmware": {
+    "RomBinary": "Firmware/hp55.microcode.bin",
+    "RomListing": "Firmware/hp55.microcode.mlist",
+    "RomMap": "Firmware/hp55.microcode.map.json",
+    "HandlerCatalog": "../Classic/microcode.handlers.json"
+  },
+  "Faceplate": {
+    "BodyLayoutId": "00d",
+    "ThemeId": "Modern",
+    "ShortId": "55",
+    "AnnotationStyleId": "ClassicDualCapAbove",
+    "SwitchBankId": "Classic55",
+    "HasCardSlot": false
+  }
+}

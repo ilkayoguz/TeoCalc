@@ -49,22 +49,22 @@ public sealed class CpuMorphologyTests
   {
     string engineRoot = TeoCalcPaths.ResourcePath("Engine");
     ICpu classic = ClassicCpuFactory.Create(
-      TeoCalcModelDefinition.Load(Path.Combine(engineRoot, "HP-65", "Model.json")),
+      TeoCalcModelDefinition.Load(Path.Combine(engineRoot, "T-65", "Model.json")),
       engineRoot);
     ICpu woodstock = WoodstockCpuFactory.Create(
-      TeoCalcModelDefinition.Load(Path.Combine(engineRoot, "HP-25", "Model.json")),
+      TeoCalcModelDefinition.Load(Path.Combine(engineRoot, "T-25", "Model.json")),
       engineRoot);
     ICpu spice = SpiceCpuFactory.Create(
-      TeoCalcModelDefinition.Load(Path.Combine(engineRoot, "HP-31", "Model.json")),
+      TeoCalcModelDefinition.Load(Path.Combine(engineRoot, "T-31", "Model.json")),
       engineRoot);
     ICpu hp67 = Teo67CpuFactory.Create(
-      TeoCalcModelDefinition.Load(Path.Combine(engineRoot, "HP-67", "Model.json")),
+      TeoCalcModelDefinition.Load(Path.Combine(engineRoot, "T-67", "Model.json")),
       engineRoot);
     ICpu hp19 = Teo19CpuFactory.Create(
-      TeoCalcModelDefinition.Load(Path.Combine(engineRoot, "HP-19C", "Model.json")),
+      TeoCalcModelDefinition.Load(Path.Combine(engineRoot, "T-19C", "Model.json")),
       engineRoot);
     ICpu hp01 = Teo01CpuFactory.Create(
-      TeoCalcModelDefinition.Load(Path.Combine(engineRoot, "HP-01", "Model.json")),
+      TeoCalcModelDefinition.Load(Path.Combine(engineRoot, "T-01", "Model.json")),
       engineRoot);
 
     Assert.AreEqual(0, classic.StepCount);
@@ -87,7 +87,7 @@ public sealed class CpuMorphologyTests
   public void ActHandlerCatalog_UsesActCpuPrefix(string modelId)
   {
     string engineRoot = TeoCalcPaths.ResourcePath("Engine");
-    TeoCalcModelDefinition model = TeoCalcModelDefinition.Load(Path.Combine(engineRoot, modelId, "Model.json"));
+    TeoCalcModelDefinition model = TeoCalcModelDefinition.Load(Path.Combine(engineRoot, CalcModelIds.ToEngineId(modelId), "Model.json"));
     string handlerPath = Path.Combine(
       engineRoot,
       model.Model,

@@ -4,7 +4,7 @@ using TeoCalc.Core.Engine;
 using TeoCalc.Core.Engine.Teo01;
 using TeoCalc.Core.Engine.Teo19;
 using TeoCalc.Core.Firmware;
-using TeoCalc.Panamatik;
+using TeoCalc.ReferenceEmulator;
 
 namespace TeoCalc.Core.Tests;
 
@@ -96,7 +96,7 @@ public sealed class CapabilitySmokeTests
   {
     // When native assets are present CreateGateway returns Teo01FirmwareGateway;
     // construct the emulator path directly to lock the fallback timer contract.
-    IPanamatikEngine engine = PanamatikEngineFactory.Create("HP-01");
+    IReferenceEngine engine = ReferenceEngineFactory.Create("HP-01");
     using EmulatorFirmwareGateway gateway = new(engine, runTickSeconds: 0.01f, stepsPerBatch: 100);
     Assert.AreEqual(0.01f, gateway.RunTickSeconds);
     Assert.AreEqual(100, gateway.StepsPerBatch);
@@ -105,14 +105,14 @@ public sealed class CapabilitySmokeTests
   private static Teo19Cpu CreateTeo19Cpu()
   {
     string engineRoot = TeoCalcPaths.ResourcePath("Engine");
-    TeoCalcModelDefinition model = TeoCalcModelDefinition.Load(Path.Combine(engineRoot, "HP-19C", "Model.json"));
+    TeoCalcModelDefinition model = TeoCalcModelDefinition.Load(Path.Combine(engineRoot, "T-19C", "Model.json"));
     return Teo19CpuFactory.Create(model, engineRoot);
   }
 
   private static Teo01Cpu CreateTeo01Cpu(ITeo01ToneSink tones)
   {
     string engineRoot = TeoCalcPaths.ResourcePath("Engine");
-    TeoCalcModelDefinition model = TeoCalcModelDefinition.Load(Path.Combine(engineRoot, "HP-01", "Model.json"));
+    TeoCalcModelDefinition model = TeoCalcModelDefinition.Load(Path.Combine(engineRoot, "T-01", "Model.json"));
     string modelDir = Path.Combine(engineRoot, model.Model);
     MicrocodeRom rom = MicrocodeRom.LoadBinary(
       Path.Combine(modelDir, model.Firmware.RomBinary.Replace('/', Path.DirectorySeparatorChar)));

@@ -93,7 +93,7 @@ public static class CalcDebugPanelComponent
     ImGui.Button("Step Out (Shift+F11)");
     if (ImGui.IsItemHovered(ImGuiHoveredFlags.AllowWhenDisabled))
     {
-      ImGui.SetTooltip("Step Out not supported yet.");
+      CalcAppTooltip.Set("Step Out not supported yet.");
     }
 
     if (powered)
@@ -177,11 +177,11 @@ public static class CalcDebugPanelComponent
             MicrocodeCrossRefEntry? cross = session.CrossRef?.TryGetHandler(entry.HandlerId);
             if (cross is null)
             {
-              ImGui.SetTooltip(entry.HandlerId);
+              CalcAppTooltip.Set(entry.HandlerId);
             }
             else
             {
-              ImGui.SetTooltip(
+              CalcAppTooltip.Set(
                 $"{entry.HandlerId}\n{cross.NonpareilMnemonic}  ·  {cross.PatentTerm}");
             }
           }

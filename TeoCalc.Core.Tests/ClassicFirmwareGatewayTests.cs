@@ -2,7 +2,7 @@ using TeoCalc.Core;
 using TeoCalc.Core.Catalog;
 using TeoCalc.Core.Engine.Classic;
 using TeoCalc.Core.Firmware;
-using TeoCalc.Panamatik;
+using TeoCalc.ReferenceEmulator;
 
 namespace TeoCalc.Core.Tests;
 
@@ -13,7 +13,7 @@ public sealed class ClassicFirmwareGatewayTests
     CalcFirmwareGatewayLocator.CreateGateway("HP-65");
 
   private static ProgramVocabulary LoadVocabulary() =>
-    ProgramVocabulary.Load(TeoCalcPaths.ResourcePath("Engine/HP-65/Program/program.vocabulary.json"));
+    ProgramVocabulary.Load(TeoCalcPaths.ResourcePath("Engine/T-65/Program/program.vocabulary.json"));
 
   [TestMethod]
   public void Bootstrap_Routes_Hp65_To_ClassicFirmwareGateway()
@@ -47,7 +47,7 @@ public sealed class ClassicFirmwareGatewayTests
   [TestMethod]
   public void Bootstrap_Routes_Hp67BE_To_Teo67FirmwareGateway()
   {
-    Assert.AreEqual("HP-67", CalcModelIds.ToEngineId("HP-67BE"));
+    Assert.AreEqual("T-67", CalcModelIds.ToEngineId("HP-67BE"));
     ICalcFirmwareGateway gateway = CalcFirmwareGatewayLocator.CreateGateway("HP-67BE");
     Assert.IsInstanceOfType(gateway, typeof(Teo67FirmwareGateway));
   }

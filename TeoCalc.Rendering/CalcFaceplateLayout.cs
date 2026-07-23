@@ -63,30 +63,33 @@ public static class CalcFaceplateLayout
 
   public static IReadOnlyList<FaceplateCell> GetPhysicalCells(string family, string? modelId = null)
   {
-    if (string.Equals(modelId, "HP-65", StringComparison.OrdinalIgnoreCase)
-        || string.Equals(modelId, "HP-67", StringComparison.OrdinalIgnoreCase)
+    if (CalcModelIds.IsEngine(modelId, "T-65")
+        || CalcModelIds.IsEngine(modelId, "T-67")
         || string.Equals(family, "Classic", StringComparison.OrdinalIgnoreCase)
-        || string.Equals(family, "Hp67", StringComparison.OrdinalIgnoreCase))
+        || string.Equals(family, "Hp67", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(family, "Teo67", StringComparison.OrdinalIgnoreCase))
     {
       return ClassicPhysicalCells;
     }
 
-    if (string.Equals(modelId, "HP-21", StringComparison.OrdinalIgnoreCase)
+    if (CalcModelIds.IsEngine(modelId, "T-21")
         || string.Equals(family, "Woodstock", StringComparison.OrdinalIgnoreCase)
         || string.Equals(family, "Spice", StringComparison.OrdinalIgnoreCase))
     {
       return WoodstockFaceplateLayout.GetPhysicalCells(modelId);
     }
 
-    if (string.Equals(modelId, "HP-01", StringComparison.OrdinalIgnoreCase)
-        || string.Equals(family, "HP01", StringComparison.OrdinalIgnoreCase))
+    if (CalcModelIds.IsEngine(modelId, "T-01")
+        || string.Equals(family, "HP01", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(family, "Teo01", StringComparison.OrdinalIgnoreCase))
     {
       return Teo01FaceplateLayout.PhysicalCells;
     }
 
-    if (string.Equals(modelId, "HP-19C", StringComparison.OrdinalIgnoreCase)
+    if (CalcModelIds.IsEngine(modelId, "T-19C")
         || string.Equals(family, "HP19C", StringComparison.OrdinalIgnoreCase)
-        || string.Equals(family, "Hp19", StringComparison.OrdinalIgnoreCase))
+        || string.Equals(family, "Hp19", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(family, "Teo19", StringComparison.OrdinalIgnoreCase))
     {
       return Teo19CFaceplateLayout.PhysicalCells;
     }
@@ -206,8 +209,9 @@ public static class CalcFaceplateLayout
     // Only unambiguous single-model families.
     return family switch
     {
-      "HP01" => "HP-01",
-      "HP19C" => "HP-19C",
+      "HP01" or "Teo01" => "T-01",
+      "HP19C" or "Hp19" or "Teo19" => "T-19C",
+      "Hp67" or "Teo67" => "T-67",
       _ => null,
     };
   }

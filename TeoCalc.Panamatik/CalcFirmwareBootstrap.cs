@@ -8,7 +8,7 @@ using TeoCalc.Core.Engine.Spice;
 using TeoCalc.Core.Engine.Woodstock;
 using TeoCalc.Core.Firmware;
 
-namespace TeoCalc.Panamatik;
+namespace TeoCalc.ReferenceEmulator;
 
 /// <summary>
 /// Wires firmware backends into <see cref="CalcFirmwareGatewayLocator"/>.
@@ -24,7 +24,7 @@ public static class CalcFirmwareBootstrap
   public static bool IsNativeClassicPilot(string catalogOrEngineId)
   {
     string engineId = NormalizeEngineId(CalcModelIds.Resolve(catalogOrEngineId));
-    if (string.Equals(engineId, "HP-67", StringComparison.OrdinalIgnoreCase))
+    if (string.Equals(engineId, "T-67", StringComparison.OrdinalIgnoreCase))
     {
       return false;
     }
@@ -56,21 +56,21 @@ public static class CalcFirmwareBootstrap
   public static bool IsNativeTeo67Pilot(string catalogOrEngineId)
   {
     string engineId = NormalizeEngineId(CalcModelIds.Resolve(catalogOrEngineId));
-    return NativeFamilyAssetsExist(engineId, "Hp67");
+    return NativeFamilyAssetsExist(engineId, "Teo67");
   }
 
-  /// <summary>True when HP-19C ACT ROM/handler assets are present.</summary>
+  /// <summary>True when T-19C ACT ROM/handler assets are present.</summary>
   public static bool IsNativeTeo19Pilot(string catalogOrEngineId)
   {
     string engineId = NormalizeEngineId(CalcModelIds.Resolve(catalogOrEngineId));
-    return NativeFamilyAssetsExist(engineId, "Hp19");
+    return NativeFamilyAssetsExist(engineId, "Teo19");
   }
 
-  /// <summary>True when HP-01 ACThp01 ROM/handler assets are present.</summary>
+  /// <summary>True when T-01 ACThp01 ROM/handler assets are present.</summary>
   public static bool IsNativeTeo01Pilot(string catalogOrEngineId)
   {
     string engineId = NormalizeEngineId(CalcModelIds.Resolve(catalogOrEngineId));
-    return NativeFamilyAssetsExist(engineId, "HP01");
+    return NativeFamilyAssetsExist(engineId, "Teo01");
   }
 
   /// <summary>
@@ -119,11 +119,11 @@ public static class CalcFirmwareBootstrap
       return CreateNativeTeo01Gateway(NormalizeEngineId(identity));
     }
 
-    IPanamatikEngine engine = PanamatikEngineFactory.Create(identity.EngineId);
+    IReferenceEngine engine = ReferenceEngineFactory.Create(identity.EngineId);
     // Native T-01 / T-19C prefer dedicated gateways; if assets are missing and the
     // emulator adapter is still used, keep reference timer cadences (10ms / 50ms).
     string engineId = NormalizeEngineId(identity);
-    if (string.Equals(engineId, "HP-01", StringComparison.OrdinalIgnoreCase))
+    if (string.Equals(engineId, "T-01", StringComparison.OrdinalIgnoreCase))
     {
       return new EmulatorFirmwareGateway(engine, runTickSeconds: 0.01f, stepsPerBatch: 100);
     }
@@ -131,16 +131,8 @@ public static class CalcFirmwareBootstrap
     return new EmulatorFirmwareGateway(engine);
   }
 
-  private static string NormalizeEngineId(CalcModelIdentity identity)
-  {
-    string engineId = identity.EngineId;
-    if (engineId.StartsWith("HP-", StringComparison.OrdinalIgnoreCase))
-    {
-      return engineId;
-    }
-
-    return $"HP-{identity.ShortId}";
-  }
+  private static string NormalizeEngineId(CalcModelIdentity identity) =>
+    CalcModelIds.ToEngineId(identity.EngineId);
 
   private static ClassicFirmwareGateway CreateNativeClassicGateway(string engineId)
   {
@@ -220,7 +212,7 @@ public static class CalcFirmwareBootstrap
       return true;
     }
 
-    return PanamatikEngineFactory.IsSupported(CalcModelIds.Resolve(catalogOrEngineId).EngineId);
+    return ReferenceEngineFactory.IsSupported(CalcModelIds.Resolve(catalogOrEngineId).EngineId);
   }
 
   private static IReadOnlyList<string> GetAssetWarnings(string catalogOrEngineId)
@@ -235,7 +227,7 @@ public static class CalcFirmwareBootstrap
       return [];
     }
 
-    return PanamatikEngineFactory.GetAssetWarnings(CalcModelIds.Resolve(catalogOrEngineId).EngineId);
+    return ReferenceEngineFactory.GetAssetWarnings(CalcModelIds.Resolve(catalogOrEngineId).EngineId);
   }
 
   private static bool NativeFamilyAssetsExist(string engineId, string expectedFamily)

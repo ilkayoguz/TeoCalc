@@ -10,10 +10,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="IPanamatikEngine.cs" />
-    <Compile Include="PanamatikEngineFactory.cs" />
-    <Compile Include="PanamatikEngineRegistry.cs" />
-    <Compile Include="PanamatikFormEngine.cs" />
+    <Compile Include="IReferenceEngine.cs" />
+    <Compile Include="ReferenceEngineFactory.cs" />
+    <Compile Include="ReferenceEngineRegistry.cs" />
+    <Compile Include="ReferenceFormEngine.cs" />
     <Compile Include="EmulatorFirmwareGateway.cs" />
     <Compile Include="CalcFirmwareBootstrap.cs" />
     <Compile Include="Shims\DrawingStubs.cs" />

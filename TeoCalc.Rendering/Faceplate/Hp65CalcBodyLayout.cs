@@ -16,7 +16,7 @@ public static class Hp65CalcBodyLayout
     BodyFaceplateLayout.EnsureLoaded();
 
     Dictionary<int, RectF> keySlots = new();
-    foreach (FaceplateCell cell in CalcFaceplateLayout.GetPhysicalCells("Classic", "HP-65"))
+    foreach (FaceplateCell cell in CalcFaceplateLayout.GetPhysicalCells("Classic", "T-65"))
     {
       if (BodyFaceplateLayout.TryGetKeyRect(cell.KeyChartIndex, out RectF rect))
       {

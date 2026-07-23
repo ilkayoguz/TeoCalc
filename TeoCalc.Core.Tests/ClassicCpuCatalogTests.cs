@@ -11,9 +11,9 @@ public sealed class ClassicCpuCatalogTests
 {
   private static string Handlers => TeoCalcPaths.ResourcePath("Engine/Classic/microcode.handlers.json");
 
-  private static string Vocabulary => TeoCalcPaths.ResourcePath("Engine/HP-65/Program/program.vocabulary.json");
+  private static string Vocabulary => TeoCalcPaths.ResourcePath("Engine/T-65/Program/program.vocabulary.json");
 
-  private static string RomBinary => TeoCalcPaths.ResourcePath("Engine/HP-65/Firmware/hp65.microcode.bin");
+  private static string RomBinary => TeoCalcPaths.ResourcePath("Engine/T-65/Firmware/hp65.microcode.bin");
 
   private static ClassicCpu CreateCpu()
   {
@@ -35,7 +35,7 @@ public sealed class ClassicCpuCatalogTests
   public void ProgramVocabulary_HasSixtyFourHp65Steps()
   {
     ProgramVocabulary vocabulary = ProgramVocabulary.Load(Vocabulary);
-    Assert.AreEqual("HP-65", vocabulary.Model);
+    Assert.AreEqual("T-65", vocabulary.Model);
     Assert.AreEqual(64, vocabulary.Steps.Count);
     Assert.AreEqual(40, vocabulary.KeyChart.Count);
     Assert.AreEqual("LBL", vocabulary.ResolveCode(43).Mnemonic);

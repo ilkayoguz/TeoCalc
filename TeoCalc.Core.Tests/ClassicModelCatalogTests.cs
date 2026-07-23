@@ -16,8 +16,8 @@ public sealed class ClassicModelCatalogTests
   {
     foreach (string modelId in new[] { "HP-35", "HP-45", "HP-55", "HP-65", "HP-70", "HP-80" })
     {
-      TeoCalcModelDefinition model = TeoCalcModelDefinition.Load(Path.Combine(EngineRoot, modelId, "Model.json"));
-      string romPath = Path.Combine(EngineRoot, modelId, model.Firmware.RomBinary);
+      TeoCalcModelDefinition model = TeoCalcModelDefinition.Load(Path.Combine(EngineRoot, CalcModelIds.ToEngineId(modelId), "Model.json"));
+      string romPath = Path.Combine(EngineRoot, CalcModelIds.ToEngineId(modelId), model.Firmware.RomBinary);
       MicrocodeRom rom = MicrocodeRom.LoadBinary(romPath);
       Assert.AreEqual(model.Hardware.RomWordCount, rom.WordCount, modelId);
       ClassicCpu cpu = ClassicCpuFactory.Create(model, EngineRoot);
@@ -34,12 +34,12 @@ public sealed class ClassicModelCatalogTests
                "HP-31", "HP-32", "HP-33", "HP-34", "HP-37", "HP-38",
              })
     {
-      TeoCalcModelDefinition model = TeoCalcModelDefinition.Load(Path.Combine(EngineRoot, modelId, "Model.json"));
-      string romPath = Path.Combine(EngineRoot, modelId, model.Firmware.RomBinary);
+      TeoCalcModelDefinition model = TeoCalcModelDefinition.Load(Path.Combine(EngineRoot, CalcModelIds.ToEngineId(modelId), "Model.json"));
+      string romPath = Path.Combine(EngineRoot, CalcModelIds.ToEngineId(modelId), model.Firmware.RomBinary);
       MicrocodeRom rom = MicrocodeRom.LoadBinary(romPath);
       Assert.AreEqual(model.Hardware.RomWordCount, rom.WordCount, modelId);
 
-      string mapPath = Path.Combine(EngineRoot, modelId, model.Firmware.RomMap);
+      string mapPath = Path.Combine(EngineRoot, CalcModelIds.ToEngineId(modelId), model.Firmware.RomMap);
       MicrocodeMapCatalog map = MicrocodeMapCatalog.Load(mapPath);
       Assert.AreEqual(model.Hardware.RomWordCount, map.WordCount, modelId);
     }

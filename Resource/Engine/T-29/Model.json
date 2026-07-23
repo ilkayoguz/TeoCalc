@@ -1,0 +1,34 @@
+{
+  "Format": "TeoCalc.Model",
+  "SchemaVersion": 1,
+  "Model": "T-29",
+  "DisplayName": "T-29C",
+  "Inherits": "Woodstock",
+  "Family": "Woodstock",
+  "FamilyConfig": "../Woodstock/Family.json",
+  "Faceplate": {
+    "ShortId": "29C",
+    "BodyLayoutId": "00d",
+    "ThemeId": "Modern",
+    "AnnotationStyleId": "ClassicFg",
+    "SwitchBankId": "WoodstockPrgm",
+    "HasCardSlot": false
+  },
+  "Hardware": {
+    "ButtonCount": 40,
+    "RamBytes": 448,
+    "RegisterDigits": 14,
+    "ProgramRamBase": 0,
+    "RomWordCount": 4096
+  },
+  "Firmware": {
+    "RomBinary": "Firmware/hp29.microcode.bin",
+    "RomListing": "Firmware/hp29.microcode.mlist",
+    "RomMap": "Firmware/hp29.microcode.map.json",
+    "HandlerCatalog": "../Act/microcode.handlers.json"
+  },
+  "Program": {
+    "MaxSteps": 0,
+    "Vocabulary": "Program/program.vocabulary.json"
+  }
+}

@@ -47,9 +47,9 @@ public static class CalcBodyLayoutCatalog
     CalcBodyLayout loaded = layoutId.ToLowerInvariant() switch
     {
       Calc00dBodyLayout.LayoutId => Calc00dBodyLayout.Resolve(
-        CalcModelIds.InferFamily(displayName ?? "HP-65"),
-        CalcModelIds.ToShortId(displayName ?? "HP-65"),
-        CalcModelCatalog.Resolve(displayName ?? "HP-65")),
+        CalcModelIds.InferFamily(displayName ?? "T-65"),
+        CalcModelIds.ToShortId(displayName ?? "T-65"),
+        CalcModelCatalog.Resolve(displayName ?? "T-65")),
       CalcPrototypeBodyLayout.LayoutId => CalcPrototypeBodyLayout.Instance,
       Hp65CalcBodyLayout.LayoutId => Hp65CalcBodyLayout.Instance,
       Hp21CalcBodyLayout.LayoutId => Hp21CalcBodyLayout.Instance,
@@ -64,8 +64,10 @@ public static class CalcBodyLayoutCatalog
   {
     if (displayName is not null)
     {
-      if (displayName.StartsWith("HP-2", StringComparison.OrdinalIgnoreCase)
-          || displayName.StartsWith("HP-3", StringComparison.OrdinalIgnoreCase))
+      string engineId = CalcModelIds.ToEngineId(displayName);
+      if (engineId.StartsWith("T-2", StringComparison.OrdinalIgnoreCase)
+          || (engineId.StartsWith("T-3", StringComparison.OrdinalIgnoreCase)
+              && !CalcModelIds.IsEngine(engineId, "T-35")))
       {
         return Hp21CalcBodyLayout.Instance;
       }

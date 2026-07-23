@@ -271,13 +271,11 @@ public static class CalcBracketLegendComponent
       yield return engineId;
     }
 
-    if (modelId.StartsWith("HP-", StringComparison.OrdinalIgnoreCase))
+    string shortId = CalcModelIds.ToShortId(modelId);
+    if (!string.Equals(shortId, modelId, StringComparison.OrdinalIgnoreCase)
+        && !string.Equals(shortId, engineId, StringComparison.OrdinalIgnoreCase))
     {
-      yield return modelId["HP-".Length..];
-    }
-    else if (!modelId.StartsWith("HP", StringComparison.OrdinalIgnoreCase))
-    {
-      yield return "HP-" + modelId;
+      yield return shortId;
     }
   }
 

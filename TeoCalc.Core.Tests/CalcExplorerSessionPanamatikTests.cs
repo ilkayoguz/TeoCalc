@@ -15,7 +15,7 @@ public sealed class CalcExplorerSessionPanamatikTests
   }
 
   private static ProgramVocabulary LoadHp65Vocabulary() =>
-    ProgramVocabulary.Load(TeoCalcPaths.ResourcePath("Engine/HP-65/Program/program.vocabulary.json"));
+    ProgramVocabulary.Load(TeoCalcPaths.ResourcePath("Engine/T-65/Program/program.vocabulary.json"));
 
   private static string NormalizeLedText(string text) =>
     string.Join(' ', text.Replace(';', '.').Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries));

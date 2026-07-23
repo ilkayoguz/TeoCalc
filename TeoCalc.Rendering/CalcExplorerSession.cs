@@ -16,9 +16,7 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
   /// <summary>ImGui click completes on mouse-up; firmware needs batches before KeyUp (prefix keys).</summary>
   private const int KeySettleBatches = 40;
 
-  private static readonly string[] ExplorerModels = TeoCalcModelCatalog.SupportedModels
-    .Select(CalcModelIds.ToEngineId)
-    .ToArray();
+  private static readonly string[] ExplorerModels = [.. TeoCalcModelCatalog.SupportedModels];
 
   private ICalcFirmwareGateway? _firmware;
 
@@ -79,7 +77,7 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
   public CalcExplorerSession(string engineRoot)
   {
     EngineRoot = engineRoot;
-    ModelIndex = Array.FindIndex(ExplorerModels, id => id == CalcModelIds.ToEngineId(TeoCalcModelCatalog.PriorityModel));
+    ModelIndex = Array.FindIndex(ExplorerModels, id => id == TeoCalcModelCatalog.PriorityModel);
     if (ModelIndex < 0)
     {
       ModelIndex = 0;

@@ -11,7 +11,7 @@ namespace TeoCalc.Core.Tests;
 public sealed class CuveSoftCardPlistFormatTests
 {
   private static ProgramVocabulary Vocabulary =>
-    ProgramVocabulary.Load(TeoCalcPaths.ResourcePath("Engine/HP-65/Program/program.vocabulary.json"));
+    ProgramVocabulary.Load(TeoCalcPaths.ResourcePath("Engine/T-65/Program/program.vocabulary.json"));
 
   private static string SamplePlistPath =>
     Path.Combine(CalcCardPanelComponent.SampleCardsDirectory(), "cuveesoft-std-01b-day-of-week.plist");

@@ -1,3 +1,5 @@
+using TeoCalc.Core.Catalog;
+
 namespace TeoCalc.Rendering.Faceplate;
 
 /// <summary>Resolves <see cref="TeoCalcModelFaceplate.AnnotationStyleId"/> to modifier packs.</summary>
@@ -64,21 +66,14 @@ public static class CalcAnnotationStyleCatalog
   /// </summary>
   internal static string HeuristicId(string engineId, string catalogId)
   {
-    bool hp34 = string.Equals(engineId, "HP-34", StringComparison.OrdinalIgnoreCase)
-      || string.Equals(catalogId, "HP-34C", StringComparison.OrdinalIgnoreCase);
-    bool hp35 = string.Equals(engineId, "HP-35", StringComparison.OrdinalIgnoreCase)
-      || string.Equals(catalogId, "HP-35", StringComparison.OrdinalIgnoreCase);
-    bool hp45 = string.Equals(engineId, "HP-45", StringComparison.OrdinalIgnoreCase)
-      || string.Equals(catalogId, "HP-45", StringComparison.OrdinalIgnoreCase);
-    bool hp55 = string.Equals(engineId, "HP-55", StringComparison.OrdinalIgnoreCase)
-      || string.Equals(catalogId, "HP-55", StringComparison.OrdinalIgnoreCase);
-    bool hp67 = string.Equals(engineId, "HP-67", StringComparison.OrdinalIgnoreCase)
-      || string.Equals(catalogId, "HP-67", StringComparison.OrdinalIgnoreCase)
-      || string.Equals(catalogId, "HP-67BE", StringComparison.OrdinalIgnoreCase);
-    bool hp70 = string.Equals(engineId, "HP-70", StringComparison.OrdinalIgnoreCase)
-      || string.Equals(catalogId, "HP-70", StringComparison.OrdinalIgnoreCase);
-    bool hp80 = string.Equals(engineId, "HP-80", StringComparison.OrdinalIgnoreCase)
-      || string.Equals(catalogId, "HP-80", StringComparison.OrdinalIgnoreCase);
+    bool hp34 = CalcModelIds.IsEngine(engineId, "T-34")
+      || CalcModelIds.IsEngine(catalogId, "T-34");
+    bool hp35 = CalcModelIds.IsEngine(engineId, "T-35");
+    bool hp45 = CalcModelIds.IsEngine(engineId, "T-45");
+    bool hp55 = CalcModelIds.IsEngine(engineId, "T-55");
+    bool hp67 = CalcModelIds.IsEngine(engineId, "T-67");
+    bool hp70 = CalcModelIds.IsEngine(engineId, "T-70");
+    bool hp80 = CalcModelIds.IsEngine(engineId, "T-80");
 
     if (hp70)
     {

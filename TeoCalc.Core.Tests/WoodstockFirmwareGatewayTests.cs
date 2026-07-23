@@ -3,7 +3,7 @@ using TeoCalc.Core.Catalog;
 using TeoCalc.Core.Engine.Classic;
 using TeoCalc.Core.Engine.Woodstock;
 using TeoCalc.Core.Firmware;
-using TeoCalc.Panamatik;
+using TeoCalc.ReferenceEmulator;
 
 namespace TeoCalc.Core.Tests;
 
@@ -14,7 +14,7 @@ public sealed class WoodstockFirmwareGatewayTests
     CalcFirmwareGatewayLocator.CreateGateway("HP-25");
 
   private static ProgramVocabulary LoadHp25Vocabulary() =>
-    ProgramVocabulary.Load(TeoCalcPaths.ResourcePath("Engine/HP-25/Program/program.vocabulary.json"));
+    ProgramVocabulary.Load(TeoCalcPaths.ResourcePath("Engine/T-25/Program/program.vocabulary.json"));
 
   [TestMethod]
   [DataRow("HP-21")]
@@ -47,7 +47,7 @@ public sealed class WoodstockFirmwareGatewayTests
   public void Factory_Create_LoadsRomAndHandlers(string modelId)
   {
     string engineRoot = TeoCalcPaths.ResourcePath("Engine");
-    string modelPath = Path.Combine(engineRoot, modelId, "Model.json");
+    string modelPath = Path.Combine(engineRoot, CalcModelIds.ToEngineId(modelId), "Model.json");
     TeoCalcModelDefinition model = TeoCalcModelDefinition.Load(modelPath);
     WoodstockCpu cpu = WoodstockCpuFactory.Create(model, engineRoot);
     Assert.IsTrue(cpu.State.ProgramCounter == 0);

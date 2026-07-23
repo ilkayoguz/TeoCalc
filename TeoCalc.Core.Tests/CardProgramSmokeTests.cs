@@ -5,7 +5,7 @@ using TeoCalc.Core.Engine.Classic;
 using TeoCalc.Core.Engine.Teo67;
 using TeoCalc.Core.Firmware;
 using TeoCalc.Formats;
-using TeoCalc.Panamatik;
+using TeoCalc.ReferenceEmulator;
 
 namespace TeoCalc.Core.Tests;
 
@@ -16,7 +16,7 @@ public sealed class CardProgramSmokeTests
   public void Classic65_ImportSparseSample_DoesNotAppendBuiltinStripBodies()
   {
     ProgramVocabulary vocabulary = ProgramVocabulary.Load(
-      TeoCalcPaths.ResourcePath("Engine/HP-65/Program/program.vocabulary.json"));
+      TeoCalcPaths.ResourcePath("Engine/T-65/Program/program.vocabulary.json"));
     string path = Path.Combine(
       TeoCalc.Rendering.Faceplate.CalcCardPanelComponent.SampleCardsDirectory(),
       TeoCalc.Rendering.Faceplate.CalcCardPanelComponent.SampleHp65T65FileName);
@@ -66,7 +66,7 @@ public sealed class CardProgramSmokeTests
     Assert.AreEqual(42, exportedRegs[9], 1e-6);
 
     ProgramVocabulary vocabulary = ProgramVocabulary.Load(
-      TeoCalcPaths.ResourcePath("Engine/HP-65/Program/program.vocabulary.json"));
+      TeoCalcPaths.ResourcePath("Engine/T-65/Program/program.vocabulary.json"));
     string path = Path.Combine(Path.GetTempPath(), $"teocalc-card65-{Guid.NewGuid():N}.t65");
     try
     {

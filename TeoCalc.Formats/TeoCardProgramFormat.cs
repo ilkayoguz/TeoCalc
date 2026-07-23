@@ -2,6 +2,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
+using TeoCalc.Core.Catalog;
 
 namespace TeoCalc.Formats;
 
@@ -226,25 +227,13 @@ public static class TeoCardProgramFormat
       return false;
     }
 
-    string card = cardModel.Trim();
-    if (string.Equals(card, engineModelId, StringComparison.OrdinalIgnoreCase))
+    if (CalcModelIds.SameEngine(cardModel, engineModelId))
     {
       return true;
     }
 
-    if (!string.IsNullOrWhiteSpace(displayModelId)
-        && string.Equals(card, displayModelId, StringComparison.OrdinalIgnoreCase))
-    {
-      return true;
-    }
-
-    static string ShortId(string id)
-    {
-      string raw = id.Trim();
-      return raw.StartsWith("HP-", StringComparison.OrdinalIgnoreCase) ? raw[3..] : raw;
-    }
-
-    return string.Equals(ShortId(card), ShortId(engineModelId), StringComparison.OrdinalIgnoreCase);
+    return !string.IsNullOrWhiteSpace(displayModelId)
+      && CalcModelIds.SameEngine(cardModel, displayModelId);
   }
 
   private static string NormalizeLegacyProgramEncodingKey(string json)

@@ -8,7 +8,7 @@ namespace TeoCalc.Rendering;
 public static class CardSlotExchangeArt
 {
   private static string ArrowPath =>
-    FaceplateAssetPaths.ResolveFile("HP-65", "CardSlot", "exchange-arrow-up.svg");
+    FaceplateAssetPaths.ResolveFile("T-65", "CardSlot", "exchange-arrow-up.svg");
 
   public static bool IsReady =>
     ClassicFaceplateSvgAssets.CanDrawCardSlotLabels && File.Exists(ArrowPath);

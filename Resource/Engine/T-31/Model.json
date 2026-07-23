@@ -1,0 +1,34 @@
+{
+  "Format": "TeoCalc.Model",
+  "SchemaVersion": 1,
+  "Model": "T-31",
+  "DisplayName": "T-31E",
+  "Inherits": "Spice",
+  "Family": "Spice",
+  "FamilyConfig": "../Spice/Family.json",
+  "Faceplate": {
+    "ShortId": "31E",
+    "BodyLayoutId": "00d",
+    "ThemeId": "Modern",
+    "AnnotationStyleId": "ClassicFg",
+    "SwitchBankId": "PowerOnly",
+    "HasCardSlot": false
+  },
+  "Hardware": {
+    "ButtonCount": 40,
+    "RamBytes": 448,
+    "RegisterDigits": 14,
+    "ProgramRamBase": 0,
+    "RomWordCount": 2048
+  },
+  "Firmware": {
+    "RomBinary": "Firmware/hp31.microcode.bin",
+    "RomListing": "Firmware/hp31.microcode.mlist",
+    "RomMap": "Firmware/hp31.microcode.map.json",
+    "HandlerCatalog": "../Act/microcode.handlers.json"
+  },
+  "Program": {
+    "MaxSteps": 0,
+    "Vocabulary": "Program/program.vocabulary.json"
+  }
+}

@@ -1,5 +1,5 @@
 using TeoCalc.Core;
-using TeoCalc.Panamatik;
+using TeoCalc.ReferenceEmulator;
 using TeoCalc.Rendering;
 
 namespace TeoCalc;

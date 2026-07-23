@@ -1,0 +1,185 @@
+{
+  "Format": "TeoCalc.KeyFaceplate",
+  "SchemaVersion": 2,
+  "Model": "T-31",
+  "Source": "HP-31E Owner's Handbook / Finseth hp31e — CapAbove=f (gold only, no blue g); CapFace f at index 9; CLEAR CapAbove MANT PREFIX ALL REG STK (wide ENTER CapAbove: Gold=MANT left, GoldRight=PREFIX right; CHS/EEX/CLX=ALL/REG/STK); CLEAR bracket spans ENTER…CLX",
+  "ClearBracket": {
+    "LeftKey": 10,
+    "RightKey": 14,
+    "TextCenterKey": 12,
+    "Text": "CLEAR",
+    "LeftEdge": "Mid"
+  },
+  "Keys": {
+    "0": {
+      "Gold": "FIX",
+      "CapFace": "√x",
+      "Style": "Black"
+    },
+    "1": {
+      "Gold": "SCI",
+      "CapFace": "1/x",
+      "Style": "Black"
+    },
+    "2": {
+      "Gold": "π",
+      "CapFace": "y^x",
+      "Style": "Black"
+    },
+    "3": {
+      "Gold": "10^x",
+      "CapFace": "e^x",
+      "Style": "Black"
+    },
+    "4": {
+      "Gold": "LOG",
+      "CapFace": "LN",
+      "Style": "Black"
+    },
+    "5": {
+      "Gold": "DEG",
+      "CapFace": "x↔y",
+      "Style": "Black"
+    },
+    "6": {
+      "Gold": "RAD",
+      "CapFace": "R↓",
+      "Style": "Black"
+    },
+    "7": {
+      "Gold": "GRD",
+      "CapFace": "STO",
+      "Style": "Black"
+    },
+    "8": {
+      "Gold": "LST X",
+      "CapFace": "RCL",
+      "Style": "Black"
+    },
+    "10": {
+      "Gold": "MANT",
+      "GoldRight": "PREFIX",
+      "CapFace": "ENTER",
+      "Style": "Black"
+    },
+    "12": {
+      "Gold": "ALL",
+      "CapFace": "CHS",
+      "Style": "Black"
+    },
+    "13": {
+      "Gold": "REG",
+      "CapFace": "EEX",
+      "Style": "Black"
+    },
+    "14": {
+      "Gold": "STK",
+      "CapFace": "CLX",
+      "Style": "Black"
+    },
+    "15": {
+      "Gold": "→R",
+      "CapFace": "-",
+      "Style": "White"
+    },
+    "16": {
+      "Gold": "SIN",
+      "CapFace": "7",
+      "Style": "White"
+    },
+    "17": {
+      "Gold": "COS",
+      "CapFace": "8",
+      "Style": "White"
+    },
+    "18": {
+      "Gold": "TAN",
+      "CapFace": "9",
+      "Style": "White"
+    },
+    "20": {
+      "Gold": "→P",
+      "CapFace": "+",
+      "Style": "White"
+    },
+    "21": {
+      "Gold": "sin^-1",
+      "CapFace": "4",
+      "Style": "White"
+    },
+    "22": {
+      "Gold": "cos^-1",
+      "CapFace": "5",
+      "Style": "White"
+    },
+    "23": {
+      "Gold": "tan^-1",
+      "CapFace": "6",
+      "Style": "White"
+    },
+    "25": {
+      "Gold": "→DEG",
+      "CapFace": "×",
+      "Style": "White"
+    },
+    "26": {
+      "Gold": "→in",
+      "CapFace": "1",
+      "Style": "White"
+    },
+    "27": {
+      "Gold": "→°F",
+      "CapFace": "2",
+      "Style": "White"
+    },
+    "28": {
+      "Gold": "→lbm",
+      "CapFace": "3",
+      "Style": "White"
+    },
+    "30": {
+      "Gold": "→RAD",
+      "CapFace": "÷",
+      "Style": "White"
+    },
+    "31": {
+      "Gold": "→mm",
+      "CapFace": "0",
+      "Style": "White"
+    },
+    "32": {
+      "Gold": "→°C",
+      "CapFace": "·",
+      "Style": "White"
+    },
+    "33": {
+      "Gold": "→kg",
+      "CapFace": "%",
+      "Style": "White"
+    },
+    "9": {
+      "CapFace": "f",
+      "Style": "Orange"
+    },
+    "11": {
+      "CapFace": "ENTER",
+      "Style": "Black"
+    },
+    "19": {
+      "CapFace": "",
+      "Style": "White"
+    },
+    "24": {
+      "CapFace": "",
+      "Style": "White"
+    },
+    "29": {
+      "CapFace": "",
+      "Style": "White"
+    },
+    "34": {
+      "CapFace": "",
+      "Style": "Black"
+    }
+  }
+}

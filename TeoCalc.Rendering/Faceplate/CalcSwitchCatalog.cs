@@ -1,3 +1,5 @@
+using TeoCalc.Core.Catalog;
+
 namespace TeoCalc.Rendering.Faceplate;
 
 /// <summary>Per-model switch bank from Catalog/Documents/HPs/* front photos.</summary>
@@ -134,12 +136,6 @@ public static class CalcSwitchCatalog
     string raw = string.IsNullOrWhiteSpace(modelId) && displayName is not null
       ? displayName
       : modelId;
-    raw = raw.Trim();
-    if (raw.StartsWith("HP-", StringComparison.OrdinalIgnoreCase))
-    {
-      raw = raw[3..];
-    }
-
-    return raw.ToUpperInvariant();
+    return CalcModelIds.ToShortId(raw).ToUpperInvariant();
   }
 }

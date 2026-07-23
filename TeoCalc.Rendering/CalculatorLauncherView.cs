@@ -3,6 +3,7 @@ using ImGuiNET;
 using TeoCalc.Rendering.Faceplate;
 using TeoGame.Presentation.Components;
 using TeoGame.Presentation.Navigation;
+using TeoTheme;
 
 namespace TeoCalc.Rendering;
 
@@ -319,12 +320,16 @@ public static class CalculatorLauncherView
       return;
     }
 
-    uint fill = selected
-      ? 0x66284A66u
-      : hovered
-        ? 0x44283848u
-        : 0x33203040u;
-    uint ring = selected ? 0xFF6AA0D0u : focused ? 0xFF8AB4DCu : 0xFF506878u;
+    CalcAppTheme.EnsureInitialized();
+    ThemePalette palette = CalcAppTheme.Current;
+    ThemeColor accent = palette.Get(ThemeTokens.AccentColor);
+    float fillA = selected ? 0.34f : hovered ? 0.20f : 0.13f;
+    uint fill = ImGui.ColorConvertFloat4ToU32(new Vector4(accent.R, accent.G, accent.B, fillA));
+    uint ring = selected
+      ? CalcAppThemeColors.ToImGui(palette, ThemeTokens.AccentColor)
+      : focused
+        ? CalcAppThemeColors.ToImGui(palette, ThemeTokens.TextAccentColor)
+        : CalcAppThemeColors.ToImGui(palette, ThemeTokens.PanelBorderColor);
     draw.AddRectFilled(tileMin, tileMax, fill, radius);
     draw.AddRect(tileMin, tileMax, ring, radius, ImDrawFlags.RoundCornersAll, selected ? 2f : 1.25f);
   }
@@ -337,10 +342,12 @@ public static class CalculatorLauncherView
     float width,
     float nameFont)
   {
-    const uint white = 0xFFFFFFFFu;
+    CalcAppTheme.EnsureInitialized();
+    // Theme ink (black on Light, white on Dark) — full product label e.g. "T-65".
+    uint ink = CalcAppTheme.TitleBarInk;
     float textW = CalcFaceplateFonts.ArialBoldWidth(label, nameFont);
     float textX = x + MathF.Max(0f, (width - textW) * 0.5f);
-    CalcFaceplateFonts.DrawArialBoldTop(draw, label, textX, y, nameFont, white);
+    CalcFaceplateFonts.DrawArialBoldTop(draw, label, textX, y, nameFont, ink);
   }
 
   private static bool Contains(Vector2 point, Vector2 min, Vector2 max) =>

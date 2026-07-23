@@ -160,6 +160,8 @@ public static class CalcExplorerApp
 
   private static int RunHost()
   {
+    CalcUserSettingsStore.Initialize();
+    CalcAppTheme.Initialize();
     CalcFaceplateThemeState.ApplyForModel(CalcModelCatalog.Hp65);
     CalculatorLauncherModel launcherModel = CalculatorLauncherModel.CreateDefault();
     Vector2 launcherSize = CalculatorLauncherView.PreferredWindowSize(launcherModel.Entries.Count);
@@ -223,6 +225,7 @@ public static class CalcExplorerApp
         gl.ClearColor(0f, 0f, 0f, 0f);
         gl.Clear(ClearBufferMask.ColorBufferBit);
         controller.MakeCurrent();
+        CalcAppTheme.ApplyImGuiStyle();
 
         CalcFaceplatePointer.BeginFrame();
         ImGui.SetNextWindowPos(Vector2.Zero);
@@ -257,6 +260,7 @@ public static class CalcExplorerApp
 
         CalculatorLauncherView.DrawContent(launcherModel, content);
         HandleLauncherTitleAction(titleAction);
+        CalcSettingsModal.Draw();
         if (!_launcher.IsClosing)
         {
           HandleLauncherFramelessChrome();
@@ -379,6 +383,9 @@ public static class CalcExplorerApp
         break;
       case CalcWindowTitlePanelComponent.TitleAction.Close:
         _closeLauncherRequested = true;
+        break;
+      case CalcWindowTitlePanelComponent.TitleAction.OpenSettings:
+        CalcSettingsModal.RequestOpen();
         break;
     }
   }

@@ -18,7 +18,7 @@ internal static class BodySvgRects
   public static bool TryGetRect(string elementId, out RectF rect)
   {
     rect = default;
-    string path = Faceplate.FaceplateAssetPaths.ResolveFile("HP-65", "Body.svg");
+    string path = Faceplate.FaceplateAssetPaths.ResolveFile("T-65", "Body.svg");
     if (!File.Exists(path))
     {
       return false;

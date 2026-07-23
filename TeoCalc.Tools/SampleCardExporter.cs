@@ -28,7 +28,7 @@ internal static class SampleCardExporter
   private static void ExportT65(string path)
   {
     ProgramVocabulary vocabulary = ProgramVocabulary.Load(
-      TeoCalcPaths.ResourcePath("Engine/HP-65/Program/program.vocabulary.json"));
+      TeoCalcPaths.ResourcePath("Engine/T-65/Program/program.vocabulary.json"));
 
     T6xDocument document = new()
     {

@@ -1,138 +1,127 @@
-# TeoCalc TODO / backlog
+# TeoCalc roadmap
 
-Prioritized by product impact: **correctness / host wiring → debug foundation → Composite Dev Studio (staged) → polish**.
+Updated after Studio W/PRGM / F9 / speed / Find / help ship. Older P0–P3 Studio staging is closed or absorbed below.
 
-## Done / remember (CodeEncoding & cards)
-
-- [x] Card text uses `CodeEncoding` (`mnemonic` | `machine`); legacy `Encoding` accepted on read; single `[Code]` section only (no `[Machine]` / dual program sections).
-- Authoring: no faceplate glyphs in `[Code]`; use vocab (`f-1` / `9`, etc.).
-- Museum W/PRGM display keycodes ≠ TeoCalc `machine` bytes (decimal internal, e.g. `43`).
-- Card formats (t65/t67, CuveSoft, CodeEncoding) — mostly done; keep as reference, not open work.
+**Deferred separately:** GUI / DEBUG visual review pass (known rough edges; not chased here).
 
 ---
 
-## P0 — Correctness / host wiring
+## Done (recent Studio)
 
-Ship a trustworthy running emulator before new UX.
+- [x] Unified Classic listing from RAM; Code | Keys | FC columns; toolbar (card I/O left, transport right).
+- [x] Read-only flowchart + selection/PTR sync; F10 Code-grain / F11 micro; Seek highlight fix.
+- [x] W/PRGM live edit + Save / leave confirm; double-click set start.
+- [x] F9 breakpoints; execution speed `− N× +` / `[` `]`; Studio Find; DUMP ROM±16 + listing.
+- [x] ROM watch 64-row + Classic CrossRef hover; Alt+key help; About modal.
 
-1. **Local leftovers: T-01 tone sink** — done
-   - Host wires `HostTeo01ToneSink` via `CalcFirmwareBootstrap.Teo01ToneSink`; Core default remains no-op.
-2. **Local leftovers: T-19 printer tests** — done
-   - Buffer / `op_pik_print`+motor flush covered; `ActCpuBase.InvokeOpcodeAliasForTests` test hook.
-3. **Local leftovers: catalog smoke** — done
-   - Cross-catalog boot / faceplate / idle / digit smoke; T-01 key settle uses 10ms cadence.
-
----
-
-## P1 — Debug foundation (shipped)
-
-Make programs inspectable and steppable — core emulator workflow. **Foundation done;** remaining polish folds into Composite Dev Studio below.
-
-4. **DEBUG/TRACE: VS-like step-by-step** — foundation done
-   - [x] Break / Continue / Step Into / Step Over on native gateways; faceplate Debug side panel.
-   - [x] VS-aligned shortcuts: F5 Continue, Shift+F5 Stop (leave pause), F6 Break, F9 Toggle Breakpoint, F10 Over, F11 Into. Shift+F11 Step Out unbound (no gateway API yet).
-   - Deferred polish → Studio epic (call-stack, Step Out, Step Over edge cases, Stop closes debug panel).
-5. **While calc running: watch ROM code** — foundation done
-   - [x] ROM watch list with Follow ROM (highlights live fetch address while running/stepping).
-   - Deferred polish → Studio epic (dedicated live ROM pane, scroll-to-PC).
-6. **DEBUG/TRACE DUMP** — foundation done
-   - [x] Copy dump + Save to Documents/TeoCalc/Dumps (PC/status/handler/registers).
-   - Deferred polish → Studio epic (ROM window / listing in dump; chrome placement).
-7. **Registers UI: compact layout** — foundation done
-   - [x] Compact A–M (N) hex digests in Debug panel.
-   - Deferred polish → Studio epic (editable regs / X-display; composite chrome).
+Reference (cards / encoding): `CodeEncoding`, t65/t67, museum keycodes ≠ machine bytes — keep as lore, not open work.
 
 ---
 
-## P2 — Composite Dev Studio (epic)
+## P0 — App chrome theme & Settings (highest)
 
-**Vision:** One Visual Studio–like composite surface — not scattered micro-panels. Bidirectional **Code ↔ Flowchart (FC)** (edit either, stay in sync). Layout: **`[Machine | Mnemonic | Flowchart]`** three columns (dual encodings row-aligned; FC is column 3). Stacked (code top / FC bottom) only as a narrow-panel fallback. **Studio chrome:** toolbar **above** the code grid — card I/O left, debug transport right; separate Debug panel = **monitoring** (ROM watch, regs). **Global execution speed** (up/down) lives high in UI (title bar / transport), not buried in debug-only.
+Reuse TeoCave’s **standalone** `TeoTheme` stack (already referenced by `TeoCalc.Rendering`). Do **not** restyle the faceplate/calc body yet — only shell chrome.
 
-This is large — ship in **staged MVPs**. Do not jump to editable FC or global speed before sync + layout exist.
+### TeoCave reuse (already exists)
 
-### Stage A — Listing sync (MVP0)
+| Piece | Role |
+|-------|------|
+| `AppThemePreference` | `Light` / `Dark` / `System` |
+| `AppThemeService` | preference → `ThemeAppearance` + `ThemePalette`; `Changed` event |
+| `ThemePack` Light/Dark branches | same token keywords both sides |
+| `TeoTheme.Windows` | `WindowsHostThemeResolver` + `WindowsHostThemeWatcher` (registry `AppsUseLightTheme`) |
+| TeoCave pattern | `SilkAppTheme.Initialize` → load pack → wire resolver/watcher → `ApplyImGuiStyle` + native title-bar chrome; settings radio + `UserSettingsStore` persist |
 
-Shared program model so editor listing and any future FC share one source of truth.
+TeoCalc today hardcodes Dark toolbar colors in `CalcStudioChromeStyle` (copied from TeoTheme Dark tokens) — replace with live `AppThemeService.Current`.
 
-8. **Unified listing model**
-   - Why: Sync requires one canonical step list (addr / mnemonic / machine / labels) before dual panes.
-   - Deliver: in-memory listing from card/`[Code]`; PC highlight hook reusable by editor + ROM watch.
-   - [x] `ClassicProgramListing` enumerates from RAM or exported bytes; pointer highlight index; Studio/explorer consume same lines.
-9. **Editor: dual machine|mnemonic + copy/paste**
-   - Why: Daily edit loop; dual encoding + clipboard are baseline for card work (feeds listing sync).
-   - [x] Studio side panel (`{ }` title icon): **both** encodings at once (Machine | Mnemonic grid, faceplate token colors on light code bg); Copy dual TSV / Paste auto; FC placeholder as **column 3**.
-   - Explorer Program column wired to the same dual listing/clipboard toolbar (no FC).
-   - [x] PC vs selection: live PTR/step = ▶ in `#` only (no full-row yellow); click/keyboard selection = soft blue-gray row highlight.
-   - [x] W/PRGM live edit: faceplate keys write Classic RAM; Studio Code/Keys/FC rebuild each frame; selection follows PTR; **Save** in Studio while W/PRGM (or dirty); leave → RUN confirms Save / Don’t Save / Cancel.
-   - [x] Double-click listing row → set Classic PTR (same as “Set start point”); FC already supports the same via double-click / context.
+### Deliverables
 
-### Stage B — Side-by-side read-only FC (MVP1)
+1. **Wire `AppThemeService`** in Launcher + each T-XX window (shared preference store). — **done** (`CalcAppTheme` + `CalcUserSettingsStore`)
+2. **Theme surfaces (phase 1):** window title bar, left/right side panes (Studio / Debug / Explorer chrome), ImGui shell style. **Out of scope for now:** faceplate / keycaps / calc body (`CalcTheme` Retro/Modern stays independent). — **done** (title band + side strip + Studio toolbar/listing tokens + launcher accents)
+3. **Title-bar Settings icon** on Launcher and every T-XX calc window → **modal** for global app settings. — **done**
+4. **First setting in modal:** appearance = Dark / Light / System (same UX as TeoCave `DrawAppThemePreferenceSelector`). — **done**
+5. **Persist** preference (TeoCalc user settings; mirror TeoCave `UserSettingsStore` AppTheme field). — **done** (`%LocalAppData%\TeoCalc\UserSettings.json`)
 
-Layout shell + flowchart as **visualization** of the listing (not yet editable). **Column 3 slot already reserved in MVP0** (`[Machine | Mnemonic | Flowchart]`); MVP1 fills that pane with real nodes (not a separate side-by-side shell decision).
-
-**Chrome consolidation (agreed):** Prefer a **toolbar ABOVE the code grid** (VS-like): card I/O (Open/Save/Export) on the **left**, debug transport (Break / Continue / Step / DUMP) on the **right**. Keep the separate Debug side panel as **monitoring** (ROM watch, registers) — not the home for transport buttons. Stage under item 10 / 18; not implemented yet.
-
-10. **Composite chrome shell**
-    - Why: One place for editor + FC + debug buttons, DUMP, compact regs — VS-like, not floating scraps.
-    - Layout: Machine | Mnemonic | FC (column 3); stacked alternative only if width collapses; title-bar / global strip reserved for transport + speed (later).
-    - [x] Studio top toolbar: card I/O left (Browse/Save/Eject + clipboard/Set start) + debug transport right-aligned; Debug panel stays monitoring-only.
-11. **Flowchart pane (read-only)**
-    - Why: See control flow next to code without leaving the composite screen.
-    - Sync: selecting a listing line highlights FC node (and reverse selection → listing); PC highlight while stepping.
-    - [x] Classic flowchart symbols (START / PROCESS / DECISION / END) per LBL routine; cross-LBL GTO/GSB arrows; ImGui drawlist (no node-editor lib); selection + PTR sync (`StudioFlowchartGraph` / `StudioFlowchartView`).
-12. **Optional ROM live pane**
-    - Why: When opened, follow overall ROM fetch live (extends P1 Follow ROM); not a permanent micro-panel — dockable in composite.
-
-### Stage C — Editable FC ↔ Code (MVP2)
-
-True bidirectional authoring.
-
-13. **Editable flowchart ↔ code sync**
-    - Why: Edit structure in FC or text; both stay consistent (insert/delete/reorder steps, branches).
-    - Guardrails: conflict policy when both dirty; invalid FC edits surface as editor diagnostics.
-14. **Editor intellisense** (e.g. `34 01` → `RCL 1`; typing `R` → `RCL 1`)
-    - Why: Faster encoding between mnemonic and machine; pairs with FC node labels.
-15. **Card menu: Find** + **partial Code search**
-    - Why: Jump across cards; locate opcode/mnemonic fragments in a growing library.
-    - [x] Studio Find (Ctrl+F): Machine/Keys/Legend (+ internal byte) search + jump Next/Prev.
-16. **Powerful editor: docs + embeddable links**
-    - Why: In-place reference while authoring; deeper than tooltips.
-
-### Stage D — Global speed + debug polish (MVP3)
-
-Transport and remaining P1 polish on the composite chrome.
-
-17. **Global execution speed control**
-    - Why: Speed up/down device execution rate; place in title bar / global transport (not debug-only bury).
-    - Note: may later tie to Model profiles (Standard / Max) — profile enum stays P3 until speed UX exists.
-    - [x] Studio transport `− N× +` + `[` / `]` keys; `CalcExplorerSession.ExecutionSpeed` scales `Tick` delta (0.25×…16×).
-18. **Debug polish on composite chrome**
-    - Call-stack view; richer Step Over edge cases across ISA families.
-    - ROM watch: scroll-to-PC smooth sync, larger window, cross-ref tooltips; DUMP includes ROM window / user listing.
-    - Registers: editable regs / X-display formatted view in composite strip.
-    - [x] DUMP enriched with ROM±16 + user listing; ROM watch window 64 / follow offset −10.
-    - [x] ROM watch handler hover: Classic CrossRef (Nonpareil · patent term).
-    - [ ] Call-stack / Step Out (still deferred).
-
-### Stage E — Algorithm assists (after Studio core)
-
-Advisory helpers once Code↔FC loop is real.
-
-19. **Code review: infinite-loop detection** (advisory)
-20. **Suggest missing code** when incomplete
-21. **Code editor Optimize** (fewer bytes; drop redundant lines)
+**Follow-ups:** ~~theme Studio code listing / Debug text for Light~~; ~~launcher tile accents from `AccentColor`~~ — **done**.
 
 ---
 
-## P3 — Polish / later
+## P1 — Product identity & engine
 
-Nice-to-have after Composite Dev Studio stages A–D are solid.
+Ship TeoCalc as its own surface; then survey native engine headroom.
 
-22. **Model profiles: Standard / Max**
-    - Why: Standard = normal speed + defined HW; Max = top speed + HW TBD — after global speed control lands.
-23. **Help: `?` or Alt+mouse on key → balloon tooltip**
-    - Why: Discoverability polish on the faceplate.
-    - [x] Alt+hover key → balloon (cap + f/g/h legends + keycode); Alt suppresses key press.
-24. **Teo logo (bottom-left): hover + click → mini About**
-    - Why: Hardware/ROM/version/author info; branding polish, low path priority.
-    - [x] Teo mark hit → About modal (product, family, ROM words, build).
+### A. Zero Panamatik / HP residue (TeoCalc-owned)
+
+Upstream `TeoCalc.Panamatik/Sources/**` stays opaque. Everything else we own should not advertise HP / Panamatik.
+
+1. **Engine id / Resource folders** — [x] `Resource/Engine/T-*`; `CalcModelIds.ToEngineId` maps catalog `HP-*` → engine `T-*` (no T→HP re-prefix).
+2. **Catalog / Model.json / Family** — `DisplayName`, catalog entries, Family `Reference`/`Dispatch` no longer ship `HP-*` / “from Panamatik” as product identity.
+   - [x] All `Model.json` `DisplayName` + engine `Model` → `T-*`
+   - [x] Classic/Woodstock/Spice `Family.json` DisplayName + Reference demoted (no HP/Panamatik product wording)
+   - [x] `TeoCalcCatalog.json` family DisplayNames + provenance note
+   - [x] About modal shows `ProductLabel` only (no HP half)
+3. **Public wrappers** — [x] `IReferenceEngine` / `ReferenceEngine*` under `TeoCalc.ReferenceEmulator` (project folder `TeoCalc.Panamatik`; `Sources/**` untouched).
+4. **Rendering hard-coded `"HP-xx"`** — [x] critical path uses `CalcModelIds.IsEngine` / `ToEngineId` / `ToShortId`; asset fallbacks `T-65`. Type names `Hp21`/`Hp65*` deferred.
+5. **Tests / docs / workspace names** — [x] README product identity (`T-65`); `Hp*Faceplate*` test class names + `HpCalcExplorer` workspace folder kept as tooling lore (rename later if desired).
+
+### B. Engine improvement audit
+
+6. **Survey + short plan** — [x] see [Catalog/Documents/Engine-Improvement-Audit.md](Catalog/Documents/Engine-Improvement-Audit.md)
+   - [x] Align `InferFamily` → `Teo01`/`Teo19`/`Teo67` (+ Model.json Family + bootstrap/layout aliases)
+   - Next engine PR candidates: Woodstock/Spice Act policy; Teo19/Teo67 factoring.
+
+---
+
+## P2 — Edit-mode code editor (replaces editable FC)
+
+**Decision:** Free-format dual editor (C#-IDE mental model) in edit mode. Editable flowchart (#13) is **not** pursued; FC stays visualization. Authoring = faceplate keys (done) **and/or** this text editor.
+
+7. **Edit-mode dual pane**
+   - Left: machine free text (`34 01` …); right: Keys/mnemonics (`LBL A` …).
+   - Invalid machine tokens blocked; invalid Keys tokens blocked.
+   - Completions: e.g. `LB…` → popup (select or keep typing).
+   - Sync both sides from one program model; paste/import respect encoding.
+8. **ROM viewer placement** (was #12)
+   - Prefer **one composite with the editor**, *or* dock ROM viewer **to the right of the calc** — not a permanent orphan micro-panel.
+   - Follow live fetch / scroll-to-PC when open.
+9. **Docs + embeddable links** (was #16) — easiest content win once editor shell exists; in-place reference while authoring.
+
+---
+
+## P3 — Profiles
+
+10. **Model / session profiles** (was #22)
+    - Combobox of predefined profiles.
+    - Side button: toggle profile features on/off; **Save as new profile**.
+    - Speed / HW knobs fold in here once UX is clear (old Standard/Max idea).
+
+---
+
+## P4 — Debug / trace redesign (design-first)
+
+11. **Debug / trace / live ROM mental model** (was #18)
+    - Current stack works but is not satisfying; **no clear product picture yet**.
+    - Next step: short design spike (what is “debug” vs “Studio transport” vs “ROM watch”) — then implement.
+    - Likely includes: call-stack / Step Out, editable regs, smoother PC follow — only after the model sits.
+    - Improve iteratively; do not pile chrome first.
+
+---
+
+## Parked — algorithm assists (clarify before building)
+
+Original #19–#21 were “smart helpers after Studio core.” Meaning:
+
+| # | Intent | Example |
+|---|--------|---------|
+| **19** Infinite-loop advisory | Static/heuristic warning if GTO/GSB can spin forever | “LBL A → GTO A with no exit” |
+| **20** Suggest missing code | Heuristic when a routine looks incomplete | GSB target with no `LBL`, open branch |
+| **21** Optimize | Suggest fewer bytes / drop redundant steps | Consecutive no-ops, rewrite to shorter encoding |
+
+**Status:** Parked until you want them. Not on the critical path; easy to misread as “auto-fix program.” Prefer shipping P0–P1 first.
+
+---
+
+## Later / separate track
+
+- **GUI + DEBUG visual review** — dedicated pass on layout, contrast, panel clutter, keyboard focus.
+- Faceplate / catalog polish not listed above stays opportunistic.

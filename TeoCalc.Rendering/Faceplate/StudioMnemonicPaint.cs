@@ -1,11 +1,12 @@
 using System.Numerics;
 using ImGuiNET;
 using TeoCalc.Formats;
+using TeoTheme;
 
 namespace TeoCalc.Rendering.Faceplate;
 
 /// <summary>
-/// Studio mnemonic paint: HP-style keycap widgets + shift legends on a dark code pane.
+/// Studio mnemonic paint: HP-style keycap widgets + shift legends on a themed code pane.
 /// Cap face/ink come from the same <see cref="CalcKeyLabelPalette.PrimaryOnCap"/> source
 /// as the physical faceplate.
 /// </summary>
@@ -17,11 +18,27 @@ public static class StudioMnemonicPaint
   /// </summary>
   public const float StudioListingScale = 1.30f;
 
-  /// <summary>Dark charcoal code pane (faceplate-adjacent; keycaps need contrast).</summary>
-  public const uint CodePaneBg = 0xFF2C3034u;
+  /// <summary>Code pane fill — follows AppTheme (Light panel vs Dark charcoal).</summary>
+  public static uint CodePaneBg
+  {
+    get
+    {
+      CalcAppTheme.EnsureInitialized();
+      return CalcAppTheme.Appearance == ThemeAppearance.Light
+        ? CalcAppThemeColors.ToImGui(CalcAppTheme.Current, ThemeTokens.ShellContentPanelBackColor)
+        : 0xFF2C3034u;
+    }
+  }
 
-  /// <summary>Default ink on dark code background (non-keycap UI).</summary>
-  public const uint DefaultInk = 0xFFE8E6E2u;
+  /// <summary>Default ink on code background (non-keycap UI).</summary>
+  public static uint DefaultInk
+  {
+    get
+    {
+      CalcAppTheme.EnsureInitialized();
+      return CalcAppThemeColors.ToImGui(CalcAppTheme.Current, ThemeTokens.TextColor);
+    }
+  }
 
   /// <summary>Live program step / PTR marker (▶ in # column) — amber, not a row wash.</summary>
   public const uint PointerMarkerInk = 0xFF3AD4FFu;
@@ -29,14 +46,53 @@ public static class StudioMnemonicPaint
   /// <summary>Studio breakpoint disc in the # column (VS-like crimson).</summary>
   public const uint BreakpointMarkerInk = 0xFF2D2DE8u;
 
-  /// <summary>Selected listing row (cursor / click) — soft cool blue-gray, distinct from PC arrow.</summary>
-  public const uint SelectionRowBg = 0x50786848u;
+  /// <summary>Selected listing row (cursor / click).</summary>
+  public static uint SelectionRowBg
+  {
+    get
+    {
+      CalcAppTheme.EnsureInitialized();
+      ThemeColor c = CalcAppTheme.Current.Get(ThemeTokens.RowSelectedBackColor);
+      float a = CalcAppTheme.Appearance == ThemeAppearance.Light ? 0.55f : 0.35f;
+      return ImGui.ColorConvertFloat4ToU32(new System.Numerics.Vector4(c.R, c.G, c.B, a));
+    }
+  }
 
   /// <summary>Selected row hover.</summary>
-  public const uint SelectionRowHoveredBg = 0x62887858u;
+  public static uint SelectionRowHoveredBg
+  {
+    get
+    {
+      CalcAppTheme.EnsureInitialized();
+      ThemeColor c = CalcAppTheme.Current.Get(ThemeTokens.ControlHoverBackColor);
+      float a = CalcAppTheme.Appearance == ThemeAppearance.Light ? 0.70f : 0.40f;
+      return ImGui.ColorConvertFloat4ToU32(new System.Numerics.Vector4(c.R, c.G, c.B, a));
+    }
+  }
 
   /// <summary>Selected row active / pressed.</summary>
-  public const uint SelectionRowActiveBg = 0x74988868u;
+  public static uint SelectionRowActiveBg
+  {
+    get
+    {
+      CalcAppTheme.EnsureInitialized();
+      ThemeColor c = CalcAppTheme.Current.Get(ThemeTokens.ControlActiveBackColor);
+      float a = CalcAppTheme.Appearance == ThemeAppearance.Light ? 0.85f : 0.50f;
+      return ImGui.ColorConvertFloat4ToU32(new System.Numerics.Vector4(c.R, c.G, c.B, a));
+    }
+  }
+
+  /// <summary>Table header strip behind Machine|Keys|Legend.</summary>
+  public static uint TableHeaderBg
+  {
+    get
+    {
+      CalcAppTheme.EnsureInitialized();
+      return CalcAppTheme.Appearance == ThemeAppearance.Light
+        ? CalcAppThemeColors.ToImGui(CalcAppTheme.Current, ThemeTokens.ControlBackColor)
+        : 0xFF3A3E42u;
+    }
+  }
 
   public const uint KeycapBezel = 0xFF141618u;
 

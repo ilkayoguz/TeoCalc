@@ -67,6 +67,7 @@ public static class CalcCardFilePicker
     ImGui.SetNextWindowPos(center, ImGuiCond.Appearing, new Vector2(0.5f, 0.5f));
     ImGui.SetNextWindowSize(new Vector2(520f, 420f), ImGuiCond.Appearing);
 
+    CalcAppDialogStyle.PushModal();
     CalcStudioChromeStyle.PushToolbar();
     bool visible = ImGui.BeginPopupModal(
       "##studio-card-file-picker",
@@ -75,6 +76,7 @@ public static class CalcCardFilePicker
     if (!visible)
     {
       CalcStudioChromeStyle.PopToolbar();
+      CalcAppDialogStyle.PopModal();
       s_open = false;
       return false;
     }
@@ -124,6 +126,7 @@ public static class CalcCardFilePicker
             ImGui.EndChild();
             ImGui.EndPopup();
             CalcStudioChromeStyle.PopToolbar();
+            CalcAppDialogStyle.PopModal();
             return true;
           }
         }
@@ -138,16 +141,18 @@ public static class CalcCardFilePicker
       ImGui.BeginDisabled();
     }
 
-    CalcStudioChromeStyle.PushPrimary();
+    CalcAppDialogStyle.PushAffirmative();
     bool ok = ImGui.Button("OK", new Vector2(96f, 0f));
-    CalcStudioChromeStyle.PopPrimary();
+    CalcAppDialogStyle.PopButton();
     if (!canOk)
     {
       ImGui.EndDisabled();
     }
 
     ImGui.SameLine();
+    CalcAppDialogStyle.PushNeutral();
     bool cancel = ImGui.Button("Cancel", new Vector2(96f, 0f));
+    CalcAppDialogStyle.PopButton();
 
     if (ImGui.IsKeyPressed(ImGuiKey.Enter) && canOk)
     {
@@ -159,6 +164,7 @@ public static class CalcCardFilePicker
       CloseModal();
       ImGui.EndPopup();
       CalcStudioChromeStyle.PopToolbar();
+      CalcAppDialogStyle.PopModal();
       return false;
     }
 
@@ -168,11 +174,13 @@ public static class CalcCardFilePicker
       CloseModal();
       ImGui.EndPopup();
       CalcStudioChromeStyle.PopToolbar();
+      CalcAppDialogStyle.PopModal();
       return true;
     }
 
     ImGui.EndPopup();
     CalcStudioChromeStyle.PopToolbar();
+    CalcAppDialogStyle.PopModal();
     return false;
   }
 

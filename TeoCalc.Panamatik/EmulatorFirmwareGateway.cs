@@ -1,11 +1,11 @@
 using TeoCalc.Core.Firmware;
 
-namespace TeoCalc.Panamatik;
+namespace TeoCalc.ReferenceEmulator;
 
 /// <summary>Routes TeoCalc UI through headless emulator engines in this adapter assembly.</summary>
 public sealed class EmulatorFirmwareGateway : ICalcFirmwareGateway, IDisposable
 {
-  private readonly IPanamatikEngine _engine;
+  private readonly IReferenceEngine _engine;
   private readonly float _runTickSeconds;
   private readonly int _stepsPerBatch;
   private float _runAccumulator;
@@ -17,7 +17,7 @@ public sealed class EmulatorFirmwareGateway : ICalcFirmwareGateway, IDisposable
   private FirmwareKeyCommand? _activeKey;
 
   public EmulatorFirmwareGateway(
-    IPanamatikEngine engine,
+    IReferenceEngine engine,
     float runTickSeconds = 0.05f,
     int stepsPerBatch = 200)
   {
@@ -264,7 +264,7 @@ public sealed class EmulatorFirmwareGateway : ICalcFirmwareGateway, IDisposable
 
   private void PublishBatch()
   {
-    PanamatikEngineSnapshot snapshot = _engine.Snapshot;
+    ReferenceEngineSnapshot snapshot = _engine.Snapshot;
     LastBatch = new FirmwareBatchSnapshot(
       (int)_stepCount,
       snapshot.ProgramCounter,
@@ -288,7 +288,7 @@ public sealed class EmulatorFirmwareGateway : ICalcFirmwareGateway, IDisposable
     _displayBlankPulse = blankPulse;
     if (changed)
     {
-      PanamatikEngineSnapshot snapshot = _engine.Snapshot;
+      ReferenceEngineSnapshot snapshot = _engine.Snapshot;
       DisplaySnapshot = new FirmwareDisplaySnapshot(
         text,
         IsDisplayVisible(),

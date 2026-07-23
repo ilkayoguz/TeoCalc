@@ -1,0 +1,34 @@
+{
+  "Format": "TeoCalc.Model",
+  "SchemaVersion": 1,
+  "Model": "T-37",
+  "DisplayName": "T-37E",
+  "Inherits": "Spice",
+  "Family": "Spice",
+  "FamilyConfig": "../Spice/Family.json",
+  "Faceplate": {
+    "ShortId": "37E",
+    "BodyLayoutId": "00d",
+    "ThemeId": "Modern",
+    "AnnotationStyleId": "ClassicFg",
+    "SwitchBankId": "FinancialBeginEnd",
+    "HasCardSlot": false
+  },
+  "Hardware": {
+    "ButtonCount": 40,
+    "RamBytes": 448,
+    "RegisterDigits": 14,
+    "ProgramRamBase": 0,
+    "RomWordCount": 3072
+  },
+  "Firmware": {
+    "RomBinary": "Firmware/hp37.microcode.bin",
+    "RomListing": "Firmware/hp37.microcode.mlist",
+    "RomMap": "Firmware/hp37.microcode.map.json",
+    "HandlerCatalog": "../Act/microcode.handlers.json"
+  },
+  "Program": {
+    "MaxSteps": 0,
+    "Vocabulary": "Program/program.vocabulary.json"
+  }
+}

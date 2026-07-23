@@ -4,7 +4,7 @@ using TeoCalc.Core.Engine;
 using TeoCalc.Core.Engine.Classic;
 using TeoCalc.Core.Engine.Teo01;
 using TeoCalc.Core.Firmware;
-using TeoCalc.Panamatik;
+using TeoCalc.ReferenceEmulator;
 
 namespace TeoCalc.Core.Tests;
 
@@ -15,7 +15,7 @@ public sealed class Teo01FirmwareGatewayTests
     CalcFirmwareGatewayLocator.CreateGateway("HP-01");
 
   private static ProgramVocabulary LoadHp01Vocabulary() =>
-    ProgramVocabulary.Load(TeoCalcPaths.ResourcePath("Engine/HP-01/Program/program.vocabulary.json"));
+    ProgramVocabulary.Load(TeoCalcPaths.ResourcePath("Engine/T-01/Program/program.vocabulary.json"));
 
   private static void Soak(ICalcFirmwareGateway gateway, int ticks, float deltaSeconds = 0.01f)
   {
@@ -39,9 +39,9 @@ public sealed class Teo01FirmwareGatewayTests
   public void Factory_Create_LoadsRomAndHandlers()
   {
     string engineRoot = TeoCalcPaths.ResourcePath("Engine");
-    TeoCalcModelDefinition model = TeoCalcModelDefinition.Load(Path.Combine(engineRoot, "HP-01", "Model.json"));
+    TeoCalcModelDefinition model = TeoCalcModelDefinition.Load(Path.Combine(engineRoot, "T-01", "Model.json"));
     Assert.AreEqual(2304, model.Hardware.RomWordCount);
-    Assert.AreEqual("HP01", model.Family);
+    Assert.AreEqual("Teo01", model.Family);
 
     Teo01Cpu cpu = Teo01CpuFactory.Create(model, engineRoot);
     Assert.AreEqual(0, cpu.State.ProgramCounter);
@@ -143,9 +143,9 @@ public sealed class Teo01FirmwareGatewayTests
   public void RomWordCount_Is_2304()
   {
     string engineRoot = TeoCalcPaths.ResourcePath("Engine");
-    TeoCalcModelDefinition model = TeoCalcModelDefinition.Load(Path.Combine(engineRoot, "HP-01", "Model.json"));
+    TeoCalcModelDefinition model = TeoCalcModelDefinition.Load(Path.Combine(engineRoot, "T-01", "Model.json"));
     Assert.AreEqual(2304, model.Hardware.RomWordCount);
-    string romPath = Path.Combine(engineRoot, "HP-01", model.Firmware.RomBinary.Replace('/', Path.DirectorySeparatorChar));
+    string romPath = Path.Combine(engineRoot, "T-01", model.Firmware.RomBinary.Replace('/', Path.DirectorySeparatorChar));
     MicrocodeRom rom = MicrocodeRom.LoadBinary(romPath);
     Assert.AreEqual(2304, rom.WordCount);
   }

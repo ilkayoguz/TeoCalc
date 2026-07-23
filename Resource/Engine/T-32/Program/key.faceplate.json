@@ -1,0 +1,210 @@
+{
+  "Format": "TeoCalc.KeyFaceplate",
+  "SchemaVersion": 2,
+  "Model": "T-32",
+  "Source": "HP-32E Owner's Handbook / Finseth hp32e — CapAbove=f (gold); CapSkirt=g (blue); CapFace letters on f/g at indices 3/4; Σ+ CapFace at 9; CLEAR CapAbove PREFIX ALL REG Σ (ENTER Gold=PREFIX, Blue=MANT; no GoldRight dual); CLEAR bracket spans ENTER…CLX",
+  "ClearBracket": {
+    "LeftKey": 10,
+    "RightKey": 14,
+    "TextCenterKey": 12,
+    "Text": "CLEAR"
+  },
+  "Keys": {
+    "0": {
+      "Gold": "FIX",
+      "Blue": "x²",
+      "CapFace": "√x",
+      "Style": "Black"
+    },
+    "1": {
+      "Gold": "SCI",
+      "Blue": "π",
+      "CapFace": "1/x",
+      "Style": "Black"
+    },
+    "2": {
+      "Gold": "ENG",
+      "Blue": "LST X",
+      "CapFace": "y^x",
+      "Style": "Black"
+    },
+    "5": {
+      "Gold": "Q",
+      "Blue": "Q^-1",
+      "CapFace": "x↔y",
+      "Style": "Black"
+    },
+    "6": {
+      "Gold": "ŷ",
+      "Blue": "x̂",
+      "CapFace": "R↓",
+      "Style": "Black"
+    },
+    "7": {
+      "Gold": "L.R.",
+      "Blue": "r",
+      "CapFace": "STO",
+      "Style": "Black"
+    },
+    "8": {
+      "Gold": "x̅",
+      "Blue": "s",
+      "CapFace": "RCL",
+      "Style": "Black"
+    },
+    "9": {
+      "Gold": "Σ-",
+      "Blue": "n!",
+      "CapFace": "Σ+",
+      "Style": "Black"
+    },
+    "10": {
+      "Gold": "PREFIX",
+      "Blue": "MANT",
+      "CapFace": "ENTER",
+      "Style": "Black"
+    },
+    "12": {
+      "Gold": "ALL",
+      "Blue": "RAD",
+      "CapFace": "CHS",
+      "Style": "Black"
+    },
+    "13": {
+      "Gold": "REG",
+      "Blue": "GRD",
+      "CapFace": "EEX",
+      "Style": "Black"
+    },
+    "14": {
+      "Gold": "Σ",
+      "Blue": "DEG",
+      "CapFace": "CLX",
+      "Style": "Black"
+    },
+    "15": {
+      "Gold": "→in",
+      "Blue": "→mm",
+      "CapFace": "-",
+      "Style": "White"
+    },
+    "16": {
+      "Gold": "SIN",
+      "Blue": "sin^-1",
+      "CapFace": "7",
+      "Style": "White"
+    },
+    "17": {
+      "Gold": "COS",
+      "Blue": "cos^-1",
+      "CapFace": "8",
+      "Style": "White"
+    },
+    "18": {
+      "Gold": "TAN",
+      "Blue": "tan^-1",
+      "CapFace": "9",
+      "Style": "White"
+    },
+    "20": {
+      "Gold": "→°F",
+      "Blue": "→°C",
+      "CapFace": "+",
+      "Style": "White"
+    },
+    "21": {
+      "Gold": "→R",
+      "Blue": "→P",
+      "CapFace": "4",
+      "Style": "White"
+    },
+    "22": {
+      "Gold": "→RAD",
+      "Blue": "→DEG",
+      "CapFace": "5",
+      "Style": "White"
+    },
+    "23": {
+      "Gold": "→H.MS",
+      "Blue": "→H",
+      "CapFace": "6",
+      "Style": "White"
+    },
+    "25": {
+      "Gold": "→lbm",
+      "Blue": "→kg",
+      "CapFace": "×",
+      "Style": "White"
+    },
+    "26": {
+      "Gold": "SINH",
+      "Blue": "SINH^-1",
+      "CapFace": "1",
+      "Style": "White"
+    },
+    "27": {
+      "Gold": "COSH",
+      "Blue": "COSH^-1",
+      "CapFace": "2",
+      "Style": "White"
+    },
+    "28": {
+      "Gold": "TANH",
+      "Blue": "TANH^-1",
+      "CapFace": "3",
+      "Style": "White"
+    },
+    "30": {
+      "Gold": "→gal",
+      "Blue": "→ltr",
+      "CapFace": "÷",
+      "Style": "White"
+    },
+    "31": {
+      "Gold": "LN",
+      "Blue": "e^x",
+      "CapFace": "0",
+      "Style": "White"
+    },
+    "32": {
+      "Gold": "LOG",
+      "Blue": "10^x",
+      "CapFace": "·",
+      "Style": "White"
+    },
+    "33": {
+      "Gold": "%Σ",
+      "Blue": "Δ%",
+      "CapFace": "%",
+      "Style": "White"
+    },
+    "3": {
+      "CapFace": "f",
+      "Style": "Orange"
+    },
+    "4": {
+      "CapFace": "g",
+      "Style": "Blue"
+    },
+    "11": {
+      "CapFace": "ENTER",
+      "Style": "Black"
+    },
+    "19": {
+      "CapFace": "",
+      "Style": "White"
+    },
+    "24": {
+      "CapFace": "",
+      "Style": "White"
+    },
+    "29": {
+      "CapFace": "",
+      "Style": "White"
+    },
+    "34": {
+      "CapFace": "",
+      "Style": "Black"
+    }
+  }
+}

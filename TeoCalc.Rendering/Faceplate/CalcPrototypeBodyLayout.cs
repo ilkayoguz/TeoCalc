@@ -14,7 +14,7 @@ public static class CalcPrototypeBodyLayout
 
   public static void InvalidateCache() => Cache.Clear();
 
-  public static CalcBodyLayout Instance => Resolve("Classic", "HP-65", new CalcModelDefinition
+  public static CalcBodyLayout Instance => Resolve("Classic", "T-65", new CalcModelDefinition
   {
     Id = "65",
     DisplayName = "T-65",

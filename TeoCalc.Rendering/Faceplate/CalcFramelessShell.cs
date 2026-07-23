@@ -41,10 +41,11 @@ public static class CalcFramelessShell
     cursor = DrawBead(draw, cursor, radius, q, Calc00dWireStyle.LightGrayFitilFill, Calc00dWireStyle.LightGrayFitilShine);
     radius = MathF.Max(0f, radius - q);
 
-    FillRoundedRect(draw, cursor, radius, Calc00dWireStyle.InnerBodyFill);
+    CalcAppTheme.EnsureInitialized();
+    FillRoundedRect(draw, cursor, radius, CalcAppTheme.WindowBack);
 
     RectF band = new(cursor.X, cursor.Y, cursor.Width, TopBandHeight);
-    draw.AddRectFilled(band.Min, band.Max, Calc00dWireStyle.SwitchPanelFill, radius, ImDrawFlags.RoundCornersTop);
+    draw.AddRectFilled(band.Min, band.Max, CalcAppTheme.TitleBarBack, radius, ImDrawFlags.RoundCornersTop);
 
     if (!string.IsNullOrWhiteSpace(title))
     {
@@ -53,7 +54,7 @@ public static class CalcFramelessShell
       Vector2 size = font.CalcTextSizeA(fontSize, float.MaxValue, 0f, title);
       float textX = band.X + 14f;
       float textY = band.Y + MathF.Max(0f, (band.Height - size.Y) * 0.5f);
-      draw.AddText(font, fontSize, new Vector2(textX, textY), 0xFFE8E8E8u, title);
+      draw.AddText(font, fontSize, new Vector2(textX, textY), CalcAppTheme.TitleBarInk, title);
     }
 
     return new RectF(

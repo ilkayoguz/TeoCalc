@@ -9,7 +9,7 @@ namespace TeoCalc.Core.Tests;
 public sealed class Hp25FaceplateLegendTests
 {
   private static ProgramVocabulary LoadVocabulary() =>
-    ProgramVocabulary.Load(TeoCalcPaths.ResourcePath("Engine/HP-25/Program/program.vocabulary.json"));
+    ProgramVocabulary.Load(TeoCalcPaths.ResourcePath("Engine/T-25/Program/program.vocabulary.json"));
 
   [TestMethod]
   public void PhysicalCells_MatchWoodstockFiveColumnMap()

@@ -4,6 +4,7 @@ using System.Text;
 using TeoCalc.Core.Engine.Classic;
 using TeoCalc.Core.Firmware;
 using TeoCalc.Formats;
+using TeoTheme;
 using Session = TeoCalc.Rendering.CalcExplorerSession;
 
 namespace TeoCalc.Rendering.Faceplate;
@@ -77,6 +78,7 @@ public static class CalcStudioPanelComponent
       return;
     }
 
+    CalcAppTheme.EnsureInitialized();
     Vector2 size = ImGui.CalcTextSize(s_statusBalloon);
     Vector2 pad = new(8f, 5f);
     Vector2 p0 = new(
@@ -84,9 +86,10 @@ public static class CalcStudioPanelComponent
       s_statusBalloonAnchor.Y - size.Y - pad.Y * 2f - 8f);
     Vector2 p1 = p0 + size + pad * 2f;
     ImDrawListPtr draw = ImGui.GetForegroundDrawList();
-    draw.AddRectFilled(p0, p1, 0xE0101014u, 4f);
-    draw.AddRect(p0, p1, 0xFF808890u, 4f);
-    draw.AddText(p0 + pad, 0xFFFFFFFFu, s_statusBalloon);
+    ThemePalette palette = CalcAppTheme.Current;
+    draw.AddRectFilled(p0, p1, CalcAppThemeColors.ToImGui(palette, ThemeTokens.TooltipBackColor), 4f);
+    draw.AddRect(p0, p1, CalcAppThemeColors.ToImGui(palette, ThemeTokens.TooltipBorderColor), 4f);
+    draw.AddText(p0 + pad, CalcAppThemeColors.ToImGui(palette, ThemeTokens.TooltipTextColor), s_statusBalloon);
   }
 
   public static void DrawInline(
@@ -263,7 +266,7 @@ public static class CalcStudioPanelComponent
 
         if (ImGui.IsItemHovered())
         {
-          ImGui.SetTooltip(
+          CalcAppTooltip.Set(
             session.ProgramMode
               ? "Write program RAM to the card file (W/PRGM)."
               : "Write unsaved program RAM to the card file.");
@@ -391,7 +394,7 @@ public static class CalcStudioPanelComponent
 
     if (ImGui.IsItemHovered())
     {
-      ImGui.SetTooltip("Set Classic PTR (also: double-click row, Ctrl+Shift+F10, FC right-click).");
+      CalcAppTooltip.Set("Set Classic PTR (also: double-click row, Ctrl+Shift+F10, FC right-click).");
     }
 
     ImGui.SameLine();
@@ -421,7 +424,7 @@ public static class CalcStudioPanelComponent
       ImGuiInputTextFlags.EnterReturnsTrue);
     if (ImGui.IsItemHovered())
     {
-      ImGui.SetTooltip("Find in Machine / Keys / Legend (Ctrl+F)");
+      CalcAppTooltip.Set("Find in Machine / Keys / Legend (Ctrl+F)");
     }
 
     ImGui.SameLine();
@@ -631,6 +634,7 @@ public static class CalcStudioPanelComponent
       ImGui.OpenPopup("##leave-wprgm-confirm");
     }
 
+    CalcAppDialogStyle.PushModal();
     bool open = true;
     if (!ImGui.BeginPopupModal(
           "##leave-wprgm-confirm",
@@ -642,13 +646,16 @@ public static class CalcStudioPanelComponent
         session.CancelLeaveProgramConfirm();
       }
 
+      CalcAppDialogStyle.PopModal();
       return;
     }
 
+    ImGui.Dummy(new Vector2(320f, 0f));
     ImGui.TextUnformatted("Program has unsaved changes.");
     ImGui.TextDisabled("Save before switching to RUN?");
     ImGui.Spacing();
 
+    CalcAppDialogStyle.PushAffirmative();
     if (ImGui.Button("Save", new Vector2(90f, 0f)))
     {
       if (TryStudioSaveCard(session, ref cardPathBuffer, saveCard, out string status))
@@ -664,21 +671,30 @@ public static class CalcStudioPanelComponent
       }
     }
 
+    CalcAppDialogStyle.PopButton();
+
     ImGui.SameLine();
+    CalcAppDialogStyle.PushDestructive();
     if (ImGui.Button("Don't Save", new Vector2(100f, 0f)))
     {
       session.ConfirmDiscardProgramEditsAndRun();
       ImGui.CloseCurrentPopup();
     }
 
+    CalcAppDialogStyle.PopButton();
+
     ImGui.SameLine();
+    CalcAppDialogStyle.PushNeutral();
     if (ImGui.Button("Cancel", new Vector2(90f, 0f)))
     {
       session.CancelLeaveProgramConfirm();
       ImGui.CloseCurrentPopup();
     }
 
+    CalcAppDialogStyle.PopButton();
+
     ImGui.EndPopup();
+    CalcAppDialogStyle.PopModal();
   }
 
   private static void DrawCompactDebugTransport(Session session)
@@ -690,14 +706,14 @@ public static class CalcStudioPanelComponent
 
     if (ImGui.IsItemHovered())
     {
-      ImGui.SetTooltip("Slower free-run ([)");
+      CalcAppTooltip.Set("Slower free-run ([)");
     }
 
     ImGui.SameLine();
     ImGui.TextUnformatted(session.ExecutionSpeedLabel);
     if (ImGui.IsItemHovered())
     {
-      ImGui.SetTooltip("Execution speed (free-run Tick multiplier)");
+      CalcAppTooltip.Set("Execution speed (free-run Tick multiplier)");
     }
 
     ImGui.SameLine();
@@ -708,7 +724,7 @@ public static class CalcStudioPanelComponent
 
     if (ImGui.IsItemHovered())
     {
-      ImGui.SetTooltip("Faster free-run (])");
+      CalcAppTooltip.Set("Faster free-run (])");
     }
 
     ImGui.SameLine();
@@ -728,7 +744,7 @@ public static class CalcStudioPanelComponent
 
     if (ImGui.IsItemHovered())
     {
-      ImGui.SetTooltip("Break / pause (F6)");
+      CalcAppTooltip.Set("Break / pause (F6)");
     }
 
     ImGui.SameLine();
@@ -739,7 +755,7 @@ public static class CalcStudioPanelComponent
 
     if (ImGui.IsItemHovered())
     {
-      ImGui.SetTooltip("Continue (F5)");
+      CalcAppTooltip.Set("Continue (F5)");
     }
 
     ImGui.SameLine();
@@ -750,7 +766,7 @@ public static class CalcStudioPanelComponent
 
     if (ImGui.IsItemHovered())
     {
-      ImGui.SetTooltip(
+      CalcAppTooltip.Set(
         "F11: one keystroke / one FC element (AdvancePointer). RTN’den sonra → LBL.");
     }
 
@@ -762,7 +778,7 @@ public static class CalcStudioPanelComponent
 
     if (ImGui.IsItemHovered())
     {
-      ImGui.SetTooltip("F10: one Code row / one FC box.");
+      CalcAppTooltip.Set("F10: one Code row / one FC box.");
     }
 
     if (!powered)
@@ -776,7 +792,7 @@ public static class CalcStudioPanelComponent
       $"PC={batch.ProgramCounter:X4}  steps={batch.StepCount}  {(session.ExecutionPaused ? "PAUSED" : "RUN")}");
     if (ImGui.IsItemHovered())
     {
-      ImGui.SetTooltip(
+      CalcAppTooltip.Set(
         "F5 Cont  Shift+F5 Stop  F6 Break  F9 Breakpoint  F10 row/box  F11 key  |  [ ] speed  |  Microcode: title-bar Debug");
     }
   }
@@ -809,7 +825,7 @@ public static class CalcStudioPanelComponent
   {
     ImGui.PushStyleColor(ImGuiCol.ChildBg, StudioMnemonicPaint.CodePaneBg);
     ImGui.PushStyleColor(ImGuiCol.Text, StudioMnemonicPaint.DefaultInk);
-    ImGui.PushStyleColor(ImGuiCol.TableHeaderBg, 0xFF3A3E42u);
+    ImGui.PushStyleColor(ImGuiCol.TableHeaderBg, StudioMnemonicPaint.TableHeaderBg);
     ImGui.PushStyleColor(ImGuiCol.TableRowBg, 0x00FFFFFF);
     ImGui.PushStyleColor(ImGuiCol.TableRowBgAlt, 0x14FFFFFF);
     ImGui.PushStyleColor(ImGuiCol.Header, StudioMnemonicPaint.SelectionRowBg);
@@ -1160,7 +1176,7 @@ public static class CalcStudioPanelComponent
 
       if (ImGui.IsItemHovered())
       {
-        ImGui.SetTooltip($"Double-click to edit R{r}");
+        CalcAppTooltip.Set($"Double-click to edit R{r}");
       }
 
       ImGui.SetCursorScreenPos(p0 + pad);

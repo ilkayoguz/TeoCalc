@@ -46,7 +46,7 @@ public static class CalcPrimitiveThumbnail
     float innerR = MathF.Max(0f, outerR - frameW);
     draw.AddRectFilled(inner.Min, inner.Max, Calc00dWireStyle.InnerBodyFill, innerR, ImDrawFlags.RoundCornersAll);
 
-    // LED: flat dark glass, no fitil stack.
+    // LED: flat dark glass (labels sit under the tile — LED font has no letters for "T-65").
     RectF bezel = ScaleRect(origin, scale, metrics.Layout.DisplaySlot);
     RectF glass = ScaleRect(origin, scale, Calc00dBodyLayout.GlassFromBezel(metrics.Layout.DisplaySlot));
     draw.AddRectFilled(bezel.Min, bezel.Max, Calc00dWireStyle.BlackFitilFill, Calc00dWireStyle.DisplayBezelRadiusRef * scale);
@@ -208,9 +208,9 @@ public static class CalcPrimitiveThumbnail
   }
 
   private static bool IsClassicKeyCodeZeroFaceplateSlot(string modelId, int keyChartIndex) =>
-    (string.Equals(modelId, "HP-35", StringComparison.OrdinalIgnoreCase) && keyChartIndex == 4)
-    || (string.Equals(modelId, "HP-45", StringComparison.OrdinalIgnoreCase) && keyChartIndex == 4)
-    || (string.Equals(modelId, "HP-55", StringComparison.OrdinalIgnoreCase) && keyChartIndex is 4 or 9);
+    (CalcModelIds.IsEngine(modelId, "T-35") && keyChartIndex == 4)
+    || (CalcModelIds.IsEngine(modelId, "T-45") && keyChartIndex == 4)
+    || (CalcModelIds.IsEngine(modelId, "T-55") && keyChartIndex is 4 or 9);
 
   private static RectF ScaleRect(Vector2 origin, float scale, RectF rect) => new(
     origin.X + rect.X * scale,

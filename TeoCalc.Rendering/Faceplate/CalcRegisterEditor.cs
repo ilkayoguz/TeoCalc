@@ -43,8 +43,10 @@ public static class CalcRegisterEditor
 
     bool open = s_open;
     ImGui.SetNextWindowSize(new Vector2(360f, 0f), ImGuiCond.Appearing);
+    CalcAppDialogStyle.PushModal();
     if (!ImGui.BeginPopupModal("##studio-reg-editor", ref open, ImGuiWindowFlags.AlwaysAutoResize))
     {
+      CalcAppDialogStyle.PopModal();
       if (!open)
       {
         s_open = false;
@@ -71,18 +73,21 @@ public static class CalcRegisterEditor
     }
 
     ImGui.Spacing();
-    CalcStudioChromeStyle.PushPrimary();
+    CalcAppDialogStyle.PushAffirmative();
     if (ImGui.Button("OK", new Vector2(90f, 0f)))
     {
       apply = true;
     }
 
-    CalcStudioChromeStyle.PopPrimary();
+    CalcAppDialogStyle.PopButton();
     ImGui.SameLine();
+    CalcAppDialogStyle.PushNeutral();
     if (ImGui.Button("Cancel", new Vector2(90f, 0f)))
     {
       cancel = true;
     }
+
+    CalcAppDialogStyle.PopButton();
 
     if (ImGui.IsKeyPressed(ImGuiKey.Enter) || ImGui.IsKeyPressed(ImGuiKey.KeypadEnter))
     {
@@ -120,6 +125,7 @@ public static class CalcRegisterEditor
     }
 
     ImGui.EndPopup();
+    CalcAppDialogStyle.PopModal();
     return committed is not null;
   }
 

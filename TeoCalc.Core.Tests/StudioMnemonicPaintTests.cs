@@ -384,16 +384,21 @@ public sealed class StudioListingViewTests
       new(1, ClassicProgramCodes.Pointer, "PTR"),
       new(2, ClassicProgramCodes.Label, "LBL"),
       new(3, 1, "A"),
+      new(4, 1, "1"),
+      new(5, 24, "RTN"),
     ];
 
     IReadOnlyList<StudioListingView.Row> rows = StudioListingView.Build(lines);
-    Assert.AreEqual(1, rows.Count);
+    Assert.IsTrue(rows.Count >= 1);
     Assert.AreEqual(StudioListingView.MergeKind.LabelPair, rows[0].Kind);
     Assert.AreEqual("LBL A", rows[0].DisplayMnemonic);
     // RAM address of first user step remains 2 (0=START, 1=PTR). Studio # uses
     // DisplayStepNumber (1-based filtered span), not the RAM Index.
     Assert.AreEqual(2, rows[0].Index);
     Assert.AreEqual(1, StudioListingView.DisplayStepNumber(rows, 0));
+    Assert.IsFalse(rows.Any(r =>
+      string.Equals(r.Mnemonic, "START", StringComparison.OrdinalIgnoreCase)
+      || string.Equals(r.Mnemonic, "PTR", StringComparison.OrdinalIgnoreCase)));
   }
 
   [TestMethod]
@@ -653,6 +658,8 @@ public sealed class StudioListingViewTests
       new(1, ClassicProgramCodes.Pointer, "PTR"),
       new(2, 43, "LBL"),
       new(3, 1, "A"),
+      new(4, 1, "1"),
+      new(5, 24, "RTN"),
     ];
     IReadOnlyList<StudioListingView.Row> rows = StudioListingView.Build(lines);
     Assert.AreEqual(2, StudioListingView.ResolvePointerHighlightIndex(lines, rows));

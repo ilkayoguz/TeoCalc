@@ -158,7 +158,7 @@ public static class StudioListingView
 
     if (row.Kind == MergeKind.LabelPair)
     {
-      return PaintLabelCaption(row.SecondMnemonic!, row.SecondMnemonic, cardStripCaptions);
+      return PaintLabelCaption(row.DisplayMnemonic, row.SecondMnemonic, cardStripCaptions);
     }
 
     if (row.Kind == MergeKind.RegisterArith
@@ -217,10 +217,15 @@ public static class StudioListingView
     }
 
     string caption = ClassicCardStripLabels.CaptionForLetter(cardStripCaptions, letter);
+    if (string.IsNullOrEmpty(caption))
+    {
+      return new Paint(keysMnemonic, string.Empty, StudioShiftLegend.ShiftKind.None);
+    }
+
     StudioShiftLegend.ShiftKind kind = ClassicCardStripLabels.UsesNoCardStripChrome(cardStripCaptions)
       ? StudioShiftLegend.ShiftKind.NoCardStrip
       : StudioShiftLegend.ShiftKind.CardStrip;
-    return new Paint(letter!.Trim(), caption, kind);
+    return new Paint(keysMnemonic, caption, kind);
   }
 
   /// <summary>

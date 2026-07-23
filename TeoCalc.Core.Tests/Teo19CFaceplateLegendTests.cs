@@ -9,7 +9,7 @@ namespace TeoCalc.Core.Tests;
 public sealed class Teo19CFaceplateLegendTests
 {
   private static ProgramVocabulary LoadVocabulary() =>
-    ProgramVocabulary.Load(TeoCalcPaths.ResourcePath("Engine/HP-19C/Program/program.vocabulary.json"));
+    ProgramVocabulary.Load(TeoCalcPaths.ResourcePath("Engine/T-19C/Program/program.vocabulary.json"));
 
   [TestMethod]
   public void PhysicalCells_IncludeWideEnter_AndOmitBlanks()

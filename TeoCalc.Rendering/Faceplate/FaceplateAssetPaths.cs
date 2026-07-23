@@ -4,14 +4,14 @@ using TeoCalc.Core.Catalog;
 namespace TeoCalc.Rendering.Faceplate;
 
 /// <summary>
-/// Resolves faceplate asset directories: model-specific → Shared → HP-65 legacy fallback.
+/// Resolves faceplate asset directories: model-specific → Shared → T-65 legacy fallback.
 /// </summary>
 public static class FaceplateAssetPaths
 {
   public static string ResolveAssetsRoot(string? catalogOrEngineId)
   {
     string engineId = string.IsNullOrWhiteSpace(catalogOrEngineId)
-      ? "HP-65"
+      ? "T-65"
       : CalcModelIds.ToEngineId(catalogOrEngineId);
 
     string modelRoot = TeoCalcPaths.ResourcePath(Path.Combine("Engine", engineId, "Assets"));
@@ -26,14 +26,14 @@ public static class FaceplateAssetPaths
       return sharedRoot;
     }
 
-    return TeoCalcPaths.ResourcePath(Path.Combine("Engine", "HP-65", "Assets"));
+    return TeoCalcPaths.ResourcePath(Path.Combine("Engine", "T-65", "Assets"));
   }
 
   public static string ResolveFile(string? catalogOrEngineId, params string[] relativeParts)
   {
     string fileName = Path.Combine(relativeParts);
     string engineId = string.IsNullOrWhiteSpace(catalogOrEngineId)
-      ? "HP-65"
+      ? "T-65"
       : CalcModelIds.ToEngineId(catalogOrEngineId);
 
     foreach (string rootCandidate in CandidateRoots(engineId))
@@ -52,6 +52,6 @@ public static class FaceplateAssetPaths
   {
     yield return TeoCalcPaths.ResourcePath(Path.Combine("Engine", engineId, "Assets"));
     yield return TeoCalcPaths.ResourcePath(Path.Combine("Engine", "Shared", "Assets"));
-    yield return TeoCalcPaths.ResourcePath(Path.Combine("Engine", "HP-65", "Assets"));
+    yield return TeoCalcPaths.ResourcePath(Path.Combine("Engine", "T-65", "Assets"));
   }
 }

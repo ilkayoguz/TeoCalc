@@ -9,7 +9,7 @@ namespace TeoCalc.Core.Tests;
 public sealed class Hp65FaceplateLegendTests
 {
   private static ProgramVocabulary LoadVocabulary() =>
-    ProgramVocabulary.Load(TeoCalcPaths.ResourcePath("Engine/HP-65/Program/program.vocabulary.json"));
+    ProgramVocabulary.Load(TeoCalcPaths.ResourcePath("Engine/T-65/Program/program.vocabulary.json"));
 
   [TestMethod]
   public void ClearBracket_SpansEnterThroughClx()

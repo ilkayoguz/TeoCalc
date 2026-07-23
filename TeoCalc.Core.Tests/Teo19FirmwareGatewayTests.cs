@@ -3,7 +3,7 @@ using TeoCalc.Core.Catalog;
 using TeoCalc.Core.Engine.Act;
 using TeoCalc.Core.Engine.Teo19;
 using TeoCalc.Core.Firmware;
-using TeoCalc.Panamatik;
+using TeoCalc.ReferenceEmulator;
 
 namespace TeoCalc.Core.Tests;
 
@@ -27,7 +27,7 @@ public sealed class Teo19FirmwareGatewayTests
   public void Factory_Create_LoadsRomAndHandlers()
   {
     string engineRoot = TeoCalcPaths.ResourcePath("Engine");
-    TeoCalcModelDefinition model = TeoCalcModelDefinition.Load(Path.Combine(engineRoot, "HP-19C", "Model.json"));
+    TeoCalcModelDefinition model = TeoCalcModelDefinition.Load(Path.Combine(engineRoot, "T-19C", "Model.json"));
     Teo19Cpu cpu = Teo19CpuFactory.Create(model, engineRoot);
     Assert.AreEqual(5120, model.Hardware.RomWordCount);
     Assert.AreEqual(0, cpu.State.ProgramCounter);

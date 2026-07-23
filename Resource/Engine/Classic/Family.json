@@ -2,7 +2,7 @@
   "Format": "TeoCalc.CpuFamily",
   "SchemaVersion": 1,
   "Family": "Classic",
-  "DisplayName": "HP Classic microprocessor family",
+  "DisplayName": "Classic microprocessor family",
   "HardwareDefaults": {
     "RamBytes": 448,
     "RegisterDigits": 14,
@@ -14,7 +14,7 @@
   "Execution": {
     "Fetch": "rom[grp << 11 | rom << 8 | pc]",
     "Dispatch": "handlerTable[romWord]",
-    "Reference": "Panamatik HPCLASSIC; HP Museum opcode map (future verify)"
+    "Reference": "Classic family opcode map (museum cross-check later)"
   },
   "HandlerCatalog": "microcode.handlers.json"
 }

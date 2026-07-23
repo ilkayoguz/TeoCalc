@@ -15,11 +15,11 @@ public static class ClassicFaceplateSvgAssets
 
   private const int LogoSvgRevision = 2;
 
-  private static string AssetsRoot => FaceplateAssetPaths.ResolveAssetsRoot("HP-65");
+  private static string AssetsRoot => FaceplateAssetPaths.ResolveAssetsRoot("T-65");
 
-  private static string BodyPath => FaceplateAssetPaths.ResolveFile("HP-65", "Body.svg");
+  private static string BodyPath => FaceplateAssetPaths.ResolveFile("T-65", "Body.svg");
 
-  private static string LogoPath => FaceplateAssetPaths.ResolveFile("HP-65", "HpLogo.svg");
+  private static string LogoPath => FaceplateAssetPaths.ResolveFile("T-65", "HpLogo.svg");
 
   public static bool IsReady => Cache.IsInitialized && File.Exists(BodyPath);
 

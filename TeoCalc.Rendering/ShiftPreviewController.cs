@@ -1,3 +1,5 @@
+using TeoCalc.Core.Catalog;
+
 namespace TeoCalc.Rendering;
 
 public sealed class ShiftPreviewController
@@ -337,94 +339,47 @@ public sealed class ShiftPreviewController
   }
 
   private static bool IsHp01(string? family) =>
-    string.Equals(family, "HP01", StringComparison.OrdinalIgnoreCase);
+    string.Equals(family, "HP01", StringComparison.OrdinalIgnoreCase)
+    || string.Equals(family, "Teo01", StringComparison.OrdinalIgnoreCase);
 
   private static bool IsHp19C(string? family) =>
-    string.Equals(family, "HP19C", StringComparison.OrdinalIgnoreCase);
+    string.Equals(family, "HP19C", StringComparison.OrdinalIgnoreCase)
+    || string.Equals(family, "Hp19", StringComparison.OrdinalIgnoreCase)
+    || string.Equals(family, "Teo19", StringComparison.OrdinalIgnoreCase);
 
   private static bool IsWoodstock(string? family) =>
     string.Equals(family, "Woodstock", StringComparison.OrdinalIgnoreCase)
     || string.Equals(family, "Spice", StringComparison.OrdinalIgnoreCase);
 
-  private static bool IsHp22(string? modelId) =>
-    string.Equals(modelId, "HP-22", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(modelId, "22", StringComparison.OrdinalIgnoreCase);
+  private static bool IsHp22(string? modelId) => CalcModelIds.IsEngine(modelId, "T-22");
 
-  private static bool IsHp25(string? modelId) =>
-    string.Equals(modelId, "HP-25", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(modelId, "25", StringComparison.OrdinalIgnoreCase);
+  private static bool IsHp25(string? modelId) => CalcModelIds.IsEngine(modelId, "T-25");
 
-  private static bool IsHp27(string? modelId) =>
-    string.Equals(modelId, "HP-27", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(modelId, "27", StringComparison.OrdinalIgnoreCase);
+  private static bool IsHp27(string? modelId) => CalcModelIds.IsEngine(modelId, "T-27");
 
-  private static bool IsHp29(string? modelId) =>
-    string.Equals(modelId, "HP-29", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(modelId, "HP-29C", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(modelId, "29", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(modelId, "29C", StringComparison.OrdinalIgnoreCase);
+  private static bool IsHp29(string? modelId) => CalcModelIds.IsEngine(modelId, "T-29");
 
-  private static bool IsHp31(string? modelId) =>
-    string.Equals(modelId, "HP-31", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(modelId, "HP-31E", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(modelId, "31", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(modelId, "31E", StringComparison.OrdinalIgnoreCase);
+  private static bool IsHp31(string? modelId) => CalcModelIds.IsEngine(modelId, "T-31");
 
-  private static bool IsHp32(string? modelId) =>
-    string.Equals(modelId, "HP-32", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(modelId, "HP-32E", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(modelId, "32", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(modelId, "32E", StringComparison.OrdinalIgnoreCase);
+  private static bool IsHp32(string? modelId) => CalcModelIds.IsEngine(modelId, "T-32");
 
-  private static bool IsHp33(string? modelId) =>
-    string.Equals(modelId, "HP-33", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(modelId, "HP-33C", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(modelId, "HP-33E", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(modelId, "33", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(modelId, "33C", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(modelId, "33E", StringComparison.OrdinalIgnoreCase);
+  private static bool IsHp33(string? modelId) => CalcModelIds.IsEngine(modelId, "T-33");
 
-  private static bool IsHp34(string? modelId) =>
-    string.Equals(modelId, "HP-34", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(modelId, "HP-34C", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(modelId, "34", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(modelId, "34C", StringComparison.OrdinalIgnoreCase);
+  private static bool IsHp34(string? modelId) => CalcModelIds.IsEngine(modelId, "T-34");
 
-  private static bool IsHp37(string? modelId) =>
-    string.Equals(modelId, "HP-37", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(modelId, "HP-37E", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(modelId, "37", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(modelId, "37E", StringComparison.OrdinalIgnoreCase);
+  private static bool IsHp37(string? modelId) => CalcModelIds.IsEngine(modelId, "T-37");
 
-  private static bool IsHp38(string? modelId) =>
-    string.Equals(modelId, "HP-38", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(modelId, "HP-38E", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(modelId, "38", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(modelId, "38E", StringComparison.OrdinalIgnoreCase);
+  private static bool IsHp38(string? modelId) => CalcModelIds.IsEngine(modelId, "T-38");
 
-  private static bool IsHp35(string? modelId) =>
-    string.Equals(modelId, "HP-35", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(modelId, "35", StringComparison.OrdinalIgnoreCase);
+  private static bool IsHp35(string? modelId) => CalcModelIds.IsEngine(modelId, "T-35");
 
-  private static bool IsHp45(string? modelId) =>
-    string.Equals(modelId, "HP-45", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(modelId, "45", StringComparison.OrdinalIgnoreCase);
+  private static bool IsHp45(string? modelId) => CalcModelIds.IsEngine(modelId, "T-45");
 
-  private static bool IsHp55(string? modelId) =>
-    string.Equals(modelId, "HP-55", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(modelId, "55", StringComparison.OrdinalIgnoreCase);
+  private static bool IsHp55(string? modelId) => CalcModelIds.IsEngine(modelId, "T-55");
 
-  private static bool IsHp67(string? modelId) =>
-    string.Equals(modelId, "HP-67", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(modelId, "HP-67BE", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(modelId, "67", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(modelId, "67BE", StringComparison.OrdinalIgnoreCase);
+  private static bool IsHp67(string? modelId) => CalcModelIds.IsEngine(modelId, "T-67");
 
-  private static bool IsHp70(string? modelId) =>
-    string.Equals(modelId, "HP-70", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(modelId, "70", StringComparison.OrdinalIgnoreCase);
+  private static bool IsHp70(string? modelId) => CalcModelIds.IsEngine(modelId, "T-70");
 
-  private static bool IsHp80(string? modelId) =>
-    string.Equals(modelId, "HP-80", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(modelId, "80", StringComparison.OrdinalIgnoreCase);
+  private static bool IsHp80(string? modelId) => CalcModelIds.IsEngine(modelId, "T-80");
 }

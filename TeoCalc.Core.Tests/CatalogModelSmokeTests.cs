@@ -7,7 +7,7 @@ using TeoCalc.Core.Engine.Teo67;
 using TeoCalc.Core.Engine.Spice;
 using TeoCalc.Core.Engine.Woodstock;
 using TeoCalc.Core.Firmware;
-using TeoCalc.Panamatik;
+using TeoCalc.ReferenceEmulator;
 using TeoCalc.Rendering;
 using TeoCalc.Rendering.Faceplate;
 
@@ -199,19 +199,22 @@ public sealed class CatalogModelSmokeTests
   private static Type ExpectedGatewayType(string family, string catalogId)
   {
     if (string.Equals(catalogId, "HP-01", StringComparison.OrdinalIgnoreCase)
-        || string.Equals(family, "HP01", StringComparison.OrdinalIgnoreCase))
+        || string.Equals(family, "HP01", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(family, "Teo01", StringComparison.OrdinalIgnoreCase))
     {
       return typeof(Teo01FirmwareGateway);
     }
 
     if (string.Equals(catalogId, "HP-19C", StringComparison.OrdinalIgnoreCase)
-        || string.Equals(family, "Hp19", StringComparison.OrdinalIgnoreCase))
+        || string.Equals(family, "Hp19", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(family, "Teo19", StringComparison.OrdinalIgnoreCase))
     {
       return typeof(Teo19FirmwareGateway);
     }
 
     if (string.Equals(catalogId, "HP-67", StringComparison.OrdinalIgnoreCase)
-        || string.Equals(family, "Hp67", StringComparison.OrdinalIgnoreCase))
+        || string.Equals(family, "Hp67", StringComparison.OrdinalIgnoreCase)
+        || string.Equals(family, "Teo67", StringComparison.OrdinalIgnoreCase))
     {
       return typeof(Teo67FirmwareGateway);
     }

@@ -30,7 +30,7 @@ public static class Hp21CalcBodyLayout
   public static CalcBodyLayout Create()
   {
     Dictionary<int, RectF> keySlots = new();
-    foreach (FaceplateCell cell in CalcFaceplateLayout.GetPhysicalCells("Woodstock", "HP-21"))
+    foreach (FaceplateCell cell in CalcFaceplateLayout.GetPhysicalCells("Woodstock", "T-21"))
     {
       if (TryGetKeyRect(cell, out RectF rect))
       {

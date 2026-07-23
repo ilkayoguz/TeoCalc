@@ -35,7 +35,7 @@ public sealed class StudioWprgmEditTests
     Assert.IsTrue(session.ProgramMode);
 
     ProgramVocabulary vocabulary = ProgramVocabulary.Load(
-      TeoCalcPaths.ResourcePath("Engine/HP-65/Program/program.vocabulary.json"));
+      TeoCalcPaths.ResourcePath("Engine/T-65/Program/program.vocabulary.json"));
     Assert.IsTrue(ClassicProgramInput.TryResolveKeyCode(vocabulary, '7', out byte keyCode));
     session.PressKey(keyCode);
 
@@ -87,7 +87,7 @@ public sealed class StudioWprgmEditTests
     using CalcExplorerSession session = CreateHp65Session();
     session.ToggleProgramModeTo(true);
     ProgramVocabulary vocabulary = ProgramVocabulary.Load(
-      TeoCalcPaths.ResourcePath("Engine/HP-65/Program/program.vocabulary.json"));
+      TeoCalcPaths.ResourcePath("Engine/T-65/Program/program.vocabulary.json"));
     Assert.IsTrue(ClassicProgramInput.TryResolveKeyCode(vocabulary, '1', out byte keyCode));
     session.PressKey(keyCode);
     Assert.IsTrue(session.IsProgramDirty);

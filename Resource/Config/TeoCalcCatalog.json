@@ -11,23 +11,23 @@
     "HandlerMnemonicLength": 4,
     "HandlerIdPattern": "ClassicCpu.{Name}",
     "ProgramVocabularyFile": "program.vocabulary.json",
-    "PanamatikStudyNote": "Initial ROM and vocabulary from Panamatik; HP Museum cross-check later."
+    "ProvenanceNote": "Initial ROM and vocabulary from historical study extracts; museum cross-check later."
   },
   "CpuFamilies": {
     "Classic": {
-      "DisplayName": "HP Classic (Nut predecessor)",
+      "DisplayName": "Classic",
       "Models": ["HP-35", "HP-45", "HP-55", "HP-65", "HP-70", "HP-80", "HP-67BE"],
       "FamilyConfig": "Resource/Engine/Classic/Family.json",
       "HandlerCatalog": "Resource/Engine/Classic/microcode.handlers.json"
     },
     "Woodstock": {
-      "DisplayName": "HP Woodstock",
+      "DisplayName": "Woodstock",
       "Models": ["HP-21", "HP-22", "HP-25", "HP-27", "HP-29C"],
       "FamilyConfig": "Resource/Engine/Woodstock/Family.json",
       "HandlerCatalog": "Resource/Engine/Woodstock/microcode.handlers.study.json"
     },
     "Spice": {
-      "DisplayName": "HP Spice",
+      "DisplayName": "Spice",
       "Models": ["HP-31E", "HP-32E", "HP-33E", "HP-34C", "HP-37E", "HP-38E"],
       "FamilyConfig": "Resource/Engine/Spice/Family.json",
       "HandlerCatalog": "Resource/Engine/Spice/microcode.handlers.study.json"

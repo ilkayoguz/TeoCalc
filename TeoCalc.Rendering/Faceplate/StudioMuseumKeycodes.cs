@@ -207,9 +207,7 @@ public static class StudioMuseumKeycodes
   }
 
   private static bool IsClassicHp65Family(string modelId) =>
-    string.Equals(modelId, "HP-65", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(modelId, "65", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(CalcModelIds.ToEngineId(modelId), "HP-65", StringComparison.OrdinalIgnoreCase);
+    CalcModelIds.IsEngine(modelId, "T-65");
 
   private static bool IsDigitToken(string token) =>
     token.Length == 1 && char.IsDigit(token[0]);

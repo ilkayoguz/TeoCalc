@@ -426,7 +426,7 @@ public static class CalcFaceplateView
         {
           if (helpMode)
           {
-            ImGui.SetTooltip(FormatKeyHelpBalloon(item));
+            CalcAppTooltip.Set(FormatKeyHelpBalloon(item));
           }
           else if (powerOn)
           {
@@ -717,17 +717,19 @@ public static class CalcFaceplateView
 
   /// <summary>
   /// Classic KeyCode 0 chart slots that still have physical faceplate keys:
-  /// HP-35 CLR, HP-45 gold prefix, HP-55 BST, HP-70 FV (Finseth / scancode 0).
+  /// T-35 CLR, T-45 gold prefix, T-55 BST, T-70 FV (Finseth / scancode 0).
   /// </summary>
   private static bool IsClassicKeyCodeZeroFaceplateSlot(string? modelId, int keyChartIndex) =>
     keyChartIndex == 4
     && modelId is not null
-    && modelId.ToUpperInvariant() is "HP-35" or "35" or "HP-45" or "45" or "HP-55" or "55"
-      or "HP-70" or "70";
+    && (CalcModelIds.IsEngine(modelId, "T-35")
+        || CalcModelIds.IsEngine(modelId, "T-45")
+        || CalcModelIds.IsEngine(modelId, "T-55")
+        || CalcModelIds.IsEngine(modelId, "T-70"));
 
   private static bool IsHp65EnterRowGold(TeoCalcModelDefinition model) =>
-    string.Equals(model.Model, "HP-65", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(model.DisplayName, "HP-65", StringComparison.OrdinalIgnoreCase);
+    CalcModelIds.IsEngine(model.Model, "T-65")
+    || CalcModelIds.IsEngine(model.DisplayName, "T-65");
 
   private static RectF ResolveDisplayRect(Vector2 origin, CalcChassisMetrics metrics)
   {

@@ -1,3 +1,4 @@
+using TeoCalc.Core.Catalog;
 using TeoCalc.Rendering.Faceplate;
 
 namespace TeoCalc.Rendering;
@@ -21,19 +22,16 @@ public static class CalcKeyLabelPalette
       ? BlueOnSkirt
       : SkirtBlueDark;
 
-  /// <summary>HP-27 prints g-shift legends in black ink (g prefix key is black, not blue).</summary>
+  /// <summary>T-27 prints g-shift legends in black ink (g prefix key is black, not blue).</summary>
   public static bool UsesBlackGShiftSkirtInk(string? modelId) =>
-    string.Equals(modelId, "HP-27", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(modelId, "27", StringComparison.OrdinalIgnoreCase);
+    CalcModelIds.IsEngine(modelId, "T-27");
 
   /// <summary>
-  /// HP-67 CapSkirt (h) is always black ink — including Olive body keys.
+  /// T-67 CapSkirt (h) is always black ink — including Olive body keys.
   /// CapFace olive stays light; skirt-only override.
   /// </summary>
   public static bool UsesBlackHShiftSkirtInk(string? modelId) =>
-    string.Equals(modelId, "HP-67", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(modelId, "HP-67BE", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(modelId, "67", StringComparison.OrdinalIgnoreCase);
+    CalcModelIds.IsEngine(modelId, "T-67");
 
   /// <summary>
   /// HP-34C h CapSkirt: light ink on black/blue keys, dark ink on white/orange (same contrast as CapFace).

@@ -21,19 +21,22 @@ public static class CalcAboutModal
       s_openRequested = false;
     }
 
+    CalcAppDialogStyle.PushModal();
     bool open = true;
     if (!ImGui.BeginPopupModal(
           "##teo-about",
           ref open,
           ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoTitleBar))
     {
+      CalcAppDialogStyle.PopModal();
       return;
     }
 
+    ImGui.Dummy(new Vector2(260f, 0f));
     ImGui.TextUnformatted("TeoCalc");
     ImGui.TextDisabled(faceplateModel.LogoCaption);
     ImGui.Separator();
-    ImGui.TextUnformatted($"{faceplateModel.ProductLabel}  ·  {session.DisplayName}");
+    ImGui.TextUnformatted(faceplateModel.ProductLabel);
     ImGui.TextDisabled($"Family: {session.Model.Family}");
     if (session.Model.Hardware?.RomWordCount is int romWords and > 0)
     {
@@ -47,12 +50,16 @@ public static class CalcAboutModal
     }
 
     ImGui.Spacing();
+    CalcAppDialogStyle.PushAffirmative();
     if (ImGui.Button("Close", new Vector2(120f, 0f)))
     {
       ImGui.CloseCurrentPopup();
     }
 
+    CalcAppDialogStyle.PopButton();
+
     ImGui.EndPopup();
+    CalcAppDialogStyle.PopModal();
   }
 
   /// <summary>
@@ -65,7 +72,7 @@ public static class CalcAboutModal
     if (ImGui.IsItemHovered())
     {
       ImGui.SetMouseCursor(ImGuiMouseCursor.Hand);
-      ImGui.SetTooltip("About TeoCalc");
+      CalcAppTooltip.Set("About TeoCalc");
     }
 
     if (ImGui.IsItemClicked())

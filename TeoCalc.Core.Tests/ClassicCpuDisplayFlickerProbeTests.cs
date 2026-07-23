@@ -12,7 +12,7 @@ public sealed class ClassicCpuDisplayFlickerProbeTests
   private static ClassicCpu CreateCpu()
   {
     MicrocodeRom rom = MicrocodeRom.LoadBinary(
-      TeoCalcPaths.ResourcePath("Engine/HP-65/Firmware/hp65.microcode.bin"));
+      TeoCalcPaths.ResourcePath("Engine/T-65/Firmware/hp65.microcode.bin"));
     MicrocodeHandlerCatalog catalog = MicrocodeHandlerCatalog.Load(
       TeoCalcPaths.ResourcePath("Engine/Classic/microcode.handlers.json"));
     return new ClassicCpu(rom, catalog);

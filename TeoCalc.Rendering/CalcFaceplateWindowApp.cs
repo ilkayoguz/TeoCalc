@@ -359,6 +359,7 @@ public sealed class CalcFaceplateHost : IDisposable
         _gl.ClearColor(0f, 0f, 0f, 0f);
         _gl.Clear(ClearBufferMask.ColorBufferBit);
         _controller.MakeCurrent();
+        CalcAppTheme.ApplyImGuiStyle();
 
         CalcFaceplatePointer.BeginFrame();
         ImGui.SetNextWindowPos(System.Numerics.Vector2.Zero);
@@ -425,6 +426,7 @@ public sealed class CalcFaceplateHost : IDisposable
             MathF.Max(1f, display.X - CalcBodyOffsetX - BandSide),
             contentHeight));
         HandleTitleAction(titleAction);
+        CalcSettingsModal.Draw();
         HandleFramelessChrome();
 
         ImGui.End();
@@ -502,8 +504,9 @@ public sealed class CalcFaceplateHost : IDisposable
 
     FillRoundedRect(draw, cursor, radius, Calc00dWireStyle.InnerBodyFill);
 
+    CalcAppTheme.EnsureInitialized();
     RectF band = new(cursor.X, cursor.Y, cursor.Width, TopBandHeight);
-    draw.AddRectFilled(band.Min, band.Max, Calc00dWireStyle.SwitchPanelFill, radius, ImDrawFlags.RoundCornersTop);
+    draw.AddRectFilled(band.Min, band.Max, CalcAppTheme.TitleBarBack, radius, ImDrawFlags.RoundCornersTop);
 
     // Fixed-height bottom logo band mirroring the top title bar: inside the bead frame,
     // rounded bottom corners, filled with the brushed-aluminum logo plate.
@@ -573,6 +576,9 @@ public sealed class CalcFaceplateHost : IDisposable
         break;
       case CalcWindowTitlePanelComponent.TitleAction.OpenStudio:
         ToggleSidePanel(CalcCapabilitySidePanelMode.Studio);
+        break;
+      case CalcWindowTitlePanelComponent.TitleAction.OpenSettings:
+        CalcSettingsModal.RequestOpen();
         break;
     }
   }
@@ -1206,13 +1212,15 @@ public sealed class CalcFaceplateHost : IDisposable
   {
     int modelIndex = Array.FindIndex(
       session.Models,
-      id => string.Equals(id, modelId, StringComparison.OrdinalIgnoreCase));
+      id => CalcModelIds.SameEngine(id, modelId));
     if (modelIndex < 0)
     {
       return false;
     }
 
-    if (!string.Equals(session.Model.Model, modelId, StringComparison.OrdinalIgnoreCase))
+    // Catalog id (HP-65) vs engine folder id (T-65) — match by engine, not string equality.
+    if (modelIndex != session.ModelIndex
+        || !CalcModelIds.SameEngine(session.Model.Model, modelId))
     {
       session.LoadModel(modelIndex);
     }

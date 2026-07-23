@@ -10,7 +10,7 @@ namespace TeoCalc.Core.Tests;
 public sealed class ClassicCardProgramFormatTests
 {
   private static ProgramVocabulary Vocabulary =>
-    ProgramVocabulary.Load(TeoCalcPaths.ResourcePath("Engine/HP-65/Program/program.vocabulary.json"));
+    ProgramVocabulary.Load(TeoCalcPaths.ResourcePath("Engine/T-65/Program/program.vocabulary.json"));
 
   [TestMethod]
   public void T65_RoundTrip_ProgramAndData_PreservesCodesAndRegisters()
@@ -70,7 +70,7 @@ public sealed class ClassicCardProgramFormatTests
   private static ClassicCpu CreateCpu()
   {
     MicrocodeRom rom = MicrocodeRom.LoadBinary(
-      TeoCalcPaths.ResourcePath("Engine/HP-65/Firmware/hp65.microcode.bin"));
+      TeoCalcPaths.ResourcePath("Engine/T-65/Firmware/hp65.microcode.bin"));
     MicrocodeHandlerCatalog catalog = MicrocodeHandlerCatalog.Load(
       TeoCalcPaths.ResourcePath("Engine/Classic/microcode.handlers.json"));
     return new ClassicCpu(rom, catalog, Vocabulary);

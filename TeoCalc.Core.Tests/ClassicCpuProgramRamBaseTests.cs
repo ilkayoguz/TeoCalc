@@ -14,7 +14,7 @@ public sealed class ClassicCpuProgramRamBaseTests
   public void Reset_Preserves_ModelProgramRamBase_Hp35()
   {
     TeoCalcModelDefinition model = TeoCalcModelDefinition.Load(
-      Path.Combine(EngineRoot, "HP-35", "Model.json"));
+      Path.Combine(EngineRoot, "T-35", "Model.json"));
     Assert.AreEqual(0, model.Hardware.ProgramRamBase);
 
     ClassicCpu cpu = ClassicCpuFactory.Create(model, EngineRoot);
@@ -29,7 +29,7 @@ public sealed class ClassicCpuProgramRamBaseTests
   public void Reset_Preserves_ModelProgramRamBase_Hp65()
   {
     TeoCalcModelDefinition model = TeoCalcModelDefinition.Load(
-      Path.Combine(EngineRoot, "HP-65", "Model.json"));
+      Path.Combine(EngineRoot, "T-65", "Model.json"));
     Assert.AreEqual(112, model.Hardware.ProgramRamBase);
 
     ClassicCpu cpu = ClassicCpuFactory.Create(model, EngineRoot);
@@ -43,7 +43,7 @@ public sealed class ClassicCpuProgramRamBaseTests
   public void PowerOff_Preserves_ProgramRamBase_ViaGateway()
   {
     TeoCalcModelDefinition model = TeoCalcModelDefinition.Load(
-      Path.Combine(EngineRoot, "HP-35", "Model.json"));
+      Path.Combine(EngineRoot, "T-35", "Model.json"));
     ClassicCpu cpu = ClassicCpuFactory.Create(model, EngineRoot);
     ClassicFirmwareGateway gateway = new();
     gateway.AttachCpu(cpu);

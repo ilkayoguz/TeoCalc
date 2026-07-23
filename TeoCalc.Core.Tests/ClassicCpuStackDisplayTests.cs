@@ -12,11 +12,11 @@ public sealed class ClassicCpuStackDisplayTests
   private static ClassicCpu CreateCpu()
   {
     MicrocodeRom rom = MicrocodeRom.LoadBinary(
-      TeoCalcPaths.ResourcePath("Engine/HP-65/Firmware/hp65.microcode.bin"));
+      TeoCalcPaths.ResourcePath("Engine/T-65/Firmware/hp65.microcode.bin"));
     MicrocodeHandlerCatalog catalog = MicrocodeHandlerCatalog.Load(
       TeoCalcPaths.ResourcePath("Engine/Classic/microcode.handlers.json"));
     ProgramVocabulary vocabulary = ProgramVocabulary.Load(
-      TeoCalcPaths.ResourcePath("Engine/HP-65/Program/program.vocabulary.json"));
+      TeoCalcPaths.ResourcePath("Engine/T-65/Program/program.vocabulary.json"));
     return new ClassicCpu(rom, catalog, vocabulary);
   }
 

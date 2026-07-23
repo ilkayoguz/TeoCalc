@@ -13,7 +13,7 @@ namespace TeoCalc.Core.Tests;
 public sealed class ClassicRclCardDataTests
 {
   private static ProgramVocabulary Vocabulary =>
-    ProgramVocabulary.Load(TeoCalcPaths.ResourcePath("Engine/HP-65/Program/program.vocabulary.json"));
+    ProgramVocabulary.Load(TeoCalcPaths.ResourcePath("Engine/T-65/Program/program.vocabulary.json"));
 
   [TestMethod]
   public void CardImport_LoadsDataSlots()

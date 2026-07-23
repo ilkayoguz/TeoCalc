@@ -36,13 +36,13 @@ public static class CalcCapabilitySidePanelComponent
 
   public static void DrawChrome(ImDrawListPtr draw, float x, float y, float width, float height)
   {
+    CalcAppTheme.EnsureInitialized();
     RectF bounds = new(x, y, width, height);
-    draw.AddRectFilled(bounds.Min, bounds.Max, Calc00dWireStyle.SwitchPanelFill);
-    uint divider = Calc00dWireStyle.GrayFitilFill;
+    draw.AddRectFilled(bounds.Min, bounds.Max, CalcAppTheme.PanelBack);
     draw.AddLine(
       new Vector2(bounds.Max.X, bounds.Min.Y),
       new Vector2(bounds.Max.X, bounds.Max.Y),
-      divider,
+      CalcAppTheme.PanelBorder,
       Calc00dWireStyle.FitilWidthRef);
   }
 

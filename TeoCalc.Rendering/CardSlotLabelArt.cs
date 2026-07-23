@@ -19,7 +19,7 @@ public static class CardSlotLabelArt
   ];
 
   private static string AssetsRoot =>
-    Path.Combine(FaceplateAssetPaths.ResolveAssetsRoot("HP-65"), "CardSlot");
+    Path.Combine(FaceplateAssetPaths.ResolveAssetsRoot("T-65"), "CardSlot");
 
   public static bool IsReady =>
     ClassicFaceplateSvgAssets.CanDrawCardSlotLabels && Labels.All(label => File.Exists(PathFor(label.File)));

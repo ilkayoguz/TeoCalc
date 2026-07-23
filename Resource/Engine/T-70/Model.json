@@ -1,0 +1,34 @@
+{
+  "Format": "TeoCalc.Model",
+  "SchemaVersion": 1,
+  "Model": "T-70",
+  "DisplayName": "T-70",
+  "Inherits": "Classic",
+  "Family": "Classic",
+  "FamilyConfig": "../Classic/Family.json",
+  "Hardware": {
+    "ButtonCount": 35,
+    "RamBytes": 448,
+    "RegisterDigits": 14,
+    "ProgramRamBase": 112,
+    "RomWordCount": 2048
+  },
+  "Program": {
+    "MaxSteps": 49,
+    "Vocabulary": "Program/program.vocabulary.json"
+  },
+  "Firmware": {
+    "RomBinary": "Firmware/hp70.microcode.bin",
+    "RomListing": "Firmware/hp70.microcode.mlist",
+    "RomMap": "Firmware/hp70.microcode.map.json",
+    "HandlerCatalog": "../Classic/microcode.handlers.json"
+  },
+  "Faceplate": {
+    "BodyLayoutId": "00d",
+    "ThemeId": "Modern",
+    "ShortId": "70",
+    "AnnotationStyleId": "None",
+    "SwitchBankId": "PowerOnly",
+    "HasCardSlot": false
+  }
+}

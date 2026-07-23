@@ -3,7 +3,7 @@ using TeoCalc.Core.Catalog;
 using TeoCalc.Core.Engine.Classic;
 using TeoCalc.Core.Engine.Spice;
 using TeoCalc.Core.Firmware;
-using TeoCalc.Panamatik;
+using TeoCalc.ReferenceEmulator;
 
 namespace TeoCalc.Core.Tests;
 
@@ -14,7 +14,7 @@ public sealed class SpiceFirmwareGatewayTests
     CalcFirmwareGatewayLocator.CreateGateway("HP-31");
 
   private static ProgramVocabulary LoadHp31Vocabulary() =>
-    ProgramVocabulary.Load(TeoCalcPaths.ResourcePath("Engine/HP-31/Program/program.vocabulary.json"));
+    ProgramVocabulary.Load(TeoCalcPaths.ResourcePath("Engine/T-31/Program/program.vocabulary.json"));
 
   [TestMethod]
   [DataRow("HP-31")]
@@ -51,7 +51,7 @@ public sealed class SpiceFirmwareGatewayTests
   public void Factory_Create_LoadsRomAndHandlers(string modelId)
   {
     string engineRoot = TeoCalcPaths.ResourcePath("Engine");
-    string modelPath = Path.Combine(engineRoot, modelId, "Model.json");
+    string modelPath = Path.Combine(engineRoot, CalcModelIds.ToEngineId(modelId), "Model.json");
     TeoCalcModelDefinition model = TeoCalcModelDefinition.Load(modelPath);
     SpiceCpu cpu = SpiceCpuFactory.Create(model, engineRoot);
     Assert.IsTrue(cpu.State.ProgramCounter == 0);

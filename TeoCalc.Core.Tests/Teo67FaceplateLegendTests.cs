@@ -9,7 +9,7 @@ namespace TeoCalc.Core.Tests;
 public sealed class Teo67FaceplateLegendTests
 {
   private static ProgramVocabulary LoadVocabulary() =>
-    ProgramVocabulary.Load(TeoCalcPaths.ResourcePath("Engine/HP-67/Program/program.vocabulary.json"));
+    ProgramVocabulary.Load(TeoCalcPaths.ResourcePath("Engine/T-67/Program/program.vocabulary.json"));
 
   private static KeyLegendVisual VisualAt(ProgramVocabulary vocabulary, int index) =>
     ClassicKeyFaceplateLegend.Resolve(
@@ -23,13 +23,13 @@ public sealed class Teo67FaceplateLegendTests
   }
 
   [TestMethod]
-  public void Family_IsHp67_ProductLabel_T67()
+  public void Family_IsTeo67_ProductLabel_T67()
   {
-    Assert.AreEqual("Hp67", CalcModelIds.InferFamily("HP-67"));
+    Assert.AreEqual("Teo67", CalcModelIds.InferFamily("HP-67"));
     Assert.AreEqual("T-67", CalcModelIds.ToProductLabel("HP-67"));
     TeoCalcModelDefinition model = TeoCalcModelDefinition.Load(
-      TeoCalcPaths.ResourcePath("Engine/HP-67/Model.json"));
-    Assert.AreEqual("Hp67", model.Family);
+      TeoCalcPaths.ResourcePath("Engine/T-67/Model.json"));
+    Assert.AreEqual("Teo67", model.Family);
   }
 
   [TestMethod]

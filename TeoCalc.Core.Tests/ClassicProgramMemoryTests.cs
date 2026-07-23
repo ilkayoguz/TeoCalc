@@ -10,12 +10,12 @@ namespace TeoCalc.Core.Tests;
 public sealed class ClassicProgramMemoryTests
 {
   private static ProgramVocabulary Vocabulary =>
-    ProgramVocabulary.Load(TeoCalcPaths.ResourcePath("Engine/HP-65/Program/program.vocabulary.json"));
+    ProgramVocabulary.Load(TeoCalcPaths.ResourcePath("Engine/T-65/Program/program.vocabulary.json"));
 
   private static ClassicCpu CreateCpu()
   {
     MicrocodeRom rom = MicrocodeRom.LoadBinary(
-      TeoCalcPaths.ResourcePath("Engine/HP-65/Firmware/hp65.microcode.bin"));
+      TeoCalcPaths.ResourcePath("Engine/T-65/Firmware/hp65.microcode.bin"));
     MicrocodeHandlerCatalog catalog = MicrocodeHandlerCatalog.Load(
       TeoCalcPaths.ResourcePath("Engine/Classic/microcode.handlers.json"));
     return new ClassicCpu(rom, catalog, Vocabulary);
@@ -98,6 +98,13 @@ public sealed class ClassicProgramMemoryTests
     ClassicCpu cpu = CreateCpu();
     cpu.Reset();
     Assert.AreEqual(1, cpu.Program.PointerPosition());
+    // Seed body past the seek target so LastContentIndex allows the move.
+    for (int i = 0; i < 6; i++)
+    {
+      cpu.State.Buffer = (byte)(i + 1);
+      cpu.Program.InsertFromBuffer();
+    }
+
     cpu.Program.SeekPointer(5);
     Assert.AreEqual(5, cpu.Program.PointerPosition());
     Assert.AreEqual(ClassicProgramCodes.Pointer, cpu.Program.ReadCode(5));

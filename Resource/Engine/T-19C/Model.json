@@ -1,0 +1,33 @@
+{
+  "Format": "TeoCalc.Model",
+  "SchemaVersion": 1,
+  "Model": "T-19C",
+  "DisplayName": "T-19C",
+  "Family": "Teo19",
+  "Hardware": {
+    "ButtonCount": 32,
+    "RamBytes": 448,
+    "RegisterDigits": 14,
+    "ProgramRamBase": 0,
+    "RomWordCount": 5120
+  },
+  "Program": {
+    "MaxSteps": 0,
+    "Vocabulary": "Program/program.vocabulary.json"
+  },
+  "Firmware": {
+    "RomBinary": "Firmware/hp19c.microcode.bin",
+    "RomListing": "Firmware/hp19c.microcode.mlist",
+    "RomMap": "Firmware/hp19c.microcode.map.json",
+    "HandlerCatalog": "../Act/microcode.handlers.json"
+  },
+  "Faceplate": {
+    "BodyLayoutId": "00d",
+    "ThemeId": "Modern",
+    "ShortId": "19C",
+    "AnnotationStyleId": "ClassicFg",
+    "SwitchBankId": "Classic19C",
+    "HasCardSlot": false,
+    "HasPrinter": true
+  }
+}

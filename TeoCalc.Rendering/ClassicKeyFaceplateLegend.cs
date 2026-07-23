@@ -53,8 +53,7 @@ public static class ClassicKeyFaceplateLegend
   public static void ClearCache() => Cache.Clear();
 
   private static bool IsHp65(string modelId) =>
-    string.Equals(modelId, "HP-65", StringComparison.OrdinalIgnoreCase)
-    || string.Equals(modelId, "65", StringComparison.OrdinalIgnoreCase);
+    CalcModelIds.IsEngine(modelId, "T-65");
 
   private static KeyFaceplateEntry? TryGetEntry(string modelId, int keyIndex)
   {
@@ -84,19 +83,11 @@ public static class ClassicKeyFaceplateLegend
       yield return engineId;
     }
 
-    if (modelId.StartsWith("HP-", StringComparison.OrdinalIgnoreCase))
+    string shortId = CalcModelIds.ToShortId(modelId);
+    if (!string.Equals(shortId, modelId, StringComparison.OrdinalIgnoreCase)
+        && !string.Equals(shortId, engineId, StringComparison.OrdinalIgnoreCase))
     {
-      yield return modelId["HP-".Length..];
-    }
-    else if (!modelId.StartsWith("HP", StringComparison.OrdinalIgnoreCase))
-    {
-      yield return "HP-" + modelId;
-    }
-
-    if (engineId.StartsWith("HP-", StringComparison.OrdinalIgnoreCase)
-        && !string.Equals(engineId, modelId, StringComparison.OrdinalIgnoreCase))
-    {
-      yield return engineId["HP-".Length..];
+      yield return shortId;
     }
   }
 

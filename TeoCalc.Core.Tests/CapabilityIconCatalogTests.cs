@@ -9,11 +9,12 @@ public sealed class CapabilityIconCatalogTests
 {
   private static string EngineRoot => TeoCalcPaths.ResourcePath("Engine");
 
-  private static CalcModelDefinition ResolveEngine(string engineId)
+  private static CalcModelDefinition ResolveEngine(string catalogOrEngineId)
   {
+    string engineId = CalcModelIds.ToEngineId(catalogOrEngineId);
     TeoCalcModelDefinition model = TeoCalcModelDefinition.Load(
       Path.Combine(EngineRoot, engineId, "Model.json"));
-    return CalcModelCatalog.Resolve(model, engineId);
+    return CalcModelCatalog.Resolve(model, catalogOrEngineId);
   }
 
   [TestMethod]

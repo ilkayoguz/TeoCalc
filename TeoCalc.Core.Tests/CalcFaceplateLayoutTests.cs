@@ -12,7 +12,7 @@ public sealed class CalcFaceplateLayoutTests
 {
   private static ProgramVocabulary LoadHp65Vocabulary()
   {
-    string path = Path.Combine(TeoCalcPaths.ResourcePath("Engine"), "HP-65", "Program", "program.vocabulary.json");
+    string path = Path.Combine(TeoCalcPaths.ResourcePath("Engine"), "T-65", "Program", "program.vocabulary.json");
     return ProgramVocabulary.Load(path);
   }
 
@@ -134,7 +134,7 @@ public sealed class CalcFaceplateLayoutTests
   public void ClassicPhysicalLayout_AllVisibleCellsHaveFirmwareKeyCodes()
   {
     ProgramVocabulary vocabulary = LoadHp65Vocabulary();
-    IReadOnlyList<FaceplateCell> cells = CalcFaceplateLayout.GetPhysicalCells("Classic", "HP-65");
+    IReadOnlyList<FaceplateCell> cells = CalcFaceplateLayout.GetPhysicalCells("Classic", "T-65");
 
     Assert.AreEqual(35, cells.Count);
     foreach (FaceplateCell cell in cells)
@@ -222,7 +222,7 @@ public sealed class CalcFaceplateLayoutTests
   [TestMethod]
   public void CardSlotLabelSvgAssets_Exist()
   {
-    string root = Path.Combine(TeoCalcPaths.ResourcePath("Engine/HP-65/Assets"), "CardSlot");
+    string root = Path.Combine(TeoCalcPaths.ResourcePath("Engine/T-65/Assets"), "CardSlot");
     string[] expected =
     [
       "label-1-over-x.svg",

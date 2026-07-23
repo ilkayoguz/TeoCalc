@@ -4,7 +4,7 @@ using ImGuiNET;
 namespace TeoCalc.Rendering.Faceplate;
 
 /// <summary>
-/// Window control buttons (Minimize, Maximize/Restore, Close) overlaid on the
+/// Window control buttons (Settings, Minimize, Maximize/Restore, Close) overlaid on the
 /// top-right of the calculator, whose own top area acts as the drag title bar.
 /// Optional model capability icons sit on the left (card / printer stubs).
 /// </summary>
@@ -15,12 +15,8 @@ public static class CalcWindowTitlePanelComponent
 
   public const float ButtonWidth = 46f;
 
-  public const int ButtonCount = 3;
-
-  private const uint IconColor = 0xFFE8E8E8;
-  private const uint IconCloseHover = 0xFFFFFFFF;
-  private const uint HoverFill = 0x33FFFFFF;
-  private const uint HoverCloseFill = 0xFF2311E8; // Windows close red #E81123 (ImGui ABGR)
+  /// <summary>Settings + Minimize + Maximize + Close.</summary>
+  public const int ButtonCount = 4;
 
   public static float ButtonsWidth => ButtonWidth * ButtonCount;
 
@@ -34,6 +30,7 @@ public static class CalcWindowTitlePanelComponent
     OpenPrinter,
     OpenDebug,
     OpenStudio,
+    OpenSettings,
   }
 
   public static float CapabilityIconsWidth(
@@ -96,14 +93,20 @@ public static class CalcWindowTitlePanelComponent
     bool hasStudio = true,
     bool studioPanelOpen = false)
   {
+    CalcAppTheme.EnsureInitialized();
     ImDrawListPtr draw = ImGui.GetForegroundDrawList();
     TitleAction action = TitleAction.None;
+    uint iconColor = CalcAppTheme.TitleBarInk;
+    uint hoverFill = CalcAppTheme.TitleButtonHoverFill;
+    uint activeFill = CalcAppTheme.TitleButtonActiveFill;
+    uint closeHover = CalcAppTheme.CloseHoverBack;
+    uint iconCloseHover = 0xFFFFFFFFu;
 
     float capX = leftEdge;
     if (hasCardSlot)
     {
-      uint fill = cardPanelOpen ? 0x55FFFFFFu : HoverFill;
-      if (Button(draw, "##cap-card", capX, top, height, fill, IconColor, DrawCardIcon))
+      uint fill = cardPanelOpen ? activeFill : hoverFill;
+      if (Button(draw, "##cap-card", capX, top, height, fill, iconColor, DrawCardIcon))
       {
         action = TitleAction.OpenCard;
       }
@@ -113,8 +116,8 @@ public static class CalcWindowTitlePanelComponent
 
     if (hasPrinter)
     {
-      uint fill = printerPanelOpen ? 0x55FFFFFFu : HoverFill;
-      if (Button(draw, "##cap-print", capX, top, height, fill, IconColor, DrawPrinterIcon))
+      uint fill = printerPanelOpen ? activeFill : hoverFill;
+      if (Button(draw, "##cap-print", capX, top, height, fill, iconColor, DrawPrinterIcon))
       {
         action = TitleAction.OpenPrinter;
       }
@@ -124,8 +127,8 @@ public static class CalcWindowTitlePanelComponent
 
     if (hasDebug)
     {
-      uint fill = debugPanelOpen ? 0x55FFFFFFu : HoverFill;
-      if (Button(draw, "##cap-debug", capX, top, height, fill, IconColor, DrawDebugIcon))
+      uint fill = debugPanelOpen ? activeFill : hoverFill;
+      if (Button(draw, "##cap-debug", capX, top, height, fill, iconColor, DrawDebugIcon))
       {
         action = TitleAction.OpenDebug;
       }
@@ -135,8 +138,8 @@ public static class CalcWindowTitlePanelComponent
 
     if (hasStudio)
     {
-      uint fill = studioPanelOpen ? 0x55FFFFFFu : HoverFill;
-      if (Button(draw, "##cap-studio", capX, top, height, fill, IconColor, DrawStudioIcon))
+      uint fill = studioPanelOpen ? activeFill : hoverFill;
+      if (Button(draw, "##cap-studio", capX, top, height, fill, iconColor, DrawStudioIcon))
       {
         action = TitleAction.OpenStudio;
       }
@@ -144,19 +147,25 @@ public static class CalcWindowTitlePanelComponent
 
     float x0 = rightEdge - ButtonsWidth;
 
-    if (Button(draw, "##win-min", x0, top, height, HoverFill, IconColor, DrawMinimizeIcon))
+    if (Button(draw, "##win-settings", x0, top, height, hoverFill, iconColor, DrawSettingsIcon))
+    {
+      action = TitleAction.OpenSettings;
+    }
+
+    float xMin = x0 + ButtonWidth;
+    if (Button(draw, "##win-min", xMin, top, height, hoverFill, iconColor, DrawMinimizeIcon))
     {
       action = TitleAction.Minimize;
     }
 
-    float xMax = x0 + ButtonWidth;
-    if (Button(draw, "##win-max", xMax, top, height, HoverFill, IconColor, isMaximized ? DrawRestoreIcon : DrawMaximizeIcon))
+    float xMax = x0 + ButtonWidth * 2f;
+    if (Button(draw, "##win-max", xMax, top, height, hoverFill, iconColor, isMaximized ? DrawRestoreIcon : DrawMaximizeIcon))
     {
       action = TitleAction.ToggleMaximize;
     }
 
-    float xClose = x0 + ButtonWidth * 2f;
-    if (Button(draw, "##win-close", xClose, top, height, HoverCloseFill, IconColor, DrawCloseIcon, IconCloseHover))
+    float xClose = x0 + ButtonWidth * 3f;
+    if (Button(draw, "##win-close", xClose, top, height, closeHover, iconColor, DrawCloseIcon, iconCloseHover))
     {
       action = TitleAction.Close;
     }
@@ -187,6 +196,24 @@ public static class CalcWindowTitlePanelComponent
     float cy = top + height * 0.5f;
     drawIcon(draw, x, cy, hovered && iconHoverColor.HasValue ? iconHoverColor.Value : iconColor);
     return clicked;
+  }
+
+  private static void DrawSettingsIcon(ImDrawListPtr draw, float x, float cy, uint color)
+  {
+    float cx = x + ButtonWidth * 0.5f;
+    draw.AddCircle(new Vector2(cx, cy), 5.2f, color, 12, 1.25f);
+    draw.AddCircleFilled(new Vector2(cx, cy), 1.8f, color, 10);
+    // Cog teeth (simple ticks).
+    for (int i = 0; i < 6; i++)
+    {
+      float a = i * MathF.PI / 3f;
+      Vector2 dir = new(MathF.Cos(a), MathF.Sin(a));
+      draw.AddLine(
+        new Vector2(cx, cy) + dir * 5.2f,
+        new Vector2(cx, cy) + dir * 7.2f,
+        color,
+        1.35f);
+    }
   }
 
   private static void DrawMinimizeIcon(ImDrawListPtr draw, float x, float cy, uint color)

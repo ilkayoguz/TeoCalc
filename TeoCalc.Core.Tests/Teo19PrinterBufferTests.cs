@@ -73,7 +73,7 @@ public sealed class Teo19PrinterBufferTests
   private static Teo19Cpu CreateCpu()
   {
     string engineRoot = TeoCalcPaths.ResourcePath("Engine");
-    TeoCalcModelDefinition model = TeoCalcModelDefinition.Load(Path.Combine(engineRoot, "HP-19C", "Model.json"));
+    TeoCalcModelDefinition model = TeoCalcModelDefinition.Load(Path.Combine(engineRoot, "T-19C", "Model.json"));
     return Teo19CpuFactory.Create(model, engineRoot);
   }
 }

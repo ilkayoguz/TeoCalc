@@ -11,7 +11,7 @@ namespace TeoCalc.Core.Tests;
 public sealed class TeoCardProgramFormatTests
 {
   private static ProgramVocabulary Vocabulary =>
-    ProgramVocabulary.Load(TeoCalcPaths.ResourcePath("Engine/HP-65/Program/program.vocabulary.json"));
+    ProgramVocabulary.Load(TeoCalcPaths.ResourcePath("Engine/T-65/Program/program.vocabulary.json"));
 
   private static TeoCardDocument LoadSampleAsTeoCard()
   {

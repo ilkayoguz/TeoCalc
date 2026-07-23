@@ -9,7 +9,7 @@ namespace TeoCalc.Core.Tests;
 public sealed class Hp34CFaceplateLegendTests
 {
   private static ProgramVocabulary LoadVocabulary() =>
-    ProgramVocabulary.Load(TeoCalcPaths.ResourcePath("Engine/HP-34/Program/program.vocabulary.json"));
+    ProgramVocabulary.Load(TeoCalcPaths.ResourcePath("Engine/T-34/Program/program.vocabulary.json"));
 
   [TestMethod]
   public void PhysicalCells_MatchSpiceWoodstockFiveColumnMap()
@@ -248,7 +248,7 @@ public sealed class Hp34CFaceplateLegendTests
   [TestMethod]
   public void CatalogAlias_Hp34CMapsToEngineHp34()
   {
-    Assert.AreEqual("HP-34", CalcModelIds.ToEngineId("HP-34C"));
+    Assert.AreEqual("T-34", CalcModelIds.ToEngineId("HP-34C"));
     Assert.AreEqual("34C", CalcModelIds.ToShortId("HP-34C"));
   }
 

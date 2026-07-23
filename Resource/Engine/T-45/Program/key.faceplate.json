@@ -1,0 +1,192 @@
+{
+  "Format": "TeoCalc.KeyFaceplate",
+  "SchemaVersion": 2,
+  "Model": "T-45",
+  "Source": "HP-45 Owner's Handbook / Finseth hp45a / NMAH + Catalog visuals — CapFace primary (white on key); CapAbove=gold f (yellow); no blue g; gold prefix at index 4 (blank CapFace); CLEAR CapAbove on CLx; Σ+ CapFace (π / LST X / Σ- on CapAbove)",
+  "Keys": {
+    "0": {
+      "Gold": "y^x",
+      "CapFace": "1/x",
+      "Style": "DarkGrey"
+    },
+    "1": {
+      "Gold": "log",
+      "CapFace": "ln",
+      "Style": "DarkGrey"
+    },
+    "2": {
+      "Gold": "10^x",
+      "CapFace": "e^x",
+      "Style": "DarkGrey"
+    },
+    "3": {
+      "Gold": "SCI",
+      "CapFace": "FIX",
+      "Style": "DarkGrey"
+    },
+    "5": {
+      "Gold": "√x",
+      "CapFace": "x²",
+      "Style": "DarkGrey"
+    },
+    "6": {
+      "Gold": "→R",
+      "CapFace": "→P",
+      "Style": "DarkGrey"
+    },
+    "7": {
+      "Gold": "SIN^-1",
+      "CapFace": "SIN",
+      "Style": "Black"
+    },
+    "8": {
+      "Gold": "COS^-1",
+      "CapFace": "COS",
+      "Style": "Black"
+    },
+    "9": {
+      "Gold": "TAN^-1",
+      "CapFace": "TAN",
+      "Style": "Black"
+    },
+    "10": {
+      "Gold": "n!",
+      "CapFace": "x↔y",
+      "Style": "Grey"
+    },
+    "11": {
+      "Gold": "x̅,s",
+      "CapFace": "R↓",
+      "Style": "Grey"
+    },
+    "12": {
+      "Gold": "→D.MS",
+      "CapFace": "STO",
+      "Style": "Grey"
+    },
+    "13": {
+      "Gold": "D.MS→",
+      "CapFace": "RCL",
+      "Style": "Grey"
+    },
+    "14": {
+      "Gold": "Δ%",
+      "CapFace": "%",
+      "Style": "DarkGrey"
+    },
+    "15": {
+      "Gold": "DEG",
+      "CapFace": "ENTER",
+      "Style": "Grey"
+    },
+    "17": {
+      "Gold": "RAD",
+      "CapFace": "CHS",
+      "Style": "Grey"
+    },
+    "18": {
+      "Gold": "GRD",
+      "CapFace": "EEX",
+      "Style": "Grey"
+    },
+    "19": {
+      "Gold": "CLEAR",
+      "CapFace": "CL X",
+      "Style": "Grey"
+    },
+    "21": {
+      "Gold": "cm/in",
+      "CapFace": "7",
+      "Style": "White"
+    },
+    "22": {
+      "Gold": "kg/lb",
+      "CapFace": "8",
+      "Style": "White"
+    },
+    "23": {
+      "Gold": "ltr/gal",
+      "CapFace": "9",
+      "Style": "White"
+    },
+    "36": {
+      "Gold": "LST X",
+      "CapFace": "0",
+      "Style": "White"
+    },
+    "37": {
+      "Gold": "π",
+      "CapFace": "·",
+      "Style": "White"
+    },
+    "38": {
+      "Gold": "Σ-",
+      "CapFace": "Σ+",
+      "Style": "White"
+    },
+    "4": {
+      "CapFace": "",
+      "Style": "Orange"
+    },
+    "16": {
+      "CapFace": "ENTER",
+      "Style": "Black"
+    },
+    "20": {
+      "CapFace": "-",
+      "Style": "Grey"
+    },
+    "24": {
+      "CapFace": "",
+      "Style": "Black"
+    },
+    "25": {
+      "CapFace": "+",
+      "Style": "Grey"
+    },
+    "26": {
+      "CapFace": "4",
+      "Style": "White"
+    },
+    "27": {
+      "CapFace": "5",
+      "Style": "White"
+    },
+    "28": {
+      "CapFace": "6",
+      "Style": "White"
+    },
+    "29": {
+      "CapFace": "",
+      "Style": "Black"
+    },
+    "30": {
+      "CapFace": "×",
+      "Style": "Grey"
+    },
+    "31": {
+      "CapFace": "1",
+      "Style": "White"
+    },
+    "32": {
+      "CapFace": "2",
+      "Style": "White"
+    },
+    "33": {
+      "CapFace": "3",
+      "Style": "White"
+    },
+    "34": {
+      "CapFace": "",
+      "Style": "Black"
+    },
+    "35": {
+      "CapFace": "÷",
+      "Style": "Grey"
+    },
+    "39": {
+      "CapFace": "",
+      "Style": "Black"
+    }
+  }
+}

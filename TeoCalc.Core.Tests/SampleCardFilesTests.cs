@@ -47,7 +47,7 @@ public sealed class SampleCardFilesTests
     ClassicCardSnapshot snapshot = T6xCardFormat.ToClassicSnapshot(
       document,
       mnemonic => ClassicCardProgramIo.ResolveMnemonic(
-        ProgramVocabulary.Load(TeoCalcPaths.ResourcePath("Engine/HP-65/Program/program.vocabulary.json")),
+        ProgramVocabulary.Load(TeoCalcPaths.ResourcePath("Engine/T-65/Program/program.vocabulary.json")),
         mnemonic));
 
     Assert.AreEqual(22, snapshot.ProgramCodes[6]);
@@ -63,7 +63,7 @@ public sealed class SampleCardFilesTests
     Assert.IsTrue(File.Exists(path), path);
 
     ProgramVocabulary vocabulary = ProgramVocabulary.Load(
-      TeoCalcPaths.ResourcePath("Engine/HP-65/Program/program.vocabulary.json"));
+      TeoCalcPaths.ResourcePath("Engine/T-65/Program/program.vocabulary.json"));
     T6xDocument document = T6xCardFormat.ReadFile(path);
     Assert.AreEqual(CardCodeEncoding.Mnemonic, document.CodeEncoding);
     Assert.AreEqual(81, document.Code.Count);
@@ -179,7 +179,7 @@ public sealed class SampleCardFilesTests
     Assert.IsTrue(File.Exists(path), path);
 
     ProgramVocabulary vocabulary = ProgramVocabulary.Load(
-      TeoCalcPaths.ResourcePath("Engine/HP-65/Program/program.vocabulary.json"));
+      TeoCalcPaths.ResourcePath("Engine/T-65/Program/program.vocabulary.json"));
     T6xDocument document = T6xCardFormat.ReadFile(path);
     Assert.AreEqual(CardCodeEncoding.Mnemonic, document.CodeEncoding);
     Assert.IsFalse(
