@@ -26,6 +26,9 @@ public static class StudioMnemonicPaint
   /// <summary>Live program step / PTR marker (▶ in # column) — amber, not a row wash.</summary>
   public const uint PointerMarkerInk = 0xFF3AD4FFu;
 
+  /// <summary>Studio breakpoint disc in the # column (VS-like crimson).</summary>
+  public const uint BreakpointMarkerInk = 0xFF2D2DE8u;
+
   /// <summary>Selected listing row (cursor / click) — soft cool blue-gray, distinct from PC arrow.</summary>
   public const uint SelectionRowBg = 0x50786848u;
 

@@ -6,6 +6,7 @@ using TeoCalc.Core.Firmware;
 using TeoCalc.Formats;
 using TeoCalc.Game.Explorer;
 using TeoCalc.Rendering.Faceplate;
+using System.Text;
 
 namespace TeoCalc.Rendering;
 
@@ -56,6 +57,24 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
   private bool[]? _cardStripLabelsEnabled;
 
   private TeoCardDocument? _loadedTeoCard;
+
+  /// <summary>Last loaded/saved program codes; compared to live RAM for dirty detection.</summary>
+  private byte[]? _savedProgramSnapshot;
+
+  /// <summary>Studio program-step breakpoints (Classic RAM indices).</summary>
+  private readonly HashSet<int> _studioBreakpoints = [];
+
+  /// <summary>
+  /// After Continue from a hit, ignore this step until PTR leaves it (avoid instant re-pause).
+  /// </summary>
+  private int _breakpointContinueIgnoreStep = -1;
+
+  private static readonly float[] ExecutionSpeedSteps =
+  [
+    0.25f, 0.5f, 1f, 2f, 4f, 8f, 16f,
+  ];
+
+  private int _executionSpeedIndex = 2; // 1×
 
   public CalcExplorerSession(string engineRoot)
   {
@@ -111,6 +130,17 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
 
   /// <summary>Transient status for Studio copy/paste / apply feedback.</summary>
   public string StudioStatusMessage { get; set; } = string.Empty;
+
+  /// <summary>
+  /// True when Classic RAM differs from the last loaded/saved card snapshot (W/PRGM edits).
+  /// </summary>
+  public bool IsProgramDirty =>
+    SupportsCardProgram && _savedProgramSnapshot is not null && !ProgramMatchesSnapshot();
+
+  /// <summary>
+  /// User moved W/PRGM → RUN while dirty; UI should confirm Save / Discard / Cancel.
+  /// </summary>
+  public bool PendingLeaveProgramConfirm { get; private set; }
 
   /// <summary>When true, microcode watch follows the live ROM fetch address while running / stepping.</summary>
   public bool FollowRomWatch { get; set; } = true;
@@ -248,6 +278,8 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
     SyncPowerSwitchIndicesOn();
     TryRestoreInsertedCardProgram();
     ApplyNonPowerFaceplateSwitchesToFirmware();
+    // Baseline for dirty detection (empty RAM or restored card).
+    CaptureSavedProgramSnapshot();
   }
 
   public void PowerOff()
@@ -297,7 +329,7 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
       return;
     }
 
-    _firmware?.ToggleProgramMode();
+    ToggleProgramModeTo(!ProgramMode);
   }
 
   public void ToggleProgramModeTo(bool programMode)
@@ -307,7 +339,47 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
       return;
     }
 
+    // Leaving W/PRGM with unsaved RAM edits → confirm before RUN.
+    if (!programMode && IsProgramDirty)
+    {
+      PendingLeaveProgramConfirm = true;
+      return;
+    }
+
+    PendingLeaveProgramConfirm = false;
     _firmware?.SetProgramMode(programMode);
+  }
+
+  /// <summary>Confirm dialog: leave W/PRGM without writing the card file (RAM edits kept; stays dirty).</summary>
+  public void ConfirmDiscardProgramEditsAndRun()
+  {
+    PendingLeaveProgramConfirm = false;
+    if (!PowerOn)
+    {
+      return;
+    }
+
+    _firmware?.SetProgramMode(false);
+  }
+
+  /// <summary>Confirm dialog: cancel leaving W/PRGM (stay in program mode).</summary>
+  public void CancelLeaveProgramConfirm() =>
+    PendingLeaveProgramConfirm = false;
+
+  /// <summary>
+  /// Confirm dialog: save to <paramref name="path"/> then switch to RUN.
+  /// Returns false when save fails (stays in W/PRGM; <see cref="PendingLeaveProgramConfirm"/> cleared).
+  /// </summary>
+  public bool TryConfirmSaveProgramEditsAndRun(string path, out string? error)
+  {
+    PendingLeaveProgramConfirm = false;
+    if (!TrySaveCardProgram(path, out error))
+    {
+      return false;
+    }
+
+    _firmware?.SetProgramMode(false);
+    return true;
   }
 
   public void EnsureFaceplateSwitches(IReadOnlyList<CalcSwitchSpec> specs)
@@ -338,14 +410,25 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
       index = PowerOn ? 1 : 0;
       _faceplateSwitchIndices[switchIndex] = index;
     }
-    else if (spec.IsPower && !PowerOn)
+    else     if (spec.IsPower && !PowerOn)
     {
       index = 0;
       _faceplateSwitchIndices[switchIndex] = 0;
     }
+    else if (IsTwoPositionProgramRunSwitch(spec))
+    {
+      // Keep knob aligned with firmware when leave-PRGM is blocked by dirty confirm.
+      index = ProgramMode ? 0 : 1;
+      _faceplateSwitchIndices[switchIndex] = index;
+    }
 
     return spec.ClampIndex(index);
   }
+
+  private static bool IsTwoPositionProgramRunSwitch(CalcSwitchSpec spec) =>
+    !spec.IsPower
+    && spec.PositionCount == 2
+    && string.Equals(spec.RightLabel, "RUN", StringComparison.OrdinalIgnoreCase);
 
   public float GetFaceplateSwitchNorm(int switchIndex, CalcSwitchSpec spec) =>
     spec.NormForIndex(GetFaceplateSwitchIndex(switchIndex, spec));
@@ -500,6 +583,7 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
     _faceplateSwitchIndices = [];
     _faceplateSwitchSpecs = [];
     ResetCardSlotState();
+    ClearStudioBreakpoints();
 
     Vocabulary = null;
     if (Model.Program?.Vocabulary is { Length: > 0 } vocabularyPath)
@@ -543,7 +627,23 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
   }
 
   public void Tick(float deltaSeconds) =>
-    _firmware?.Tick(deltaSeconds);
+    _firmware?.Tick(deltaSeconds * ExecutionSpeed);
+
+  /// <summary>Free-run speed multiplier (0.25× … 16×). Affects firmware Tick only.</summary>
+  public float ExecutionSpeed => ExecutionSpeedSteps[_executionSpeedIndex];
+
+  public string ExecutionSpeedLabel =>
+    ExecutionSpeed is >= 1f
+      ? $"{ExecutionSpeed:0.##}×"
+      : $"{ExecutionSpeed:0.##}×";
+
+  public void NudgeExecutionSpeed(int delta)
+  {
+    _executionSpeedIndex = Math.Clamp(
+      _executionSpeedIndex + delta,
+      0,
+      ExecutionSpeedSteps.Length - 1);
+  }
 
   public void StepCpu() =>
     StepMicrocodeInto();
@@ -626,18 +726,18 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
 
     IReadOnlyList<StudioListingView.Row> rows = StudioListingView.Build(
       lines,
-      LoadedTeoCard?.Program.Steps);
+      IsProgramDirty ? null : LoadedTeoCard?.Program.Steps);
     if (rows.Count == 0)
     {
       return;
     }
 
-    int ptr = cpu.Program.PointerPosition();
-    int rowIdx = FindStudioRowIndex(rows, ptr);
+    int highlight = StudioListingView.ResolvePointerHighlightIndex(lines, rows);
+    int rowIdx = FindStudioRowIndex(rows, highlight);
 
     if (StudioPaneSync.Focus == StudioPaneSync.StudioFocus.Flowchart)
     {
-      StepStudioFlowchartBox(cpu, rows, ptr);
+      StepStudioFlowchartBox(cpu, rows, highlight);
       return;
     }
 
@@ -661,7 +761,7 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
       return;
     }
 
-    cpu.Program.SeekPointer(rows[next].Index);
+    SeekPointerForHighlight(cpu, rows[next].Index);
     SyncStudioToPointer(cpu);
   }
 
@@ -698,13 +798,13 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
   private void StepStudioFlowchartBox(
     ClassicCpu cpu,
     IReadOnlyList<StudioListingView.Row> rows,
-    int ptr)
+    int highlightStep)
   {
     StudioFlowchartGraph.Graph graph = StudioFlowchartGraph.Build(
       rows,
       EngineModelId,
       CardStripLabels);
-    int nodeId = StudioFlowchartGraph.FindNodeIdForStep(graph, ptr);
+    int nodeId = StudioFlowchartGraph.FindNodeIdForStep(graph, highlightStep);
     if (nodeId < 0)
     {
       cpu.Program.AdvancePointer();
@@ -717,14 +817,14 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
         || (node.FirstStep >= 0
             && IsClassicRoutineEnd(cpu.Program.ReadCode(Math.Max(1, node.LastStep)))))
     {
-      _ = TryWrapRoutineEnd(cpu, forceFromRow: node.FirstStep >= 0 ? node.FirstStep : ptr);
+      _ = TryWrapRoutineEnd(cpu, forceFromRow: node.FirstStep >= 0 ? node.FirstStep : highlightStep);
       return;
     }
 
     // Next node in routine order (by FirstStep).
     int bestId = -1;
     int bestStep = int.MaxValue;
-    int after = node.LastStep >= 0 ? node.LastStep : ptr;
+    int after = node.LastStep >= 0 ? node.LastStep : highlightStep;
     foreach (StudioFlowchartGraph.Node other in graph.Nodes)
     {
       if (other.RoutineId != node.RoutineId || other.FirstStep <= after)
@@ -745,7 +845,7 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
       return;
     }
 
-    cpu.Program.SeekPointer(bestStep);
+    SeekPointerForHighlight(cpu, bestStep);
     SyncStudioToPointer(cpu);
   }
 
@@ -798,17 +898,45 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
       return false;
     }
 
-    cpu.Program.SeekPointer(lblIndex);
+    SeekPointerForHighlight(cpu, lblIndex);
     SyncStudioToPointer(cpu);
     return true;
   }
 
+  /// <summary>
+  /// Place Classic PTR so Studio ▶ highlights <paramref name="instructionIndex"/>
+  /// (marker sits just before that opcode; PTR slot itself is skipped in the listing).
+  /// </summary>
+  private static void SeekPointerForHighlight(ClassicCpu cpu, int instructionIndex)
+  {
+    int last = cpu.Program.LastContentIndex();
+    int target = Math.Clamp(instructionIndex, 1, last);
+    while (target > 1 && cpu.Program.ReadCode(target) == 0)
+    {
+      target--;
+    }
+
+    int seekTo = Math.Max(1, target - 1);
+    cpu.Program.SeekPointer(seekTo);
+  }
+
   private void SyncStudioToPointer(ClassicCpu cpu)
   {
-    int ptr = cpu.Program.PointerPosition();
-    SelectedProgramStep = ptr;
-    StudioPaneSync.OnFlowchartSelected(ptr);
-    StudioPaneSync.OnCodeSelected(ptr);
+    int selected = cpu.Program.PointerPosition();
+    if (TryGetProgramListing(out IReadOnlyList<ClassicProgramLine> lines) && lines.Count > 0)
+    {
+      IReadOnlyList<StudioListingView.Row> rows = StudioListingView.Build(
+        lines,
+        IsProgramDirty ? null : LoadedTeoCard?.Program.Steps);
+      int highlight = StudioListingView.ResolvePointerHighlightIndex(lines, rows);
+      if (highlight >= 0)
+      {
+        selected = highlight;
+      }
+    }
+
+    SelectedProgramStep = selected;
+    StudioPaneSync.FollowPointer(selected);
     if (_firmware is not null)
     {
       SyncRomWatchFromBatch(_firmware.LastBatch);
@@ -838,11 +966,115 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
   public void BreakExecution() =>
     ExecutionPaused = true;
 
-  public void ContinueExecution() =>
-    _firmware?.ContinueExecution();
+  public void ContinueExecution()
+  {
+    if (_firmware is ClassicFirmwareGateway { Cpu: { } cpu }
+        && TryGetProgramListing(out IReadOnlyList<ClassicProgramLine> lines)
+        && lines.Count > 0)
+    {
+      IReadOnlyList<StudioListingView.Row> rows = StudioListingView.Build(
+        lines,
+        IsProgramDirty ? null : LoadedTeoCard?.Program.Steps);
+      int highlight = StudioListingView.ResolvePointerHighlightIndex(lines, rows);
+      _breakpointContinueIgnoreStep = highlight >= 0 ? highlight : cpu.Program.PointerPosition();
+    }
+    else
+    {
+      _breakpointContinueIgnoreStep = -1;
+    }
 
-  public string CaptureDebugDump() =>
-    _firmware?.CaptureDebugDump() ?? "No firmware gateway.";
+    _firmware?.ContinueExecution();
+  }
+
+  /// <summary>Toggle a Studio breakpoint at <paramref name="stepIndex"/> (Classic program step).</summary>
+  public bool ToggleStudioBreakpoint(int stepIndex)
+  {
+    if (!SupportsCardProgram || stepIndex < 1)
+    {
+      return false;
+    }
+
+    if (!_studioBreakpoints.Add(stepIndex))
+    {
+      _studioBreakpoints.Remove(stepIndex);
+      return false;
+    }
+
+    return true;
+  }
+
+  /// <summary>Toggle breakpoint at the current Studio selection (or live PTR).</summary>
+  public bool ToggleStudioBreakpointAtSelection()
+  {
+    int step = SelectedProgramStep > 0
+      ? SelectedProgramStep
+      : (_firmware is ClassicFirmwareGateway { Cpu: { } cpu }
+        ? cpu.Program.PointerPosition()
+        : -1);
+    return ToggleStudioBreakpoint(step);
+  }
+
+  public bool HasStudioBreakpoint(int stepIndex) =>
+    stepIndex > 0 && _studioBreakpoints.Contains(stepIndex);
+
+  /// <summary>True if any RAM index spanned by this listing row has a breakpoint.</summary>
+  public bool HasStudioBreakpointOnRow(StudioListingView.Row row)
+  {
+    foreach (int step in _studioBreakpoints)
+    {
+      if (row.ContainsIndex(step))
+      {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  public void ClearStudioBreakpoints()
+  {
+    _studioBreakpoints.Clear();
+    _breakpointContinueIgnoreStep = -1;
+  }
+
+  public string CaptureDebugDump()
+  {
+    string baseDump = _firmware?.CaptureDebugDump() ?? "No firmware gateway.";
+    StringBuilder sb = new(baseDump);
+    sb.AppendLine();
+    AppendRomSliceToDump(sb, radius: 16);
+    sb.AppendLine();
+    sb.AppendLine("## User program");
+    string listing = FormatProgramListingText();
+    sb.AppendLine(string.IsNullOrWhiteSpace(listing) ? "(empty)" : listing.TrimEnd());
+    return sb.ToString();
+  }
+
+  private void AppendRomSliceToDump(StringBuilder sb, int radius)
+  {
+    sb.AppendLine("## ROM around PC");
+    if (Map is null)
+    {
+      sb.AppendLine("(no microcode map)");
+      return;
+    }
+
+    int pc = Math.Max(0, LastBatch.ProgramCounter);
+    int first = Math.Max(0, pc - radius);
+    int last = Math.Min(Map.WordCount - 1, pc + radius);
+    for (int address = first; address <= last; address++)
+    {
+      MicrocodeMapEntry? entry = Map.TryGetAddress(address);
+      if (entry is null)
+      {
+        continue;
+      }
+
+      string mark = address == pc ? ">" : " ";
+      sb.AppendLine(
+        $"{mark}{entry.AddressHex}  {entry.RomWordHex}  {entry.Mnemonic,-8}  {entry.HandlerId}");
+    }
+  }
 
   public FirmwareDebugRegisters? TryGetDebugRegisters() =>
     _firmware?.TryGetDebugRegisters();
@@ -860,7 +1092,8 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
 
     int address = Math.Max(0, batch.ProgramCounter);
     SelectedAddress = address;
-    MicrocodeScroll = Math.Max(0, address - 6);
+    // Keep PC near the middle of the ROM watch window (~64 rows).
+    MicrocodeScroll = Math.Max(0, address - 10);
   }
 
   private void DisposeFirmware()
@@ -906,6 +1139,48 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
   {
     ApplyNonPowerFaceplateSwitchesToFirmware();
     RunFirmwareTicks(KeySettleBatches);
+    CaptureSavedProgramSnapshot();
+  }
+
+  private void CaptureSavedProgramSnapshot()
+  {
+    if (_firmware is null || !_firmware.SupportsCardProgram)
+    {
+      _savedProgramSnapshot = null;
+      return;
+    }
+
+    if (!_firmware.TryExportCardProgram(out byte[] codes, out _))
+    {
+      return;
+    }
+
+    _savedProgramSnapshot = codes;
+  }
+
+  private bool ProgramMatchesSnapshot()
+  {
+    if (_savedProgramSnapshot is null
+        || _firmware is null
+        || !_firmware.TryExportCardProgram(out byte[] codes, out _))
+    {
+      return true;
+    }
+
+    if (codes.Length != _savedProgramSnapshot.Length)
+    {
+      return false;
+    }
+
+    for (int i = 0; i < codes.Length; i++)
+    {
+      if (codes[i] != _savedProgramSnapshot[i])
+      {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   /// <summary>
@@ -986,7 +1261,7 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
     return true;
   }
 
-  /// <summary>Move Classic PTR to <paramref name="stepIndex"/> (Studio “Set start point”).</summary>
+  /// <summary>Move Classic PTR so Studio ▶ highlights <paramref name="stepIndex"/>.</summary>
   public bool TrySetProgramStartStep(int stepIndex)
   {
     if (_firmware is not ClassicFirmwareGateway { Cpu: { } cpu })
@@ -1002,8 +1277,9 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
       target--;
     }
 
-    cpu.Program.SeekPointer(target);
+    SeekPointerForHighlight(cpu, target);
     SelectedProgramStep = target;
+    StudioPaneSync.FollowPointer(target);
     return true;
   }
 
@@ -1167,6 +1443,8 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
     _cardStripLabels = null;
     _cardStripLabelsEnabled = null;
     _loadedTeoCard = null;
+    _savedProgramSnapshot = null;
+    PendingLeaveProgramConfirm = false;
   }
 
   private void MarkCardInserted(string path, TeoCardDocument? teoCard = null)
@@ -1297,6 +1575,7 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
 
         T6xCardFormat.WriteFile(path, t6x);
         MarkCardInserted(path, T6xCardFormat.ToTeoCardDocument(t6x));
+        CaptureSavedProgramSnapshot();
         return true;
       }
 
@@ -1324,6 +1603,7 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
           mnemonic => ClassicCardProgramIo.ResolveMnemonic(Vocabulary, mnemonic));
         CuveSoftCardPlistFormat.WriteFile(path, plist);
         MarkCardInserted(path, T6xCardFormat.ToTeoCardDocument(t6x));
+        CaptureSavedProgramSnapshot();
         return true;
       }
 
@@ -1337,6 +1617,7 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
         TeoCardDocument teo = T6xCardFormat.ToTeoCardDocument(t6x);
         TeoCardProgramFormat.WriteFile(path, teo);
         MarkCardInserted(path, teo);
+        CaptureSavedProgramSnapshot();
         return true;
       }
 
@@ -1569,6 +1850,53 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
   private void OnFirmwareDisplayChanged(object? sender, FirmwareDisplayChangedEventArgs args) =>
     _displaySnapshot = args.Snapshot;
 
-  private void OnFirmwareBatchCompleted(object? sender, FirmwareBatchCompletedEventArgs args) =>
+  private void OnFirmwareBatchCompleted(object? sender, FirmwareBatchCompletedEventArgs args)
+  {
     SyncRomWatchFromBatch(args.Snapshot);
+    if (_firmware is not ClassicFirmwareGateway { Cpu: { } cpu })
+    {
+      return;
+    }
+
+    // W/PRGM faceplate keys update RAM via MemoryInsert — keep Studio selection on PTR.
+    if (ProgramMode)
+    {
+      SyncStudioToPointer(cpu);
+      return;
+    }
+
+    // RUN: pause when ▶ lands on a Studio breakpoint (batch-grain; may overshoot slightly).
+    if (ExecutionPaused || _studioBreakpoints.Count == 0)
+    {
+      return;
+    }
+
+    int ptr = cpu.Program.PointerPosition();
+    int hit = ptr;
+    if (TryGetProgramListing(out IReadOnlyList<ClassicProgramLine> lines) && lines.Count > 0)
+    {
+      IReadOnlyList<StudioListingView.Row> rows = StudioListingView.Build(
+        lines,
+        IsProgramDirty ? null : LoadedTeoCard?.Program.Steps);
+      int highlight = StudioListingView.ResolvePointerHighlightIndex(lines, rows);
+      if (highlight >= 0)
+      {
+        hit = highlight;
+      }
+    }
+
+    if (hit == _breakpointContinueIgnoreStep)
+    {
+      return;
+    }
+
+    _breakpointContinueIgnoreStep = -1;
+    if (!HasStudioBreakpoint(hit))
+    {
+      return;
+    }
+
+    ExecutionPaused = true;
+    SyncStudioToPointer(cpu);
+  }
 }

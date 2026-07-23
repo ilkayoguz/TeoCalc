@@ -30,7 +30,7 @@ Make programs inspectable and steppable — core emulator workflow. **Foundation
 
 4. **DEBUG/TRACE: VS-like step-by-step** — foundation done
    - [x] Break / Continue / Step Into / Step Over on native gateways; faceplate Debug side panel.
-   - [x] VS-aligned shortcuts: F5 Continue, Shift+F5 Stop (leave pause), F6 Break, F10 Over, F11 Into. F9 reserved for Toggle Breakpoint later; Shift+F11 Step Out unbound (no gateway API yet).
+   - [x] VS-aligned shortcuts: F5 Continue, Shift+F5 Stop (leave pause), F6 Break, F9 Toggle Breakpoint, F10 Over, F11 Into. Shift+F11 Step Out unbound (no gateway API yet).
    - Deferred polish → Studio epic (call-stack, Step Out, Step Over edge cases, Stop closes debug panel).
 5. **While calc running: watch ROM code** — foundation done
    - [x] ROM watch list with Follow ROM (highlights live fetch address while running/stepping).
@@ -63,7 +63,8 @@ Shared program model so editor listing and any future FC share one source of tru
    - [x] Studio side panel (`{ }` title icon): **both** encodings at once (Machine | Mnemonic grid, faceplate token colors on light code bg); Copy dual TSV / Paste auto; FC placeholder as **column 3**.
    - Explorer Program column wired to the same dual listing/clipboard toolbar (no FC).
    - [x] PC vs selection: live PTR/step = ▶ in `#` only (no full-row yellow); click/keyboard selection = soft blue-gray row highlight.
-   - [ ] Double-click listing row → GTO / jump (set Classic PTR) and optionally run from that step. Useful for debug; needs a safe program-pointer API (not just UI).
+   - [x] W/PRGM live edit: faceplate keys write Classic RAM; Studio Code/Keys/FC rebuild each frame; selection follows PTR; **Save** in Studio while W/PRGM (or dirty); leave → RUN confirms Save / Don’t Save / Cancel.
+   - [x] Double-click listing row → set Classic PTR (same as “Set start point”); FC already supports the same via double-click / context.
 
 ### Stage B — Side-by-side read-only FC (MVP1)
 
@@ -74,7 +75,7 @@ Layout shell + flowchart as **visualization** of the listing (not yet editable).
 10. **Composite chrome shell**
     - Why: One place for editor + FC + debug buttons, DUMP, compact regs — VS-like, not floating scraps.
     - Layout: Machine | Mnemonic | FC (column 3); stacked alternative only if width collapses; title-bar / global strip reserved for transport + speed (later).
-    - [ ] Studio top toolbar: card I/O left + debug transport right (above grid); Debug panel stays monitoring-only.
+    - [x] Studio top toolbar: card I/O left (Browse/Save/Eject + clipboard/Set start) + debug transport right-aligned; Debug panel stays monitoring-only.
 11. **Flowchart pane (read-only)**
     - Why: See control flow next to code without leaving the composite screen.
     - Sync: selecting a listing line highlights FC node (and reverse selection → listing); PC highlight while stepping.
@@ -93,6 +94,7 @@ True bidirectional authoring.
     - Why: Faster encoding between mnemonic and machine; pairs with FC node labels.
 15. **Card menu: Find** + **partial Code search**
     - Why: Jump across cards; locate opcode/mnemonic fragments in a growing library.
+    - [x] Studio Find (Ctrl+F): Machine/Keys/Legend (+ internal byte) search + jump Next/Prev.
 16. **Powerful editor: docs + embeddable links**
     - Why: In-place reference while authoring; deeper than tooltips.
 
@@ -103,10 +105,14 @@ Transport and remaining P1 polish on the composite chrome.
 17. **Global execution speed control**
     - Why: Speed up/down device execution rate; place in title bar / global transport (not debug-only bury).
     - Note: may later tie to Model profiles (Standard / Max) — profile enum stays P3 until speed UX exists.
+    - [x] Studio transport `− N× +` + `[` / `]` keys; `CalcExplorerSession.ExecutionSpeed` scales `Tick` delta (0.25×…16×).
 18. **Debug polish on composite chrome**
     - Call-stack view; richer Step Over edge cases across ISA families.
     - ROM watch: scroll-to-PC smooth sync, larger window, cross-ref tooltips; DUMP includes ROM window / user listing.
     - Registers: editable regs / X-display formatted view in composite strip.
+    - [x] DUMP enriched with ROM±16 + user listing; ROM watch window 64 / follow offset −10.
+    - [x] ROM watch handler hover: Classic CrossRef (Nonpareil · patent term).
+    - [ ] Call-stack / Step Out (still deferred).
 
 ### Stage E — Algorithm assists (after Studio core)
 
@@ -126,5 +132,7 @@ Nice-to-have after Composite Dev Studio stages A–D are solid.
     - Why: Standard = normal speed + defined HW; Max = top speed + HW TBD — after global speed control lands.
 23. **Help: `?` or Alt+mouse on key → balloon tooltip**
     - Why: Discoverability polish on the faceplate.
+    - [x] Alt+hover key → balloon (cap + f/g/h legends + keycode); Alt suppresses key press.
 24. **Teo logo (bottom-left): hover + click → mini About**
     - Why: Hardware/ROM/version/author info; branding polish, low path priority.
+    - [x] Teo mark hit → About modal (product, family, ROM words, build).

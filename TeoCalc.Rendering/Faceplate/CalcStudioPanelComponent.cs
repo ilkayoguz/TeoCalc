@@ -1,5 +1,6 @@
 using ImGuiNET;
 using System.Numerics;
+using System.Text;
 using TeoCalc.Core.Engine.Classic;
 using TeoCalc.Core.Firmware;
 using TeoCalc.Formats;
@@ -53,6 +54,12 @@ public static class CalcStudioPanelComponent
   private static Vector2 s_codeDragOrigin;
   private static Vector2 s_codeDragLast;
   private static int s_codeContextStep = -1;
+  private static string s_findQuery = string.Empty;
+  private static int s_findMatchRow = -1;
+  private static bool s_focusFind;
+
+  /// <summary>Focus the Studio Find box (e.g. Ctrl+F).</summary>
+  public static void RequestFindFocus() => s_focusFind = true;
 
   private static void ShowStatusBalloon(string message)
   {
@@ -88,6 +95,7 @@ public static class CalcStudioPanelComponent
     ref string cardStatusMessage,
     bool canLoadSaveCard,
     Func<string, string?> loadCard,
+    Func<string, string?> saveCard,
     bool cardInserted,
     string? loadedCardPath,
     TeoCardDocument? loadedTeoCard,
@@ -106,20 +114,26 @@ public static class CalcStudioPanelComponent
       ref cardStatusMessage,
       canLoadSaveCard,
       loadCard,
+      saveCard,
       cardInserted,
       loadedCardPath,
       loadedTeoCard,
       onEjectCard);
-    ImGui.Separator();
+    if (session.StudioStatusMessage.Length > 0)
+    {
+      ShowStatusBalloon(session.StudioStatusMessage);
+      session.StudioStatusMessage = string.Empty;
+    }
 
-    DrawToolbar(session);
     ImGui.Separator();
 
     Vector2 avail = ImGui.GetContentRegionAvail();
     IReadOnlyList<StudioListingView.Row>? rows = null;
     if (session.TryGetProgramListing(out IReadOnlyList<ClassicProgramLine> lines) && lines.Count > 0)
     {
-      rows = StudioListingView.Build(lines, session.LoadedTeoCard?.Program.Steps);
+      rows = StudioListingView.Build(
+        lines,
+        session.IsProgramDirty ? null : session.LoadedTeoCard?.Program.Steps);
     }
 
     // Footer (Lines + R1–R9) stays pinned — no outer Studio scroll to reach Data.
@@ -198,29 +212,22 @@ public static class CalcStudioPanelComponent
     ref string cardStatusMessage,
     bool canLoadSaveCard,
     Func<string, string?> loadCard,
+    Func<string, string?> saveCard,
     bool cardInserted,
     string? loadedCardPath,
     TeoCardDocument? loadedTeoCard,
     Action? onEjectCard)
   {
+    // One VS-like strip: card I/O + clipboard left, debug transport right.
     CalcStudioChromeStyle.PushToolbar();
 
-    float pathW = MathF.Max(80f, ImGui.GetContentRegionAvail().X - 260f);
-    ImGui.SetNextItemWidth(pathW);
-    ImGui.InputText(
-      "##studio-card-path",
-      ref cardPathBuffer,
-      512,
-      ImGuiInputTextFlags.ReadOnly);
-
+    bool showSave = canLoadSaveCard && (session.ProgramMode || session.IsProgramDirty);
     if (!canLoadSaveCard)
     {
-      ImGui.SameLine();
       ImGui.TextDisabled("No program memory");
     }
     else
     {
-      ImGui.SameLine();
       CalcStudioChromeStyle.PushPrimary();
       ImGui.PushFont(CalcFaceplateFonts.Arial);
       if (ImGui.Button("Browse\u2026"))
@@ -236,6 +243,32 @@ public static class CalcStudioPanelComponent
 
       ImGui.PopFont();
       CalcStudioChromeStyle.PopPrimary();
+
+      if (showSave)
+      {
+        ImGui.SameLine();
+        if (ImGui.Button(session.IsProgramDirty ? "Save*" : "Save"))
+        {
+          if (TryStudioSaveCard(session, ref cardPathBuffer, saveCard, out string status))
+          {
+            ShowStatusBalloon(status);
+            cardStatusMessage = status;
+          }
+          else
+          {
+            cardStatusMessage = status;
+            ShowStatusBalloon(status);
+          }
+        }
+
+        if (ImGui.IsItemHovered())
+        {
+          ImGui.SetTooltip(
+            session.ProgramMode
+              ? "Write program RAM to the card file (W/PRGM)."
+              : "Write unsaved program RAM to the card file.");
+        }
+      }
 
       if (cardInserted && onEjectCard is not null)
       {
@@ -257,6 +290,10 @@ public static class CalcStudioPanelComponent
       cardStatusMessage = error is null
         ? $"Loaded: {Path.GetFileName(picked)}"
         : error;
+      if (error is null)
+      {
+        ShowStatusBalloon(cardStatusMessage);
+      }
     }
 
     string cardLabel = loadedTeoCard?.Title
@@ -269,17 +306,415 @@ public static class CalcStudioPanelComponent
       ImGui.TextDisabled(cardLabel);
     }
 
-    if (!string.IsNullOrEmpty(cardStatusMessage))
+    if (session.IsProgramDirty)
     {
-      ImGui.TextDisabled(cardStatusMessage);
+      ImGui.SameLine();
+      ImGui.TextColored(new Vector4(0.95f, 0.75f, 0.35f, 1f), "unsaved");
+    }
+
+    ImGui.SameLine();
+    ImGui.TextDisabled("|");
+    ImGui.SameLine();
+    DrawClipboardAndStartButtons(session);
+
+    float transportW = MeasureCompactDebugTransportWidth(session);
+    float rightX = ImGui.GetWindowContentRegionMax().X - transportW;
+    if (rightX > ImGui.GetCursorPosX() + 12f)
+    {
+      ImGui.SameLine(rightX);
+    }
+    else
+    {
+      ImGui.SameLine();
     }
 
     DrawCompactDebugTransport(session);
+    DrawStatusBalloon();
     CalcStudioChromeStyle.PopToolbar();
+
+    // Path under the action strip (does not steal transport alignment).
+    float pathW = MathF.Max(80f, ImGui.GetContentRegionAvail().X);
+    ImGui.SetNextItemWidth(pathW);
+    ImGui.InputText(
+      "##studio-card-path",
+      ref cardPathBuffer,
+      512,
+      ImGuiInputTextFlags.ReadOnly);
+  }
+
+  private static void DrawClipboardAndStartButtons(Session session)
+  {
+    bool canEdit = session.SupportsCardProgram;
+    if (!canEdit)
+    {
+      ImGui.BeginDisabled();
+    }
+
+    if (ImGui.Button("Copy"))
+    {
+      string text = session.FormatProgramListingText();
+      if (string.IsNullOrWhiteSpace(text))
+      {
+        ShowStatusBalloon("Nothing to copy.");
+      }
+      else
+      {
+        ImGui.SetClipboardText(text);
+        ShowStatusBalloon("Copied machine|mnemonic listing.");
+      }
+    }
+
+    ImGui.SameLine();
+    if (ImGui.Button("Paste"))
+    {
+      string clip = ImGui.GetClipboardText() ?? string.Empty;
+      if (session.TryPasteProgramListing(clip, out string? error))
+      {
+        ShowStatusBalloon(
+          session.StudioStatusMessage.Length > 0 ? session.StudioStatusMessage : "Pasted.");
+        session.StudioStatusMessage = string.Empty;
+      }
+      else
+      {
+        ShowStatusBalloon(error ?? "Paste failed.");
+      }
+    }
+
+    ImGui.SameLine();
+    if (ImGui.Button("Set start")
+        && session.SelectedProgramStep >= 0
+        && session.TrySetProgramStartStep(session.SelectedProgramStep))
+    {
+      ShowStatusBalloon($"Start → step {session.SelectedProgramStep}");
+      StudioPaneSync.FollowPointer(session.SelectedProgramStep);
+    }
+
+    if (ImGui.IsItemHovered())
+    {
+      ImGui.SetTooltip("Set Classic PTR (also: double-click row, Ctrl+Shift+F10, FC right-click).");
+    }
+
+    ImGui.SameLine();
+    ImGui.TextDisabled("|");
+    ImGui.SameLine();
+    DrawFindControls(session);
+
+    if (!canEdit)
+    {
+      ImGui.EndDisabled();
+    }
+  }
+
+  private static void DrawFindControls(Session session)
+  {
+    if (s_focusFind)
+    {
+      ImGui.SetKeyboardFocusHere();
+      s_focusFind = false;
+    }
+
+    ImGui.SetNextItemWidth(110f);
+    bool enter = ImGui.InputText(
+      "##studio-find",
+      ref s_findQuery,
+      96,
+      ImGuiInputTextFlags.EnterReturnsTrue);
+    if (ImGui.IsItemHovered())
+    {
+      ImGui.SetTooltip("Find in Machine / Keys / Legend (Ctrl+F)");
+    }
+
+    ImGui.SameLine();
+    if (ImGui.SmallButton("Find") || enter)
+    {
+      if (TryFindListingMatch(session, forward: true, out int step, out string status))
+      {
+        session.SelectedProgramStep = step;
+        StudioPaneSync.FollowPointer(step);
+        ShowStatusBalloon(status);
+      }
+      else
+      {
+        ShowStatusBalloon(status);
+      }
+    }
+
+    ImGui.SameLine();
+    if (ImGui.SmallButton("Prev##find"))
+    {
+      if (TryFindListingMatch(session, forward: false, out int step, out string status))
+      {
+        session.SelectedProgramStep = step;
+        StudioPaneSync.FollowPointer(step);
+        ShowStatusBalloon(status);
+      }
+      else
+      {
+        ShowStatusBalloon(status);
+      }
+    }
+  }
+
+  /// <summary>
+  /// Search Studio listing Machine/Keys/Legend (and mnemonic) for <see cref="s_findQuery"/>.
+  /// </summary>
+  internal static bool TryFindListingMatch(
+    Session session,
+    bool forward,
+    out int stepIndex,
+    out string status)
+  {
+    stepIndex = -1;
+    status = "Nothing to find.";
+    string query = s_findQuery.Trim();
+    if (query.Length == 0)
+    {
+      status = "Enter a find string.";
+      return false;
+    }
+
+    if (!session.TryGetProgramListing(out IReadOnlyList<ClassicProgramLine> lines)
+        || lines.Count == 0)
+    {
+      status = "Empty program.";
+      return false;
+    }
+
+    IReadOnlyList<StudioListingView.Row> rows = StudioListingView.Build(
+      lines,
+      session.IsProgramDirty ? null : session.LoadedTeoCard?.Program.Steps);
+    if (rows.Count == 0)
+    {
+      status = "Empty listing.";
+      return false;
+    }
+
+    string modelId = session.EngineModelId;
+    IReadOnlyList<string>? strip = session.CardStripLabels;
+    int start = s_findMatchRow;
+    if (start < 0 || start >= rows.Count)
+    {
+      start = forward ? -1 : rows.Count;
+    }
+
+    for (int n = 0; n < rows.Count; n++)
+    {
+      int i = forward
+        ? (start + 1 + n) % rows.Count
+        : (start - 1 - n + rows.Count * 2) % rows.Count;
+      if (!RowMatchesFind(rows[i], query, modelId, strip))
+      {
+        continue;
+      }
+
+      s_findMatchRow = i;
+      stepIndex = rows[i].Index;
+      status = $"Find → #{StudioListingView.DisplayStepNumber(rows, i)} {rows[i].DisplayMnemonic}";
+      return true;
+    }
+
+    status = $"No match for '{query}'.";
+    return false;
+  }
+
+  internal static bool RowMatchesFind(
+    StudioListingView.Row row,
+    string query,
+    string modelId,
+    IReadOnlyList<string>? stripCaptions)
+  {
+    if (string.IsNullOrWhiteSpace(query))
+    {
+      return false;
+    }
+
+    StudioListingView.Paint paint = StudioListingView.ResolvePaint(row, modelId, stripCaptions);
+    string machine = StudioMuseumKeycodes.FormatMachineDisplay(row, modelId);
+    string haystack =
+      $"{machine} {row.Code} {paint.KeysMnemonic} {paint.Legend} {row.DisplayMnemonic} {row.Mnemonic}";
+    return haystack.Contains(query, StringComparison.OrdinalIgnoreCase);
+  }
+
+  private static float MeasureCompactDebugTransportWidth(Session session)
+  {
+    // − 1× + | Break Cont Step Over + PC status — approximate for right-align.
+    float pad = ImGui.GetStyle().ItemSpacing.X;
+    float w = ImGui.CalcTextSize("−").X + 16f
+      + pad + ImGui.CalcTextSize(session.ExecutionSpeedLabel).X
+      + pad + ImGui.CalcTextSize("+").X + 16f
+      + pad + ImGui.CalcTextSize("|").X
+      + pad + ImGui.CalcTextSize("Break").X + 16f
+      + pad + ImGui.CalcTextSize("Cont").X + 16f
+      + pad + ImGui.CalcTextSize("Step").X + 16f
+      + pad + ImGui.CalcTextSize("Over").X + 16f;
+    FirmwareBatchSnapshot batch = session.LastBatch;
+    string status =
+      $"PC={batch.ProgramCounter:X4}  steps={batch.StepCount}  {(session.ExecutionPaused ? "PAUSED" : "RUN")}";
+    return w + pad + ImGui.CalcTextSize(status).X + 8f;
+  }
+
+  private static bool TryStudioSaveCard(
+    Session session,
+    ref string cardPathBuffer,
+    Func<string, string?> saveCard,
+    out string status)
+  {
+    string path = cardPathBuffer.Trim();
+    if (string.IsNullOrWhiteSpace(path))
+    {
+      path = session.LoadedCardPath ?? string.Empty;
+    }
+
+    if (string.IsNullOrWhiteSpace(path)
+        || !Path.HasExtension(path))
+    {
+      string? initialDir = Path.GetDirectoryName(path);
+      if (string.IsNullOrWhiteSpace(initialDir) || !Directory.Exists(initialDir))
+      {
+        initialDir = CalcCardPanelComponent.DefaultCardsDirectory();
+      }
+
+      string suggested = string.IsNullOrWhiteSpace(session.LoadedTeoCard?.Title)
+        ? $"program{session.CardProgramExtension}"
+        : $"{SanitizeStudioFileName(session.LoadedTeoCard!.Title)}{session.CardProgramExtension}";
+      if (!CalcNativeFileDialog.TrySaveCardFile(initialDir, suggested, out string picked))
+      {
+        status = "Save cancelled.";
+        return false;
+      }
+
+      path = picked;
+      cardPathBuffer = path;
+    }
+
+    string? error = saveCard(path);
+    if (error is not null)
+    {
+      status = error;
+      return false;
+    }
+
+    status = $"Saved: {Path.GetFileName(path)}";
+    return true;
+  }
+
+  private static string SanitizeStudioFileName(string title)
+  {
+    char[] invalid = Path.GetInvalidFileNameChars();
+    StringBuilder sb = new(title.Length);
+    foreach (char c in title.Trim())
+    {
+      sb.Append(Array.IndexOf(invalid, c) >= 0 ? '-' : c);
+    }
+
+    string name = sb.ToString().Trim();
+    return name.Length > 0 ? name : "program";
+  }
+
+  /// <summary>
+  /// Leave-W/PRGM dirty confirm — call once per frame from the faceplate host
+  /// so it still appears when Studio is closed.
+  /// </summary>
+  public static void DrawPendingLeaveProgramConfirm(
+    Session session,
+    ref string cardPathBuffer,
+    Func<string, string?> saveCard) =>
+    DrawLeaveProgramConfirmPopup(session, ref cardPathBuffer, saveCard);
+
+  private static void DrawLeaveProgramConfirmPopup(
+    Session session,
+    ref string cardPathBuffer,
+    Func<string, string?> saveCard)
+  {
+    if (session.PendingLeaveProgramConfirm)
+    {
+      ImGui.OpenPopup("##leave-wprgm-confirm");
+    }
+
+    bool open = true;
+    if (!ImGui.BeginPopupModal(
+          "##leave-wprgm-confirm",
+          ref open,
+          ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoTitleBar))
+    {
+      if (!open && session.PendingLeaveProgramConfirm)
+      {
+        session.CancelLeaveProgramConfirm();
+      }
+
+      return;
+    }
+
+    ImGui.TextUnformatted("Program has unsaved changes.");
+    ImGui.TextDisabled("Save before switching to RUN?");
+    ImGui.Spacing();
+
+    if (ImGui.Button("Save", new Vector2(90f, 0f)))
+    {
+      if (TryStudioSaveCard(session, ref cardPathBuffer, saveCard, out string status))
+      {
+        ShowStatusBalloon(status);
+        session.CancelLeaveProgramConfirm();
+        session.ToggleProgramModeTo(false);
+        ImGui.CloseCurrentPopup();
+      }
+      else
+      {
+        ShowStatusBalloon(status);
+      }
+    }
+
+    ImGui.SameLine();
+    if (ImGui.Button("Don't Save", new Vector2(100f, 0f)))
+    {
+      session.ConfirmDiscardProgramEditsAndRun();
+      ImGui.CloseCurrentPopup();
+    }
+
+    ImGui.SameLine();
+    if (ImGui.Button("Cancel", new Vector2(90f, 0f)))
+    {
+      session.CancelLeaveProgramConfirm();
+      ImGui.CloseCurrentPopup();
+    }
+
+    ImGui.EndPopup();
   }
 
   private static void DrawCompactDebugTransport(Session session)
   {
+    if (ImGui.SmallButton("−##speed-down"))
+    {
+      session.NudgeExecutionSpeed(-1);
+    }
+
+    if (ImGui.IsItemHovered())
+    {
+      ImGui.SetTooltip("Slower free-run ([)");
+    }
+
+    ImGui.SameLine();
+    ImGui.TextUnformatted(session.ExecutionSpeedLabel);
+    if (ImGui.IsItemHovered())
+    {
+      ImGui.SetTooltip("Execution speed (free-run Tick multiplier)");
+    }
+
+    ImGui.SameLine();
+    if (ImGui.SmallButton("+##speed-up"))
+    {
+      session.NudgeExecutionSpeed(1);
+    }
+
+    if (ImGui.IsItemHovered())
+    {
+      ImGui.SetTooltip("Faster free-run (])");
+    }
+
+    ImGui.SameLine();
+    ImGui.TextDisabled("|");
+    ImGui.SameLine();
+
     bool powered = session.PowerOn;
     if (!powered)
     {
@@ -342,7 +777,7 @@ public static class CalcStudioPanelComponent
     if (ImGui.IsItemHovered())
     {
       ImGui.SetTooltip(
-        "F5 Cont  Shift+F5 Stop  F6 Break  F10 row/box  F11 key  |  Microcode: title-bar Debug");
+        "F5 Cont  Shift+F5 Stop  F6 Break  F9 Breakpoint  F10 row/box  F11 key  |  [ ] speed  |  Microcode: title-bar Debug");
     }
   }
 
@@ -365,61 +800,7 @@ public static class CalcStudioPanelComponent
   private static void DrawToolbar(Session session)
   {
     CalcStudioChromeStyle.PushToolbar();
-    bool canEdit = session.SupportsCardProgram;
-    if (!canEdit)
-    {
-      ImGui.BeginDisabled();
-    }
-
-    if (ImGui.Button("Copy"))
-    {
-      string text = session.FormatProgramListingText();
-      if (string.IsNullOrWhiteSpace(text))
-      {
-        ShowStatusBalloon("Nothing to copy.");
-      }
-      else
-      {
-        ImGui.SetClipboardText(text);
-        ShowStatusBalloon("Copied machine|mnemonic listing.");
-      }
-    }
-
-    ImGui.SameLine();
-    if (ImGui.Button("Paste"))
-    {
-      string clip = ImGui.GetClipboardText() ?? string.Empty;
-      if (session.TryPasteProgramListing(clip, out string? error))
-      {
-        ShowStatusBalloon(
-          session.StudioStatusMessage.Length > 0 ? session.StudioStatusMessage : "Pasted.");
-        session.StudioStatusMessage = string.Empty;
-      }
-      else
-      {
-        ShowStatusBalloon(error ?? "Paste failed.");
-      }
-    }
-
-    ImGui.SameLine();
-    if (ImGui.Button("Set start")
-        && session.SelectedProgramStep >= 0
-        && session.TrySetProgramStartStep(session.SelectedProgramStep))
-    {
-      ShowStatusBalloon($"Start → step {session.SelectedProgramStep}");
-      StudioPaneSync.OnFlowchartSelected(session.SelectedProgramStep);
-    }
-
-    if (ImGui.IsItemHovered())
-    {
-      ImGui.SetTooltip("Set Classic PTR / SST start (Ctrl+Shift+F10 or FC right-click).");
-    }
-
-    if (!canEdit)
-    {
-      ImGui.EndDisabled();
-    }
-
+    DrawClipboardAndStartButtons(session);
     DrawStatusBalloon();
     CalcStudioChromeStyle.PopToolbar();
   }
@@ -451,7 +832,7 @@ public static class CalcStudioPanelComponent
 
     IReadOnlyList<StudioListingView.Row> rows = StudioListingView.Build(
       lines,
-      session.LoadedTeoCard?.Program.Steps);
+      session.IsProgramDirty ? null : session.LoadedTeoCard?.Program.Steps);
     int pointerHighlight = StudioListingView.ResolvePointerHighlightIndex(lines, rows);
     string modelId = session.EngineModelId;
     IReadOnlyList<string>? stripCaptions = session.CardStripLabels;
@@ -533,12 +914,26 @@ public static class CalcStudioPanelComponent
             DrawPointerMarker(indexCellPos, indexLineH);
           }
 
+          if (session.HasStudioBreakpointOnRow(row))
+          {
+            DrawBreakpointMarker(indexCellPos, indexLineH, atPtr);
+          }
+
           int displayIndex = StudioListingView.DisplayStepNumber(rows, i);
           string indexText = displayIndex.ToString();
           Vector2 indexSize = ImGui.CalcTextSize(indexText);
-          float markerReserve = atPtr
-            ? PointerMarkerWidth(indexLineH) + PointerMarkerDigitGap
-            : 0f;
+          float markerReserve = 0f;
+          if (atPtr)
+          {
+            markerReserve = PointerMarkerWidth(indexLineH) + PointerMarkerDigitGap;
+          }
+
+          if (session.HasStudioBreakpointOnRow(row))
+          {
+            markerReserve = MathF.Max(
+              markerReserve,
+              BreakpointMarkerReserve(indexLineH) + PointerMarkerDigitGap);
+          }
           ImGui.GetWindowDrawList().AddText(
             new Vector2(
               indexCellPos.X + MathF.Max(markerReserve, indexCellW - indexSize.X),
@@ -574,6 +969,15 @@ public static class CalcStudioPanelComponent
               StudioPaneSync.OnCodeSelected(row.Index);
             }
 
+            if (ImGui.IsMouseDoubleClicked(ImGuiMouseButton.Left) && !s_codeDragMoved)
+            {
+              if (session.TrySetProgramStartStep(row.Index))
+              {
+                ShowStatusBalloon($"PTR → step {session.SelectedProgramStep}");
+                StudioPaneSync.FollowPointer(session.SelectedProgramStep);
+              }
+            }
+
             if (ImGui.IsMouseClicked(ImGuiMouseButton.Right))
             {
               session.SelectedProgramStep = row.Index;
@@ -591,7 +995,20 @@ public static class CalcStudioPanelComponent
               && session.TrySetProgramStartStep(s_codeContextStep))
           {
             ShowStatusBalloon($"Start → step {s_codeContextStep}");
-            StudioPaneSync.OnFlowchartSelected(s_codeContextStep);
+            StudioPaneSync.FollowPointer(s_codeContextStep);
+          }
+
+          if (s_codeContextStep >= 0)
+          {
+            bool hasBp = session.HasStudioBreakpoint(s_codeContextStep);
+            if (ImGui.MenuItem(hasBp ? "Remove breakpoint" : "Toggle breakpoint (F9)"))
+            {
+              bool added = session.ToggleStudioBreakpoint(s_codeContextStep);
+              ShowStatusBalloon(
+                added
+                  ? $"Breakpoint + step {s_codeContextStep}"
+                  : $"Breakpoint − step {s_codeContextStep}");
+            }
           }
 
           ImGui.EndPopup();
@@ -948,6 +1365,9 @@ public static class CalcStudioPanelComponent
   private static float PointerMarkerWidth(float lineHeight) =>
     PointerMarkerLeftPad + lineHeight * PointerMarkerHeightFrac * PointerMarkerTipFrac;
 
+  private static float BreakpointMarkerReserve(float lineHeight) =>
+    PointerMarkerLeftPad + lineHeight * 0.42f;
+
   /// <summary>
   /// Small right-pointing triangle in the # column for the live Classic PTR / program step.
   /// </summary>
@@ -962,6 +1382,21 @@ public static class CalcStudioPanelComponent
       new Vector2(tipX, cy),
       new Vector2(left, cy + h * 0.5f),
       StudioMnemonicPaint.PointerMarkerInk);
+  }
+
+  /// <summary>Filled disc in the # column for a Studio breakpoint (left of digits / under ▶).</summary>
+  private static void DrawBreakpointMarker(Vector2 cellMin, float lineHeight, bool atPtr)
+  {
+    float r = lineHeight * 0.18f;
+    float cx = cellMin.X + PointerMarkerLeftPad + r;
+    // Sit under the ▶ tip when both markers share the cell.
+    float cy = atPtr
+      ? cellMin.Y + lineHeight * 0.72f
+      : cellMin.Y + lineHeight * 0.5f;
+    ImGui.GetWindowDrawList().AddCircleFilled(
+      new Vector2(cx, cy),
+      r,
+      StudioMnemonicPaint.BreakpointMarkerInk);
   }
 
   /// <summary>

@@ -36,7 +36,7 @@ public static class CalcDebugPanelComponent
       if (follow)
       {
         session.SelectedAddress = Math.Max(0, session.LastBatch.ProgramCounter);
-        session.MicrocodeScroll = Math.Max(0, session.SelectedAddress - 6);
+        session.MicrocodeScroll = Math.Max(0, session.SelectedAddress - 10);
       }
     }
 
@@ -139,7 +139,7 @@ public static class CalcDebugPanelComponent
 
         int pc = session.LastBatch.ProgramCounter;
         int first = Math.Clamp(session.MicrocodeScroll, 0, Math.Max(0, map.WordCount - 1));
-        int last = Math.Min(map.WordCount, first + 48);
+        int last = Math.Min(map.WordCount, first + 64);
         for (int address = first; address < last; address++)
         {
           MicrocodeMapEntry? entry = map.TryGetAddress(address);
@@ -172,6 +172,19 @@ public static class CalcDebugPanelComponent
           ImGui.TextUnformatted(entry.Mnemonic);
           ImGui.TableSetColumnIndex(3);
           ImGui.TextDisabled(ShortHandler(entry.HandlerId));
+          if (ImGui.IsItemHovered())
+          {
+            MicrocodeCrossRefEntry? cross = session.CrossRef?.TryGetHandler(entry.HandlerId);
+            if (cross is null)
+            {
+              ImGui.SetTooltip(entry.HandlerId);
+            }
+            else
+            {
+              ImGui.SetTooltip(
+                $"{entry.HandlerId}\n{cross.NonpareilMnemonic}  ·  {cross.PatentTerm}");
+            }
+          }
         }
 
         ImGui.EndTable();

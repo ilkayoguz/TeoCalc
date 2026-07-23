@@ -409,6 +409,15 @@ public sealed class CalcFaceplateHost : IDisposable
           DrawSidePanelContent(contentHeight);
         }
 
+        CalcStudioPanelComponent.DrawPendingLeaveProgramConfirm(
+          _session,
+          ref _cardPathBuffer,
+          path =>
+          {
+            bool saved = _session.TrySaveCardProgram(path, out string? saveError);
+            return saved ? null : saveError;
+          });
+
         ImGui.SetCursorPos(new System.Numerics.Vector2(CalcBodyOffsetX, BandTop));
         CalcFaceplateView.Draw(
           _session,
@@ -507,7 +516,9 @@ public sealed class CalcFaceplateHost : IDisposable
 
     float logoScale = LogoBandHeight / CalcLogoPanelComponent.HeightRef;
     CalcModelDefinition model = CalcModelCatalog.Resolve(_session.Model, _catalogModelId);
-    CalcLogoPanelComponent.Draw(draw, logoBand, logoScale, model);
+    CalcLogoPanelComponent.Draw(draw, logoBand, logoScale, model, skipText: false, out RectF markHit);
+    CalcAboutModal.HandleMarkInteraction(markHit);
+    CalcAboutModal.Draw(_session, model);
   }
 
   private static RectF DrawBead(

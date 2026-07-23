@@ -1,5 +1,6 @@
 using ImGuiNET;
 using System.Numerics;
+using System.Text;
 using TeoCalc.Core.Catalog;
 using TeoCalc.Core.Firmware;
 using TeoCalc.Rendering.Faceplate;
@@ -277,6 +278,7 @@ public static class CalcFaceplateView
     bool skipText)
   {
     bool anyKeyHovered = false;
+    bool helpMode = ImGui.GetIO().KeyAlt;
 
     foreach (IGrouping<int, FaceplateCell> row in cells.GroupBy(cell => cell.Row).OrderBy(group => group.Key))
     {
@@ -386,7 +388,7 @@ public static class CalcFaceplateView
       {
         KeypadDrawItem item = rowItems[i];
         bool leftAlign = item.Kind != CalcButtonKind.EnterWide && item.Cell.ColSpan >= 2;
-        bool keyReady = interactive && powerOn && !switchClickHandled;
+        bool keyReady = interactive && powerOn && !switchClickHandled && !helpMode;
         bool keyboardPressed = keyReady && calcKeyboardActive
           && item.Cell.KeyChartIndex == keyboardHeldKey;
         if (CalcKeyComponent.DrawAtCapBounds(
@@ -420,14 +422,58 @@ public static class CalcFaceplateView
             metrics.Scale);
         }
 
-        if (interactive && ImGui.IsItemHovered() && calcPointerActive && powerOn)
+        if (interactive && ImGui.IsItemHovered() && calcPointerActive)
         {
-          anyKeyHovered = true;
+          if (helpMode)
+          {
+            ImGui.SetTooltip(FormatKeyHelpBalloon(item));
+          }
+          else if (powerOn)
+          {
+            anyKeyHovered = true;
+          }
         }
       }
     }
 
     return anyKeyHovered;
+  }
+
+  private static string FormatKeyHelpBalloon(KeypadDrawItem item)
+  {
+    StringBuilder sb = new();
+    sb.Append(item.Visual.Primary);
+    if (!string.IsNullOrWhiteSpace(item.Visual.GoldShift))
+    {
+      sb.AppendLine().Append("f  ").Append(item.Visual.GoldShift);
+    }
+
+    if (!string.IsNullOrWhiteSpace(item.Visual.GoldShiftRight))
+    {
+      sb.AppendLine().Append("f  ").Append(item.Visual.GoldShiftRight);
+    }
+
+    if (!string.IsNullOrWhiteSpace(item.Visual.BlueShift))
+    {
+      sb.AppendLine().Append("g  ").Append(item.Visual.BlueShift);
+    }
+
+    if (!string.IsNullOrWhiteSpace(item.Visual.GoldInverseShift))
+    {
+      sb.AppendLine().Append("f⁻¹ ").Append(item.Visual.GoldInverseShift);
+    }
+
+    if (!string.IsNullOrWhiteSpace(item.Visual.BlackShift))
+    {
+      sb.AppendLine().Append("h  ").Append(item.Visual.BlackShift);
+    }
+
+    sb.AppendLine()
+      .Append("keycode ")
+      .Append(item.Key.KeyCode)
+      .Append("  chart ")
+      .Append(item.Cell.KeyChartIndex);
+    return sb.ToString();
   }
 
   private readonly record struct KeypadDrawItem(

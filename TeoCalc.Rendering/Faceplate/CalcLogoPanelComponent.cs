@@ -19,7 +19,13 @@ public static class CalcLogoPanelComponent
   public static RectF ResolveSlotRef(float bandLeft, float bandWidth, float topY) =>
     new(bandLeft, topY, bandWidth, HeightRef);
 
-  public static void Draw(ImDrawListPtr draw, RectF logo, float scale, CalcModelDefinition model, bool skipText = false)
+  public static void Draw(
+    ImDrawListPtr draw,
+    RectF logo,
+    float scale,
+    CalcModelDefinition model,
+    bool skipText,
+    out RectF markHit)
   {
     float radius = Calc00dWireStyle.SwitchPanelRadiusRef * scale;
     DrawBrushedAluminumPlate(draw, logo, radius, scale);
@@ -29,6 +35,7 @@ public static class CalcLogoPanelComponent
     float markSize = MathF.Max(8f * scale, logo.Height - padY * 2f);
     Vector2 markMin = new(logo.Min.X + padX, logo.Min.Y + (logo.Height - markSize) * 0.5f);
     Vector2 markMax = markMin + new Vector2(markSize, markSize);
+    markHit = new RectF(markMin.X, markMin.Y, markSize, markSize);
     // Direct Svg.Skia render of TeoMark.svg (supersampled texture).
     if (!CalcModernSvgAssets.TryDrawTeoMark(draw, markMin, markMax)
         && !CalcModernSvgAssets.TryDrawHpMark(draw, markMin, markMax))
@@ -68,6 +75,9 @@ public static class CalcLogoPanelComponent
     DrawCenteredLabel(draw, model.LogoCaption, centerZoneLeft, centerZoneRight, logo.Min.Y, logo.Max.Y, fontSize, ink);
     DrawLabelRight(draw, modelLabel, modelRight, logo.Min.Y, logo.Max.Y, fontSize, ink);
   }
+
+  public static void Draw(ImDrawListPtr draw, RectF logo, float scale, CalcModelDefinition model, bool skipText = false) =>
+    Draw(draw, logo, scale, model, skipText, out _);
 
   private static void DrawDivider(ImDrawListPtr draw, float x, float y0, float y1, float scale)
   {

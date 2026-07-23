@@ -76,6 +76,7 @@ public static class CalcCapabilitySidePanelComponent
           ref cardStatusMessage,
           canLoadSaveCard,
           loadCard,
+          saveCard,
           cardInserted,
           loadedCardPath,
           loadedTeoCard,

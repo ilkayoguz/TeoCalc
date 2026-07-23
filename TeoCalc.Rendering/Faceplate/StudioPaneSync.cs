@@ -52,6 +52,23 @@ public static class StudioPaneSync
     }
   }
 
+  /// <summary>
+  /// Follow both panes to <paramref name="step"/> without changing <see cref="Focus"/>
+  /// (used when PTR moves from W/PRGM entry or Studio step).
+  /// </summary>
+  public static void FollowPointer(int step)
+  {
+    if (!IsApplyingFromFlowchart)
+    {
+      s_followFcStep = step;
+    }
+
+    if (!IsApplyingFromCode)
+    {
+      s_followCodeStep = step;
+    }
+  }
+
   public static void OnCodeScrolled(int step)
   {
     if (!IsApplyingFromFlowchart)
