@@ -206,6 +206,124 @@ public static class StudioMuseumKeycodes
     return true;
   }
 
+  /// <summary>
+  /// Resolve one Machine-column line to a TeoCalc program byte.
+  /// Accepts TeoCalc decimal (<c>43</c>) or T-65 museum display (<c>34 01</c> / <c>00</c>).
+  /// </summary>
+  public static bool TryResolveMachineLine(
+    string line,
+    string? modelId,
+    Func<byte, string> formatMnemonic,
+    out byte code,
+    out string? error)
+  {
+    ArgumentNullException.ThrowIfNull(formatMnemonic);
+    code = 0;
+    error = null;
+    string trimmed = line.Trim();
+    if (trimmed.Length == 0)
+    {
+      error = "Empty machine code step.";
+      return false;
+    }
+
+    // T-65 museum lines are two-digit tokens (`23` / `34 01`). Prefer museum map so
+    // padded digits like `00` do not collapse to TeoCalc byte 0 via decimal parse.
+    if (!string.IsNullOrWhiteSpace(modelId)
+        && IsClassicHp65Family(modelId)
+        && LooksLikeMuseumLine(trimmed))
+    {
+      string normalized = NormalizeMuseumLine(trimmed);
+      IReadOnlyDictionary<string, byte> map = GetOrBuildMuseumMap(modelId, formatMnemonic);
+      if (map.TryGetValue(normalized, out code))
+      {
+        return true;
+      }
+
+      error = $"Unknown museum machine code '{trimmed}'.";
+      return false;
+    }
+
+    // Decimal TeoCalc byte (clipboard / card machine mode / non-T-65).
+    if (!trimmed.Contains(' ', StringComparison.Ordinal)
+        && !trimmed.Contains('\t', StringComparison.Ordinal)
+        && byte.TryParse(trimmed, NumberStyles.Integer, CultureInfo.InvariantCulture, out byte decimalByte))
+    {
+      code = decimalByte;
+      return true;
+    }
+
+    error =
+      $"Invalid machine byte '{trimmed}'. Expected decimal 0..255"
+      + (IsClassicHp65Family(modelId ?? string.Empty)
+        ? " or museum codes like '34 01'."
+        : " (TeoCalc internal).");
+    return false;
+  }
+
+  private static bool LooksLikeMuseumLine(string trimmed)
+  {
+    string[] parts = trimmed.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
+    if (parts.Length is < 1 or > 2)
+    {
+      return false;
+    }
+
+    foreach (string part in parts)
+    {
+      if (part.Length != 2 || !char.IsDigit(part[0]) || !char.IsDigit(part[1]))
+      {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  private static string NormalizeMuseumLine(string line)
+  {
+    string[] parts = line.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
+    return string.Join(' ', parts);
+  }
+
+  private static readonly Dictionary<string, IReadOnlyDictionary<string, byte>> MuseumMaps = new(
+    StringComparer.OrdinalIgnoreCase);
+
+  private static IReadOnlyDictionary<string, byte> GetOrBuildMuseumMap(
+    string modelId,
+    Func<byte, string> formatMnemonic)
+  {
+    string engine = CalcModelIds.ToEngineId(modelId);
+    lock (MuseumMaps)
+    {
+      if (MuseumMaps.TryGetValue(engine, out IReadOnlyDictionary<string, byte>? cached))
+      {
+        return cached;
+      }
+
+      Dictionary<string, byte> map = new(StringComparer.Ordinal);
+      for (int i = 0; i <= 255; i++)
+      {
+        byte code = (byte)i;
+        string mnemonic = formatMnemonic(code);
+        if (string.IsNullOrWhiteSpace(mnemonic))
+        {
+          continue;
+        }
+
+        if (TryFormatMuseum(mnemonic, modelId, out string museum))
+        {
+          string key = NormalizeMuseumLine(museum);
+          // First writer wins — fused STO/RCL and single-token share the same display.
+          map.TryAdd(key, code);
+        }
+      }
+
+      MuseumMaps[engine] = map;
+      return map;
+    }
+  }
+
   private static bool IsClassicHp65Family(string modelId) =>
     CalcModelIds.IsEngine(modelId, "T-65");
 

@@ -58,10 +58,16 @@ public static class CalcStudioPanelComponent
   private static string s_findQuery = string.Empty;
   private static int s_findMatchRow = -1;
   private static bool s_focusFind;
+  private static bool s_requestStudioSaveFromKeyboard;
 
   /// <summary>Focus the Studio Find box (e.g. Ctrl+F).</summary>
   public static void RequestFindFocus() => s_focusFind = true;
 
+  /// <summary>Ctrl+S from global keyboard — handled next frame with the Studio save callback.</summary>
+  public static void RequestStudioSaveFromKeyboard() => s_requestStudioSaveFromKeyboard = true;
+
+  /// <summary>Status balloon for global Studio edit keys (no mouse anchor required).</summary>
+  public static void ShowKeyboardStatus(string message) => ShowStatusBalloon(message);
   private static void ShowStatusBalloon(string message)
   {
     s_statusBalloon = message;
@@ -252,12 +258,15 @@ public static class CalcStudioPanelComponent
         ImGui.SameLine();
         if (ImGui.Button(session.IsProgramDirty ? "Save*" : "Save"))
         {
-          if (TryStudioSaveCard(session, ref cardPathBuffer, saveCard, out string status))
+          if (TryBeginStudioSave(session, ref cardPathBuffer, saveCard, out string status))
           {
-            ShowStatusBalloon(status);
-            cardStatusMessage = status;
+            if (status.Length > 0)
+            {
+              ShowStatusBalloon(status);
+              cardStatusMessage = status;
+            }
           }
-          else
+          else if (status.Length > 0)
           {
             cardStatusMessage = status;
             ShowStatusBalloon(status);
@@ -268,11 +277,10 @@ public static class CalcStudioPanelComponent
         {
           CalcAppTooltip.Set(
             session.ProgramMode
-              ? "Write program RAM to the card file (W/PRGM)."
-              : "Write unsaved program RAM to the card file.");
+              ? "Write program RAM to the card file (W/PRGM). Ctrl+S · Power F2 · PRGM F4"
+              : "Write unsaved program RAM to the card file. Ctrl+S · Power F2 · PRGM F4");
         }
       }
-
       if (cardInserted && onEjectCard is not null)
       {
         ImGui.SameLine();
@@ -353,6 +361,24 @@ public static class CalcStudioPanelComponent
       ImGui.BeginDisabled();
     }
 
+    if (ImGui.Button("New"))
+    {
+      if (session.TryApplyProgramCodes([], out string? clearError))
+      {
+        ShowStatusBalloon("Program cleared.");
+      }
+      else
+      {
+        ShowStatusBalloon(clearError ?? "Could not clear program.");
+      }
+    }
+
+    if (ImGui.IsItemHovered())
+    {
+      CalcAppTooltip.Set("Clear program RAM (New).");
+    }
+
+    ImGui.SameLine();
     if (ImGui.Button("Copy"))
     {
       string text = session.FormatProgramListingText();
@@ -394,7 +420,8 @@ public static class CalcStudioPanelComponent
 
     if (ImGui.IsItemHovered())
     {
-      CalcAppTooltip.Set("Set Classic PTR (also: double-click row, Ctrl+Shift+F10, FC right-click).");
+      CalcAppTooltip.Set(
+        "Set Classic PTR / SST seek (also: double-click Code or FC row).");
     }
 
     ImGui.SameLine();
@@ -556,11 +583,27 @@ public static class CalcStudioPanelComponent
     return w + pad + ImGui.CalcTextSize(status).X + 8f;
   }
 
-  private static bool TryStudioSaveCard(
+  private static bool TryBeginStudioSave(
     Session session,
     ref string cardPathBuffer,
     Func<string, string?> saveCard,
     out string status)
+  {
+    string path = ResolveStudioSavePath(session, cardPathBuffer);
+    if (session.CardInserted
+        && !string.IsNullOrWhiteSpace(session.LoadedCardPath)
+        && File.Exists(session.LoadedCardPath))
+    {
+      cardPathBuffer = session.LoadedCardPath;
+      session.RequestStudioSaveConfirm();
+      status = string.Empty;
+      return true;
+    }
+
+    return TryStudioSaveAsDialog(session, ref cardPathBuffer, saveCard, out status);
+  }
+
+  private static string ResolveStudioSavePath(Session session, string cardPathBuffer)
   {
     string path = cardPathBuffer.Trim();
     if (string.IsNullOrWhiteSpace(path))
@@ -568,28 +611,46 @@ public static class CalcStudioPanelComponent
       path = session.LoadedCardPath ?? string.Empty;
     }
 
-    if (string.IsNullOrWhiteSpace(path)
-        || !Path.HasExtension(path))
+    return path;
+  }
+
+  private static bool TryStudioSaveAsDialog(
+    Session session,
+    ref string cardPathBuffer,
+    Func<string, string?> saveCard,
+    out string status)
+  {
+    string path = ResolveStudioSavePath(session, cardPathBuffer);
+    string? initialDir = Path.GetDirectoryName(path);
+    if (string.IsNullOrWhiteSpace(initialDir) || !Directory.Exists(initialDir))
     {
-      string? initialDir = Path.GetDirectoryName(path);
-      if (string.IsNullOrWhiteSpace(initialDir) || !Directory.Exists(initialDir))
-      {
-        initialDir = CalcCardPanelComponent.DefaultCardsDirectory();
-      }
-
-      string suggested = string.IsNullOrWhiteSpace(session.LoadedTeoCard?.Title)
-        ? $"program{session.CardProgramExtension}"
-        : $"{SanitizeStudioFileName(session.LoadedTeoCard!.Title)}{session.CardProgramExtension}";
-      if (!CalcNativeFileDialog.TrySaveCardFile(initialDir, suggested, out string picked))
-      {
-        status = "Save cancelled.";
-        return false;
-      }
-
-      path = picked;
-      cardPathBuffer = path;
+      initialDir = CalcCardPanelComponent.DefaultCardsDirectory();
     }
 
+    string suggested = string.IsNullOrWhiteSpace(session.LoadedTeoCard?.Title)
+      ? $"program{session.CardProgramExtension}"
+      : $"{SanitizeStudioFileName(session.LoadedTeoCard!.Title)}{session.CardProgramExtension}";
+    if (!string.IsNullOrWhiteSpace(path) && Path.HasExtension(path))
+    {
+      suggested = Path.GetFileName(path);
+    }
+
+    if (!CalcNativeFileDialog.TrySaveCardFile(initialDir, suggested, out string picked))
+    {
+      status = "Save cancelled.";
+      return false;
+    }
+
+    path = picked;
+    cardPathBuffer = path;
+    return TryStudioWriteCard(path, saveCard, out status);
+  }
+
+  private static bool TryStudioWriteCard(
+    string path,
+    Func<string, string?> saveCard,
+    out string status)
+  {
     string? error = saveCard(path);
     if (error is not null)
     {
@@ -599,6 +660,25 @@ public static class CalcStudioPanelComponent
 
     status = $"Saved: {Path.GetFileName(path)}";
     return true;
+  }
+
+  /// <summary>
+  /// Direct write used by leave-W/PRGM confirm (no overwrite modal).
+  /// </summary>
+  private static bool TryStudioSaveCard(
+    Session session,
+    ref string cardPathBuffer,
+    Func<string, string?> saveCard,
+    out string status)
+  {
+    string path = ResolveStudioSavePath(session, cardPathBuffer);
+    if (string.IsNullOrWhiteSpace(path) || !Path.HasExtension(path))
+    {
+      return TryStudioSaveAsDialog(session, ref cardPathBuffer, saveCard, out status);
+    }
+
+    cardPathBuffer = path;
+    return TryStudioWriteCard(path, saveCard, out status);
   }
 
   private static string SanitizeStudioFileName(string title)
@@ -615,14 +695,182 @@ public static class CalcStudioPanelComponent
   }
 
   /// <summary>
-  /// Leave-W/PRGM dirty confirm — call once per frame from the faceplate host
-  /// so it still appears when Studio is closed.
+  /// Leave-W/PRGM / Save / Revert confirms — call once per frame from the faceplate host
+  /// so they still appear when Studio is closed.
   /// </summary>
   public static void DrawPendingLeaveProgramConfirm(
     Session session,
     ref string cardPathBuffer,
-    Func<string, string?> saveCard) =>
+    Func<string, string?> saveCard)
+  {
+    if (s_requestStudioSaveFromKeyboard)
+    {
+      s_requestStudioSaveFromKeyboard = false;
+      if (TryBeginStudioSave(session, ref cardPathBuffer, saveCard, out string status)
+          && status.Length > 0)
+      {
+        ShowStatusBalloon(status);
+      }
+      else if (status.Length > 0)
+      {
+        ShowStatusBalloon(status);
+      }
+    }
+
     DrawLeaveProgramConfirmPopup(session, ref cardPathBuffer, saveCard);
+    DrawStudioSaveConfirmPopup(session, ref cardPathBuffer, saveCard);
+    DrawStudioRevertConfirmPopup(session);
+  }
+
+  private static void DrawStudioSaveConfirmPopup(
+    Session session,
+    ref string cardPathBuffer,
+    Func<string, string?> saveCard)
+  {
+    if (session.PendingStudioSaveConfirm)
+    {
+      ImGui.OpenPopup("##studio-save-confirm");
+    }
+
+    CalcAppDialogStyle.PushModal();
+    bool open = true;
+    if (!ImGui.BeginPopupModal(
+          "##studio-save-confirm",
+          ref open,
+          ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoTitleBar))
+    {
+      if (!open && session.PendingStudioSaveConfirm)
+      {
+        session.CancelStudioSaveConfirm();
+      }
+
+      CalcAppDialogStyle.PopModal();
+      return;
+    }
+
+    string path = session.LoadedCardPath ?? cardPathBuffer.Trim();
+    ImGui.Dummy(new Vector2(360f, 0f));
+    ImGui.TextUnformatted("Save changes?");
+    if (!string.IsNullOrWhiteSpace(path))
+    {
+      ImGui.TextDisabled(Path.GetFileName(path));
+    }
+
+    ImGui.Spacing();
+
+    CalcAppDialogStyle.PushAffirmative();
+    if (ImGui.Button("Overwrite (keep .bak)", new Vector2(180f, 0f)))
+    {
+      if (string.IsNullOrWhiteSpace(path))
+      {
+        ShowStatusBalloon("No card path.");
+      }
+      else if (session.TrySaveCardProgram(path, writeBackup: true, out string? error))
+      {
+        cardPathBuffer = path;
+        ShowStatusBalloon($"Saved: {Path.GetFileName(path)}");
+        session.CancelStudioSaveConfirm();
+        ImGui.CloseCurrentPopup();
+      }
+      else
+      {
+        ShowStatusBalloon(error ?? "Save failed.");
+      }
+    }
+
+    CalcAppDialogStyle.PopButton();
+
+    ImGui.SameLine();
+    CalcAppDialogStyle.PushNeutral();
+    if (ImGui.Button("Save As\u2026", new Vector2(100f, 0f)))
+    {
+      session.CancelStudioSaveConfirm();
+      ImGui.CloseCurrentPopup();
+      if (TryStudioSaveAsDialog(session, ref cardPathBuffer, saveCard, out string status))
+      {
+        ShowStatusBalloon(status);
+      }
+      else if (status.Length > 0)
+      {
+        ShowStatusBalloon(status);
+      }
+    }
+
+    CalcAppDialogStyle.PopButton();
+
+    ImGui.SameLine();
+    CalcAppDialogStyle.PushNeutral();
+    if (ImGui.Button("Cancel", new Vector2(90f, 0f)))
+    {
+      session.CancelStudioSaveConfirm();
+      ImGui.CloseCurrentPopup();
+    }
+
+    CalcAppDialogStyle.PopButton();
+
+    ImGui.EndPopup();
+    CalcAppDialogStyle.PopModal();
+  }
+
+  private static void DrawStudioRevertConfirmPopup(Session session)
+  {
+    if (session.PendingStudioRevertConfirm)
+    {
+      ImGui.OpenPopup("##studio-revert-confirm");
+    }
+
+    CalcAppDialogStyle.PushModal();
+    bool open = true;
+    if (!ImGui.BeginPopupModal(
+          "##studio-revert-confirm",
+          ref open,
+          ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoTitleBar))
+    {
+      if (!open && session.PendingStudioRevertConfirm)
+      {
+        session.CancelStudioRevertConfirm();
+      }
+
+      CalcAppDialogStyle.PopModal();
+      return;
+    }
+
+    ImGui.Dummy(new Vector2(320f, 0f));
+    ImGui.TextUnformatted("Revert unsaved program changes?");
+    ImGui.TextDisabled("Restores the last loaded/saved snapshot in RAM.");
+    ImGui.Spacing();
+
+    CalcAppDialogStyle.PushDestructive();
+    if (ImGui.Button("Revert", new Vector2(90f, 0f)))
+    {
+      if (session.TryRevertProgramToSnapshot(out string? error))
+      {
+        ShowStatusBalloon(
+          session.StudioStatusMessage.Length > 0 ? session.StudioStatusMessage : "Reverted.");
+        session.StudioStatusMessage = string.Empty;
+        ImGui.CloseCurrentPopup();
+      }
+      else
+      {
+        ShowStatusBalloon(error ?? "Revert failed.");
+      }
+    }
+
+    CalcAppDialogStyle.PopButton();
+
+    ImGui.SameLine();
+    CalcAppDialogStyle.PushNeutral();
+    if (ImGui.Button("Cancel", new Vector2(90f, 0f)))
+    {
+      session.CancelStudioRevertConfirm();
+      ImGui.CloseCurrentPopup();
+    }
+
+    CalcAppDialogStyle.PopButton();
+
+    ImGui.EndPopup();
+    CalcAppDialogStyle.PopModal();
+  }
 
   private static void DrawLeaveProgramConfirmPopup(
     Session session,
@@ -839,7 +1087,7 @@ public static class CalcStudioPanelComponent
     {
       ImGui.TextDisabled(
         session.SupportsCardProgram
-          ? "Empty program (power on / load a card)."
+          ? "Empty program (power on / load a card / faceplate keys in W/PRGM)."
           : "Not available for this model.");
       StudioMnemonicPaint.PopListingScale();
       ImGui.PopStyleColor(8);

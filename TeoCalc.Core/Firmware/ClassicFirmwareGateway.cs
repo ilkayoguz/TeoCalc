@@ -1,4 +1,5 @@
 using System.Text;
+using TeoCalc.Core.Catalog;
 using TeoCalc.Core.Engine.Classic;
 
 namespace TeoCalc.Core.Firmware;
@@ -13,16 +14,23 @@ public sealed class ClassicFirmwareGateway : CalcFirmwareGatewayBase
 
   private int _ioStepsUntilNext;
   private bool _programMode;
+  private string? _engineId;
 
   public ClassicCpu? Cpu { get; private set; }
 
   public override bool ProgramMode => _programMode;
 
-  public override bool SupportsCardProgram => Cpu is not null;
+  /// <summary>
+  /// Mag-card style program RAM I/O is T-65 only among Classic engines
+  /// (HP-35/45/55/70/80 share the Classic CPU but are not card-programmable here).
+  /// </summary>
+  public override bool SupportsCardProgram =>
+    Cpu is not null && CalcModelIds.IsEngine(_engineId, "T-65");
 
-  public void AttachCpu(ClassicCpu? cpu)
+  public void AttachCpu(ClassicCpu? cpu, string? engineId = null)
   {
     Cpu = cpu;
+    _engineId = engineId;
     _programMode = false;
     _ioStepsUntilNext = 0;
     ResetSessionState();
@@ -196,6 +204,9 @@ public sealed class ClassicFirmwareGateway : CalcFirmwareGatewayBase
         Cpu.State.KeyAvailable));
     RaiseBatchCompleted();
   }
+
+  /// <summary>Re-read A/B into the faceplate LED snapshot (e.g. after Studio seek paints registers).</summary>
+  public void SyncDisplayFromCpu() => RefreshDisplayFromCpu();
 
   private void RefreshDisplayFromCpu()
   {

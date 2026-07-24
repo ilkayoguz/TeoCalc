@@ -77,10 +77,11 @@ Upstream `TeoCalc.Panamatik/Sources/**` stays opaque. Everything else we own sho
 **Decision:** Free-format dual editor (C#-IDE mental model) in edit mode. Editable flowchart (#13) is **not** pursued; FC stays visualization. Authoring = faceplate keys (done) **and/or** this text editor.
 
 7. **Edit-mode dual pane**
-   - Left: machine free text (`34 01` …); right: Keys/mnemonics (`LBL A` …).
-   - Invalid machine tokens blocked; invalid Keys tokens blocked.
-   - Completions: e.g. `LB…` → popup (select or keep typing).
-   - Sync both sides from one program model; paste/import respect encoding.
+    - Left: machine free text (`34 01` …); right: Keys/mnemonics (`LBL A` …).
+    - Invalid machine tokens blocked; invalid Keys tokens blocked.
+    - Completions: e.g. `LB…` → popup (select or keep typing).
+    - Sync both sides from one program model; paste/import respect encoding.
+    - **Progress:** W/PRGM reuses the same Code|FC listing as RUN (no duplicate editor pane); faceplate keys author; New/Paste/Browse; dbl-click seeks PTR/SST. Completions / ROM / docs still open.
 8. **ROM viewer placement** (was #12)
    - Prefer **one composite with the editor**, *or* dock ROM viewer **to the right of the calc** — not a permanent orphan micro-panel.
    - Follow live fetch / scroll-to-PC when open.

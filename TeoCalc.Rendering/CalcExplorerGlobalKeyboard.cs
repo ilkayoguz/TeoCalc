@@ -12,6 +12,7 @@ namespace TeoCalc.Rendering;
 /// F10 Step Over (Studio: Code row / FC box; else microcode),
 /// F11 Step Into (Studio: one keystroke / FC element; else microcode).
 /// Shift+F11 Step Out is unbound — gateway has no StepOut yet.
+/// Studio edit: Ins/Del, Home/End/PgUp/PgDn, clipboard, Undo/Redo, Ctrl+S / Ctrl+R.
 /// </summary>
 public static class CalcExplorerGlobalKeyboard
 {
@@ -51,6 +52,7 @@ public static class CalcExplorerGlobalKeyboard
     }
 
     bool shift = IsShiftDown();
+    bool ctrl = IsCtrlDown();
 
     if (ImGui.IsKeyPressed(ImGuiKey.F5, repeat: false))
     {
@@ -91,7 +93,182 @@ public static class CalcExplorerGlobalKeyboard
       session.NudgeExecutionSpeed(1);
     }
 
+    if (session.SupportsCardProgram)
+    {
+      UpdateStudioEditKeys(session, ctrl, shift);
+    }
+
     // Shift+F11 Step Out — not wired; ICalcFirmwareGateway has no StepOut.
+  }
+
+  private static void UpdateStudioEditKeys(CalcExplorerSession session, bool ctrl, bool shift)
+  {
+    if (ctrl && ImGui.IsKeyPressed(ImGuiKey.S, repeat: false))
+    {
+      CalcStudioPanelComponent.RequestStudioSaveFromKeyboard();
+      return;
+    }
+
+    if (ctrl && ImGui.IsKeyPressed(ImGuiKey.R, repeat: false))
+    {
+      session.RequestStudioRevertConfirm();
+      if (!session.PendingStudioRevertConfirm
+          && session.StudioStatusMessage.Length > 0)
+      {
+        CalcStudioPanelComponent.ShowKeyboardStatus(session.StudioStatusMessage);
+        session.StudioStatusMessage = string.Empty;
+      }
+
+      return;
+    }
+
+    if (ctrl && ImGui.IsKeyPressed(ImGuiKey.Z, repeat: false))
+    {
+      if (session.TryUndoProgramEdit(out string? error))
+      {
+        CalcStudioPanelComponent.ShowKeyboardStatus(
+          session.StudioStatusMessage.Length > 0 ? session.StudioStatusMessage : "Undo.");
+      }
+      else
+      {
+        CalcStudioPanelComponent.ShowKeyboardStatus(error ?? "Nothing to undo.");
+      }
+
+      session.StudioStatusMessage = string.Empty;
+      return;
+    }
+
+    if (ctrl && ImGui.IsKeyPressed(ImGuiKey.Y, repeat: false))
+    {
+      if (session.TryRedoProgramEdit(out string? error))
+      {
+        CalcStudioPanelComponent.ShowKeyboardStatus(
+          session.StudioStatusMessage.Length > 0 ? session.StudioStatusMessage : "Redo.");
+      }
+      else
+      {
+        CalcStudioPanelComponent.ShowKeyboardStatus(error ?? "Nothing to redo.");
+      }
+
+      session.StudioStatusMessage = string.Empty;
+      return;
+    }
+
+    // Copy: Ctrl+C / Ctrl+Insert
+    if ((ctrl && ImGui.IsKeyPressed(ImGuiKey.C, repeat: false))
+        || (ctrl && !shift && ImGui.IsKeyPressed(ImGuiKey.Insert, repeat: false)))
+    {
+      string text = session.FormatSelectedProgramListingForClipboard();
+      if (string.IsNullOrWhiteSpace(text))
+      {
+        text = session.FormatProgramListingText();
+      }
+
+      if (string.IsNullOrWhiteSpace(text))
+      {
+        CalcStudioPanelComponent.ShowKeyboardStatus("Nothing to copy.");
+      }
+      else
+      {
+        ImGui.SetClipboardText(text);
+        CalcStudioPanelComponent.ShowKeyboardStatus("Copied.");
+      }
+
+      return;
+    }
+
+    // Paste: Ctrl+V / Shift+Insert
+    if ((ctrl && ImGui.IsKeyPressed(ImGuiKey.V, repeat: false))
+        || (shift && !ctrl && ImGui.IsKeyPressed(ImGuiKey.Insert, repeat: false)))
+    {
+      string clip = ImGui.GetClipboardText() ?? string.Empty;
+      if (session.TryPasteProgramListing(clip, out string? error))
+      {
+        CalcStudioPanelComponent.ShowKeyboardStatus(
+          session.StudioStatusMessage.Length > 0 ? session.StudioStatusMessage : "Pasted.");
+      }
+      else
+      {
+        CalcStudioPanelComponent.ShowKeyboardStatus(error ?? "Paste failed.");
+      }
+
+      session.StudioStatusMessage = string.Empty;
+      return;
+    }
+
+    // Cut: Ctrl+X / Shift+Delete
+    if ((ctrl && ImGui.IsKeyPressed(ImGuiKey.X, repeat: false))
+        || (shift && !ctrl && ImGui.IsKeyPressed(ImGuiKey.Delete, repeat: false)))
+    {
+      if (session.TryCutSelectedProgramLine(out string clipboardText, out string? error))
+      {
+        ImGui.SetClipboardText(clipboardText);
+        CalcStudioPanelComponent.ShowKeyboardStatus(
+          session.StudioStatusMessage.Length > 0 ? session.StudioStatusMessage : "Cut.");
+      }
+      else
+      {
+        CalcStudioPanelComponent.ShowKeyboardStatus(error ?? "Cut failed.");
+      }
+
+      session.StudioStatusMessage = string.Empty;
+      return;
+    }
+
+    if (!ctrl && !shift && ImGui.IsKeyPressed(ImGuiKey.Insert, repeat: false))
+    {
+      if (session.TryInsertEmptyProgramLineAtSelection(out string? error))
+      {
+        CalcStudioPanelComponent.ShowKeyboardStatus(
+          session.StudioStatusMessage.Length > 0 ? session.StudioStatusMessage : "Inserted.");
+      }
+      else
+      {
+        CalcStudioPanelComponent.ShowKeyboardStatus(error ?? "Insert failed.");
+      }
+
+      session.StudioStatusMessage = string.Empty;
+      return;
+    }
+
+    if (!ctrl && !shift && ImGui.IsKeyPressed(ImGuiKey.Delete, repeat: false))
+    {
+      if (session.TryDeleteProgramLineAtSelection(out string? error))
+      {
+        CalcStudioPanelComponent.ShowKeyboardStatus(
+          session.StudioStatusMessage.Length > 0 ? session.StudioStatusMessage : "Deleted.");
+      }
+      else
+      {
+        CalcStudioPanelComponent.ShowKeyboardStatus(error ?? "Delete failed.");
+      }
+
+      session.StudioStatusMessage = string.Empty;
+      return;
+    }
+
+    if (!ctrl && ImGui.IsKeyPressed(ImGuiKey.Home, repeat: false))
+    {
+      _ = session.TryNavigateProgramSelection(StudioProgramNav.Home);
+      return;
+    }
+
+    if (!ctrl && ImGui.IsKeyPressed(ImGuiKey.End, repeat: false))
+    {
+      _ = session.TryNavigateProgramSelection(StudioProgramNav.End);
+      return;
+    }
+
+    if (!ctrl && ImGui.IsKeyPressed(ImGuiKey.PageUp, repeat: true))
+    {
+      _ = session.TryNavigateProgramSelection(StudioProgramNav.PageUp);
+      return;
+    }
+
+    if (!ctrl && ImGui.IsKeyPressed(ImGuiKey.PageDown, repeat: true))
+    {
+      _ = session.TryNavigateProgramSelection(StudioProgramNav.PageDown);
+    }
   }
 
   private static bool IsShiftDown() =>

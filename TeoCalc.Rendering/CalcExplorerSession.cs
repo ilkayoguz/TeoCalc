@@ -59,9 +59,14 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
   /// <summary>Last loaded/saved program codes; compared to live RAM for dirty detection.</summary>
   private byte[]? _savedProgramSnapshot;
 
+  private const int MaxProgramUndoDepth = 32;
+
+  private readonly List<ProgramEditSnapshot> _programUndoStack = [];
+
+  private readonly List<ProgramEditSnapshot> _programRedoStack = [];
+
   /// <summary>Studio program-step breakpoints (Classic RAM indices).</summary>
   private readonly HashSet<int> _studioBreakpoints = [];
-
   /// <summary>
   /// After Continue from a hit, ignore this step until PTR leaves it (avoid instant re-pause).
   /// </summary>
@@ -140,9 +145,14 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
   /// </summary>
   public bool PendingLeaveProgramConfirm { get; private set; }
 
+  /// <summary>Ctrl+S / Save when an inserted card path already exists on disk.</summary>
+  public bool PendingStudioSaveConfirm { get; private set; }
+
+  /// <summary>Ctrl+R when program RAM differs from the last loaded/saved snapshot.</summary>
+  public bool PendingStudioRevertConfirm { get; private set; }
+
   /// <summary>When true, microcode watch follows the live ROM fetch address while running / stepping.</summary>
   public bool FollowRomWatch { get; set; } = true;
-
   public bool ExecutionPaused
   {
     get => _firmware?.ExecutionPaused ?? false;
@@ -278,8 +288,8 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
     ApplyNonPowerFaceplateSwitchesToFirmware();
     // Baseline for dirty detection (empty RAM or restored card).
     CaptureSavedProgramSnapshot();
+    ClearProgramEditHistory();
   }
-
   public void PowerOff()
   {
     _firmware?.PowerOff();
@@ -315,6 +325,7 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
 
     _mouseKeyHeld = false;
     _firmware?.SetKeyLineHeld(_keyboardKeyHeld);
+    RunFirmwareTicks(KeySettleBatches);
   }
 
   public void ClearShiftPreview() =>
@@ -345,7 +356,14 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
     }
 
     PendingLeaveProgramConfirm = false;
+    // Entering W/PRGM runs a firmware batch that can nudge program RAM (PTR/markers).
+    // Absorb that into the clean snapshot so RUN without edits does not confirm.
+    bool absorbModeSwitch = programMode && !IsProgramDirty;
     _firmware?.SetProgramMode(programMode);
+    if (absorbModeSwitch)
+    {
+      CaptureSavedProgramSnapshot();
+    }
   }
 
   /// <summary>Confirm dialog: leave W/PRGM without writing the card file (RAM edits kept; stays dirty).</summary>
@@ -364,6 +382,42 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
   public void CancelLeaveProgramConfirm() =>
     PendingLeaveProgramConfirm = false;
 
+  /// <summary>Open Studio save confirm (Overwrite / Save As / Cancel) when an inserted path exists.</summary>
+  public void RequestStudioSaveConfirm() =>
+    PendingStudioSaveConfirm = true;
+
+  public void CancelStudioSaveConfirm() =>
+    PendingStudioSaveConfirm = false;
+
+  /// <summary>
+  /// Request revert-to-snapshot confirm when dirty; otherwise report status / no-op.
+  /// </summary>
+  public void RequestStudioRevertConfirm()
+  {
+    if (!SupportsCardProgram)
+    {
+      StudioStatusMessage = "Program memory not available.";
+      return;
+    }
+
+    if (_savedProgramSnapshot is null)
+    {
+      StudioStatusMessage = "Nothing to revert (no loaded/saved snapshot).";
+      return;
+    }
+
+    if (!IsProgramDirty)
+    {
+      StudioStatusMessage = "Program matches last saved snapshot.";
+      return;
+    }
+
+    PendingStudioRevertConfirm = true;
+  }
+
+  public void CancelStudioRevertConfirm() =>
+    PendingStudioRevertConfirm = false;
+
   /// <summary>
   /// Confirm dialog: save to <paramref name="path"/> then switch to RUN.
   /// Returns false when save fails (stays in W/PRGM; <see cref="PendingLeaveProgramConfirm"/> cleared).
@@ -379,7 +433,6 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
     _firmware?.SetProgramMode(false);
     return true;
   }
-
   public void EnsureFaceplateSwitches(IReadOnlyList<CalcSwitchSpec> specs)
   {
     _faceplateSwitchSpecs = specs;
@@ -918,7 +971,7 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
     cpu.Program.SeekPointer(seekTo);
   }
 
-  private void SyncStudioToPointer(ClassicCpu cpu)
+  private void SyncStudioToPointer(ClassicCpu cpu, bool syncFaceplateLed = true)
   {
     int selected = cpu.Program.PointerPosition();
     if (TryGetProgramListing(out IReadOnlyList<ClassicProgramLine> lines) && lines.Count > 0)
@@ -933,12 +986,61 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
       }
     }
 
+    // Only yank Code/FC scroll when ▶ actually moves. W/PRGM fires BatchCompleted
+    // every tick; FollowPointer on a stable PTR fights manual scroll (RUN does not).
+    bool ptrMoved = selected != SelectedProgramStep;
     SelectedProgramStep = selected;
-    StudioPaneSync.FollowPointer(selected);
+    if (ptrMoved)
+    {
+      StudioPaneSync.FollowPointer(selected);
+    }
+
     if (_firmware is not null)
     {
       SyncRomWatchFromBatch(_firmware.LastBatch);
     }
+
+    // Studio seek / F10 / F11 paint A/B; skip after firmware SST so micro-step LED stays authentic.
+    if (syncFaceplateLed)
+    {
+      SyncFaceplateProgramLed(cpu);
+    }
+  }
+
+  /// <summary>
+  /// W/PRGM: load museum codes for the Studio ▶ row into A/B and refresh the faceplate LED.
+  /// </summary>
+  private void SyncFaceplateProgramLed(ClassicCpu cpu, int? stepOverride = null)
+  {
+    if (!ProgramMode || _firmware is not ClassicFirmwareGateway gateway)
+    {
+      return;
+    }
+
+    if (!TryGetProgramListing(out IReadOnlyList<ClassicProgramLine> lines) || lines.Count == 0)
+    {
+      return;
+    }
+
+    IReadOnlyList<StudioListingView.Row> rows = StudioListingView.Build(
+      lines,
+      IsProgramDirty ? null : LoadedTeoCard?.Program.Steps);
+    if (rows.Count == 0)
+    {
+      return;
+    }
+
+    int step = stepOverride ?? SelectedProgramStep;
+    int rowIdx = FindStudioRowIndex(rows, step);
+    if (rowIdx < 0)
+    {
+      return;
+    }
+
+    string museum = StudioMuseumKeycodes.FormatMachineDisplay(rows[rowIdx], EngineModelId);
+    ClassicWprgmLedSync.ApplyMuseumText(cpu.State.Registers, museum);
+    cpu.State.Flags |= ClassicCpuFlags.DisplayOn;
+    gateway.SyncDisplayFromCpu();
   }
 
   private static bool IsClassicRoutineEnd(byte code) =>
@@ -1138,6 +1240,7 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
     ApplyNonPowerFaceplateSwitchesToFirmware();
     RunFirmwareTicks(KeySettleBatches);
     CaptureSavedProgramSnapshot();
+    ClearProgramEditHistory();
   }
 
   private void CaptureSavedProgramSnapshot()
@@ -1278,6 +1381,12 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
     SeekPointerForHighlight(cpu, target);
     SelectedProgramStep = target;
     StudioPaneSync.FollowPointer(target);
+    if (_firmware is not null)
+    {
+      SyncRomWatchFromBatch(_firmware.LastBatch);
+    }
+
+    SyncFaceplateProgramLed(cpu, target);
     return true;
   }
 
@@ -1326,6 +1435,29 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
     return UserProgramClipboard.FormatDual(StudioListingView.FilterForClipboard(lines));
   }
 
+  /// <summary>Dual TSV for the Studio listing row under the current selection (single-line copy).</summary>
+  public string FormatSelectedProgramListingForClipboard()
+  {
+    if (!TryGetStudioListingRows(out IReadOnlyList<StudioListingView.Row> rows)
+        || !TryFindStudioRow(rows, SelectedProgramStep, out StudioListingView.Row row)
+        || !TryGetProgramListing(out IReadOnlyList<ClassicProgramLine> lines))
+    {
+      return string.Empty;
+    }
+
+    int span = StudioListingRowRamSpan(row);
+    List<ClassicProgramLine> selected = [];
+    foreach (ClassicProgramLine line in lines)
+    {
+      if (line.Index >= row.Index && line.Index < row.Index + span)
+      {
+        selected.Add(line);
+      }
+    }
+
+    return UserProgramClipboard.FormatDual(StudioListingView.FilterForClipboard(selected));
+  }
+
   /// <summary>
   /// Replace user program steps from clipboard text. Dual TSV uses the machine column;
   /// otherwise auto-detects mnemonic then machine. Registers are preserved.
@@ -1348,38 +1480,447 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
       return false;
     }
 
-    if (!_firmware.TryExportCardProgram(out _, out double[] registers))
+    if (!TryApplyProgramCodes(pasted, out error))
     {
-      error = "Could not read current program/registers.";
       return false;
     }
 
-    int capacity = CardProgramCapacity;
-    byte[] merged = new byte[capacity];
-    int count = Math.Min(capacity, pasted.Count);
-    for (int i = 0; i < count; i++)
+    if (pasted.Count > CardProgramCapacity)
     {
-      merged[i] = pasted[i];
-    }
-
-    if (!_firmware.TryImportCardProgram(merged, registers))
-    {
-      error = "Could not apply pasted program.";
-      return false;
-    }
-
-    if (pasted.Count > capacity)
-    {
-      StudioStatusMessage = $"Pasted {capacity} of {pasted.Count} steps (capacity).";
+      StudioStatusMessage = $"Pasted {CardProgramCapacity} of {pasted.Count} steps (capacity).";
     }
     else
     {
       StudioStatusMessage = $"Pasted {pasted.Count} step(s).";
     }
 
-    SelectedProgramStep = Math.Clamp(SelectedProgramStep, 0, Math.Max(0, count - 1));
     return true;
   }
+
+  /// <summary>Copy current listing row to clipboard text, then delete that row.</summary>
+  public bool TryCutSelectedProgramLine(out string clipboardText, out string? error)
+  {
+    clipboardText = FormatSelectedProgramListingForClipboard();
+    if (string.IsNullOrWhiteSpace(clipboardText))
+    {
+      error = "Nothing to cut.";
+      return false;
+    }
+
+    return TryDeleteProgramLineAtSelection(out error);
+  }
+
+  /// <summary>
+  /// Replace user program RAM with <paramref name="codes"/> (registers preserved).
+  /// Used by Studio paste and the W/PRGM dual-pane Apply.
+  /// </summary>
+  public bool TryApplyProgramCodes(IReadOnlyList<byte> codes, out string? error) =>
+    TryApplyProgramCodesCore(codes, pushUndo: true, out error);
+
+  /// <summary>Insert Classic NOP (0) at the selected RAM step; shifts the tail.</summary>
+  public bool TryInsertEmptyProgramLineAtSelection(out string? error)
+  {
+    error = null;
+    if (_firmware is null || !_firmware.SupportsCardProgram)
+    {
+      error = "Program memory not available for this engine.";
+      return false;
+    }
+
+    if (!_firmware.TryExportCardProgram(out byte[] codes, out _))
+    {
+      error = "Could not read current program.";
+      return false;
+    }
+
+    int capacity = codes.Length;
+    int at = Math.Clamp(SelectedProgramStep, 0, capacity - 1);
+    if (StudioListingView.IsRuntimeMarker(codes[at]))
+    {
+      // Prefer inserting after START/PTR into the first user step slot.
+      at = Math.Min(capacity - 1, Math.Max(2, at + 1));
+    }
+
+    PushProgramUndoSnapshot();
+    for (int i = capacity - 1; i > at; i--)
+    {
+      codes[i] = codes[i - 1];
+    }
+
+    codes[at] = 0;
+    if (!TryApplyProgramCodesCore(codes, pushUndo: false, out error))
+    {
+      PopProgramUndoSnapshotDiscarded();
+      return false;
+    }
+
+    SelectedProgramStep = at;
+    StudioPaneSync.FollowPointer(at);
+    StudioStatusMessage = $"Inserted NOP at step {at}.";
+    return true;
+  }
+
+  /// <summary>
+  /// Delete the Studio listing row under selection (RAM span for that painted row).
+  /// </summary>
+  public bool TryDeleteProgramLineAtSelection(out string? error)
+  {
+    error = null;
+    if (_firmware is null || !_firmware.SupportsCardProgram)
+    {
+      error = "Program memory not available for this engine.";
+      return false;
+    }
+
+    if (!TryGetStudioListingRows(out IReadOnlyList<StudioListingView.Row> rows)
+        || !TryFindStudioRow(rows, SelectedProgramStep, out StudioListingView.Row row))
+    {
+      error = "No program line selected.";
+      return false;
+    }
+
+    if (!_firmware.TryExportCardProgram(out byte[] codes, out _))
+    {
+      error = "Could not read current program.";
+      return false;
+    }
+
+    int at = row.Index;
+    int span = StudioListingRowRamSpan(row);
+    if (span <= 0 || at < 0 || at + span > codes.Length)
+    {
+      error = "Cannot delete selection.";
+      return false;
+    }
+
+    if (StudioListingView.IsRuntimeMarker(codes[at]))
+    {
+      error = "Cannot delete runtime marker.";
+      return false;
+    }
+
+    PushProgramUndoSnapshot();
+    for (int i = at; i + span < codes.Length; i++)
+    {
+      codes[i] = codes[i + span];
+    }
+
+    for (int i = codes.Length - span; i < codes.Length; i++)
+    {
+      codes[i] = 0;
+    }
+
+    if (!TryApplyProgramCodesCore(codes, pushUndo: false, out error))
+    {
+      PopProgramUndoSnapshotDiscarded();
+      return false;
+    }
+
+    if (!TryGetStudioListingRows(out rows) || rows.Count == 0)
+    {
+      SelectedProgramStep = Math.Max(0, at - 1);
+    }
+    else
+    {
+      int rowIndex = FindStudioRowIndex(rows, at);
+      if (rowIndex < 0)
+      {
+        rowIndex = FindStudioRowIndex(rows, Math.Max(0, at - 1));
+      }
+
+      if (rowIndex < 0)
+      {
+        rowIndex = Math.Min(rows.Count - 1, 0);
+      }
+
+      rowIndex = Math.Clamp(rowIndex, 0, rows.Count - 1);
+      SelectedProgramStep = rows[rowIndex].Index;
+    }
+
+    StudioPaneSync.FollowPointer(SelectedProgramStep);
+    StudioStatusMessage = $"Deleted step {at}.";
+    return true;
+  }
+
+  public bool TryUndoProgramEdit(out string? error)
+  {
+    error = null;
+    if (_programUndoStack.Count == 0)
+    {
+      error = "Nothing to undo.";
+      return false;
+    }
+
+    if (!TryCaptureLiveProgramEditSnapshot(out ProgramEditSnapshot current))
+    {
+      error = "Could not read current program.";
+      return false;
+    }
+
+    ProgramEditSnapshot prior = _programUndoStack[^1];
+    _programUndoStack.RemoveAt(_programUndoStack.Count - 1);
+    _programRedoStack.Add(current);
+    TrimProgramEditStack(_programRedoStack);
+
+    if (!TryApplyProgramCodesCore(prior.Codes, pushUndo: false, out error))
+    {
+      return false;
+    }
+
+    SelectedProgramStep = prior.SelectedStep;
+    StudioPaneSync.FollowPointer(SelectedProgramStep);
+    StudioStatusMessage = "Undo.";
+    return true;
+  }
+
+  public bool TryRedoProgramEdit(out string? error)
+  {
+    error = null;
+    if (_programRedoStack.Count == 0)
+    {
+      error = "Nothing to redo.";
+      return false;
+    }
+
+    if (!TryCaptureLiveProgramEditSnapshot(out ProgramEditSnapshot current))
+    {
+      error = "Could not read current program.";
+      return false;
+    }
+
+    ProgramEditSnapshot next = _programRedoStack[^1];
+    _programRedoStack.RemoveAt(_programRedoStack.Count - 1);
+    _programUndoStack.Add(current);
+    TrimProgramEditStack(_programUndoStack);
+
+    if (!TryApplyProgramCodesCore(next.Codes, pushUndo: false, out error))
+    {
+      return false;
+    }
+
+    SelectedProgramStep = next.SelectedStep;
+    StudioPaneSync.FollowPointer(SelectedProgramStep);
+    StudioStatusMessage = "Redo.";
+    return true;
+  }
+
+  /// <summary>Reload RAM from the last loaded/saved snapshot (not a file re-read).</summary>
+  public bool TryRevertProgramToSnapshot(out string? error)
+  {
+    error = null;
+    PendingStudioRevertConfirm = false;
+    if (_savedProgramSnapshot is null)
+    {
+      error = "Nothing to revert (no loaded/saved snapshot).";
+      return false;
+    }
+
+    PushProgramUndoSnapshot();
+    if (!TryApplyProgramCodesCore(_savedProgramSnapshot, pushUndo: false, out error))
+    {
+      PopProgramUndoSnapshotDiscarded();
+      return false;
+    }
+
+    CaptureSavedProgramSnapshot();
+    StudioStatusMessage = "Reverted to last saved snapshot.";
+    return true;
+  }
+
+  /// <summary>
+  /// Home / End / PgUp / PgDn selection navigation among Studio listing rows.
+  /// </summary>
+  public bool TryNavigateProgramSelection(StudioProgramNav nav)
+  {
+    if (!SupportsCardProgram
+        || !TryGetStudioListingRows(out IReadOnlyList<StudioListingView.Row> rows)
+        || rows.Count == 0)
+    {
+      return false;
+    }
+
+    int rowIndex = FindStudioRowIndex(rows, SelectedProgramStep);
+    if (rowIndex < 0)
+    {
+      rowIndex = 0;
+    }
+
+    const int page = 10;
+    rowIndex = nav switch
+    {
+      StudioProgramNav.Home => 0,
+      StudioProgramNav.End => rows.Count - 1,
+      StudioProgramNav.PageUp => Math.Max(0, rowIndex - page),
+      StudioProgramNav.PageDown => Math.Min(rows.Count - 1, rowIndex + page),
+      _ => rowIndex,
+    };
+
+    SelectedProgramStep = rows[rowIndex].Index;
+    StudioPaneSync.OnCodeSelected(SelectedProgramStep);
+    StudioPaneSync.FollowPointer(SelectedProgramStep);
+    return true;
+  }
+
+  private bool TryApplyProgramCodesCore(
+    IReadOnlyList<byte> codes,
+    bool pushUndo,
+    out string? error)
+  {
+    ArgumentNullException.ThrowIfNull(codes);
+    error = null;
+    if (_firmware is null || !_firmware.SupportsCardProgram)
+    {
+      error = "Program memory not available for this engine.";
+      return false;
+    }
+
+    if (!_firmware.TryExportCardProgram(out _, out double[] registers))
+    {
+      error = "Could not read current program/registers.";
+      return false;
+    }
+
+    if (pushUndo)
+    {
+      PushProgramUndoSnapshot();
+    }
+
+    int capacity = CardProgramCapacity;
+    byte[] merged = new byte[capacity];
+    int count = Math.Min(capacity, codes.Count);
+    for (int i = 0; i < count; i++)
+    {
+      merged[i] = codes[i];
+    }
+
+    if (!_firmware.TryImportCardProgram(merged, registers))
+    {
+      if (pushUndo)
+      {
+        PopProgramUndoSnapshotDiscarded();
+      }
+
+      error = "Could not apply program.";
+      return false;
+    }
+
+    SelectedProgramStep = Math.Clamp(SelectedProgramStep, 0, Math.Max(0, capacity - 1));
+    return true;
+  }
+
+  private void PushProgramUndoSnapshot()
+  {
+    if (!TryCaptureLiveProgramEditSnapshot(out ProgramEditSnapshot snap))
+    {
+      return;
+    }
+
+    _programUndoStack.Add(snap);
+    TrimProgramEditStack(_programUndoStack);
+    _programRedoStack.Clear();
+  }
+
+  private void PopProgramUndoSnapshotDiscarded()
+  {
+    if (_programUndoStack.Count > 0)
+    {
+      _programUndoStack.RemoveAt(_programUndoStack.Count - 1);
+    }
+  }
+
+  private bool TryCaptureLiveProgramEditSnapshot(out ProgramEditSnapshot snapshot)
+  {
+    snapshot = default;
+    if (_firmware is null
+        || !_firmware.SupportsCardProgram
+        || !_firmware.TryExportCardProgram(out byte[] codes, out _))
+    {
+      return false;
+    }
+
+    snapshot = new ProgramEditSnapshot((byte[])codes.Clone(), SelectedProgramStep);
+    return true;
+  }
+
+  private void ClearProgramEditHistory()
+  {
+    _programUndoStack.Clear();
+    _programRedoStack.Clear();
+  }
+
+  private static void TrimProgramEditStack(List<ProgramEditSnapshot> stack)
+  {
+    while (stack.Count > MaxProgramUndoDepth)
+    {
+      stack.RemoveAt(0);
+    }
+  }
+
+  private bool TryGetStudioListingRows(out IReadOnlyList<StudioListingView.Row> rows)
+  {
+    rows = [];
+    if (!TryGetProgramListing(out IReadOnlyList<ClassicProgramLine> lines))
+    {
+      return false;
+    }
+
+    rows = StudioListingView.Build(
+      lines,
+      IsProgramDirty ? null : LoadedTeoCard?.Program.Steps);
+    return rows.Count > 0;
+  }
+
+  private static bool TryFindStudioRow(
+    IReadOnlyList<StudioListingView.Row> rows,
+    int step,
+    out StudioListingView.Row row)
+  {
+    // Prefer exact Index match — fused Single rows report StepSpan>1 for # display
+    // but the next row still starts at Index+1; ContainsIndex would steal that selection.
+    for (int i = 0; i < rows.Count; i++)
+    {
+      if (rows[i].Index == step)
+      {
+        row = rows[i];
+        return true;
+      }
+    }
+
+    int iContain = FindStudioRowIndex(rows, step);
+    if (iContain < 0)
+    {
+      row = default;
+      return false;
+    }
+
+    row = rows[iContain];
+    return true;
+  }
+
+  /// <summary>RAM bytes covered by a painted Studio row (not display keystroke span).</summary>
+  private static int StudioListingRowRamSpan(StudioListingView.Row row)
+  {
+    int span = 1;
+    if (row.SecondCode.HasValue)
+    {
+      span++;
+    }
+
+    if (row.ThirdCode.HasValue)
+    {
+      span++;
+    }
+
+    return span;
+  }
+
+  private readonly record struct ProgramEditSnapshot(byte[] Codes, int SelectedStep);
+
+  /// <summary>Public hook for Studio dual-pane editor (same as private listing format).</summary>
+  public string FormatProgramCodeForEditor(byte code) => FormatProgramCode(code);
+  /// <summary>Public hook for Studio dual-pane editor mnemonic → byte.</summary>
+  public byte? ResolveProgramMnemonicForEditor(string mnemonic) =>
+    ResolveProgramMnemonic(mnemonic);
 
   private string FormatProgramCode(byte code) =>
     UsesActCardProgram
@@ -1443,8 +1984,10 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
     _loadedTeoCard = null;
     _savedProgramSnapshot = null;
     PendingLeaveProgramConfirm = false;
+    PendingStudioSaveConfirm = false;
+    PendingStudioRevertConfirm = false;
+    ClearProgramEditHistory();
   }
-
   private void MarkCardInserted(string path, TeoCardDocument? teoCard = null)
   {
     _cardInserted = true;
@@ -1547,7 +2090,11 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
     }
   }
 
-  public bool TrySaveCardProgram(string path, out string? error)
+  public bool TrySaveCardProgram(string path, out string? error) =>
+    TrySaveCardProgram(path, writeBackup: false, out error);
+
+  /// <param name="writeBackup">When true and <paramref name="path"/> exists, copy it to <c>path.bak</c> first.</param>
+  public bool TrySaveCardProgram(string path, bool writeBackup, out string? error)
   {
     error = null;
     if (_firmware is null || !_firmware.SupportsCardProgram)
@@ -1562,8 +2109,17 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
       return false;
     }
 
+    // Saving a copy of firmware / empty-slot RAM must not mark the file as inserted —
+    // power cycle must reload ROM defaults, not this export.
+    bool markInserted = _cardInserted;
+
     try
     {
+      if (writeBackup && File.Exists(path))
+      {
+        File.Copy(path, path + ".bak", overwrite: true);
+      }
+
       if (IsCardTextPath(path))
       {
         if (!TryBuildT6xDocument(codes, registers, out T6xDocument t6x, out error))
@@ -1572,7 +2128,11 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
         }
 
         T6xCardFormat.WriteFile(path, t6x);
-        MarkCardInserted(path, T6xCardFormat.ToTeoCardDocument(t6x));
+        if (markInserted)
+        {
+          MarkCardInserted(path, T6xCardFormat.ToTeoCardDocument(t6x));
+        }
+
         CaptureSavedProgramSnapshot();
         return true;
       }
@@ -1600,7 +2160,11 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
           t6x,
           mnemonic => ClassicCardProgramIo.ResolveMnemonic(Vocabulary, mnemonic));
         CuveSoftCardPlistFormat.WriteFile(path, plist);
-        MarkCardInserted(path, T6xCardFormat.ToTeoCardDocument(t6x));
+        if (markInserted)
+        {
+          MarkCardInserted(path, T6xCardFormat.ToTeoCardDocument(t6x));
+        }
+
         CaptureSavedProgramSnapshot();
         return true;
       }
@@ -1614,7 +2178,11 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
 
         TeoCardDocument teo = T6xCardFormat.ToTeoCardDocument(t6x);
         TeoCardProgramFormat.WriteFile(path, teo);
-        MarkCardInserted(path, teo);
+        if (markInserted)
+        {
+          MarkCardInserted(path, teo);
+        }
+
         CaptureSavedProgramSnapshot();
         return true;
       }
@@ -1630,7 +2198,6 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
       return false;
     }
   }
-
   public bool TryLoadCardProgram(string path, out string? error)
   {
     error = null;
@@ -1857,9 +2424,10 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
     }
 
     // W/PRGM faceplate keys update RAM via MemoryInsert — keep Studio selection on PTR.
+    // Do not repaint A/B: SST / key microcode already owns the LED.
     if (ProgramMode)
     {
-      SyncStudioToPointer(cpu);
+      SyncStudioToPointer(cpu, syncFaceplateLed: false);
       return;
     }
 
@@ -1897,4 +2465,13 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
     ExecutionPaused = true;
     SyncStudioToPointer(cpu);
   }
+}
+
+/// <summary>Studio listing selection navigation (Home / End / page).</summary>
+public enum StudioProgramNav : byte
+{
+  Home = 0,
+  End = 1,
+  PageUp = 2,
+  PageDown = 3,
 }

@@ -156,4 +156,18 @@ public sealed class CardProgramSmokeTests
     Assert.IsTrue(CalcFirmwareGatewayLocator.CreateGateway("HP-67BE").SupportsCardProgram);
     Assert.IsTrue(CalcFirmwareBootstrap.IsNativeTeo67Pilot("HP-67BE"));
   }
+
+  [TestMethod]
+  public void SupportsCardProgram_Only_T65_And_T67()
+  {
+    Assert.IsTrue(CalcFirmwareGatewayLocator.CreateGateway("HP-65").SupportsCardProgram);
+    Assert.IsTrue(CalcFirmwareGatewayLocator.CreateGateway("T-65").SupportsCardProgram);
+    Assert.IsTrue(CalcFirmwareGatewayLocator.CreateGateway("HP-67").SupportsCardProgram);
+    Assert.IsTrue(CalcFirmwareGatewayLocator.CreateGateway("T-67").SupportsCardProgram);
+
+    Assert.IsFalse(CalcFirmwareGatewayLocator.CreateGateway("HP-35").SupportsCardProgram);
+    Assert.IsFalse(CalcFirmwareGatewayLocator.CreateGateway("T-35").SupportsCardProgram);
+    Assert.IsFalse(CalcFirmwareGatewayLocator.CreateGateway("HP-45").SupportsCardProgram);
+    Assert.IsFalse(CalcFirmwareGatewayLocator.CreateGateway("HP-55").SupportsCardProgram);
+  }
 }

@@ -141,7 +141,7 @@ public static class CalcFirmwareBootstrap
     TeoCalcModelDefinition model = TeoCalcModelDefinition.Load(modelPath);
     ClassicCpu cpu = ClassicCpuFactory.Create(model, engineRoot);
     ClassicFirmwareGateway gateway = new();
-    gateway.AttachCpu(cpu);
+    gateway.AttachCpu(cpu, engineId);
     return gateway;
   }
 

@@ -601,6 +601,142 @@ public static class StudioMnemonicPaint
     ImGui.Dummy(new Vector2(w, h));
   }
 
+  /// <summary>
+  /// Editable LED museum box (2 digits). Painted LED glyphs are fitted into a fixed
+  /// glass cell; InputText sits on top with invisible ink so the 48px atlas never
+  /// drives layout under listing scale.
+  /// </summary>
+  public static bool DrawMachineLedInput(string id, ref string text, bool dim = false)
+  {
+    float s = StudioListingScale;
+    float padX = 3f * s;
+    float padY = 2f * s;
+    float w = 24f * s;
+    float h = MathF.Max(16f, ImGui.GetFrameHeight() * 0.88f);
+    ImFontPtr font = CalcFaceplateFonts.IsLedDisplayReady
+      ? CalcFaceplateFonts.LedDisplay
+      : ImGui.GetFont();
+
+    float innerW = MathF.Max(8f, w - padX * 2f);
+    float innerH = MathF.Max(8f, h - padY * 2f);
+    float fontSize = MathF.Min(innerH, innerW * 0.55f);
+    Vector2 sample = default;
+    for (int i = 0; i < 14; i++)
+    {
+      sample = font.CalcTextSizeA(fontSize, float.MaxValue, 0f, "88");
+      if (sample.X <= innerW && sample.Y <= innerH)
+      {
+        break;
+      }
+
+      fontSize *= 0.88f;
+      if (fontSize < 7f)
+      {
+        break;
+      }
+    }
+
+    Vector2 p0 = ImGui.GetCursorScreenPos();
+    Vector2 p1 = p0 + new Vector2(w, h);
+    ImDrawListPtr draw = ImGui.GetWindowDrawList();
+    float rounding = 2f * s;
+    float bezel = MathF.Max(1f, 1f * s);
+    uint glass = dim
+      ? WithAlpha(CalcChassisPalette.DisplayGlass, 160)
+      : CalcChassisPalette.DisplayGlass;
+    draw.AddRectFilled(p0, p1, glass, rounding);
+    draw.AddRect(p0, p1, KeycapBezel, rounding, ImDrawFlags.None, bezel);
+
+    draw.PushClipRect(p0, p1, true);
+    string paint = string.IsNullOrEmpty(text) ? string.Empty : text;
+    if (paint.Length > 0)
+    {
+      Vector2 textSize = font.CalcTextSizeA(fontSize, float.MaxValue, 0f, paint);
+      Vector2 textPos = new(
+        p0.X + (w - textSize.X) * 0.5f,
+        p0.Y + (h - textSize.Y) * 0.5f);
+      if (CalcFaceplateFonts.IsLedDisplayReady)
+      {
+        draw.AddText(
+          font,
+          fontSize,
+          textPos + new Vector2(0.35f * s, 0.35f * s),
+          WithAlpha(CalcChassisPalette.DisplayDigitGlow, dim ? (byte)120 : (byte)255),
+          paint);
+      }
+
+      draw.AddText(
+        font,
+        fontSize,
+        textPos,
+        WithAlpha(CalcChassisPalette.DisplayDigit, dim ? (byte)160 : (byte)255),
+        paint);
+    }
+
+    draw.PopClipRect();
+
+    // Invisible editor over the glass — UI font; caret only (ink alpha 0).
+    ImGui.PushStyleColor(ImGuiCol.FrameBg, 0x00000000);
+    ImGui.PushStyleColor(ImGuiCol.FrameBgHovered, 0x00000000);
+    ImGui.PushStyleColor(ImGuiCol.FrameBgActive, 0x00000000);
+    ImGui.PushStyleColor(ImGuiCol.Border, 0x00000000);
+    ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(0f, 0f, 0f, 0f));
+    ImGui.PushStyleColor(ImGuiCol.TextSelectedBg, ToVec4(WithAlpha(CalcChassisPalette.DisplayDigit, 60)));
+    ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, new Vector2(padX * 0.25f, MathF.Max(0f, (h - ImGui.GetFontSize()) * 0.5f)));
+    ImGui.PushStyleVar(ImGuiStyleVar.FrameBorderSize, 0f);
+    ImGui.SetNextItemWidth(w);
+    ImGui.SetCursorScreenPos(p0);
+    bool changed = ImGui.InputText(id, ref text, 3);
+    if (changed)
+    {
+      string sanitized = SanitizeMuseumLedDigits(text);
+      if (!string.Equals(sanitized, text, StringComparison.Ordinal))
+      {
+        text = sanitized;
+      }
+    }
+
+    ImGui.PopStyleVar(2);
+    ImGui.PopStyleColor(6);
+    return changed;
+  }
+
+  private static string SanitizeMuseumLedDigits(string text)
+  {
+    if (string.IsNullOrEmpty(text))
+    {
+      return string.Empty;
+    }
+
+    Span<char> buf = stackalloc char[2];
+    int n = 0;
+    foreach (char c in text)
+    {
+      if (c is >= '0' and <= '9')
+      {
+        buf[n++] = c;
+        if (n == 2)
+        {
+          break;
+        }
+      }
+    }
+
+    return n == 0 ? string.Empty : new string(buf[..n]);
+  }
+
+  private static uint WithAlpha(uint abgr, int alpha) =>
+    (abgr & 0x00FFFFFFu) | ((uint)(byte)Math.Clamp(alpha, 0, 255) << 24);
+
+  private static Vector4 ToVec4(uint abgr)
+  {
+    float a = ((abgr >> 24) & 0xFF) / 255f;
+    float b = ((abgr >> 16) & 0xFF) / 255f;
+    float g = ((abgr >> 8) & 0xFF) / 255f;
+    float r = (abgr & 0xFF) / 255f;
+    return new Vector4(r, g, b, a);
+  }
+
   /// <summary>Backward-compatible flat colored text (prefer <see cref="DrawMnemonicKeycaps"/>).</summary>
   public static void DrawColoredMnemonicLine(string mnemonic) =>
     DrawMnemonicKeycaps(mnemonic, modelId: null, previousMnemonic: null);

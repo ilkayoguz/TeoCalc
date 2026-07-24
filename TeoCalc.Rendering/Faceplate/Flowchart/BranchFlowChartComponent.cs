@@ -13,7 +13,7 @@ public sealed class BranchFlowChartComponent : FlowChartComponentBase
   {
   }
 
-  protected override uint FillColor => Fill;
+  protected override uint DarkFillColor => Fill;
 
   protected override void DrawShape(
     ImDrawListPtr draw,

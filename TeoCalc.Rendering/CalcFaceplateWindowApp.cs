@@ -378,10 +378,18 @@ public sealed class CalcFaceplateHost : IDisposable
 
         CalcExplorerGlobalKeyboard.Update(_session);
 
+        // Studio is T-65 / T-67 only — close if the loaded model lost card support.
+        if (_sidePanelMode is CalcCapabilitySidePanelMode.Studio or CalcCapabilitySidePanelMode.Card
+            && !_session.SupportsCardProgram)
+        {
+          SetSidePanel(CalcCapabilitySidePanelMode.None);
+        }
+
         System.Numerics.Vector2 display = ImGui.GetIO().DisplaySize;
         DrawUnifiedChrome(ImGui.GetWindowDrawList(), display);
 
         (bool _, bool hasPrinter) = ResolveCapabilityIcons();
+        bool hasStudio = _session.SupportsCardProgram;
         CalcWindowTitlePanelComponent.TitleAction titleAction =
           CalcWindowTitlePanelComponent.Draw(
             _fittedToWorkArea,
@@ -395,7 +403,7 @@ public sealed class CalcFaceplateHost : IDisposable
             _sidePanelMode == CalcCapabilitySidePanelMode.Printer,
             hasDebug: true,
             debugPanelOpen: _sidePanelMode == CalcCapabilitySidePanelMode.Debug,
-            hasStudio: true,
+            hasStudio: hasStudio,
             studioPanelOpen: _sidePanelMode == CalcCapabilitySidePanelMode.Studio);
 
         float contentHeight = MathF.Max(1f, display.Y - BandTop - LogoBandHeight - BeadInset);
@@ -601,6 +609,11 @@ public sealed class CalcFaceplateHost : IDisposable
       mode = CalcCapabilitySidePanelMode.Studio;
     }
 
+    if (mode == CalcCapabilitySidePanelMode.Studio && !_session.SupportsCardProgram)
+    {
+      mode = CalcCapabilitySidePanelMode.None;
+    }
+
     if (_sidePanelMode == mode)
     {
       return;
@@ -763,6 +776,7 @@ public sealed class CalcFaceplateHost : IDisposable
     System.Numerics.Vector2 display = ImGui.GetIO().DisplaySize;
     System.Numerics.Vector2 mouse = ImGui.GetIO().MousePos;
     (bool _, bool hasPrinter) = ResolveCapabilityIcons();
+    bool hasStudio = _session.SupportsCardProgram;
     bool overButtons = CalcWindowTitlePanelComponent.IsOverButtons(
       mouse,
       BeadInset,
@@ -772,7 +786,7 @@ public sealed class CalcFaceplateHost : IDisposable
       hasCardSlot: false,
       hasPrinter,
       hasDebug: true,
-      hasStudio: true);
+      hasStudio: hasStudio);
     bool onTitleStrip = mouse.Y >= 0f && mouse.Y <= BandTop;
 
     // A double-click on the calc's top bar always toggles maximize/restore.

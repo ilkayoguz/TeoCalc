@@ -20,7 +20,7 @@ public sealed class CardSlotStateTests
   }
 
   [TestMethod]
-  public void SaveCardProgram_MarksInserted_AndEjectClears()
+  public void SaveCardProgram_WithoutInsertedCard_IsExportOnly()
   {
     using CalcExplorerSession session = new(TeoCalcPaths.ResourcePath("Engine"));
     int index = Array.FindIndex(session.Models, id => id == "HP-65");
@@ -28,6 +28,39 @@ public sealed class CardSlotStateTests
     session.PowerOnResume();
 
     string path = Path.Combine(Path.GetTempPath(), $"teocalc-card-state-{Guid.NewGuid():N}.t65");
+    try
+    {
+      Assert.IsTrue(session.TrySaveCardProgram(path, out string? error), error);
+      Assert.IsTrue(File.Exists(path));
+      Assert.IsFalse(session.CardInserted);
+      Assert.IsNull(session.LoadedCardPath);
+
+      session.EjectCard();
+      Assert.IsFalse(session.CardInserted);
+      Assert.IsNull(session.LoadedCardPath);
+    }
+    finally
+    {
+      if (File.Exists(path))
+      {
+        File.Delete(path);
+      }
+    }
+  }
+
+  [TestMethod]
+  public void SaveCardProgram_WithInsertedCard_StaysInserted_AndEjectClears()
+  {
+    string sample = Path.Combine(
+      CalcCardPanelComponent.SampleCardsDirectory(),
+      CalcCardPanelComponent.SampleHp65T65FileName);
+    using CalcExplorerSession session = new(TeoCalcPaths.ResourcePath("Engine"));
+    int index = Array.FindIndex(session.Models, id => id == "HP-65");
+    session.LoadModel(index);
+    session.PowerOnResume();
+    Assert.IsTrue(session.TryLoadCardProgram(sample, out string? loadError), loadError);
+
+    string path = Path.Combine(Path.GetTempPath(), $"teocalc-card-overwrite-{Guid.NewGuid():N}.t65");
     try
     {
       Assert.IsTrue(session.TrySaveCardProgram(path, out string? error), error);
@@ -46,34 +79,23 @@ public sealed class CardSlotStateTests
       }
     }
   }
-
   [TestMethod]
   public void LoadModel_ResetsCardInserted()
   {
+    string sample = Path.Combine(
+      CalcCardPanelComponent.SampleCardsDirectory(),
+      CalcCardPanelComponent.SampleHp65T65FileName);
     using CalcExplorerSession session = new(TeoCalcPaths.ResourcePath("Engine"));
     int hp65 = Array.FindIndex(session.Models, id => id == "HP-65");
     session.LoadModel(hp65);
     session.PowerOnResume();
+    Assert.IsTrue(session.TryLoadCardProgram(sample, out _), "sample load");
+    Assert.IsTrue(session.CardInserted);
 
-    string path = Path.Combine(Path.GetTempPath(), $"teocalc-card-reset-{Guid.NewGuid():N}.t65");
-    try
-    {
-      Assert.IsTrue(session.TrySaveCardProgram(path, out _));
-      Assert.IsTrue(session.CardInserted);
-
-      int hp67 = Array.FindIndex(session.Models, id => id == "HP-67");
-      session.LoadModel(hp67);
-      Assert.IsFalse(session.CardInserted);
-    }
-    finally
-    {
-      if (File.Exists(path))
-      {
-        File.Delete(path);
-      }
-    }
+    int hp67 = Array.FindIndex(session.Models, id => id == "HP-67");
+    session.LoadModel(hp67);
+    Assert.IsFalse(session.CardInserted);
   }
-
   [TestMethod]
   public void LoadSampleHp65_SetsStripLabels()
   {

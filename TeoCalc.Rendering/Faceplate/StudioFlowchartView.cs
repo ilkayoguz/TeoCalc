@@ -27,11 +27,45 @@ public static class StudioFlowchartView
   private const float SideColumnGap = 28f;
   /// <summary>Separate TRUE/FALSE side-lane X offsets so arrow tips do not stack.</summary>
   private const float DecisionLaneOffsetTrue = 0f;
-  private static readonly uint Border = 0xFF6A7078u;
-  private static readonly uint BorderSelected = 0xFFC8B090u;
+  private static readonly uint BorderDark = 0xFF6A7078u;
+  private static readonly uint BorderSelectedDark = 0xFFC8B090u;
   private static readonly uint BorderPointer = StudioMnemonicPaint.PointerMarkerInk;
   private static uint TitleInk => StudioMnemonicPaint.DefaultInk;
-  private static readonly uint EdgeInk = 0xFF8A929Au;
+  private static readonly uint EdgeInkDark = 0xFF8A929Au;
+
+  private static uint Border
+  {
+    get
+    {
+      CalcAppTheme.EnsureInitialized();
+      return CalcAppTheme.Appearance == TeoTheme.ThemeAppearance.Light
+        ? CalcAppThemeColors.ToImGui(CalcAppTheme.Current, TeoTheme.ThemeTokens.PanelBorderColor)
+        : BorderDark;
+    }
+  }
+
+  private static uint BorderSelected
+  {
+    get
+    {
+      CalcAppTheme.EnsureInitialized();
+      return CalcAppTheme.Appearance == TeoTheme.ThemeAppearance.Light
+        ? CalcAppThemeColors.ToImGui(CalcAppTheme.Current, TeoTheme.ThemeTokens.AccentColor)
+        : BorderSelectedDark;
+    }
+  }
+
+  private static uint EdgeInk
+  {
+    get
+    {
+      CalcAppTheme.EnsureInitialized();
+      return CalcAppTheme.Appearance == TeoTheme.ThemeAppearance.Light
+        ? CalcAppThemeColors.ToImGui(CalcAppTheme.Current, TeoTheme.ThemeTokens.TextDisabledColor)
+        : EdgeInkDark;
+    }
+  }
+
   /// <summary>DECISION TRUE path (ImGui ABGR: R in low byte).</summary>
   private static readonly uint EdgeYesInk = 0xFF6AC83Cu;
   /// <summary>DECISION FALSE path (ImGui ABGR).</summary>
