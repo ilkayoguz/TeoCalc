@@ -293,6 +293,61 @@ public sealed class StudioFlowchartGraphTests
   }
 
   [TestMethod]
+  public void Build_OmitStripFiltersOff_KeepsEmptyStubsLikeCodeListing()
+  {
+    IReadOnlyList<StudioListingView.Row> rows =
+    [
+      new(0, ClassicProgramCodes.Label, "LBL", 30, "A", StudioListingView.MergeKind.LabelPair),
+      new(2, 1, "1", null, null, StudioListingView.MergeKind.Single),
+      new(3, 42, "RTN", null, null, StudioListingView.MergeKind.Single),
+      new(4, ClassicProgramCodes.Label, "LBL", 28, "B", StudioListingView.MergeKind.LabelPair),
+      new(6, 42, "RTN", null, null, StudioListingView.MergeKind.Single),
+      new(7, ClassicProgramCodes.Label, "LBL", 27, "C", StudioListingView.MergeKind.LabelPair),
+      new(9, 42, "RTN", null, null, StudioListingView.MergeKind.Single),
+    ];
+
+    StudioFlowchartGraph.Graph graph = StudioFlowchartGraph.Build(
+      rows,
+      "HP-65",
+      omitStripFilters: false);
+    CollectionAssert.AreEquivalent(
+      new[] { "A", "B", "C" },
+      graph.Routines.Select(r => r.LabelKey).ToArray());
+  }
+
+  [TestMethod]
+  public void Build_SwappedBcFirmwareBodies_StillKeepsDeCatalog()
+  {
+    // No-card A–E with B↔C bodies swapped — labels need not be in letter order of bodies.
+    // Previously D/E were dropped because catalog detection required column-locked bodies.
+    IReadOnlyList<StudioListingView.Row> rows =
+    [
+      new(0, ClassicProgramCodes.Label, "LBL", 30, "A", StudioListingView.MergeKind.LabelPair),
+      new(2, 8, "g", 20, "4", StudioListingView.MergeKind.ShiftPair), // 1/x
+      new(4, 42, "RTN", null, null, StudioListingView.MergeKind.Single),
+      new(5, ClassicProgramCodes.Label, "LBL", 28, "B", StudioListingView.MergeKind.LabelPair),
+      new(7, 8, "g", 19, "5", StudioListingView.MergeKind.ShiftPair), // y^x (was C)
+      new(9, 42, "RTN", null, null, StudioListingView.MergeKind.Single),
+      new(10, ClassicProgramCodes.Label, "LBL", 27, "C", StudioListingView.MergeKind.LabelPair),
+      new(12, 14, "f", 50, "9", StudioListingView.MergeKind.ShiftPair), // √x (was B)
+      new(14, 42, "RTN", null, null, StudioListingView.MergeKind.Single),
+      new(15, ClassicProgramCodes.Label, "LBL", 26, "D", StudioListingView.MergeKind.LabelPair),
+      new(17, 13, "RDOWN", null, null, StudioListingView.MergeKind.Single),
+      new(18, 42, "RTN", null, null, StudioListingView.MergeKind.Single),
+      new(19, ClassicProgramCodes.Label, "LBL", 24, "E", StudioListingView.MergeKind.LabelPair),
+      new(21, 17, "X<>Y", null, null, StudioListingView.MergeKind.Single),
+      new(22, 42, "RTN", null, null, StudioListingView.MergeKind.Single),
+    ];
+
+    Assert.IsTrue(StudioFlowchartGraph.IsNoCardFaceplateCatalogOnly(rows));
+    StudioFlowchartGraph.Graph graph = StudioFlowchartGraph.Build(rows, "HP-65");
+    CollectionAssert.AreEquivalent(
+      new[] { "A", "B", "C", "D", "E" },
+      graph.Routines.Select(r => r.LabelKey).ToArray(),
+      "FC must keep all A–E when bodies are swapped; order is by listing, not A→E sort.");
+  }
+
+  [TestMethod]
   public void Build_ListingOmitsInjectedStripStubs_BeforeGraph()
   {
     // Same shape ToClassicSnapshot injects after a sparse .t65 (only LBL A + LBL 1).

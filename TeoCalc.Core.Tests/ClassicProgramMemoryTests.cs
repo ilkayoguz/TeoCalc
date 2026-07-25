@@ -45,6 +45,48 @@ public sealed class ClassicProgramMemoryTests
   }
 
   [TestMethod]
+  public void InsertFromBuffer_OverwriteMode_ReplacesStepAfterPointer()
+  {
+    ClassicCpu cpu = CreateCpu();
+    cpu.Reset();
+    cpu.State.Buffer = ClassicProgramCodes.Label;
+    cpu.Program.InsertFromBuffer();
+    cpu.State.Buffer = 11; // A
+    cpu.Program.InsertFromBuffer();
+    cpu.State.Buffer = 24; // RTN-ish
+    cpu.Program.InsertFromBuffer();
+
+    // PTR sits after inserted codes; seek so pointer is just before the last opcode.
+    int last = cpu.Program.LastContentIndex();
+    int rtnIndex = last - 1; // last is usually PTR
+    while (rtnIndex > 1 && cpu.Program.ReadCode(rtnIndex) == ClassicProgramCodes.Pointer)
+    {
+      rtnIndex--;
+    }
+
+    cpu.Program.SeekPointer(Math.Max(1, rtnIndex - 1));
+    byte before = cpu.Program.ReadCode(cpu.Program.PointerPosition() + 1);
+    Assert.AreNotEqual(0, before);
+
+    cpu.Program.OverwriteOnInsert = true;
+    cpu.State.Buffer = 3; // digit 2 keycode path often lands in Buffer via firmware
+    cpu.Program.InsertFromBuffer();
+
+    Assert.AreEqual(3, cpu.Program.ReadCode(cpu.Program.PointerPosition() + 1));
+    // Tail / earlier steps must remain (no insert-shift wipe).
+    Assert.AreEqual(ClassicProgramCodes.Label, cpu.Program.ReadCode(1));
+  }
+
+  [TestMethod]
+  public void Listing_Enumerate_KeepsCodesAfterMidProgramNop()
+  {
+    byte[] codes = [63, 1, 0, 3, 4, 0, 0, 0];
+    List<ClassicProgramLine> lines = ClassicProgramListing.ToList(codes, c => c.ToString()).ToList();
+    Assert.IsTrue(lines.Any(l => l.Index == 3 && l.Code == 3), "code after mid NOP must remain");
+    Assert.IsTrue(lines.Any(l => l.Index == 4 && l.Code == 4));
+  }
+
+  [TestMethod]
   public void DeleteBeforePointer_RemovesPreviousStep()
   {
     ClassicCpu cpu = CreateCpu();

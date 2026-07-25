@@ -60,6 +60,10 @@ public static class CalcStudioPanelComponent
   private static bool s_focusFind;
   private static bool s_requestStudioSaveFromKeyboard;
 
+  /// <summary>High-water Code column widths so a single edit does not shrink the Code|FC split.</summary>
+  private static CodeTableWidths s_codeWidthFloor;
+  private static string s_codeWidthFloorKey = string.Empty;
+
   /// <summary>Focus the Studio Find box (e.g. Ctrl+F).</summary>
   public static void RequestFindFocus() => s_focusFind = true;
 
@@ -140,9 +144,7 @@ public static class CalcStudioPanelComponent
     IReadOnlyList<StudioListingView.Row>? rows = null;
     if (session.TryGetProgramListing(out IReadOnlyList<ClassicProgramLine> lines) && lines.Count > 0)
     {
-      rows = StudioListingView.Build(
-        lines,
-        session.IsProgramDirty ? null : session.LoadedTeoCard?.Program.Steps);
+      rows = session.BuildStudioListingRows(lines);
     }
 
     // Footer (Lines + R1–R9) stays pinned — no outer Studio scroll to reach Data.
@@ -151,10 +153,12 @@ public static class CalcStudioPanelComponent
     Vector2 panesOrigin = ImGui.GetCursorScreenPos();
 
     StudioMnemonicPaint.PushListingScale();
-    CodeTableWidths widths = MeasureCodeTableWidths(
-      rows,
-      session.EngineModelId,
-      session.CardStripLabels);
+    CodeTableWidths widths = StabilizeCodeTableWidths(
+      MeasureCodeTableWidths(
+        rows,
+        session.EngineModelId,
+        session.CardStripLabels),
+      session);
     StudioMnemonicPaint.PopListingScale();
 
     // Code pane = content-sized table (no stretch-fill). Remaining width goes to Flowchart.
@@ -421,7 +425,9 @@ public static class CalcStudioPanelComponent
     if (ImGui.IsItemHovered())
     {
       CalcAppTooltip.Set(
-        "Set Classic PTR / SST seek (also: double-click Code or FC row).");
+        session.ProgramMode
+          ? "Current line follows selection (arrows / click). RUN: double-click to set start."
+          : "Set Classic PTR / SST seek (also: double-click Code or FC row).");
     }
 
     ImGui.SameLine();
@@ -510,9 +516,7 @@ public static class CalcStudioPanelComponent
       return false;
     }
 
-    IReadOnlyList<StudioListingView.Row> rows = StudioListingView.Build(
-      lines,
-      session.IsProgramDirty ? null : session.LoadedTeoCard?.Program.Steps);
+    IReadOnlyList<StudioListingView.Row> rows = session.BuildStudioListingRows(lines);
     if (rows.Count == 0)
     {
       status = "Empty listing.";
@@ -1094,9 +1098,7 @@ public static class CalcStudioPanelComponent
       return;
     }
 
-    IReadOnlyList<StudioListingView.Row> rows = StudioListingView.Build(
-      lines,
-      session.IsProgramDirty ? null : session.LoadedTeoCard?.Program.Steps);
+    IReadOnlyList<StudioListingView.Row> rows = session.BuildStudioListingRows(lines);
     int pointerHighlight = StudioListingView.ResolvePointerHighlightIndex(lines, rows);
     string modelId = session.EngineModelId;
     IReadOnlyList<string>? stripCaptions = session.CardStripLabels;
@@ -1229,11 +1231,13 @@ public static class CalcStudioPanelComponent
           {
             if (ImGui.IsMouseClicked(ImGuiMouseButton.Left) && !s_codeDragMoved)
             {
-              session.SelectedProgramStep = row.Index;
-              StudioPaneSync.OnCodeSelected(row.Index);
+              // W/PRGM: click = current line. RUN: selection only (dbl-click seeks).
+              _ = session.TrySelectStudioProgramLine(row.Index);
             }
 
-            if (ImGui.IsMouseDoubleClicked(ImGuiMouseButton.Left) && !s_codeDragMoved)
+            if (!session.ProgramMode
+                && ImGui.IsMouseDoubleClicked(ImGuiMouseButton.Left)
+                && !s_codeDragMoved)
             {
               if (session.TrySetProgramStartStep(row.Index))
               {
@@ -1244,8 +1248,7 @@ public static class CalcStudioPanelComponent
 
             if (ImGui.IsMouseClicked(ImGuiMouseButton.Right))
             {
-              session.SelectedProgramStep = row.Index;
-              StudioPaneSync.OnCodeSelected(row.Index);
+              _ = session.TrySelectStudioProgramLine(row.Index);
               s_codeContextStep = row.Index;
               ImGui.OpenPopup("##studio-code-row-ctx");
             }
@@ -1442,6 +1445,29 @@ public static class CalcStudioPanelComponent
     Math.Abs(value - Math.Round(value)) < 1e-9
       ? Math.Round(value).ToString("0", System.Globalization.CultureInfo.InvariantCulture)
       : value.ToString("G6", System.Globalization.CultureInfo.InvariantCulture);
+
+  /// <summary>
+  /// Keep Code pane from shrinking when listing briefly changes mid-edit (dirty omit flicker,
+  /// merge split/rejoin). Floor resets on model/card change.
+  /// </summary>
+  private static CodeTableWidths StabilizeCodeTableWidths(CodeTableWidths measured, Session session)
+  {
+    string key = $"{session.EngineModelId}|{session.LoadedCardPath ?? ""}|{session.CardInserted}";
+    if (!string.Equals(key, s_codeWidthFloorKey, StringComparison.Ordinal))
+    {
+      s_codeWidthFloorKey = key;
+      s_codeWidthFloor = measured;
+      return measured;
+    }
+
+    CodeTableWidths floor = new(
+      MathF.Max(s_codeWidthFloor.Index, measured.Index),
+      MathF.Max(s_codeWidthFloor.Machine, measured.Machine),
+      MathF.Max(s_codeWidthFloor.Keys, measured.Keys),
+      MathF.Max(s_codeWidthFloor.Legend, measured.Legend));
+    s_codeWidthFloor = floor;
+    return floor;
+  }
 
   /// <summary>
   /// Fixed <see cref="ImGuiTableColumnFlags.WidthFixed"/> request widths under listing font scale.

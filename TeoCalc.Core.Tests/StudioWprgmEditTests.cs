@@ -93,6 +93,31 @@ public sealed class StudioWprgmEditTests
   }
 
   [TestMethod]
+  public void DirtyEdit_KeepsCardAuthoringSteps()
+  {
+    using CalcExplorerSession session = CreateHp65Session();
+    string path = Path.Combine(
+      CalcCardPanelComponent.SampleCardsDirectory(),
+      CalcCardPanelComponent.SampleHp65T65FileName);
+    Assert.IsTrue(session.TryLoadCardProgram(path, out string? error), error);
+    Assert.IsNotNull(session.StudioCardAuthoringSteps);
+    int authored = session.StudioCardAuthoringSteps!.Count;
+
+    Assert.IsTrue(session.TryGetProgramListing(out IReadOnlyList<ClassicProgramLine> live));
+    List<byte> codes = live.Select(l => l.Code).ToList();
+    Assert.IsTrue(codes.Count > 2);
+    // Flip a mid content byte so we dirty without relying on merge geometry.
+    codes[2] = (byte)(codes[2] == 0 ? 1 : 0);
+    Assert.IsTrue(session.TryApplyProgramCodes(codes, out string? applyError), applyError);
+    Assert.IsTrue(session.IsProgramDirty);
+    Assert.IsNotNull(session.StudioCardAuthoringSteps);
+    Assert.AreEqual(
+      authored,
+      session.StudioCardAuthoringSteps!.Count,
+      "Dirty RAM edit must keep card authoring steps for stable Code/FC filters.");
+  }
+
+  [TestMethod]
   public void TrySetProgramStartStep_UpdatesFaceplateLedToMuseumCodes()
   {
     using CalcExplorerSession session = CreateHp65Session();

@@ -70,11 +70,14 @@ public static class StudioFlowchartGraph
   /// Build classic-symbol flowcharts (one routine per LBL / Entry).
   /// <paramref name="modelId"/> / <paramref name="cardStripCaptions"/> feed Studio Legend
   /// text for PROCESS captions (same CapAbove / CapSkirt / strip strings as the listing).
+  /// When <paramref name="omitStripFilters"/> is false (W/PRGM live edit), empty stubs and
+  /// firmware A–E leftovers stay so FC matches the Code listing (labels need not be A→E order).
   /// </summary>
   public static Graph Build(
     IReadOnlyList<StudioListingView.Row> rows,
     string? modelId = null,
-    IReadOnlyList<string>? cardStripCaptions = null)
+    IReadOnlyList<string>? cardStripCaptions = null,
+    bool omitStripFilters = true)
   {
     ArgumentNullException.ThrowIfNull(rows);
     if (rows.Count == 0)
@@ -111,10 +114,13 @@ public static class StudioFlowchartGraph
       }
     }
 
-    // Drop Classic fall-through stubs (LBL B–E + RTN only, optional NOP fillers) —
-    // they are not useful as separate START–END graphs.
-    spans.RemoveAll(span => IsEmptyStubRoutine(rows, span.First, span.Last));
-    spans.RemoveAll(span => ShouldOmitFirmwareBuiltinStripRoutine(rows, span.First, span.Last));
+    if (omitStripFilters)
+    {
+      // Drop Classic fall-through stubs (LBL B–E + RTN only, optional NOP fillers) —
+      // they are not useful as separate START–END graphs.
+      spans.RemoveAll(span => IsEmptyStubRoutine(rows, span.First, span.Last));
+      spans.RemoveAll(span => ShouldOmitFirmwareBuiltinStripRoutine(rows, span.First, span.Last));
+    }
 
     List<Routine> routines = [];
     List<Node> nodes = [];
@@ -886,7 +892,61 @@ public static class StudioFlowchartGraph
       return false;
     }
 
-    List<string> body = [];
+    if (!TryCollectStripRoutineBody(rows, first, last, out List<string> body) || body.Count == 0)
+    {
+      return false;
+    }
+
+    return column switch
+    {
+      0 => MatchesLblA_OneOverX(body),
+      1 => MatchesLblB_Sqrt(body),
+      2 => MatchesLblC_YpowX(body),
+      3 => MatchesLblD_Rdown(body),
+      4 => MatchesLblE_XExchange(body),
+      _ => false,
+    };
+  }
+
+  /// <summary>
+  /// True when the routine body matches any no-card strip builtin (1/x, √x, y^x, R↓, x↔y),
+  /// regardless of which letter owns it — A–E order / B↔C swaps stay catalog-shaped.
+  /// </summary>
+  public static bool IsAnyFirmwareBuiltinStripBody(
+    IReadOnlyList<StudioListingView.Row> rows,
+    int first,
+    int last)
+  {
+    if (first < 0 || last < first || last >= rows.Count)
+    {
+      return false;
+    }
+
+    if (!TryGetLabelKey(rows[first], out string key)
+        || !ClassicCardStripLabels.TryGetStripColumn(key, out _))
+    {
+      return false;
+    }
+
+    if (!TryCollectStripRoutineBody(rows, first, last, out List<string> body) || body.Count == 0)
+    {
+      return false;
+    }
+
+    return MatchesLblA_OneOverX(body)
+        || MatchesLblB_Sqrt(body)
+        || MatchesLblC_YpowX(body)
+        || MatchesLblD_Rdown(body)
+        || MatchesLblE_XExchange(body);
+  }
+
+  private static bool TryCollectStripRoutineBody(
+    IReadOnlyList<StudioListingView.Row> rows,
+    int first,
+    int last,
+    out List<string> body)
+  {
+    body = [];
     for (int i = first + 1; i <= last; i++)
     {
       StudioListingView.Row row = rows[i];
@@ -903,20 +963,7 @@ public static class StudioFlowchartGraph
       body.Add(row.DisplayMnemonic.Trim());
     }
 
-    if (body.Count == 0)
-    {
-      return false;
-    }
-
-    return column switch
-    {
-      0 => MatchesLblA_OneOverX(body),
-      1 => MatchesLblB_Sqrt(body),
-      2 => MatchesLblC_YpowX(body),
-      3 => MatchesLblD_Rdown(body),
-      4 => MatchesLblE_XExchange(body),
-      _ => false,
-    };
+    return true;
   }
 
   /// <summary>
@@ -979,7 +1026,7 @@ public static class StudioFlowchartGraph
         return false;
       }
 
-      if (!IsFirmwareBuiltinStripRoutine(rows, first, last)
+      if (!IsAnyFirmwareBuiltinStripBody(rows, first, last)
           && !IsEmptyStubRoutine(rows, first, last))
       {
         return false;

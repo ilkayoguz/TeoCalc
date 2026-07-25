@@ -12,21 +12,17 @@ public static class ClassicProgramListing
   public static IEnumerable<ClassicProgramLine> Enumerate(ClassicProgramMemory program)
   {
     ArgumentNullException.ThrowIfNull(program);
-    for (int index = 0; index < program.MemLength; index++)
+    int last = program.LastContentIndex();
+    for (int index = 0; index <= last; index++)
     {
       byte code = program.ReadCode(index);
-      if (code == 0 && index > 1)
-      {
-        yield break;
-      }
-
       yield return new ClassicProgramLine(index, code, program.FormatCode(code));
     }
   }
 
   /// <summary>
   /// Build a listing from exported card / RAM bytes using an ISA-specific mnemonic formatter.
-  /// Stops at the first trailing zero after step 1 (same rule as live program RAM).
+  /// Includes mid-program NOPs; only trims trailing empty capacity (same as live RAM).
   /// </summary>
   public static IEnumerable<ClassicProgramLine> Enumerate(
     IReadOnlyList<byte> codes,
@@ -35,14 +31,21 @@ public static class ClassicProgramListing
     ArgumentNullException.ThrowIfNull(codes);
     ArgumentNullException.ThrowIfNull(formatMnemonic);
 
-    for (int index = 0; index < codes.Count; index++)
+    int last = codes.Count - 1;
+    while (last > 1 && codes[last] == 0)
+    {
+      last--;
+    }
+
+    last = Math.Max(1, last);
+    if (last >= codes.Count)
+    {
+      last = codes.Count - 1;
+    }
+
+    for (int index = 0; index <= last && index < codes.Count; index++)
     {
       byte code = codes[index];
-      if (code == 0 && index > 1)
-      {
-        yield break;
-      }
-
       yield return new ClassicProgramLine(index, code, formatMnemonic(code));
     }
   }

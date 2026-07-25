@@ -118,7 +118,8 @@ public static class StudioFlowchartView
     StudioFlowchartGraph.Graph graph = StudioFlowchartGraph.Build(
       rows,
       session.EngineModelId,
-      session.CardStripLabels);
+      session.CardStripLabels,
+      omitStripFilters: !session.ProgramMode);
     if (graph.Routines.Count == 0 || graph.Nodes.Count == 0)
     {
       ImGui.TextDisabled("No flowchart symbols.");
@@ -394,8 +395,17 @@ public static class StudioFlowchartView
       int step = ResolveNodeClickStep(pressed, graph);
       if (step >= 0)
       {
-        session.SelectedProgramStep = step;
-        StudioPaneSync.OnFlowchartSelected(step);
+        // W/PRGM: click = current line (PTR + LED). RUN: selection / FC sync only.
+        if (session.ProgramMode)
+        {
+          _ = session.TrySetProgramStartStep(step);
+          StudioPaneSync.OnFlowchartSelected(step);
+        }
+        else
+        {
+          session.SelectedProgramStep = step;
+          StudioPaneSync.OnFlowchartSelected(step);
+        }
       }
     }
 

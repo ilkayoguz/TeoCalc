@@ -666,6 +666,42 @@ public sealed class StudioListingViewTests
   }
 
   [TestMethod]
+  public void ContainsIndex_FusedSingle_DoesNotStealNextRamIndex()
+  {
+    // Display StepSpan is 2 for fused RCL 1, but RAM is one byte at Index 5.
+    StudioListingView.Row fused = new(
+      5,
+      45,
+      "RCL 1",
+      null,
+      null,
+      StudioListingView.MergeKind.Single);
+    Assert.AreEqual(2, fused.StepSpan);
+    Assert.AreEqual(1, fused.RamSpan);
+    Assert.IsTrue(fused.ContainsIndex(5));
+    Assert.IsFalse(fused.ContainsIndex(6), "Must not own the next opcode's address.");
+  }
+
+  [TestMethod]
+  public void Build_BareLbl_DoesNotMergeWithNonTarget()
+  {
+    ClassicProgramLine[] lines =
+    [
+      new(0, ClassicProgramCodes.Start, "START"),
+      new(1, ClassicProgramCodes.Pointer, "PTR"),
+      new(2, ClassicProgramCodes.Label, "LBL"),
+      new(3, 10, "RCL"),
+      new(4, 24, "RTN"),
+    ];
+
+    IReadOnlyList<StudioListingView.Row> rows = StudioListingView.Build(lines);
+    Assert.AreEqual(StudioListingView.MergeKind.Single, rows[0].Kind, "Bare LBL must not eat RCL.");
+    Assert.AreEqual("LBL", rows[0].DisplayMnemonic);
+    Assert.AreEqual("RCL", rows[1].DisplayMnemonic);
+    Assert.AreEqual(3, rows.Count);
+  }
+
+  [TestMethod]
   public void Build_PtrBetweenLabelPair_StillMerges()
   {
     // SST parked between LBL and A must not split the Studio row / shrink the listing.

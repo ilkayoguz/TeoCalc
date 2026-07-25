@@ -59,7 +59,14 @@ public static class StudioListingView
     };
 
     /// <summary>
-    /// Fused card mnemonics like <c>STO 1</c> / <c>GTO A</c> occupy two keystrokes in one RAM step.
+    /// RAM bytes this row owns (not display keystroke span). Fused <c>RCL 1</c> is one
+    /// byte — <see cref="StepSpan"/> is 2 for the # column only.
+    /// </summary>
+    public int RamSpan =>
+      1 + (SecondCode.HasValue ? 1 : 0) + (ThirdCode.HasValue ? 1 : 0);
+
+    /// <summary>
+    /// Keys keystrokes like <c>STO 1</c> / <c>GTO A</c> occupy two keystrokes in one RAM step.
     /// </summary>
     private static int InferSingleStepSpan(string mnemonic)
     {
@@ -82,8 +89,13 @@ public static class StudioListingView
       return 1;
     }
 
+    /// <summary>
+    /// True when <paramref name="stepIndex"/> is a RAM address owned by this row.
+    /// Uses <see cref="RamSpan"/> — not <see cref="StepSpan"/> — so fused singles do not
+    /// steal the next row's index (arrow nav would skip).
+    /// </summary>
     public bool ContainsIndex(int stepIndex) =>
-      stepIndex >= Index && stepIndex < Index + StepSpan;
+      stepIndex >= Index && stepIndex < Index + RamSpan;
   }
 
   /// <summary>
@@ -288,10 +300,13 @@ public static class StudioListingView
   /// for A–E key fidelity but are omitted from Studio listing / <c>#</c> / FC input.
   /// When <paramref name="cardAuthoringSteps"/> is set (card loaded), A–E routines that
   /// were not in the authoring file are also omitted (firmware may leave built-in bodies).
+  /// Pass <paramref name="omitStripFilters"/> = false in W/PRGM live edit so omit rules
+  /// cannot hide the program tail after a mid-body LBL/g/f keystroke.
   /// </summary>
   public static IReadOnlyList<Row> Build(
     IReadOnlyList<ClassicProgramLine> lines,
-    IReadOnlyList<string>? cardAuthoringSteps = null)
+    IReadOnlyList<string>? cardAuthoringSteps = null,
+    bool omitStripFilters = true)
   {
     ArgumentNullException.ThrowIfNull(lines);
     List<Row> rows = [];
@@ -343,6 +358,11 @@ public static class StudioListingView
         SecondCode: null,
         SecondMnemonic: null,
         MergeKind.Single));
+    }
+
+    if (!omitStripFilters)
+    {
+      return rows;
     }
 
     IReadOnlyList<Row> filtered = OmitEmptyStubRoutines(rows);
@@ -455,6 +475,8 @@ public static class StudioListingView
   /// <summary>
   /// Drop later A–E strip routines when Classic RAM repeats a label letter
   /// (firmware leftover after the real card body).
+  /// Only empty stubs / known firmware builtins are omitted — a second LBL A with a
+  /// real body (W/PRGM edit) must stay visible or the listing looks like a wipe.
   /// </summary>
   public static IReadOnlyList<Row> OmitDuplicateStripLabelRoutines(IReadOnlyList<Row> rows)
   {
@@ -467,16 +489,27 @@ public static class StudioListingView
         return false;
       }
 
+      bool duplicate = false;
       for (int i = 0; i < span.First; i++)
       {
         if (StudioFlowchartGraph.TryGetLabelKey(rows[i], out string prior)
             && string.Equals(prior, key, StringComparison.OrdinalIgnoreCase))
         {
-          return true;
+          duplicate = true;
+          break;
         }
       }
 
-      return false;
+      if (!duplicate)
+      {
+        return false;
+      }
+
+      return StudioFlowchartGraph.IsEmptyStubRoutine(rows, span.First, span.Last)
+          || StudioFlowchartGraph.ShouldOmitFirmwareBuiltinStripRoutine(
+              rows,
+              span.First,
+              span.Last);
     });
   }
 
@@ -645,6 +678,14 @@ public static class StudioListingView
 
     if (string.Equals(first.Mnemonic.Trim(), "LBL", StringComparison.OrdinalIgnoreCase))
     {
+      // Only merge complete LBL·target pairs. Bare LBL (museum 23) must stay its own
+      // row — merging with the next arbitrary opcode hides that step and can create a
+      // duplicate LBL A–E that OmitDuplicateStripLabelRoutines then drops (entire tail).
+      if (!IsLabelTargetToken(second.Mnemonic))
+      {
+        return false;
+      }
+
       kind = MergeKind.LabelPair;
       return true;
     }
@@ -695,6 +736,9 @@ public static class StudioListingView
 
     return IsRegisterDigitToken(second.Mnemonic);
   }
+
+  private static bool IsLabelTargetToken(string? mnemonic) =>
+    IsBranchTargetToken(mnemonic);
 
   private static bool IsBranchTargetToken(string? mnemonic)
   {

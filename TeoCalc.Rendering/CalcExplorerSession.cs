@@ -72,6 +72,18 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
   /// </summary>
   private int _breakpointContinueIgnoreStep = -1;
 
+  /// <summary>W/PRGM edit: step waiting for the second key of a LBL/STO/shift pair.</summary>
+  private int _wprgmPendingPrefixStep = -1;
+
+  /// <summary>When true, the second key inserts a new RAM byte after the prefix.</summary>
+  private bool _wprgmPendingInsertSecond;
+
+  /// <summary>
+  /// W/PRGM Machine LED focus: 0 = left museum box, 1 = right (after LBL/g/f/…).
+  /// Line (↑/↓) only changes on arrow / click — never on a normal key.
+  /// </summary>
+  private int _wprgmMachineSlot;
+
   private static readonly float[] ExecutionSpeedSteps =
   [
     0.25f, 0.5f, 1f, 2f, 4f, 8f, 16f,
@@ -313,6 +325,14 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
     }
 
     _keyboardKeyHeld = held;
+    // W/PRGM Studio edit must not keep the Classic key line asserted — idle batches would
+    // MemoryInsert and clobber the overwrite. Visual press state stays in HeldKeyChartIndex.
+    if (ProgramMode && SupportsCardProgram)
+    {
+      _firmware?.SetKeyLineHeld(false);
+      return;
+    }
+
     _firmware?.SetKeyLineHeld(IsKeyHeld);
   }
 
@@ -324,6 +344,12 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
     }
 
     _mouseKeyHeld = false;
+    if (ProgramMode && SupportsCardProgram)
+    {
+      _firmware?.SetKeyLineHeld(false);
+      return;
+    }
+
     _firmware?.SetKeyLineHeld(_keyboardKeyHeld);
     RunFirmwareTicks(KeySettleBatches);
   }
@@ -775,9 +801,7 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
       return;
     }
 
-    IReadOnlyList<StudioListingView.Row> rows = StudioListingView.Build(
-      lines,
-      IsProgramDirty ? null : LoadedTeoCard?.Program.Steps);
+    IReadOnlyList<StudioListingView.Row> rows = BuildStudioListingRows(lines);
     if (rows.Count == 0)
     {
       return;
@@ -854,7 +878,8 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
     StudioFlowchartGraph.Graph graph = StudioFlowchartGraph.Build(
       rows,
       EngineModelId,
-      CardStripLabels);
+      CardStripLabels,
+      omitStripFilters: !ProgramMode);
     int nodeId = StudioFlowchartGraph.FindNodeIdForStep(graph, highlightStep);
     if (nodeId < 0)
     {
@@ -902,9 +927,18 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
 
   private static int FindStudioRowIndex(IReadOnlyList<StudioListingView.Row> rows, int ptr)
   {
+    // Prefer exact Index — fused Single rows can ContainsIndex() a neighbor's step.
     for (int i = 0; i < rows.Count; i++)
     {
-      if (rows[i].ContainsIndex(ptr) || rows[i].Index == ptr)
+      if (rows[i].Index == ptr)
+      {
+        return i;
+      }
+    }
+
+    for (int i = 0; i < rows.Count; i++)
+    {
+      if (rows[i].ContainsIndex(ptr))
       {
         return i;
       }
@@ -976,9 +1010,7 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
     int selected = cpu.Program.PointerPosition();
     if (TryGetProgramListing(out IReadOnlyList<ClassicProgramLine> lines) && lines.Count > 0)
     {
-      IReadOnlyList<StudioListingView.Row> rows = StudioListingView.Build(
-        lines,
-        IsProgramDirty ? null : LoadedTeoCard?.Program.Steps);
+      IReadOnlyList<StudioListingView.Row> rows = BuildStudioListingRows(lines);
       int highlight = StudioListingView.ResolvePointerHighlightIndex(lines, rows);
       if (highlight >= 0)
       {
@@ -1022,9 +1054,7 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
       return;
     }
 
-    IReadOnlyList<StudioListingView.Row> rows = StudioListingView.Build(
-      lines,
-      IsProgramDirty ? null : LoadedTeoCard?.Program.Steps);
+    IReadOnlyList<StudioListingView.Row> rows = BuildStudioListingRows(lines);
     if (rows.Count == 0)
     {
       return;
@@ -1038,6 +1068,16 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
     }
 
     string museum = StudioMuseumKeycodes.FormatMachineDisplay(rows[rowIdx], EngineModelId);
+    // Prefix waiting for second key: show only the left museum box (e.g. "23"), slot=1.
+    if (_wprgmPendingPrefixStep == step && _wprgmMachineSlot == 1)
+    {
+      string[] parts = museum.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
+      if (parts.Length > 0)
+      {
+        museum = parts[0];
+      }
+    }
+
     ClassicWprgmLedSync.ApplyMuseumText(cpu.State.Registers, museum);
     cpu.State.Flags |= ClassicCpuFlags.DisplayOn;
     gateway.SyncDisplayFromCpu();
@@ -1072,9 +1112,7 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
         && TryGetProgramListing(out IReadOnlyList<ClassicProgramLine> lines)
         && lines.Count > 0)
     {
-      IReadOnlyList<StudioListingView.Row> rows = StudioListingView.Build(
-        lines,
-        IsProgramDirty ? null : LoadedTeoCard?.Program.Steps);
+      IReadOnlyList<StudioListingView.Row> rows = BuildStudioListingRows(lines);
       int highlight = StudioListingView.ResolvePointerHighlightIndex(lines, rows);
       _breakpointContinueIgnoreStep = highlight >= 0 ? highlight : cpu.Program.PointerPosition();
     }
@@ -1216,7 +1254,16 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
 
   public void PressKey(int keyChartIndex, byte keyCode)
   {
-    ShiftPreview.HandleKeyPress(keyChartIndex, Model.Family, Model.Model);
+    // In W/PRGM, f/g/LBL are program prefixes (second museum box), not RUN shift preview.
+    if (ProgramMode && SupportsCardProgram)
+    {
+      ShiftPreview.Clear();
+    }
+    else
+    {
+      ShiftPreview.HandleKeyPress(keyChartIndex, Model.Family, Model.Model);
+    }
+
     PressKey(new FirmwareKeyCommand(keyChartIndex, keyCode));
   }
 
@@ -1230,9 +1277,204 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
       return;
     }
 
+    const byte sstKeyCode = 40;
+    const byte bspKeyCode = 56; // faceplate BSP (chart 19)
+
+    // W/PRGM program-entry keys must NEVER hit firmware MemoryInsert — that shifts/drops the
+    // tail and advances PTR (keyboard 2 then 3 becomes two lines; calc key wipes below).
+    if (ProgramMode
+        && SupportsCardProgram
+        && key.KeyCode != sstKeyCode
+        && key.KeyCode != bspKeyCode)
+    {
+      if (TryStudioWprgmEditKey(key))
+      {
+        // Do NOT hold the firmware key line. PressCharacter / faceplate release paths keep
+        // IsKeyHeld true across ticks; Classic ROM would then MemoryInsert and overwrite
+        // (or drop) the Studio write — looks like the program tail vanished.
+        _mouseKeyHeld = false;
+        if (_firmware is ClassicFirmwareGateway { Cpu: { } cpuClear })
+        {
+          cpuClear.State.KeyAvailable = false;
+          cpuClear.State.KeyBuffer = 0;
+        }
+
+        _firmware?.SetKeyLineHeld(false);
+        return;
+      }
+
+      _mouseKeyHeld = false;
+      _firmware?.SetKeyLineHeld(false);
+      StudioStatusMessage = "Select a Code line first (↑/↓), then press keys.";
+      return;
+    }
+
     _mouseKeyHeld = true;
     _firmware?.KeyDown(key);
     RunFirmwareTicks(KeySettleBatches);
+
+    if (ProgramMode
+        && (key.KeyCode == sstKeyCode || key.KeyCode == bspKeyCode)
+        && _firmware is ClassicFirmwareGateway { Cpu: { } cpuNav })
+    {
+      ClearWprgmPendingPrefix();
+      SyncStudioToPointer(cpuNav, syncFaceplateLed: false);
+    }
+  }
+
+  /// <summary>
+  /// W/PRGM Studio edit: write into the selected RAM step without firmware MemoryInsert.
+  /// Stay on the same Code line until ↑/↓. Prefix keys (LBL, g, f, …) move only to the
+  /// right museum box on this line — never auto-advance to the next row.
+  /// </summary>
+  private bool TryStudioWprgmEditKey(FirmwareKeyCommand key)
+  {
+    if (_firmware is not ClassicFirmwareGateway { Cpu: { } cpu })
+    {
+      return false;
+    }
+
+    int step = SelectedProgramStep;
+    if (step <= 0)
+    {
+      step = cpu.Program.PointerPosition() + 1;
+    }
+
+    if (step <= 0 || step >= cpu.Program.MemLength - 1)
+    {
+      return false;
+    }
+
+    int ptr = cpu.Program.PointerPosition();
+    byte atPtr = ptr > 0 ? cpu.Program.ReadCode(ptr) : (byte)0;
+    bool onMarker = atPtr is ClassicProgramCodes.Pointer
+        or ClassicProgramCodes.Start
+        or ClassicProgramCodes.Mark;
+    int afterPtr = ptr + 1;
+    byte afterPtrCode = afterPtr < cpu.Program.MemLength ? cpu.Program.ReadCode(afterPtr) : (byte)0;
+    bool writeIntoFreeSlot = onMarker
+        && afterPtr > 0
+        && afterPtr < cpu.Program.MemLength - 1
+        && afterPtrCode == 0
+        && (SelectedProgramStep <= 0 || step == ptr || step == afterPtr);
+
+    if (writeIntoFreeSlot)
+    {
+      PushProgramUndoSnapshot();
+      cpu.Program.WriteCode(afterPtr, key.KeyCode);
+      cpu.Program.Cleanup(10);
+      StayOnStudioEditLine(cpu, afterPtr, FormatProgramCode(key.KeyCode), oldRamSpan: 1);
+      return true;
+    }
+
+    // Resolve selection without SeekPointer — seeking mid-edit shifts PTR through RAM and
+    // makes the listing look like it advanced/wiped. ↑/↓ / click own seeking.
+    step = Math.Clamp(step, 1, Math.Max(1, cpu.Program.LastContentIndex()));
+    byte existing = cpu.Program.ReadCode(step);
+    if (existing is ClassicProgramCodes.Start
+        or ClassicProgramCodes.Pointer
+        or ClassicProgramCodes.Mark)
+    {
+      if (afterPtr > 0 && afterPtr < cpu.Program.MemLength - 1)
+      {
+        PushProgramUndoSnapshot();
+        cpu.Program.WriteCode(afterPtr, key.KeyCode);
+        cpu.Program.Cleanup(10);
+        StayOnStudioEditLine(cpu, afterPtr, FormatProgramCode(key.KeyCode), oldRamSpan: 1);
+        return true;
+      }
+
+      return false;
+    }
+
+    PushProgramUndoSnapshot();
+
+    // Second keystroke → right museum box on this same line (LBL→A, g→4, …).
+    if (_wprgmPendingPrefixStep == step && _wprgmMachineSlot == 1)
+    {
+      if (_wprgmPendingInsertSecond)
+      {
+        InsertProgramByteAfter(cpu, step, key.KeyCode);
+      }
+      else
+      {
+        cpu.Program.WriteCode(step + 1, key.KeyCode);
+      }
+
+      cpu.Program.Cleanup(10);
+      StayOnStudioEditLine(cpu, step, secondComplete: true);
+      return true;
+    }
+
+    int oldRamSpan = 1;
+    if (TryGetStudioListingRows(out IReadOnlyList<StudioListingView.Row> rows)
+        && TryFindStudioRow(rows, step, out StudioListingView.Row row))
+    {
+      oldRamSpan = Math.Max(1, StudioListingRowRamSpan(row));
+    }
+
+    cpu.Program.WriteCode(step, key.KeyCode);
+    string mnemonic = FormatProgramCode(key.KeyCode);
+    if (!StudioMuseumPrefix.NeedsSecondToken(mnemonic) && oldRamSpan >= 2)
+    {
+      for (int extra = oldRamSpan - 1; extra > 0; extra--)
+      {
+        cpu.Program.DeleteAt(step + 1);
+      }
+    }
+
+    cpu.Program.Cleanup(10);
+    StayOnStudioEditLine(cpu, step, mnemonic, oldRamSpan);
+    return true;
+  }
+
+  /// <summary>
+  /// Keep ▶ / selection on <paramref name="step"/>; optionally arm the right museum box.
+  /// Does not SeekPointer (no auto “next line”).
+  /// </summary>
+  private void StayOnStudioEditLine(
+    ClassicCpu cpu,
+    int step,
+    string? firstMnemonic = null,
+    int oldRamSpan = 1,
+    bool secondComplete = false)
+  {
+    SelectedProgramStep = step;
+    if (secondComplete)
+    {
+      ClearWprgmPendingPrefix();
+    }
+    else if (firstMnemonic is not null && StudioMuseumPrefix.NeedsSecondToken(firstMnemonic))
+    {
+      _wprgmPendingPrefixStep = step;
+      _wprgmPendingInsertSecond = oldRamSpan < 2;
+      _wprgmMachineSlot = 1;
+    }
+    else
+    {
+      ClearWprgmPendingPrefix();
+    }
+
+    SyncFaceplateProgramLed(cpu, step);
+  }
+
+  /// <summary>Insert one program byte after <paramref name="step"/> without MemLength end drop.</summary>
+  private static void InsertProgramByteAfter(ClassicCpu cpu, int step, byte code)
+  {
+    int last = Math.Min(cpu.Program.LastContentIndex() + 1, cpu.Program.MemLength - 2);
+    for (int i = last; i > step; i--)
+    {
+      cpu.Program.WriteCode(i + 1, cpu.Program.ReadCode(i));
+    }
+
+    cpu.Program.WriteCode(step + 1, code);
+  }
+
+  private void ClearWprgmPendingPrefix()
+  {
+    _wprgmPendingPrefixStep = -1;
+    _wprgmPendingInsertSecond = false;
+    _wprgmMachineSlot = 0;
   }
 
   private void SettleAfterCardImport()
@@ -1362,6 +1604,43 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
     return true;
   }
 
+  /// <summary>
+  /// Select a Studio listing step. In W/PRGM this is the current edit line (LED);
+  /// in RUN it only moves the selection highlight (dbl-click / Set start still seeks).
+  /// </summary>
+  public bool TrySelectStudioProgramLine(int stepIndex)
+  {
+    if (!SupportsCardProgram)
+    {
+      return false;
+    }
+
+    ClearWprgmPendingPrefix();
+    if (ProgramMode)
+    {
+      // Do not SeekPointer on every ↑/↓ — bubbling PTR through RAM reshuffles indices so
+      // the next arrow can land two visual rows away. Seek stays on Set start / F10 / F11.
+      if (stepIndex < 1)
+      {
+        return false;
+      }
+
+      SelectedProgramStep = stepIndex;
+      StudioPaneSync.FollowPointer(stepIndex);
+      if (_firmware is ClassicFirmwareGateway { Cpu: { } cpu })
+      {
+        SyncFaceplateProgramLed(cpu, stepIndex);
+      }
+
+      return true;
+    }
+
+    SelectedProgramStep = stepIndex;
+    StudioPaneSync.OnCodeSelected(stepIndex);
+    StudioPaneSync.FollowPointer(stepIndex);
+    return true;
+  }
+
   /// <summary>Move Classic PTR so Studio ▶ highlights <paramref name="stepIndex"/>.</summary>
   public bool TrySetProgramStartStep(int stepIndex)
   {
@@ -1370,15 +1649,13 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
       return false;
     }
 
-    int last = cpu.Program.LastContentIndex();
+    ClearWprgmPendingPrefix();
+    int last = Math.Max(1, cpu.Program.LastContentIndex());
     int target = Math.Clamp(stepIndex, 1, last);
-    // Prefer landing on a real instruction (not NOP filler) when the selection is past content.
-    while (target > 1 && cpu.Program.ReadCode(target) == 0)
-    {
-      target--;
-    }
-
-    SeekPointerForHighlight(cpu, target);
+    // Keep mid-program NOP / empty lines selectable (W/PRGM Ins). Do not walk back to
+    // the previous non-zero opcode — trailing filler is already excluded by LastContentIndex.
+    int seekTo = Math.Max(1, target - 1);
+    cpu.Program.SeekPointer(seekTo);
     SelectedProgramStep = target;
     StudioPaneSync.FollowPointer(target);
     if (_firmware is not null)
@@ -1728,7 +2005,8 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
   }
 
   /// <summary>
-  /// Home / End / PgUp / PgDn selection navigation among Studio listing rows.
+  /// Up / Down / Home / End / PgUp / PgDn among Studio listing rows.
+  /// In W/PRGM the new selection becomes the current line immediately (no SeekPointer).
   /// </summary>
   public bool TryNavigateProgramSelection(StudioProgramNav nav)
   {
@@ -1739,6 +2017,8 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
       return false;
     }
 
+    ClearWprgmPendingPrefix();
+
     int rowIndex = FindStudioRowIndex(rows, SelectedProgramStep);
     if (rowIndex < 0)
     {
@@ -1746,19 +2026,19 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
     }
 
     const int page = 10;
-    rowIndex = nav switch
+    int next = nav switch
     {
       StudioProgramNav.Home => 0,
       StudioProgramNav.End => rows.Count - 1,
       StudioProgramNav.PageUp => Math.Max(0, rowIndex - page),
       StudioProgramNav.PageDown => Math.Min(rows.Count - 1, rowIndex + page),
+      StudioProgramNav.Up => Math.Max(0, rowIndex - 1),
+      StudioProgramNav.Down => Math.Min(rows.Count - 1, rowIndex + 1),
       _ => rowIndex,
     };
 
-    SelectedProgramStep = rows[rowIndex].Index;
-    StudioPaneSync.OnCodeSelected(SelectedProgramStep);
-    StudioPaneSync.FollowPointer(SelectedProgramStep);
-    return true;
+    // Always land on the row's first RAM index (not a mid-pair address).
+    return TrySelectStudioProgramLine(rows[next].Index);
   }
 
   private bool TryApplyProgramCodesCore(
@@ -1864,11 +2144,20 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
       return false;
     }
 
-    rows = StudioListingView.Build(
-      lines,
-      IsProgramDirty ? null : LoadedTeoCard?.Program.Steps);
+    rows = BuildStudioListingRows(lines);
     return rows.Count > 0;
   }
+
+  /// <summary>
+  /// Studio Code/FC rows. In W/PRGM, strip-omit filters are off so a mid-edit LBL/g/f
+  /// cannot hide the rest of the program from the listing.
+  /// </summary>
+  public IReadOnlyList<StudioListingView.Row> BuildStudioListingRows(
+    IReadOnlyList<ClassicProgramLine> lines) =>
+    StudioListingView.Build(
+      lines,
+      StudioCardAuthoringSteps,
+      omitStripFilters: !ProgramMode);
 
   private static bool TryFindStudioRow(
     IReadOnlyList<StudioListingView.Row> rows,
@@ -1954,6 +2243,12 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
 
   /// <summary>Metadata when the loaded file carries TeoCard fields (null if unavailable).</summary>
   public TeoCardDocument? LoadedTeoCard => _loadedTeoCard;
+
+  /// <summary>
+  /// Card <c>[Code]</c> authoring steps for Studio listing filters (strip A–E omit).
+  /// Kept while dirty so a single RAM edit does not rebuild Code/FC with a different omit set.
+  /// </summary>
+  public IReadOnlyList<string>? StudioCardAuthoringSteps => _loadedTeoCard?.Program.Steps;
 
   public string? CardTitle => _loadedTeoCard?.Title;
 
@@ -2423,11 +2718,14 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
       return;
     }
 
-    // W/PRGM faceplate keys update RAM via MemoryInsert — keep Studio selection on PTR.
-    // Do not repaint A/B: SST / key microcode already owns the LED.
+    // W/PRGM: do not yank Studio ▶ on every idle batch — edit selection / overwrite owns it.
+    // SST and BSP call SyncStudioToPointer from PressKey instead.
+    // Re-paint museum LED after each tick: firmware ShowDisplay overwrites A/B and would
+    // otherwise blank the faceplate right after a Studio overwrite / seek.
     if (ProgramMode)
     {
-      SyncStudioToPointer(cpu, syncFaceplateLed: false);
+      SyncRomWatchFromBatch(args.Snapshot);
+      SyncFaceplateProgramLed(cpu);
       return;
     }
 
@@ -2441,9 +2739,7 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
     int hit = ptr;
     if (TryGetProgramListing(out IReadOnlyList<ClassicProgramLine> lines) && lines.Count > 0)
     {
-      IReadOnlyList<StudioListingView.Row> rows = StudioListingView.Build(
-        lines,
-        IsProgramDirty ? null : LoadedTeoCard?.Program.Steps);
+      IReadOnlyList<StudioListingView.Row> rows = BuildStudioListingRows(lines);
       int highlight = StudioListingView.ResolvePointerHighlightIndex(lines, rows);
       if (highlight >= 0)
       {
@@ -2467,11 +2763,13 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
   }
 }
 
-/// <summary>Studio listing selection navigation (Home / End / page).</summary>
+/// <summary>Studio listing selection navigation (arrows / Home / End / page).</summary>
 public enum StudioProgramNav : byte
 {
   Home = 0,
   End = 1,
   PageUp = 2,
   PageDown = 3,
+  Up = 4,
+  Down = 5,
 }

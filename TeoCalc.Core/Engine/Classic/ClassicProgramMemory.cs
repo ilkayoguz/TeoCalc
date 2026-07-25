@@ -20,6 +20,12 @@ public sealed class ClassicProgramMemory
 
   public int Busy { get; private set; }
 
+  /// <summary>
+  /// When true, <see cref="InsertFromBuffer"/> overwrites the step after the PTR marker
+  /// (Studio current line) instead of inserting and shifting the tail — W/PRGM edit mode.
+  /// </summary>
+  public bool OverwriteOnInsert { get; set; }
+
   public int Base => _state.ProgramRamBase;
 
   public byte ReadCode(int index)
@@ -148,15 +154,29 @@ public sealed class ClassicProgramMemory
   public void InsertFromBuffer()
   {
     int pointer = PointerPosition();
-    if (pointer < MemLength - 1)
-    {
-      InsertAt(pointer, _state.Buffer);
-      Cleanup(10);
-    }
-    else
+    if (pointer >= MemLength - 1)
     {
       Busy = 5;
+      return;
     }
+
+    if (OverwriteOnInsert)
+    {
+      // Studio seek places PTR just before the highlighted opcode (pointer + 1).
+      int at = pointer + 1;
+      if (at >= MemLength)
+      {
+        Busy = 5;
+        return;
+      }
+
+      WriteCode(at, (byte)_state.Buffer);
+      Cleanup(10);
+      return;
+    }
+
+    InsertAt(pointer, _state.Buffer);
+    Cleanup(10);
   }
 
   public void DeleteBeforePointer()

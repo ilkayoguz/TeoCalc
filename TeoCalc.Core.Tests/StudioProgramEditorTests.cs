@@ -1,5 +1,7 @@
+using System.Reflection;
 using TeoCalc.Core.Catalog;
 using TeoCalc.Core.Engine.Classic;
+using TeoCalc.Core.Firmware;
 using TeoCalc.Rendering;
 using TeoCalc.Rendering.Faceplate;
 
@@ -454,6 +456,186 @@ public sealed class StudioProgramEditorTests
   }
 
   [TestMethod]
+  public void Wprgm_OverwriteKey_ReplacesCurrentLineAndKeepsTail()
+  {
+    using CalcExplorerSession session = CreateHp65Session();
+    string path = Path.Combine(
+      CalcCardPanelComponent.SampleCardsDirectory(),
+      CalcCardPanelComponent.SampleHp65T65FileName);
+    Assert.IsTrue(session.TryLoadCardProgram(path, out string? error), error);
+    session.ToggleProgramModeTo(true);
+    Assert.IsTrue(session.ProgramMode);
+
+    ClassicFirmwareGateway gateway = GetClassicGateway(session);
+
+    Assert.IsTrue(session.TryGetProgramListing(out IReadOnlyList<ClassicProgramLine> lines));
+    IReadOnlyList<StudioListingView.Row> rows = session.BuildStudioListingRows(lines);
+    Assert.IsTrue(rows.Count > 4, "sample needs several rows");
+
+    StudioListingView.Row target = rows[3];
+    byte original = target.Code;
+    Assert.IsTrue(session.TrySetProgramStartStep(target.Index));
+    int step = session.SelectedProgramStep;
+    Assert.AreEqual(target.Index, step);
+
+    Assert.IsTrue(gateway.TryExportCardProgram(out byte[] before, out _));
+    int beforeLast = LastNonZero(before);
+    int beforeRows = rows.Count;
+
+    // Digit "2" faceplate key (chart index 32, keycode 3).
+    session.PressKey(32, 3);
+    for (int i = 0; i < 40; i++)
+    {
+      session.Tick(0.05f);
+    }
+
+    Assert.AreEqual(step, session.SelectedProgramStep, "Edit must stay on the same Studio line.");
+    byte replaced = gateway.Cpu!.Program.ReadCode(step);
+    Assert.AreEqual(
+      3,
+      replaced,
+      $"Current line must become keycode 3 (was {original}, got {replaced}).");
+
+    Assert.IsTrue(gateway.TryExportCardProgram(out byte[] after, out _));
+    int afterLast = LastNonZero(after);
+    Assert.AreEqual(
+      beforeLast,
+      afterLast,
+      $"Program tail must stay intact (lastNonZero before={beforeLast} after={afterLast}).");
+
+    Assert.IsTrue(session.TryGetProgramListing(out lines));
+    Assert.IsTrue(
+      session.BuildStudioListingRows(lines).Count >= beforeRows - 1,
+      "Studio listing must not hide the program body after an overwrite + idle ticks.");
+
+    // Pressing another digit must still stay on the same line (no auto-advance).
+    session.PressKey(32, 3);
+    Assert.AreEqual(step, session.SelectedProgramStep);
+    Assert.AreEqual(3, gateway.Cpu.Program.ReadCode(step));
+  }
+
+  [TestMethod]
+  public void Wprgm_PrefixThenSecondKey_StaysOnLineAndKeepsTail()
+  {
+    using CalcExplorerSession session = CreateHp65Session();
+    string path = Path.Combine(
+      CalcCardPanelComponent.SampleCardsDirectory(),
+      CalcCardPanelComponent.SampleHp65T65FileName);
+    Assert.IsTrue(session.TryLoadCardProgram(path, out string? error), error);
+    session.ToggleProgramModeTo(true);
+
+    ClassicFirmwareGateway gateway = GetClassicGateway(session);
+    Assert.IsTrue(session.TryGetProgramListing(out IReadOnlyList<ClassicProgramLine> lines));
+    IReadOnlyList<StudioListingView.Row> rows = StudioListingView.Build(
+      lines,
+      session.StudioCardAuthoringSteps);
+    StudioListingView.Row target = rows[3];
+    Assert.IsTrue(session.TrySetProgramStartStep(target.Index));
+    int step = session.SelectedProgramStep;
+    Assert.IsTrue(gateway.TryExportCardProgram(out byte[] before, out _));
+    int beforeLast = LastNonZero(before);
+
+    // LBL (chart 7, keycode 43) then A (chart 0, keycode 30) → museum 23 11 pair.
+    session.PressKey(7, ClassicProgramCodes.Label);
+    Assert.AreEqual(step, session.SelectedProgramStep, "After LBL must stay on the line (no ↓).");
+    Assert.AreEqual(ClassicProgramCodes.Label, gateway.Cpu!.Program.ReadCode(step));
+
+    // Bare LBL must remain visible as its own Studio row (not merge-eat the next opcode).
+    Assert.IsTrue(session.TryGetProgramListing(out lines));
+    IReadOnlyList<StudioListingView.Row> afterLbl = session.BuildStudioListingRows(lines);
+    Assert.IsTrue(
+      afterLbl.Any(r => r.Index == step && r.Code == ClassicProgramCodes.Label),
+      "Bare LBL must appear in the listing.");
+    string museumLbl = StudioMuseumKeycodes.FormatMachineDisplay(
+      afterLbl.First(r => r.Index == step),
+      session.EngineModelId);
+    StringAssert.Contains(museumLbl, "23");
+    // LED shows left museum box only while waiting for the right-box key.
+    string ledDigits = string.Concat(session.DisplayText.Where(char.IsDigit));
+    StringAssert.Contains(ledDigits, "23");
+
+    session.PressKey(0, 30); // faceplate A keycode (museum target displays as 11)
+    Assert.AreEqual(step, session.SelectedProgramStep, "After A must stay on the line (no ↓).");
+    Assert.AreEqual(ClassicProgramCodes.Label, gateway.Cpu.Program.ReadCode(step));
+    Assert.AreEqual(30, gateway.Cpu.Program.ReadCode(step + 1));
+
+    Assert.IsTrue(gateway.TryExportCardProgram(out byte[] after, out _));
+    // Pair may grow length by at most 1 vs a former single opcode.
+    Assert.IsTrue(
+      LastNonZero(after) <= beforeLast + 1,
+      "Pair edit must not wipe/rebuild the program tail.");
+    Assert.IsTrue(
+      LastNonZero(after) >= beforeLast,
+      "Pair edit must not shrink the program away.");
+
+    // Idle firmware batches must not MemoryInitialize / AdvancePointer / omit the tail.
+    for (int i = 0; i < 40; i++)
+    {
+      session.Tick(0.05f);
+    }
+
+    Assert.AreEqual(step, session.SelectedProgramStep, "Idle ticks must not change the Studio line.");
+    Assert.IsTrue(session.TryGetProgramListing(out lines));
+    IReadOnlyList<StudioListingView.Row> afterPair = session.BuildStudioListingRows(lines);
+    Assert.IsTrue(
+      afterPair.Count >= afterLbl.Count - 1,
+      "Completing LBL·A must not omit the program body from the Studio listing.");
+    Assert.IsTrue(gateway.TryExportCardProgram(out byte[] afterTicks, out _));
+    Assert.AreEqual(
+      LastNonZero(after),
+      LastNonZero(afterTicks),
+      "Idle W/PRGM ticks must not shrink program RAM.");
+  }
+
+  [TestMethod]
+  public void Wprgm_ArrowDown_MovesOneListingRow()
+  {
+    using CalcExplorerSession session = CreateHp65Session();
+    string path = Path.Combine(
+      CalcCardPanelComponent.SampleCardsDirectory(),
+      CalcCardPanelComponent.SampleHp65T65FileName);
+    Assert.IsTrue(session.TryLoadCardProgram(path, out string? error), error);
+    session.ToggleProgramModeTo(true);
+
+    Assert.IsTrue(session.TryGetProgramListing(out IReadOnlyList<ClassicProgramLine> lines));
+    IReadOnlyList<StudioListingView.Row> rows = session.BuildStudioListingRows(lines);
+    Assert.IsTrue(rows.Count > 5);
+
+    Assert.IsTrue(session.TrySelectStudioProgramLine(rows[2].Index));
+    Assert.AreEqual(rows[2].Index, session.SelectedProgramStep);
+
+    Assert.IsTrue(session.TryNavigateProgramSelection(StudioProgramNav.Down));
+    Assert.AreEqual(rows[3].Index, session.SelectedProgramStep, "Down must move exactly one Studio row.");
+
+    Assert.IsTrue(session.TryNavigateProgramSelection(StudioProgramNav.Down));
+    Assert.AreEqual(rows[4].Index, session.SelectedProgramStep);
+
+    Assert.IsTrue(session.TryNavigateProgramSelection(StudioProgramNav.Up));
+    Assert.AreEqual(rows[3].Index, session.SelectedProgramStep);
+  }
+
+  private static ClassicFirmwareGateway GetClassicGateway(CalcExplorerSession session)
+  {
+    FieldInfo field = typeof(CalcExplorerSession).GetField(
+      "_firmware",
+      BindingFlags.Instance | BindingFlags.NonPublic)!;
+    return (ClassicFirmwareGateway)field.GetValue(session)!;
+  }
+
+  private static int LastNonZero(byte[] codes)
+  {
+    for (int i = codes.Length - 1; i >= 0; i--)
+    {
+      if (codes[i] != 0)
+      {
+        return i;
+      }
+    }
+
+    return 0;
+  }
+
+  [TestMethod]
   public void Navigate_HomeEnd_MovesSelection()
   {
     using CalcExplorerSession session = CreateHp65Session();
@@ -462,5 +644,37 @@ public sealed class StudioProgramEditorTests
     int first = session.SelectedProgramStep;
     Assert.IsTrue(session.TryNavigateProgramSelection(StudioProgramNav.End));
     Assert.IsTrue(session.SelectedProgramStep > first);
+  }
+
+  [TestMethod]
+  public void Wprgm_ArrowNav_SetsCurrentLineAndLed()
+  {
+    using CalcExplorerSession session = CreateHp65Session();
+    Assert.IsTrue(session.TryApplyProgramCodes([1, 2, 3, 4, 5], out _), "seed");
+    session.ToggleProgramModeTo(true);
+    Assert.IsTrue(session.ProgramMode);
+
+    Assert.IsTrue(session.TryNavigateProgramSelection(StudioProgramNav.End));
+    int last = session.SelectedProgramStep;
+    string ledLast = session.DisplayText;
+
+    Assert.IsTrue(session.TryNavigateProgramSelection(StudioProgramNav.Up));
+    Assert.AreNotEqual(last, session.SelectedProgramStep);
+    Assert.AreNotEqual(ledLast, session.DisplayText, "Calc LED should follow current line in W/PRGM.");
+
+    Assert.IsTrue(session.TryNavigateProgramSelection(StudioProgramNav.Down));
+    Assert.AreEqual(last, session.SelectedProgramStep);
+  }
+
+  [TestMethod]
+  public void Wprgm_SelectEmptyLine_KeepsNopCurrent()
+  {
+    using CalcExplorerSession session = CreateHp65Session();
+    // Real ops with an intentional mid-program empty (NOP) row.
+    Assert.IsTrue(session.TryApplyProgramCodes([1, 0, 3], out _), "seed");
+    session.ToggleProgramModeTo(true);
+
+    Assert.IsTrue(session.TrySelectStudioProgramLine(2));
+    Assert.AreEqual(2, session.SelectedProgramStep, "Empty/NOP line must stay current in W/PRGM.");
   }
 }

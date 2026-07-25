@@ -338,6 +338,16 @@ public sealed class CalcExplorerSessionPanamatikTests
     CalcExplorerSession session = CreateSession();
     Warmup(session);
 
+    // Ensure Classic T-65 card-program path (Studio W/PRGM overwrite).
+    int hp65 = Array.FindIndex(session.Models, id => CalcModelIds.SameEngine(id, "T-65"));
+    Assert.IsTrue(hp65 >= 0);
+    session.LoadModel(hp65);
+    session.PowerOnResume();
+    for (int i = 0; i < 20; i++)
+    {
+      session.Tick(0.05f);
+    }
+
     session.ToggleProgramMode();
     for (int i = 0; i < 20; i++)
     {
@@ -346,13 +356,32 @@ public sealed class CalcExplorerSessionPanamatikTests
 
     Assert.IsTrue(session.ProgramMode);
     Assert.IsTrue(session.PowerOn);
+    Assert.IsTrue(session.SupportsCardProgram);
     Assert.IsNotNull(session.LastBatch.Display);
     Assert.IsTrue(session.DisplayText.Length > 0);
 
-    PressCharacter(session, LoadHp65Vocabulary(), '7');
+    ProgramVocabulary vocabulary = LoadHp65Vocabulary();
+    Assert.IsTrue(ClassicProgramInput.TryResolveKeyCode(vocabulary, '7', out byte keyCode7));
+
+    // Select the first user step (after PTR) so Studio overwrite has a clear target.
+    Assert.IsTrue(session.TryGetProgramListing(out IReadOnlyList<ClassicProgramLine> beforeLines));
+    int target = beforeLines.First(l =>
+      l.Code is not ClassicProgramCodes.Start
+        and not ClassicProgramCodes.Pointer
+        and not ClassicProgramCodes.Mark).Index;
+    Assert.IsTrue(session.TrySetProgramStartStep(target));
+
+    PressCharacter(session, vocabulary, '7');
 
     Assert.IsTrue(session.LastBatch.ProgramCounter > 0, "Panamatik program key entry should advance firmware state.");
-    Assert.IsTrue(session.DisplayText.Contains('7'), "Program-mode digit entry should update the Panamatik display.");
+    // Studio W/PRGM overwrites RAM (no MemoryInsert). Digit '7' is keycode 52 → museum LED "07".
+    Assert.IsTrue(
+      session.TryGetProgramListing(out IReadOnlyList<ClassicProgramLine> lines)
+      && lines.Any(l => l.Code == keyCode7),
+      "Program-mode digit entry should write the digit opcode into program RAM.");
+    Assert.IsTrue(
+      session.DisplayText.Contains('7'),
+      "Program-mode digit entry should update the faceplate LED (museum keycode).");
 
     Assert.IsTrue(session.PowerOn);
     Assert.IsTrue(session.ProgramMode);

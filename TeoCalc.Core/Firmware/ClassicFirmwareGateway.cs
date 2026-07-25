@@ -32,6 +32,11 @@ public sealed class ClassicFirmwareGateway : CalcFirmwareGatewayBase
     Cpu = cpu;
     _engineId = engineId;
     _programMode = false;
+    if (Cpu is not null)
+    {
+      Cpu.Program.OverwriteOnInsert = false;
+    }
+
     _ioStepsUntilNext = 0;
     ResetSessionState();
   }
@@ -71,6 +76,13 @@ public sealed class ClassicFirmwareGateway : CalcFirmwareGatewayBase
     }
 
     _programMode = programMode;
+    // Belt-and-suspenders: if any ROM path still hits MemoryInsert in W/PRGM, overwrite
+    // the current step instead of shifting/dropping the program tail.
+    if (Cpu is not null)
+    {
+      Cpu.Program.OverwriteOnInsert = programMode && SupportsCardProgram;
+    }
+
     RunInstructionBatch(KeyRunSteps);
   }
 
@@ -129,6 +141,18 @@ public sealed class ClassicFirmwareGateway : CalcFirmwareGatewayBase
 
   protected override void OnKeyDown(FirmwareKeyCommand key)
   {
+    // W/PRGM Studio owns program entry. Firmware MemoryInsert shifts RAM and drops the
+    // last byte — that looks like "everything below the cursor was deleted".
+    const byte sstKeyCode = 40;
+    const byte bspKeyCode = 56;
+    if (ProgramMode
+        && SupportsCardProgram
+        && key.KeyCode != sstKeyCode
+        && key.KeyCode != bspKeyCode)
+    {
+      return;
+    }
+
     Cpu!.State.Flags &= ~ClassicCpuFlags.DisplayOn;
     SetDisplayState(string.Empty, blankPulse: true);
     Cpu.PressKey(key.KeyCode);

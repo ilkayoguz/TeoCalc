@@ -112,22 +112,49 @@ public sealed class ClassicCpu : CpuBase
         State.Registers.ClearAll();
         break;
       case "ClassicCpu.MemoryInitialize":
-        Program.Initialize();
+        // W/PRGM Studio edit: ROM must not wipe user RAM (looks like "all lines below vanished").
+        if (!Program.OverwriteOnInsert)
+        {
+          Program.Initialize();
+        }
+
         break;
       case "ClassicCpu.MemoryInsert":
-        Program.InsertFromBuffer();
+        // Studio writes opcodes directly; ROM insert shifts/drops the tail.
+        if (!Program.OverwriteOnInsert)
+        {
+          Program.InsertFromBuffer();
+        }
+
         break;
       case "ClassicCpu.MemoryDelete":
-        Program.DeleteBeforePointer();
+        if (!Program.OverwriteOnInsert)
+        {
+          Program.DeleteBeforePointer();
+        }
+
         break;
       case "ClassicCpu.MarkAndSearch":
-        Program.MarkAndSearch();
+        if (!Program.OverwriteOnInsert)
+        {
+          Program.MarkAndSearch();
+        }
+
         break;
       case "ClassicCpu.SearchForLabel":
-        Program.SearchForLabel();
+        if (!Program.OverwriteOnInsert)
+        {
+          Program.SearchForLabel();
+        }
+
         break;
       case "ClassicCpu.PointerAdvance":
-        Program.AdvancePointer();
+        // Stay on the Studio line until ↑/↓ — ROM must not SST-advance after edits.
+        if (!Program.OverwriteOnInsert)
+        {
+          Program.AdvancePointer();
+        }
+
         break;
       case "ClassicCpu.MemoryFull":
         Program.ApplyMemoryFullToDisplay();

@@ -12,7 +12,8 @@ namespace TeoCalc.Rendering;
 /// F10 Step Over (Studio: Code row / FC box; else microcode),
 /// F11 Step Into (Studio: one keystroke / FC element; else microcode).
 /// Shift+F11 Step Out is unbound — gateway has no StepOut yet.
-/// Studio edit: Ins/Del, Home/End/PgUp/PgDn, clipboard, Undo/Redo, Ctrl+S / Ctrl+R.
+/// Studio edit: arrows (W/PRGM current line), Ins/Del, Home/End/PgUp/PgDn,
+/// clipboard, Undo/Redo, Ctrl+S / Ctrl+R.
 /// </summary>
 public static class CalcExplorerGlobalKeyboard
 {
@@ -100,6 +101,8 @@ public static class CalcExplorerGlobalKeyboard
 
     // Shift+F11 Step Out — not wired; ICalcFirmwareGateway has no StepOut.
   }
+
+  private static int s_studioNavFrame = -1;
 
   private static void UpdateStudioEditKeys(CalcExplorerSession session, bool ctrl, bool shift)
   {
@@ -244,6 +247,31 @@ public static class CalcExplorerGlobalKeyboard
       }
 
       session.StudioStatusMessage = string.Empty;
+      return;
+    }
+
+    if (!ctrl && !shift && ImGui.IsKeyPressed(ImGuiKey.UpArrow, repeat: true))
+    {
+      // One Studio row per frame — if Update is ever invoked twice, avoid skipping.
+      int frame = ImGui.GetFrameCount();
+      if (frame != s_studioNavFrame)
+      {
+        s_studioNavFrame = frame;
+        _ = session.TryNavigateProgramSelection(StudioProgramNav.Up);
+      }
+
+      return;
+    }
+
+    if (!ctrl && !shift && ImGui.IsKeyPressed(ImGuiKey.DownArrow, repeat: true))
+    {
+      int frame = ImGui.GetFrameCount();
+      if (frame != s_studioNavFrame)
+      {
+        s_studioNavFrame = frame;
+        _ = session.TryNavigateProgramSelection(StudioProgramNav.Down);
+      }
+
       return;
     }
 
