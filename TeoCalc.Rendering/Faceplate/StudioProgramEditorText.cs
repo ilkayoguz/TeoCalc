@@ -6,8 +6,8 @@ using TeoCalc.Formats;
 namespace TeoCalc.Rendering.Faceplate;
 
 /// <summary>
-/// Pure hydrate / parse helpers for Studio program text (clipboard / tests).
-/// W/PRGM authoring uses the shared Code listing + faceplate keys (not a separate editor pane).
+/// Pure hydrate / parse / dual-pane sync helpers for Studio program text
+/// (W/PRGM free-text editor, clipboard, tests).
 /// </summary>
 public static class StudioProgramEditorText
 {
@@ -309,6 +309,71 @@ public static class StudioProgramEditorText
       step.MachineA = a;
       step.MachineB = b;
     }
+  }
+
+  /// <summary>Rebuild Keys column from Machine lines (one EditorStep per line).</summary>
+  public static string SyncDocumentFromMachine(
+    string machineText,
+    string? modelId,
+    Func<byte, string> formatMnemonic)
+  {
+    ArgumentNullException.ThrowIfNull(formatMnemonic);
+    string[] lines = SplitLines(machineText);
+    StringBuilder keys = new();
+    for (int i = 0; i < lines.Length; i++)
+    {
+      if (i > 0)
+      {
+        keys.AppendLine();
+      }
+
+      string line = lines[i];
+      if (line.Length == 0)
+      {
+        continue;
+      }
+
+      EditorStep step = new();
+      SplitMuseum(line, out string a, out string b);
+      step.MachineA = a;
+      step.MachineB = b;
+      SyncFromMachine(step, modelId, formatMnemonic);
+      keys.Append(step.Keys);
+    }
+
+    return keys.ToString();
+  }
+
+  /// <summary>Rebuild Machine column from Keys lines (one EditorStep per line).</summary>
+  public static string SyncDocumentFromKeys(
+    string keysText,
+    string? modelId,
+    Func<string, byte?> resolveMnemonic,
+    Func<byte, string> formatMnemonic)
+  {
+    ArgumentNullException.ThrowIfNull(resolveMnemonic);
+    ArgumentNullException.ThrowIfNull(formatMnemonic);
+    string[] lines = SplitLines(keysText);
+    StringBuilder machine = new();
+    for (int i = 0; i < lines.Length; i++)
+    {
+      if (i > 0)
+      {
+        machine.AppendLine();
+      }
+
+      string line = lines[i];
+      if (line.Length == 0)
+      {
+        continue;
+      }
+
+      EditorStep step = new() { Keys = line };
+      SyncFromKeys(step, modelId, resolveMnemonic, formatMnemonic);
+      machine.Append(step.MachineLine);
+    }
+
+    return machine.ToString();
   }
 
   public static bool ShowSecondMachineBox(

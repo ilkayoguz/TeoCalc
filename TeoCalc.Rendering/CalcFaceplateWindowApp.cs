@@ -376,6 +376,7 @@ public sealed class CalcFaceplateHost : IDisposable
           | ImGuiWindowFlags.NoScrollWithMouse
           | ImGuiWindowFlags.NoBackground);
 
+        _session.PreferMicrocodeHotkeys = _sidePanelMode == CalcCapabilitySidePanelMode.Debug;
         CalcExplorerGlobalKeyboard.Update(_session);
 
         // Studio is T-65 / T-67 only — close if the loaded model lost card support.
@@ -434,7 +435,7 @@ public sealed class CalcFaceplateHost : IDisposable
             MathF.Max(1f, display.X - CalcBodyOffsetX - BandSide),
             contentHeight));
         HandleTitleAction(titleAction);
-        CalcSettingsModal.Draw();
+        CalcSettingsModal.Draw(_session);
         HandleFramelessChrome();
 
         ImGui.End();

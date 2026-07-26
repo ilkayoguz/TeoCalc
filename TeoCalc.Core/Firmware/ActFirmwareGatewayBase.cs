@@ -58,6 +58,41 @@ public abstract class ActFirmwareGatewayBase<TCpu> : CalcFirmwareGatewayBase
     return FirmwareDebugOpcodes.FromClassicStyle(r.A, r.B, r.C, r.Y, r.Z, r.T, r.M, r.N);
   }
 
+  public override bool TrySetDebugRegister(string name, string digitsHex, out string? error)
+  {
+    if (Cpu is null || !PowerOn)
+    {
+      error = "Power on required.";
+      return false;
+    }
+
+    ActRegisterFile r = Cpu.State.Registers;
+    return FirmwareDebugOpcodes.TryWriteNamedClassicRegister(
+      name,
+      digitsHex,
+      r.A,
+      r.B,
+      r.C,
+      r.Y,
+      r.Z,
+      r.T,
+      r.M,
+      r.N,
+      out error);
+  }
+
+  public override FirmwareCallStackSnapshot? TryGetCallStack()
+  {
+    if (Cpu is null)
+    {
+      return null;
+    }
+
+    return FirmwareCallStackSnapshot.FromHardware(
+      Cpu.State.ReturnStack,
+      Cpu.State.StackPointer);
+  }
+
   protected override void AppendFamilyDebugDump(StringBuilder text)
   {
     if (Cpu is null)

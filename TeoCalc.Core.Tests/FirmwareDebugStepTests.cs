@@ -86,4 +86,36 @@ public sealed class FirmwareDebugStepTests
 
     Assert.AreEqual(gateway.Cpu!.State.FetchAddress, gateway.LastBatch.ProgramCounter);
   }
+
+  [TestMethod]
+  public void StepOut_AfterJsb_StopsOnReturn()
+  {
+    ClassicFirmwareGateway gateway = (ClassicFirmwareGateway)CalcFirmwareGatewayLocator.CreateGateway("HP-65");
+    gateway.PowerOnResume();
+
+    int guard = 0;
+    while (guard++ < 100_000)
+    {
+      gateway.StepInto();
+      if (FirmwareDebugOpcodes.IsSubroutineCall(gateway.LastBatch.LastHandlerId))
+      {
+        break;
+      }
+    }
+
+    Assert.IsTrue(
+      FirmwareDebugOpcodes.IsSubroutineCall(gateway.LastBatch.LastHandlerId),
+      $"No JSB within guard; last={gateway.LastBatch.LastHandlerId}");
+    int savedPc = gateway.Cpu!.State.ReturnStack[0];
+    int afterEnter = gateway.LastBatch.StepCount;
+
+    gateway.StepOut();
+
+    Assert.IsTrue(gateway.ExecutionPaused);
+    Assert.IsTrue(gateway.LastBatch.StepCount > afterEnter);
+    Assert.IsTrue(
+      FirmwareDebugOpcodes.IsReturn(gateway.LastBatch.LastHandlerId),
+      gateway.LastBatch.LastHandlerId);
+    Assert.AreEqual(savedPc, gateway.Cpu.State.ProgramCounter);
+  }
 }

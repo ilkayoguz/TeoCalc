@@ -66,6 +66,12 @@ public interface ICalcFirmwareGateway
   /// </summary>
   void StepOver(int maxInstructions = 50_000);
 
+  /// <summary>
+  /// Run until the current subroutine returns (net one Return), then pause.
+  /// Nested JSB/Return pairs are tracked by depth.
+  /// </summary>
+  void StepOut(int maxInstructions = 50_000);
+
   /// <summary>Resume timer-driven execution after a break / step.</summary>
   void ContinueExecution();
 
@@ -74,6 +80,15 @@ public interface ICalcFirmwareGateway
 
   /// <summary>Working register digests when the native CPU exposes them; otherwise null.</summary>
   FirmwareDebugRegisters? TryGetDebugRegisters();
+
+  /// <summary>
+  /// Write one working register from a hex digest (same format as <see cref="FirmwareRegisterDigest.DigitsHex"/>).
+  /// Returns false when unsupported or parse fails.
+  /// </summary>
+  bool TrySetDebugRegister(string name, string digitsHex, out string? error);
+
+  /// <summary>Hardware return-stack slots when the CPU exposes them; otherwise null.</summary>
+  FirmwareCallStackSnapshot? TryGetCallStack();
 
   void KeyDown(FirmwareKeyCommand key);
 

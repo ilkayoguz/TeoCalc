@@ -61,6 +61,39 @@ public sealed class Teo01FirmwareGateway : CalcFirmwareGatewayBase
     return FirmwareDebugOpcodes.FromClassicStyle(s.A, s.B, s.C, s.Y, s.Z, s.T, s.M);
   }
 
+  public override bool TrySetDebugRegister(string name, string digitsHex, out string? error)
+  {
+    if (Cpu is null || !PowerOn)
+    {
+      error = "Power on required.";
+      return false;
+    }
+
+    Teo01CpuState s = Cpu.State;
+    return FirmwareDebugOpcodes.TryWriteNamedClassicRegister(
+      name,
+      digitsHex,
+      s.A,
+      s.B,
+      s.C,
+      s.Y,
+      s.Z,
+      s.T,
+      s.M,
+      n: null,
+      out error);
+  }
+
+  public override FirmwareCallStackSnapshot? TryGetCallStack()
+  {
+    if (Cpu is null)
+    {
+      return null;
+    }
+
+    return FirmwareCallStackSnapshot.FromHardware(Cpu.State.Stack, Cpu.State.Sp);
+  }
+
   protected override void AppendFamilyDebugDump(StringBuilder text)
   {
     if (Cpu is null)

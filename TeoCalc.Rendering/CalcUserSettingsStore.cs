@@ -24,6 +24,35 @@ public static class CalcUserSettingsStore
   public static void SaveAppThemePreference(AppThemePreference preference) =>
     Update(settings => settings.Display.AppTheme = FormatAppThemePreference(preference));
 
+  public static string LoadActiveSessionProfileId() =>
+    TryRead(
+      () => string.IsNullOrWhiteSpace(_cache!.Session.ActiveProfileId)
+        ? CalcSessionProfile.StandardId
+        : _cache.Session.ActiveProfileId.Trim(),
+      CalcSessionProfile.StandardId);
+
+  public static void SaveActiveSessionProfileId(string profileId) =>
+    Update(settings => settings.Session.ActiveProfileId = profileId);
+
+  public static IReadOnlyList<CalcSessionProfile> LoadCustomSessionProfiles() =>
+    TryRead(
+      () => (IReadOnlyList<CalcSessionProfile>)_cache!.Session.CustomProfiles
+        .Select(FromDto)
+        .Where(p => !string.IsNullOrWhiteSpace(p.Id) && !string.IsNullOrWhiteSpace(p.Name))
+        .ToList(),
+      Array.Empty<CalcSessionProfile>());
+
+  public static void SaveCustomSessionProfiles(IEnumerable<CalcSessionProfile> profiles) =>
+    Update(settings =>
+    {
+      settings.Session.CustomProfiles =
+      [
+        .. profiles
+          .Where(p => !p.IsBuiltIn)
+          .Select(ToDto),
+      ];
+    });
+
   public static string SettingsPath()
   {
     string directory = Path.Combine(
@@ -47,6 +76,25 @@ public static class CalcUserSettingsStore
     AppThemePreference.Dark => "Dark",
     _ => "System",
   };
+
+  private static CalcSessionProfile FromDto(SessionProfileDto dto) =>
+    new()
+    {
+      Id = dto.Id?.Trim() ?? "",
+      Name = dto.Name?.Trim() ?? "",
+      ExecutionSpeedIndex = Math.Clamp(dto.ExecutionSpeedIndex, 0, CalcExplorerSession.ExecutionSpeedStepCount - 1),
+      ControlExecutionSpeed = dto.ControlExecutionSpeed,
+      IsBuiltIn = false,
+    };
+
+  private static SessionProfileDto ToDto(CalcSessionProfile profile) =>
+    new()
+    {
+      Id = profile.Id,
+      Name = profile.Name,
+      ExecutionSpeedIndex = profile.ExecutionSpeedIndex,
+      ControlExecutionSpeed = profile.ControlExecutionSpeed,
+    };
 
   private static void Update(Action<UserSettingsDocument> edit)
   {
@@ -111,10 +159,30 @@ public static class CalcUserSettingsStore
   private sealed class UserSettingsDocument
   {
     public DisplaySettings Display { get; set; } = new();
+
+    public SessionSettings Session { get; set; } = new();
   }
 
   private sealed class DisplaySettings
   {
     public string AppTheme { get; set; } = "System";
+  }
+
+  private sealed class SessionSettings
+  {
+    public string ActiveProfileId { get; set; } = CalcSessionProfile.StandardId;
+
+    public List<SessionProfileDto> CustomProfiles { get; set; } = [];
+  }
+
+  private sealed class SessionProfileDto
+  {
+    public string? Id { get; set; }
+
+    public string? Name { get; set; }
+
+    public int ExecutionSpeedIndex { get; set; } = 2;
+
+    public bool ControlExecutionSpeed { get; set; } = true;
   }
 }

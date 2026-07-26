@@ -60,4 +60,13 @@ public sealed class AppThemeSettingsTests
       CalcAppTheme.SetPreference(prior);
     }
   }
+
+  [TestMethod]
+  public void DebugChrome_PcRowUsesThemeNotHardcodedPurple()
+  {
+    CalcAppTheme.Initialize(AppThemePreference.Dark);
+    uint pc = CalcDebugChrome.PcRowBackColor();
+    Assert.AreNotEqual(0u, pc);
+    Assert.AreNotEqual(0x5540A0FFu, pc);
+  }
 }

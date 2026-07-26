@@ -9,9 +9,8 @@ namespace TeoCalc.Rendering;
 /// F5 Continue, Shift+F5 Stop Debugging (leave pause / resume),
 /// F6 Break (pause; VS Break All is Ctrl+Alt+Break — awkward),
 /// F9 Toggle Studio breakpoint at selection / PTR,
-/// F10 Step Over (Studio: Code row / FC box; else microcode),
-/// F11 Step Into (Studio: one keystroke / FC element; else microcode).
-/// Shift+F11 Step Out is unbound — gateway has no StepOut yet.
+/// F10/F11: Studio grain when card program + Debug closed; microcode when Debug
+/// open, no card program, or Ctrl held. Shift+F11 = microcode Step Out.
 /// Studio edit: arrows (W/PRGM current line), Ins/Del, Home/End/PgUp/PgDn,
 /// clipboard, Undo/Redo, Ctrl+S / Ctrl+R.
 /// </summary>
@@ -71,17 +70,36 @@ public static class CalcExplorerGlobalKeyboard
       bool added = session.ToggleStudioBreakpointAtSelection();
       session.StudioStatusMessage = added
         ? $"Breakpoint + step {session.SelectedProgramStep}"
-        : $"Breakpoint − step {session.SelectedProgramStep}";
+        : $"Breakpoint - step {session.SelectedProgramStep}";
     }
 
     if (!shift && ImGui.IsKeyPressed(ImGuiKey.F10, repeat: true))
     {
-      session.StepOver();
+      if (ctrl)
+      {
+        session.StepMicrocodeOver();
+      }
+      else
+      {
+        session.StepOver();
+      }
     }
 
     if (!shift && ImGui.IsKeyPressed(ImGuiKey.F11, repeat: true))
     {
-      session.StepInto();
+      if (ctrl)
+      {
+        session.StepMicrocodeInto();
+      }
+      else
+      {
+        session.StepInto();
+      }
+    }
+
+    if (shift && !ctrl && ImGui.IsKeyPressed(ImGuiKey.F11, repeat: true))
+    {
+      session.StepMicrocodeOut();
     }
 
     if (ImGui.IsKeyPressed(ImGuiKey.LeftBracket, repeat: true))
@@ -98,8 +116,6 @@ public static class CalcExplorerGlobalKeyboard
     {
       UpdateStudioEditKeys(session, ctrl, shift);
     }
-
-    // Shift+F11 Step Out — not wired; ICalcFirmwareGateway has no StepOut.
   }
 
   private static int s_studioNavFrame = -1;

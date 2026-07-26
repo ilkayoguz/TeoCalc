@@ -100,6 +100,15 @@ public static class CalcFaceplateKeyboard
         continue;
       }
 
+      // W/PRGM Studio owns Delete / Backspace (DEL line / BSP). Faceplate BSP would
+      // SyncStudioToPointer and yank the Code selection to the PTR row (often row 1).
+      if (session.ProgramMode
+          && session.SupportsCardProgram
+          && binding.Key is ImGuiKey.Delete or ImGuiKey.Backspace)
+      {
+        continue;
+      }
+
       if (TryGetKeyCode(vocabulary, binding.KeyChartIndex, out byte keyCode))
       {
         session.PressKey(binding.KeyChartIndex, keyCode);
@@ -110,6 +119,13 @@ public static class CalcFaceplateKeyboard
     foreach (KeyBinding binding in Bindings)
     {
       if (!IsHeld(binding))
+      {
+        continue;
+      }
+
+      if (session.ProgramMode
+          && session.SupportsCardProgram
+          && binding.Key is ImGuiKey.Delete or ImGuiKey.Backspace)
       {
         continue;
       }

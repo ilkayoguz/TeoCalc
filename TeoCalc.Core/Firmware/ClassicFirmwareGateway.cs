@@ -100,6 +100,40 @@ public sealed class ClassicFirmwareGateway : CalcFirmwareGatewayBase
     return FirmwareDebugOpcodes.FromClassicStyle(r.A, r.B, r.C, r.Y, r.Z, r.T, r.M);
   }
 
+  public override bool TrySetDebugRegister(string name, string digitsHex, out string? error)
+  {
+    if (Cpu is null || !PowerOn)
+    {
+      error = "Power on required.";
+      return false;
+    }
+
+    ClassicRegisterFile r = Cpu.State.Registers;
+    return FirmwareDebugOpcodes.TryWriteNamedClassicRegister(
+      name,
+      digitsHex,
+      r.A,
+      r.B,
+      r.C,
+      r.Y,
+      r.Z,
+      r.T,
+      r.M,
+      n: null,
+      out error);
+  }
+
+  public override FirmwareCallStackSnapshot? TryGetCallStack()
+  {
+    if (Cpu is null)
+    {
+      return null;
+    }
+
+    // Classic JSB/Return in this port use Ret0 only; Ret1 is still shown as hardware slot.
+    return FirmwareCallStackSnapshot.FromHardware(Cpu.State.ReturnStack);
+  }
+
   protected override void AppendFamilyDebugDump(StringBuilder text)
   {
     if (Cpu is null)

@@ -21,6 +21,10 @@ public sealed class TeoCardDocument
   [JsonPropertyName("InteropMagic")]
   public string? InteropMagic { get; init; }
 
+  /// <summary>Optional soft device-profile id (card text <c>Profile</c>).</summary>
+  [JsonPropertyName("Profile")]
+  public string? Profile { get; init; }
+
   [JsonPropertyName("Title")]
   public string? Title { get; init; }
 
@@ -35,6 +39,9 @@ public sealed class TeoCardDocument
 
   [JsonPropertyName("RunHint")]
   public string? RunHint { get; init; }
+
+  [JsonPropertyName("Author")]
+  public string? Author { get; init; }
 
   [JsonPropertyName("Labels")]
   public List<string> Labels { get; init; } = [];

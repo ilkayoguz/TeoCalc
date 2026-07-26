@@ -84,12 +84,12 @@ public static class CalcCardFilePicker
     ImGui.TextUnformatted("Load card");
     ImGui.Separator();
 
-    float folderW = ImGui.CalcTextSize("Folder…").X + ImGui.GetStyle().FramePadding.X * 2f + 8f;
+    float folderW = ImGui.CalcTextSize("Folder...").X + ImGui.GetStyle().FramePadding.X * 2f + 8f;
     ImGui.SetNextItemWidth(MathF.Max(80f, ImGui.GetContentRegionAvail().X - folderW - ImGui.GetStyle().ItemSpacing.X));
     string pathDisplay = s_directory;
     ImGui.InputText("##picker-dir", ref pathDisplay, 1024, ImGuiInputTextFlags.ReadOnly);
     ImGui.SameLine();
-    if (ImGui.Button("Folder…"))
+    if (ImGui.Button("Folder..."))
     {
       if (CalcNativeFileDialog.TryPickFolder(s_directory, out string folder)
           && !string.IsNullOrWhiteSpace(folder)

@@ -153,6 +153,12 @@ public sealed class EmulatorFirmwareGateway : ICalcFirmwareGateway, IDisposable
     StepInto();
   }
 
+  public void StepOut(int maxInstructions = 50_000)
+  {
+    _ = maxInstructions;
+    StepInto();
+  }
+
   public void ContinueExecution() =>
     ExecutionPaused = false;
 
@@ -168,6 +174,16 @@ public sealed class EmulatorFirmwareGateway : ICalcFirmwareGateway, IDisposable
   }
 
   public FirmwareDebugRegisters? TryGetDebugRegisters() => null;
+
+  public bool TrySetDebugRegister(string name, string digitsHex, out string? error)
+  {
+    _ = name;
+    _ = digitsHex;
+    error = "Register write requires native firmware gateway.";
+    return false;
+  }
+
+  public FirmwareCallStackSnapshot? TryGetCallStack() => null;
 
   public void KeyDown(FirmwareKeyCommand key)
   {

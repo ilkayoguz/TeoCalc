@@ -109,11 +109,33 @@ public static class CalcCardPanelComponent
     }
     else
     {
-      ImGui.TextDisabled($".t65/.t67 · Export CuveSoft/Teo ({ext})");
+      ImGui.TextDisabled($".t65/.t67 | Export CuveSoft/Teo ({ext})");
     }
 
     if (cardInserted && loadedTeoCard is not null)
     {
+      if (!string.IsNullOrWhiteSpace(loadedTeoCard.Author)
+          || !string.IsNullOrWhiteSpace(loadedTeoCard.Category))
+      {
+        ImGui.Spacing();
+        if (!string.IsNullOrWhiteSpace(loadedTeoCard.Category))
+        {
+          ImGui.TextDisabled(loadedTeoCard.Category);
+        }
+
+        if (!string.IsNullOrWhiteSpace(loadedTeoCard.Author))
+        {
+          if (!string.IsNullOrWhiteSpace(loadedTeoCard.Category))
+          {
+            ImGui.SameLine();
+            ImGui.TextDisabled("|");
+            ImGui.SameLine();
+          }
+
+          ImGui.TextDisabled(loadedTeoCard.Author);
+        }
+      }
+
       if (!string.IsNullOrWhiteSpace(loadedTeoCard.Description))
       {
         ImGui.Spacing();
@@ -252,7 +274,7 @@ public static class CalcCardPanelComponent
 
     ImGui.Spacing();
     ImGui.TextDisabled(
-      $"Save: .t65/.t67 · Export: CuveSoft (.xml) / Teo (.json) · Import: .xml/.json/.plist ({programCapacity} steps)");
+      $"Save: .t65/.t67 | Export: CuveSoft (.xml) / Teo (.json) | Import: .xml/.json/.plist ({programCapacity} steps)");
     if (!cardInserted)
     {
       ImGui.TextWrapped("After Load (RUN): use Run hint above or RCL for DATA constants.");

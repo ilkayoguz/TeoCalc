@@ -60,6 +60,9 @@ public static class CalcStudioPanelComponent
   private static bool s_focusFind;
   private static bool s_requestStudioSaveFromKeyboard;
 
+  /// <summary>0 = Code|FC, 1 = Text, 2 = ROM, 3 = Docs, 4 = Card.</summary>
+  private static int s_studioMainTab;
+
   /// <summary>High-water Code column widths so a single edit does not shrink the Code|FC split.</summary>
   private static CodeTableWidths s_codeWidthFloor;
   private static string s_codeWidthFloorKey = string.Empty;
@@ -117,7 +120,7 @@ public static class CalcStudioPanelComponent
     ImGui.TextUnformatted("STUDIO");
     ImGui.TextDisabled(
       session.SupportsCardProgram
-        ? "Machine | Keys | Legend | Flowchart"
+        ? "Code | Text | ROM | Docs | Card"
         : "Program memory not available");
     ImGui.Separator();
 
@@ -140,6 +143,48 @@ public static class CalcStudioPanelComponent
 
     ImGui.Separator();
 
+    if (session.SupportsCardProgram)
+    {
+      if (ImGui.BeginTabBar("##studio-main-tabs", ImGuiTabBarFlags.None))
+      {
+        if (ImGui.BeginTabItem("Code"))
+        {
+          s_studioMainTab = 0;
+          ImGui.EndTabItem();
+        }
+
+        if (ImGui.BeginTabItem(StudioDualTextEditor.IsDirty ? "Text*" : "Text"))
+        {
+          s_studioMainTab = 1;
+          ImGui.EndTabItem();
+        }
+
+        if (ImGui.BeginTabItem("ROM"))
+        {
+          s_studioMainTab = 2;
+          ImGui.EndTabItem();
+        }
+
+        if (ImGui.BeginTabItem("Docs"))
+        {
+          s_studioMainTab = 3;
+          ImGui.EndTabItem();
+        }
+
+        if (ImGui.BeginTabItem(session.IsCardMetadataDirty ? "Card*" : "Card"))
+        {
+          s_studioMainTab = 4;
+          ImGui.EndTabItem();
+        }
+
+        ImGui.EndTabBar();
+      }
+    }
+    else
+    {
+      s_studioMainTab = 0;
+    }
+
     Vector2 avail = ImGui.GetContentRegionAvail();
     IReadOnlyList<StudioListingView.Row>? rows = null;
     if (session.TryGetProgramListing(out IReadOnlyList<ClassicProgramLine> lines) && lines.Count > 0)
@@ -152,6 +197,90 @@ public static class CalcStudioPanelComponent
     float height = MathF.Max(80f, avail.Y - footerH);
     Vector2 panesOrigin = ImGui.GetCursorScreenPos();
 
+    if (s_studioMainTab == 4 && session.SupportsCardProgram)
+    {
+      if (ImGui.BeginChild(
+            "##studio-card-info",
+            new Vector2(avail.X, height),
+            ImGuiChildFlags.Border,
+            ImGuiWindowFlags.None))
+      {
+        StudioCardInfoPane.Draw(session);
+      }
+
+      ImGui.EndChild();
+      StudioPaneSync.EndFrame();
+      ImGui.SetCursorScreenPos(new Vector2(panesOrigin.X, panesOrigin.Y + height));
+      DrawProgramStatusFooter(session, rows, avail.X);
+      ImGui.SetCursorScreenPos(panesOrigin + new Vector2(0f, avail.Y));
+      ImGui.Dummy(new Vector2(1f, 1f));
+      return;
+    }
+
+    if (s_studioMainTab == 3 && session.SupportsCardProgram)
+    {
+      if (ImGui.BeginChild(
+            "##studio-docs",
+            new Vector2(avail.X, height),
+            ImGuiChildFlags.Border,
+            ImGuiWindowFlags.None))
+      {
+        StudioDocsPane.Draw(session);
+      }
+
+      ImGui.EndChild();
+      StudioPaneSync.EndFrame();
+      ImGui.SetCursorScreenPos(new Vector2(panesOrigin.X, panesOrigin.Y + height));
+      DrawProgramStatusFooter(session, rows, avail.X);
+      ImGui.SetCursorScreenPos(panesOrigin + new Vector2(0f, avail.Y));
+      ImGui.Dummy(new Vector2(1f, 1f));
+      return;
+    }
+
+    if (s_studioMainTab == 2 && session.SupportsCardProgram)
+    {
+      if (ImGui.BeginChild(
+            "##studio-rom",
+            new Vector2(avail.X, height),
+            ImGuiChildFlags.Border,
+            ImGuiWindowFlags.None))
+      {
+        ImGui.TextUnformatted("ROM");
+        ImGui.TextDisabled("Microcode around PC | same watch as Debug | Follow keeps scroll on fetch.");
+        ImGui.Spacing();
+        float romH = MathF.Max(80f, ImGui.GetContentRegionAvail().Y);
+        CalcRomWatchPane.Draw(session, height: romH, showTitle: false);
+      }
+
+      ImGui.EndChild();
+      StudioPaneSync.EndFrame();
+      ImGui.SetCursorScreenPos(new Vector2(panesOrigin.X, panesOrigin.Y + height));
+      DrawProgramStatusFooter(session, rows, avail.X);
+      ImGui.SetCursorScreenPos(panesOrigin + new Vector2(0f, avail.Y));
+      ImGui.Dummy(new Vector2(1f, 1f));
+      return;
+    }
+
+    if (s_studioMainTab == 1 && session.SupportsCardProgram)
+    {
+      if (ImGui.BeginChild(
+            "##studio-dual-text",
+            new Vector2(avail.X, height),
+            ImGuiChildFlags.Border,
+            ImGuiWindowFlags.None))
+      {
+        StudioDualTextEditor.Draw(session);
+      }
+
+      ImGui.EndChild();
+      StudioPaneSync.EndFrame();
+      ImGui.SetCursorScreenPos(new Vector2(panesOrigin.X, panesOrigin.Y + height));
+      DrawProgramStatusFooter(session, rows, avail.X);
+      ImGui.SetCursorScreenPos(panesOrigin + new Vector2(0f, avail.Y));
+      ImGui.Dummy(new Vector2(1f, 1f));
+      return;
+    }
+
     StudioMnemonicPaint.PushListingScale();
     CodeTableWidths widths = StabilizeCodeTableWidths(
       MeasureCodeTableWidths(
@@ -162,8 +291,8 @@ public static class CalcStudioPanelComponent
     StudioMnemonicPaint.PopListingScale();
 
     // Code pane = content-sized table (no stretch-fill). Remaining width goes to Flowchart.
-    float codeWidth = MeasureCodePaneWidth(widths);
     float gap = ImGui.GetStyle().ItemSpacing.X;
+    float codeWidth = MeasureCodePaneWidth(widths);
     float fcWidth = MathF.Max(160f, avail.X - codeWidth - gap);
     if (codeWidth + fcWidth + gap > avail.X && avail.X > 200f)
     {
@@ -243,7 +372,7 @@ public static class CalcStudioPanelComponent
     {
       CalcStudioChromeStyle.PushPrimary();
       ImGui.PushFont(CalcFaceplateFonts.Arial);
-      if (ImGui.Button("Browse\u2026"))
+      if (ImGui.Button("Browse..."))
       {
         string? initialDir = Path.GetDirectoryName(cardPathBuffer.Trim());
         if (string.IsNullOrWhiteSpace(initialDir) || !Directory.Exists(initialDir))
@@ -281,8 +410,8 @@ public static class CalcStudioPanelComponent
         {
           CalcAppTooltip.Set(
             session.ProgramMode
-              ? "Write program RAM to the card file (W/PRGM). Ctrl+S · Power F2 · PRGM F4"
-              : "Write unsaved program RAM to the card file. Ctrl+S · Power F2 · PRGM F4");
+              ? "Write program RAM to the card file (W/PRGM). Ctrl+S | Power F2 | PRGM F4"
+              : "Write unsaved program RAM to the card file. Ctrl+S | Power F2 | PRGM F4");
         }
       }
       if (cardInserted && onEjectCard is not null)
@@ -332,15 +461,13 @@ public static class CalcStudioPanelComponent
     ImGui.SameLine();
     DrawClipboardAndStartButtons(session);
 
+    // Right-align transport when it fits; otherwise wrap to the next line (never
+    // SameLine-pack into the Find controls — that overlaps on narrow Studio strips).
     float transportW = MeasureCompactDebugTransportWidth(session);
     float rightX = ImGui.GetWindowContentRegionMax().X - transportW;
     if (rightX > ImGui.GetCursorPosX() + 12f)
     {
       ImGui.SameLine(rightX);
-    }
-    else
-    {
-      ImGui.SameLine();
     }
 
     DrawCompactDebugTransport(session);
@@ -418,7 +545,7 @@ public static class CalcStudioPanelComponent
         && session.SelectedProgramStep >= 0
         && session.TrySetProgramStartStep(session.SelectedProgramStep))
     {
-      ShowStatusBalloon($"Start → step {session.SelectedProgramStep}");
+      ShowStatusBalloon($"Start -> step {session.SelectedProgramStep}");
       StudioPaneSync.FollowPointer(session.SelectedProgramStep);
     }
 
@@ -543,7 +670,7 @@ public static class CalcStudioPanelComponent
 
       s_findMatchRow = i;
       stepIndex = rows[i].Index;
-      status = $"Find → #{StudioListingView.DisplayStepNumber(rows, i)} {rows[i].DisplayMnemonic}";
+      status = $"Find -> #{StudioListingView.DisplayStepNumber(rows, i)} {rows[i].DisplayMnemonic}";
       return true;
     }
 
@@ -571,16 +698,18 @@ public static class CalcStudioPanelComponent
 
   private static float MeasureCompactDebugTransportWidth(Session session)
   {
-    // − 1× + | Break Cont Step Over + PC status — approximate for right-align.
-    float pad = ImGui.GetStyle().ItemSpacing.X;
-    float w = ImGui.CalcTextSize("−").X + 16f
+    // Match SmallButton chrome so right-align does not undershoot and overlap Find.
+    ImGuiStylePtr style = ImGui.GetStyle();
+    float pad = style.ItemSpacing.X;
+    float frame = style.FramePadding.X * 2f;
+    float w = ImGui.CalcTextSize("-").X + frame
       + pad + ImGui.CalcTextSize(session.ExecutionSpeedLabel).X
-      + pad + ImGui.CalcTextSize("+").X + 16f
+      + pad + ImGui.CalcTextSize("+").X + frame
       + pad + ImGui.CalcTextSize("|").X
-      + pad + ImGui.CalcTextSize("Break").X + 16f
-      + pad + ImGui.CalcTextSize("Cont").X + 16f
-      + pad + ImGui.CalcTextSize("Step").X + 16f
-      + pad + ImGui.CalcTextSize("Over").X + 16f;
+      + pad + ImGui.CalcTextSize("Break").X + frame
+      + pad + ImGui.CalcTextSize("Cont").X + frame
+      + pad + ImGui.CalcTextSize("Step").X + frame
+      + pad + ImGui.CalcTextSize("Over").X + frame;
     FirmwareBatchSnapshot batch = session.LastBatch;
     string status =
       $"PC={batch.ProgramCounter:X4}  steps={batch.StepCount}  {(session.ExecutionPaused ? "PAUSED" : "RUN")}";
@@ -786,7 +915,7 @@ public static class CalcStudioPanelComponent
 
     ImGui.SameLine();
     CalcAppDialogStyle.PushNeutral();
-    if (ImGui.Button("Save As\u2026", new Vector2(100f, 0f)))
+    if (ImGui.Button("Save As...", new Vector2(100f, 0f)))
     {
       session.CancelStudioSaveConfirm();
       ImGui.CloseCurrentPopup();
@@ -951,7 +1080,7 @@ public static class CalcStudioPanelComponent
 
   private static void DrawCompactDebugTransport(Session session)
   {
-    if (ImGui.SmallButton("−##speed-down"))
+    if (ImGui.SmallButton("-##speed-down"))
     {
       session.NudgeExecutionSpeed(-1);
     }
@@ -1019,7 +1148,7 @@ public static class CalcStudioPanelComponent
     if (ImGui.IsItemHovered())
     {
       CalcAppTooltip.Set(
-        "F11: one keystroke / one FC element (AdvancePointer). RTN’den sonra → LBL.");
+        "F11: one keystroke / one FC element (AdvancePointer). After RTN -> LBL.");
     }
 
     ImGui.SameLine();
@@ -1045,7 +1174,7 @@ public static class CalcStudioPanelComponent
     if (ImGui.IsItemHovered())
     {
       CalcAppTooltip.Set(
-        "F5 Cont  Shift+F5 Stop  F6 Break  F9 Breakpoint  F10 row/box  F11 key  |  [ ] speed  |  Microcode: title-bar Debug");
+        "F5 Cont  Shift+F5 Stop  F6 Break  F9 Breakpoint  F10 row/box  F11 key  |  [ ] speed  |  Debug panel / Ctrl+F10/F11 = microcode");
     }
   }
 
@@ -1099,7 +1228,7 @@ public static class CalcStudioPanelComponent
     }
 
     IReadOnlyList<StudioListingView.Row> rows = session.BuildStudioListingRows(lines);
-    int pointerHighlight = StudioListingView.ResolvePointerHighlightIndex(lines, rows);
+    int pointerHighlight = ResolveCurrentLineMarker(session, lines, rows);
     string modelId = session.EngineModelId;
     IReadOnlyList<string>? stripCaptions = session.CardStripLabels;
 
@@ -1241,7 +1370,7 @@ public static class CalcStudioPanelComponent
             {
               if (session.TrySetProgramStartStep(row.Index))
               {
-                ShowStatusBalloon($"PTR → step {session.SelectedProgramStep}");
+                ShowStatusBalloon($"PTR -> step {session.SelectedProgramStep}");
                 StudioPaneSync.FollowPointer(session.SelectedProgramStep);
               }
             }
@@ -1261,7 +1390,7 @@ public static class CalcStudioPanelComponent
               && s_codeContextStep >= 0
               && session.TrySetProgramStartStep(s_codeContextStep))
           {
-            ShowStatusBalloon($"Start → step {s_codeContextStep}");
+            ShowStatusBalloon($"Start -> step {s_codeContextStep}");
             StudioPaneSync.FollowPointer(s_codeContextStep);
           }
 
@@ -1274,7 +1403,7 @@ public static class CalcStudioPanelComponent
               ShowStatusBalloon(
                 added
                   ? $"Breakpoint + step {s_codeContextStep}"
-                  : $"Breakpoint − step {s_codeContextStep}");
+                  : $"Breakpoint - step {s_codeContextStep}");
             }
           }
 
@@ -1356,13 +1485,13 @@ public static class CalcStudioPanelComponent
       : 0;
     ImGui.TextDisabled("Lines");
     ImGui.SameLine();
-    ImGui.TextUnformatted(totalLines > 0 ? totalLines.ToString() : "—");
+    ImGui.TextUnformatted(totalLines > 0 ? totalLines.ToString() : "-");
 
     ImGui.Spacing();
     ImGui.TextDisabled("Data");
     ImGui.SameLine();
     ImGui.PushFont(CalcFaceplateFonts.Arial);
-    if (ImGui.SmallButton("Edit\u2026"))
+    if (ImGui.SmallButton("Edit..."))
     {
       if (session.TryGetLiveRegisters(out IReadOnlyList<double> regs))
       {
@@ -1550,6 +1679,29 @@ public static class CalcStudioPanelComponent
     }
 
     return -1;
+  }
+
+  /// <summary>
+  /// Studio ▶ / FC pointer marker: W/PRGM follows the edit cursor (no SeekPointer on
+  /// ↑/↓); RUN follows Classic PTR in RAM.
+  /// </summary>
+  private static int ResolveCurrentLineMarker(
+    Session session,
+    IReadOnlyList<ClassicProgramLine> lines,
+    IReadOnlyList<StudioListingView.Row> rows)
+  {
+    if (session.ProgramMode && session.SelectedProgramStep >= 0 && rows.Count > 0)
+    {
+      int rowIndex = FindRowForStep(rows, session.SelectedProgramStep);
+      if (rowIndex >= 0)
+      {
+        return rows[rowIndex].Index;
+      }
+
+      return session.SelectedProgramStep;
+    }
+
+    return StudioListingView.ResolvePointerHighlightIndex(lines, rows);
   }
 
   /// <summary>Align the code table so <paramref name="step"/> is visible (no yank if already on screen).</summary>
@@ -1742,7 +1894,7 @@ public static class CalcStudioPanelComponent
       return;
     }
 
-    int pointerHighlight = StudioListingView.ResolvePointerHighlightIndex(lines, rows);
+    int pointerHighlight = ResolveCurrentLineMarker(session, lines, rows);
     StudioMnemonicPaint.PushListingScale();
     ImGui.PushStyleColor(ImGuiCol.ChildBg, StudioMnemonicPaint.CodePaneBg);
     ImGui.PushStyleColor(ImGuiCol.Text, StudioMnemonicPaint.DefaultInk);

@@ -168,6 +168,31 @@ public static class Teo67CardProgramIo
     return $"#{code}";
   }
 
+  /// <summary>Distinct non-empty program mnemonics for Studio Text completions.</summary>
+  public static IReadOnlyList<string> EnumerateMnemonics()
+  {
+    List<string> list = [];
+    HashSet<string> seen = new(StringComparer.OrdinalIgnoreCase);
+    for (int i = 0; i < Mnemonics.Length; i++)
+    {
+      string mnemonic = Mnemonics[i];
+      if (string.IsNullOrWhiteSpace(mnemonic)
+          || mnemonic.StartsWith('#')
+          || string.Equals(mnemonic, "PTR", StringComparison.OrdinalIgnoreCase))
+      {
+        continue;
+      }
+
+      if (seen.Add(mnemonic))
+      {
+        list.Add(mnemonic);
+      }
+    }
+
+    list.Sort(StringComparer.OrdinalIgnoreCase);
+    return list;
+  }
+
   public static byte? ResolveMnemonic(string mnemonic)
   {
     if (string.IsNullOrWhiteSpace(mnemonic))

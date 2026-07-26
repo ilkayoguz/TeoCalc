@@ -163,6 +163,33 @@ public abstract class CalcFirmwareGatewayBase : ICalcFirmwareGateway
     }
   }
 
+  /// <summary>
+  /// Exit the current call frame: keep stepping until a net Return brings depth to 0.
+  /// </summary>
+  public virtual void StepOut(int maxInstructions = 50_000)
+  {
+    if (!CanRunBatch())
+    {
+      return;
+    }
+
+    ExecutionPaused = true;
+    int depth = 1;
+    int guard = 0;
+    while (depth > 0 && guard++ < maxInstructions && CanRunBatch())
+    {
+      RunInstructionBatch(1);
+      if (FirmwareDebugOpcodes.IsSubroutineCall(LastBatch.LastHandlerId))
+      {
+        depth++;
+      }
+      else if (FirmwareDebugOpcodes.IsReturn(LastBatch.LastHandlerId))
+      {
+        depth--;
+      }
+    }
+  }
+
   public void ContinueExecution() =>
     ExecutionPaused = false;
 
@@ -190,6 +217,14 @@ public abstract class CalcFirmwareGatewayBase : ICalcFirmwareGateway
   }
 
   public virtual FirmwareDebugRegisters? TryGetDebugRegisters() => null;
+
+  public virtual bool TrySetDebugRegister(string name, string digitsHex, out string? error)
+  {
+    error = "Register write not supported on this gateway.";
+    return false;
+  }
+
+  public virtual FirmwareCallStackSnapshot? TryGetCallStack() => null;
 
   /// <summary>Optional family-specific dump lines (RAM pointers, flags, …).</summary>
   protected virtual void AppendFamilyDebugDump(StringBuilder text) =>

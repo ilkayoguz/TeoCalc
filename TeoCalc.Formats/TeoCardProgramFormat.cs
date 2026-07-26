@@ -178,21 +178,31 @@ public static class TeoCardProgramFormat
       labels.AddRange(ClassicCardStripLabels.InferFromSteps(steps));
     }
 
+    List<string> labelHints = [];
+    if (metadata?.LabelHints is { Count: > 0 })
+    {
+      labelHints.AddRange(NormalizeStripLabels(metadata.LabelHints));
+    }
+
     return new TeoCardDocument
     {
       Format = TeoCardDocument.FormatId,
       SchemaVersion = TeoCardDocument.CurrentSchemaVersion,
       Model = model,
       InteropMagic = metadata?.InteropMagic,
+      Profile = metadata?.Profile,
       Title = metadata?.Title,
       Description = metadata?.Description,
       Usage = metadata?.Usage,
       Category = metadata?.Category,
       RunHint = metadata?.RunHint,
+      Author = metadata?.Author,
       Labels = labels,
+      LabelHints = labelHints,
       Program = new TeoCardProgramSection
       {
-        CodeEncoding = CardCodeEncoding.Mnemonic,
+        CodeEncoding = CardCodeEncoding.Normalize(
+          metadata?.Program.CodeEncoding ?? CardCodeEncoding.Mnemonic),
         Steps = steps,
       },
       Data = new TeoCardDataSection
@@ -262,11 +272,13 @@ public static class TeoCardProgramFormat
       SchemaVersion = document.SchemaVersion,
       Model = document.Model,
       InteropMagic = document.InteropMagic,
+      Profile = document.Profile,
       Title = document.Title,
       Description = document.Description,
       Usage = document.Usage,
       Category = document.Category,
       RunHint = document.RunHint,
+      Author = document.Author,
       Labels = document.Labels,
       LabelHints = document.LabelHints,
       Program = new TeoCardProgramSection

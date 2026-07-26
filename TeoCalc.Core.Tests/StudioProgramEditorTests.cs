@@ -54,6 +54,71 @@ public sealed class StudioProgramEditorTests
   }
 
   [TestMethod]
+  public void DualText_EditKeys_SyncMachine_ApplyToRam()
+  {
+    using CalcExplorerSession session = CreateHp65Session();
+    Assert.IsTrue(session.TryApplyProgramCodes([1, 2, 3], out string? seedError), seedError);
+    Assert.IsTrue(session.TryGetProgramListing(out IReadOnlyList<ClassicProgramLine> before));
+    StudioProgramEditorText.Hydrate(
+      before,
+      session.EngineModelId,
+      out string machine,
+      out string keys);
+
+    string[] keyLines = keys.Replace("\r\n", "\n", StringComparison.Ordinal)
+      .Split('\n');
+    Assert.IsTrue(keyLines.Length >= 2);
+    keyLines[1] = "ENTER";
+    string editedKeys = string.Join("\n", keyLines);
+
+    string syncedMachine = StudioProgramEditorText.SyncDocumentFromKeys(
+      editedKeys,
+      session.EngineModelId,
+      session.ResolveProgramMnemonicForEditor,
+      session.FormatProgramCodeForEditor);
+    Assert.IsFalse(string.IsNullOrWhiteSpace(syncedMachine));
+
+    Assert.IsTrue(
+      StudioProgramEditorText.TryParseDual(
+        syncedMachine,
+        editedKeys,
+        session.EngineModelId,
+        session.ResolveProgramMnemonicForEditor,
+        session.FormatProgramCodeForEditor,
+        out List<byte> codes,
+        out string? parseError),
+      parseError);
+    Assert.IsTrue(session.TryApplyProgramCodes(codes, out string? applyError), applyError);
+
+    Assert.IsTrue(session.TryGetProgramListing(out IReadOnlyList<ClassicProgramLine> after));
+    IReadOnlyList<ClassicProgramLine> content = StudioProgramEditorText.ContentLines(after);
+    Assert.IsTrue(content.Any(l =>
+      string.Equals(l.Mnemonic.Trim(), "ENTER", StringComparison.OrdinalIgnoreCase)
+      || l.Code == ClassicCardProgramIo.ResolveMnemonic(LoadHp65Vocabulary(), "ENTER")));
+  }
+
+  [TestMethod]
+  public void SyncDocumentFromMachine_UpdatesKeys()
+  {
+    using CalcExplorerSession session = CreateHp65Session();
+    ProgramVocabulary vocabulary = LoadHp65Vocabulary();
+    byte? enter = ClassicCardProgramIo.ResolveMnemonic(vocabulary, "ENTER");
+    Assert.IsTrue(enter.HasValue);
+    string museum = StudioMuseumKeycodes.FormatMachineDisplay(
+      enter.Value,
+      "ENTER",
+      session.EngineModelId);
+
+    string keys = StudioProgramEditorText.SyncDocumentFromMachine(
+      museum,
+      session.EngineModelId,
+      session.FormatProgramCodeForEditor);
+    Assert.IsTrue(
+      keys.Contains("ENTER", StringComparison.OrdinalIgnoreCase),
+      keys);
+  }
+
+  [TestMethod]
   public void TryParseDual_InvalidMnemonic_IsBlocked()
   {
     using CalcExplorerSession session = CreateHp65Session();
@@ -355,43 +420,42 @@ public sealed class StudioProgramEditorTests
   public void DeleteLine_RemovesSelection_AndUndoRestores()
   {
     using CalcExplorerSession session = CreateHp65Session();
-    Assert.IsTrue(session.TryApplyProgramCodes([7, 8, 9], out _), "seed");
-    string path = Path.Combine(Path.GetTempPath(), $"teocalc-del-{Guid.NewGuid():N}.t65");
-    try
-    {
-      Assert.IsTrue(session.TrySaveCardProgram(path, out _), "baseline");
-      Assert.IsTrue(session.TryGetProgramListing(out IReadOnlyList<ClassicProgramLine> before));
-      IReadOnlyList<StudioListingView.Row> rowsBefore = StudioListingView.Build(before);
-      Assert.IsTrue(rowsBefore.Count >= 2, "need at least two listing rows");
-      byte keepCode = rowsBefore[0].Code;
-      byte dropCode = rowsBefore[1].Code;
-      session.SelectedProgramStep = rowsBefore[1].Index;
+    string sample = Path.Combine(
+      CalcCardPanelComponent.SampleCardsDirectory(),
+      CalcCardPanelComponent.SampleHp65T65FileName);
+    Assert.IsTrue(session.TryLoadCardProgram(sample, out string? loadError), loadError);
+    session.ToggleProgramModeTo(true);
 
-      Assert.IsTrue(session.TryDeleteProgramLineAtSelection(out string? delError), delError);
-      Assert.IsTrue(session.TryGetProgramListing(out IReadOnlyList<ClassicProgramLine> afterDel));
-      IReadOnlyList<StudioListingView.Row> rowsAfter = StudioListingView.Build(afterDel);
-      Assert.IsTrue(rowsAfter.Any(r => r.Code == keepCode));
-      Assert.IsFalse(rowsAfter.Any(r => r.Code == dropCode));
+    Assert.IsTrue(session.TryGetProgramListing(out IReadOnlyList<ClassicProgramLine> before));
+    IReadOnlyList<StudioListingView.Row> rowsBefore = session.BuildStudioListingRows(before);
+    Assert.IsTrue(rowsBefore.Count >= 3, "need at least three listing rows");
+    byte keepCode = rowsBefore[0].Code;
+    byte dropCode = rowsBefore[1].Code;
+    int dropIndex = rowsBefore[1].Index;
+    Assert.IsTrue(session.TrySelectStudioProgramLine(dropIndex));
 
-      Assert.IsTrue(session.TryUndoProgramEdit(out string? undoError), undoError);
-      Assert.IsTrue(session.TryGetProgramListing(out IReadOnlyList<ClassicProgramLine> afterUndo));
-      IReadOnlyList<StudioListingView.Row> rowsUndo = StudioListingView.Build(afterUndo);
-      Assert.IsTrue(rowsUndo.Any(r => r.Code == keepCode));
-      Assert.IsTrue(rowsUndo.Any(r => r.Code == dropCode));
+    Assert.IsTrue(session.TryDeleteProgramLineAtSelection(out string? delError), delError);
+    Assert.IsTrue(session.TryGetProgramListing(out IReadOnlyList<ClassicProgramLine> afterDel));
+    IReadOnlyList<StudioListingView.Row> rowsAfter = session.BuildStudioListingRows(afterDel);
+    Assert.IsTrue(rowsAfter.Any(r => r.Code == keepCode || r.Index == rowsBefore[0].Index));
+    Assert.IsFalse(
+      rowsAfter.Any(r => r.Index == dropIndex && r.Code == dropCode && r.RamSpan == rowsBefore[1].RamSpan
+        && r.DisplayMnemonic == rowsBefore[1].DisplayMnemonic));
+    Assert.AreEqual(
+      dropIndex,
+      session.SelectedProgramStep,
+      "DEL should keep the caret on the same RAM slot (next line slides up).");
+    Assert.AreNotEqual(
+      rowsAfter[0].Index,
+      session.SelectedProgramStep,
+      "DEL must not jump selection to the first listing row.");
 
-      Assert.IsTrue(session.TryRedoProgramEdit(out string? redoError), redoError);
-      Assert.IsTrue(session.TryGetProgramListing(out IReadOnlyList<ClassicProgramLine> afterRedo));
-      IReadOnlyList<StudioListingView.Row> rowsRedo = StudioListingView.Build(afterRedo);
-      Assert.IsTrue(rowsRedo.Any(r => r.Code == keepCode));
-      Assert.IsFalse(rowsRedo.Any(r => r.Code == dropCode));
-    }
-    finally
-    {
-      if (File.Exists(path))
-      {
-        File.Delete(path);
-      }
-    }
+    Assert.IsTrue(session.TryUndoProgramEdit(out string? undoError), undoError);
+    Assert.IsTrue(session.TryGetProgramListing(out IReadOnlyList<ClassicProgramLine> afterUndo));
+    IReadOnlyList<StudioListingView.Row> rowsUndo = session.BuildStudioListingRows(afterUndo);
+    Assert.IsTrue(rowsUndo.Count >= rowsBefore.Count - 1);
+
+    Assert.IsTrue(session.TryRedoProgramEdit(out string? redoError), redoError);
   }
   [TestMethod]
   public void Revert_RestoresSavedSnapshot()

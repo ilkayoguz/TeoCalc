@@ -55,6 +55,8 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
   private bool[]? _cardStripLabelsEnabled;
 
   private TeoCardDocument? _loadedTeoCard;
+  private bool _cardMetadataDirty;
+  private int _cardMetadataEpoch;
 
   /// <summary>Last loaded/saved program codes; compared to live RAM for dirty detection.</summary>
   private byte[]? _savedProgramSnapshot;
@@ -89,6 +91,8 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
     0.25f, 0.5f, 1f, 2f, 4f, 8f, 16f,
   ];
 
+  public static int ExecutionSpeedStepCount => ExecutionSpeedSteps.Length;
+
   private int _executionSpeedIndex = 2; // 1×
 
   public CalcExplorerSession(string engineRoot)
@@ -101,6 +105,7 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
     }
 
     LoadModel(ModelIndex);
+    CalcSessionProfiles.ApplyTo(this);
   }
 
   public bool UsesFirmwareGateway => _firmware is not null;
@@ -147,10 +152,13 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
   public string StudioStatusMessage { get; set; } = string.Empty;
 
   /// <summary>
-  /// True when Classic RAM differs from the last loaded/saved card snapshot (W/PRGM edits).
+  /// True when Classic RAM differs from the last loaded/saved card snapshot, or card
+  /// metadata ([General] / [Label]) was edited in Studio.
   /// </summary>
   public bool IsProgramDirty =>
-    SupportsCardProgram && _savedProgramSnapshot is not null && !ProgramMatchesSnapshot();
+    SupportsCardProgram
+    && ((_savedProgramSnapshot is not null && !ProgramMatchesSnapshot())
+      || _cardMetadataDirty);
 
   /// <summary>
   /// User moved W/PRGM → RUN while dirty; UI should confirm Save / Discard / Cancel.
@@ -165,6 +173,13 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
 
   /// <summary>When true, microcode watch follows the live ROM fetch address while running / stepping.</summary>
   public bool FollowRomWatch { get; set; } = true;
+
+  /// <summary>
+  /// When true, F10/F11 use microcode step (Debug panel open). Otherwise card-program
+  /// models use Studio grain (row/key) and others use microcode.
+  /// </summary>
+  public bool PreferMicrocodeHotkeys { get; set; }
+
   public bool ExecutionPaused
   {
     get => _firmware?.ExecutionPaused ?? false;
@@ -693,7 +708,9 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
     }
 
     SelectedAddress = _firmware.LastBatch.ProgramCounter;
-    MicrocodeScroll = Math.Max(0, SelectedAddress - 8);
+    MicrocodeScroll = RomWatchFollowScroll.CenterOn(
+      SelectedAddress,
+      Map?.WordCount ?? 0);
     _mouseKeyHeld = false;
     _keyboardKeyHeld = false;
     ShiftPreview.Reset();
@@ -709,10 +726,18 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
   /// <summary>Free-run speed multiplier (0.25× … 16×). Affects firmware Tick only.</summary>
   public float ExecutionSpeed => ExecutionSpeedSteps[_executionSpeedIndex];
 
-  public string ExecutionSpeedLabel =>
-    ExecutionSpeed is >= 1f
-      ? $"{ExecutionSpeed:0.##}×"
-      : $"{ExecutionSpeed:0.##}×";
+  public int ExecutionSpeedIndex => _executionSpeedIndex;
+
+  public string ExecutionSpeedLabel => FormatExecutionSpeedLabel(_executionSpeedIndex);
+
+  public static string FormatExecutionSpeedLabel(int index)
+  {
+    float speed = ExecutionSpeedSteps[Math.Clamp(index, 0, ExecutionSpeedSteps.Length - 1)];
+    return $"{speed:0.##}x";
+  }
+
+  public void SetExecutionSpeedIndex(int index) =>
+    _executionSpeedIndex = Math.Clamp(index, 0, ExecutionSpeedSteps.Length - 1);
 
   public void NudgeExecutionSpeed(int delta)
   {
@@ -726,11 +751,12 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
     StepMicrocodeInto();
 
   /// <summary>
-  /// F11 when card program: one Classic keystroke / FC element. Else microcode into.
+  /// F11: Studio keystroke / FC element when card program and microcode hotkeys off;
+  /// otherwise microcode into.
   /// </summary>
   public void StepInto()
   {
-    if (SupportsCardProgram)
+    if (!PreferMicrocodeHotkeys && SupportsCardProgram)
     {
       StepStudioKey();
       return;
@@ -740,11 +766,12 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
   }
 
   /// <summary>
-  /// F10 when card program: one Code row / FC box. Else microcode over.
+  /// F10: Studio Code row / FC box when card program and microcode hotkeys off;
+  /// otherwise microcode over.
   /// </summary>
   public void StepOver()
   {
-    if (SupportsCardProgram)
+    if (!PreferMicrocodeHotkeys && SupportsCardProgram)
     {
       StepStudioLine();
       return;
@@ -774,6 +801,18 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
     }
 
     _firmware.StepOver();
+    SyncRomWatchFromBatch(_firmware.LastBatch);
+  }
+
+  /// <summary>True microcode step-out (Debug panel / Shift+F11).</summary>
+  public void StepMicrocodeOut()
+  {
+    if (_firmware is null || !PowerOn)
+    {
+      return;
+    }
+
+    _firmware.StepOut();
     SyncRomWatchFromBatch(_firmware.LastBatch);
   }
 
@@ -1217,6 +1256,20 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
   public FirmwareDebugRegisters? TryGetDebugRegisters() =>
     _firmware?.TryGetDebugRegisters();
 
+  public bool TrySetDebugRegister(string name, string digitsHex, out string? error)
+  {
+    if (_firmware is null)
+    {
+      error = "No firmware gateway.";
+      return false;
+    }
+
+    return _firmware.TrySetDebugRegister(name, digitsHex, out error);
+  }
+
+  public FirmwareCallStackSnapshot? TryGetCallStack() =>
+    _firmware?.TryGetCallStack();
+
   public void Dispose() =>
     DisposeFirmware();
 
@@ -1230,8 +1283,8 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
 
     int address = Math.Max(0, batch.ProgramCounter);
     SelectedAddress = address;
-    // Keep PC near the middle of the ROM watch window (~64 rows).
-    MicrocodeScroll = Math.Max(0, address - 10);
+    int wordCount = Map?.WordCount ?? 0;
+    MicrocodeScroll = RomWatchFollowScroll.Adjust(MicrocodeScroll, address, wordCount);
   }
 
   private void DisposeFirmware()
@@ -1893,28 +1946,45 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
       return false;
     }
 
+    // Keep selection on the row that slid into `at` (same visual slot); else previous row.
     if (!TryGetStudioListingRows(out rows) || rows.Count == 0)
     {
-      SelectedProgramStep = Math.Max(0, at - 1);
+      SelectedProgramStep = Math.Max(1, at);
     }
     else
     {
-      int rowIndex = FindStudioRowIndex(rows, at);
-      if (rowIndex < 0)
+      int rowIndex = -1;
+      for (int i = 0; i < rows.Count; i++)
       {
-        rowIndex = FindStudioRowIndex(rows, Math.Max(0, at - 1));
+        if (rows[i].Index == at || rows[i].ContainsIndex(at))
+        {
+          rowIndex = i;
+          break;
+        }
       }
 
       if (rowIndex < 0)
       {
-        rowIndex = Math.Min(rows.Count - 1, 0);
+        for (int i = rows.Count - 1; i >= 0; i--)
+        {
+          if (rows[i].Index < at)
+          {
+            rowIndex = i;
+            break;
+          }
+        }
       }
 
-      rowIndex = Math.Clamp(rowIndex, 0, rows.Count - 1);
+      rowIndex = Math.Clamp(rowIndex < 0 ? 0 : rowIndex, 0, rows.Count - 1);
       SelectedProgramStep = rows[rowIndex].Index;
     }
 
     StudioPaneSync.FollowPointer(SelectedProgramStep);
+    if (ProgramMode && _firmware is ClassicFirmwareGateway { Cpu: { } cpuLed })
+    {
+      SyncFaceplateProgramLed(cpuLed, SelectedProgramStep);
+    }
+
     StudioStatusMessage = $"Deleted step {at}.";
     return true;
   }
@@ -2207,9 +2277,80 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
 
   /// <summary>Public hook for Studio dual-pane editor (same as private listing format).</summary>
   public string FormatProgramCodeForEditor(byte code) => FormatProgramCode(code);
+
   /// <summary>Public hook for Studio dual-pane editor mnemonic → byte.</summary>
   public byte? ResolveProgramMnemonicForEditor(string mnemonic) =>
     ResolveProgramMnemonic(mnemonic);
+
+  /// <summary>Keys-pane completion candidates (vocabulary / ACT table).</summary>
+  public IReadOnlyList<string> EnumerateProgramMnemonics()
+  {
+    if (UsesActCardProgram)
+    {
+      return Teo67CardProgramIo.EnumerateMnemonics();
+    }
+
+    if (Vocabulary is null)
+    {
+      return [];
+    }
+
+    List<string> list = [];
+    HashSet<string> seen = new(StringComparer.OrdinalIgnoreCase);
+    foreach (ProgramStepEntry step in Vocabulary.Steps)
+    {
+      string mnemonic = step.Mnemonic?.Trim() ?? string.Empty;
+      if (mnemonic.Length == 0
+          || mnemonic.StartsWith('#')
+          || string.Equals(mnemonic, "PTR", StringComparison.OrdinalIgnoreCase)
+          || string.Equals(mnemonic, "NOP", StringComparison.OrdinalIgnoreCase) && step.Code == 0)
+      {
+        continue;
+      }
+
+      if (seen.Add(mnemonic))
+      {
+        list.Add(mnemonic);
+      }
+    }
+
+    list.Sort(StringComparer.OrdinalIgnoreCase);
+    return list;
+  }
+
+  /// <summary>Machine-pane completion candidates (museum display strings).</summary>
+  public IReadOnlyList<string> EnumerateMachineCompletionTokens()
+  {
+    List<string> list = [];
+    HashSet<string> seen = new(StringComparer.OrdinalIgnoreCase);
+    foreach (string mnemonic in EnumerateProgramMnemonics())
+    {
+      if (ResolveProgramMnemonic(mnemonic) is not byte code)
+      {
+        continue;
+      }
+
+      string museum = StudioMuseumKeycodes.FormatMachineDisplay(code, mnemonic, EngineModelId);
+      if (string.IsNullOrWhiteSpace(museum) || museum.StartsWith('#'))
+      {
+        continue;
+      }
+
+      if (seen.Add(museum))
+      {
+        list.Add(museum);
+      }
+
+      string[] parts = museum.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries);
+      if (parts.Length > 0 && seen.Add(parts[0]))
+      {
+        list.Add(parts[0]);
+      }
+    }
+
+    list.Sort(StringComparer.OrdinalIgnoreCase);
+    return list;
+  }
 
   private string FormatProgramCode(byte code) =>
     UsesActCardProgram
@@ -2258,6 +2399,196 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
 
   public string? CardRunHint => _loadedTeoCard?.RunHint;
 
+  public string? CardAuthor => _loadedTeoCard?.Author;
+
+  public string? CardCategory => _loadedTeoCard?.Category;
+
+  public string? CardProfile => _loadedTeoCard?.Profile;
+
+  public bool IsCardMetadataDirty => _cardMetadataDirty;
+
+  /// <summary>Bumps when card metadata is replaced from disk / eject (Studio Card tab resync).</summary>
+  public int CardMetadataEpoch => _cardMetadataEpoch;
+
+  /// <summary>Editable card metadata for Studio Card tab (creates a shell if none loaded).</summary>
+  public CardMetadataFields GetCardMetadataFields()
+  {
+    EnsureCardMetadataShell();
+    return CardMetadataFields.FromDocument(_loadedTeoCard, StudioCodeEncoding);
+  }
+
+  /// <summary>
+  /// Apply Studio Card-tab edits into the in-memory card document (persisted on Save).
+  /// Updates faceplate strip captions when Labels change.
+  /// </summary>
+  public bool TryApplyCardMetadata(CardMetadataFields fields, out string? error)
+  {
+    error = null;
+    ArgumentNullException.ThrowIfNull(fields);
+    if (!SupportsCardProgram)
+    {
+      error = "Program memory not available for this engine.";
+      return false;
+    }
+
+    string encoding;
+    try
+    {
+      encoding = CardCodeEncoding.Normalize(fields.CodeEncoding);
+    }
+    catch (FormatException ex)
+    {
+      error = ex.Message;
+      return false;
+    }
+
+    DateTimeOffset? created = _loadedTeoCard?.Created;
+    if (!string.IsNullOrWhiteSpace(fields.Created))
+    {
+      if (!DateTimeOffset.TryParse(
+            fields.Created.Trim(),
+            System.Globalization.CultureInfo.InvariantCulture,
+            System.Globalization.DateTimeStyles.AssumeUniversal
+              | System.Globalization.DateTimeStyles.AdjustToUniversal,
+            out DateTimeOffset parsed))
+      {
+        error = "Created timestamp is invalid (use ISO-8601, e.g. 2026-07-25T12:00:00Z).";
+        return false;
+      }
+
+      created = parsed;
+    }
+
+    EnsureCardMetadataShell();
+    TeoCardDocument prior = _loadedTeoCard!;
+    string[] labels = TeoCardProgramFormat.NormalizeStripLabels(fields.Labels);
+    string[] hints = TeoCardProgramFormat.NormalizeStripLabels(fields.LabelHints);
+
+    TeoCardDocument next = new()
+    {
+      Format = TeoCardDocument.FormatId,
+      SchemaVersion = TeoCardDocument.CurrentSchemaVersion,
+      Model = string.IsNullOrWhiteSpace(prior.Model) ? EngineModelId : prior.Model,
+      InteropMagic = prior.InteropMagic,
+      Profile = NullIfBlank(fields.Profile),
+      Title = NullIfBlank(fields.Title),
+      Description = NullIfBlank(fields.Description),
+      Usage = NullIfBlank(fields.Usage),
+      Category = NullIfBlank(fields.Category),
+      RunHint = NullIfBlank(fields.RunHint),
+      Author = NullIfBlank(fields.Author),
+      Labels = labels.ToList(),
+      LabelHints = hints.ToList(),
+      Program = new TeoCardProgramSection
+      {
+        CodeEncoding = encoding,
+        Steps = prior.Program.Steps,
+      },
+      Data = prior.Data,
+      Created = created,
+      Modified = DateTimeOffset.UtcNow,
+    };
+
+    if (CardMetadataEquals(prior, next) && string.Equals(StudioCodeEncoding, encoding, StringComparison.Ordinal))
+    {
+      return true;
+    }
+
+    _loadedTeoCard = next;
+    StudioCodeEncoding = encoding;
+    RefreshStripFromLoadedCard();
+    _cardMetadataDirty = true;
+    StudioStatusMessage = "Card info updated.";
+    return true;
+  }
+
+  private void EnsureCardMetadataShell()
+  {
+    if (_loadedTeoCard is not null || !SupportsCardProgram)
+    {
+      return;
+    }
+
+    _loadedTeoCard = new TeoCardDocument
+    {
+      Format = TeoCardDocument.FormatId,
+      SchemaVersion = TeoCardDocument.CurrentSchemaVersion,
+      Model = EngineModelId,
+      Profile = EngineModelId,
+      Program = new TeoCardProgramSection
+      {
+        CodeEncoding = CardCodeEncoding.Normalize(StudioCodeEncoding),
+        Steps = [],
+      },
+      Data = new TeoCardDataSection
+      {
+        Registers = [],
+      },
+      Labels = ["", "", "", "", ""],
+      LabelHints = ["", "", "", "", ""],
+      Created = DateTimeOffset.UtcNow,
+      Modified = DateTimeOffset.UtcNow,
+    };
+  }
+
+  private void RefreshStripFromLoadedCard()
+  {
+    if (_loadedTeoCard is null)
+    {
+      return;
+    }
+
+    CardStripPresentation strip = ClassicCardStripLabels.HasAnyLabel(_loadedTeoCard.Labels)
+      ? ClassicCardStripLabels.Resolve(_loadedTeoCard.Labels, _loadedTeoCard.Program.Steps)
+      : ClassicCardStripLabels.Resolve(
+          ClassicCardStripLabels.InferFromSteps(_loadedTeoCard.Program.Steps),
+          _loadedTeoCard.Program.Steps);
+    _cardStripLabels = strip.Captions;
+    _cardStripLabelsEnabled = strip.Enabled;
+  }
+
+  private static string? NullIfBlank(string? value) =>
+    string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+
+  private static bool CardMetadataEquals(TeoCardDocument a, TeoCardDocument b)
+  {
+    if (!string.Equals(a.Title, b.Title, StringComparison.Ordinal)
+        || !string.Equals(a.Description, b.Description, StringComparison.Ordinal)
+        || !string.Equals(a.Usage, b.Usage, StringComparison.Ordinal)
+        || !string.Equals(a.Category, b.Category, StringComparison.Ordinal)
+        || !string.Equals(a.RunHint, b.RunHint, StringComparison.Ordinal)
+        || !string.Equals(a.Author, b.Author, StringComparison.Ordinal)
+        || !string.Equals(a.Profile, b.Profile, StringComparison.Ordinal)
+        || !string.Equals(a.Program.CodeEncoding, b.Program.CodeEncoding, StringComparison.Ordinal)
+        || a.Created != b.Created)
+    {
+      return false;
+    }
+
+    if (a.Labels.Count != b.Labels.Count || a.LabelHints.Count != b.LabelHints.Count)
+    {
+      return false;
+    }
+
+    for (int i = 0; i < a.Labels.Count; i++)
+    {
+      if (!string.Equals(a.Labels[i], b.Labels[i], StringComparison.Ordinal))
+      {
+        return false;
+      }
+    }
+
+    for (int i = 0; i < a.LabelHints.Count; i++)
+    {
+      if (!string.Equals(a.LabelHints[i], b.LabelHints[i], StringComparison.Ordinal))
+      {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
   public void EjectCard()
   {
     ResetCardSlotState();
@@ -2277,17 +2608,22 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
     _cardStripLabels = null;
     _cardStripLabelsEnabled = null;
     _loadedTeoCard = null;
+    _cardMetadataDirty = false;
+    _cardMetadataEpoch++;
     _savedProgramSnapshot = null;
     PendingLeaveProgramConfirm = false;
     PendingStudioSaveConfirm = false;
     PendingStudioRevertConfirm = false;
     ClearProgramEditHistory();
   }
+
   private void MarkCardInserted(string path, TeoCardDocument? teoCard = null)
   {
     _cardInserted = true;
     _loadedCardPath = path;
     _loadedTeoCard = teoCard;
+    _cardMetadataDirty = false;
+    _cardMetadataEpoch++;
     if (teoCard?.Program.CodeEncoding is { Length: > 0 } encoding)
     {
       try
@@ -2427,6 +2763,12 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
         {
           MarkCardInserted(path, T6xCardFormat.ToTeoCardDocument(t6x));
         }
+        else
+        {
+          _loadedTeoCard = T6xCardFormat.ToTeoCardDocument(t6x);
+          _cardMetadataDirty = false;
+          _cardMetadataEpoch++;
+        }
 
         CaptureSavedProgramSnapshot();
         return true;
@@ -2459,6 +2801,12 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
         {
           MarkCardInserted(path, T6xCardFormat.ToTeoCardDocument(t6x));
         }
+        else
+        {
+          _loadedTeoCard = T6xCardFormat.ToTeoCardDocument(t6x);
+          _cardMetadataDirty = false;
+          _cardMetadataEpoch++;
+        }
 
         CaptureSavedProgramSnapshot();
         return true;
@@ -2476,6 +2824,12 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
         if (markInserted)
         {
           MarkCardInserted(path, teo);
+        }
+        else
+        {
+          _loadedTeoCard = teo;
+          _cardMetadataDirty = false;
+          _cardMetadataEpoch++;
         }
 
         CaptureSavedProgramSnapshot();
