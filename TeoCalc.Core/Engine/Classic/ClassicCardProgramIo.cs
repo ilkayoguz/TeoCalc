@@ -28,6 +28,49 @@ public static class ClassicCardProgramIo
     }
   }
 
+  /// <summary>
+  /// True when two Classic RAM exports hold the same user opcodes.
+  /// Ignores embedded START/PTR/MARK markers (SeekPointer / SST move those without
+  /// changing the program) and trailing empty capacity (NOP zeros).
+  /// </summary>
+  public static bool ProgramContentEquals(ReadOnlySpan<byte> left, ReadOnlySpan<byte> right)
+  {
+    Span<byte> aBuf = stackalloc byte[ProgramCapacity];
+    Span<byte> bBuf = stackalloc byte[ProgramCapacity];
+    int aLen = CopyContentOpcodes(left, aBuf);
+    int bLen = CopyContentOpcodes(right, bBuf);
+    if (aLen != bLen)
+    {
+      return false;
+    }
+
+    return aBuf[..aLen].SequenceEqual(bBuf[..bLen]);
+  }
+
+  private static int CopyContentOpcodes(ReadOnlySpan<byte> codes, Span<byte> destination)
+  {
+    int n = 0;
+    for (int i = 0; i < codes.Length && n < destination.Length; i++)
+    {
+      byte code = codes[i];
+      if (code is ClassicProgramCodes.Start
+          or ClassicProgramCodes.Pointer
+          or ClassicProgramCodes.Mark)
+      {
+        continue;
+      }
+
+      destination[n++] = code;
+    }
+
+    while (n > 0 && destination[n - 1] == 0)
+    {
+      n--;
+    }
+
+    return n;
+  }
+
   public static void Import(ClassicCpu cpu, IReadOnlyList<byte> programCodes, IReadOnlyList<double> registers)
   {
     ArgumentNullException.ThrowIfNull(cpu);

@@ -43,6 +43,72 @@ public sealed class StudioWprgmEditTests
   }
 
   [TestMethod]
+  public void Wprgm_PreexistingDirty_NoSessionEdit_LeavesWithoutConfirm()
+  {
+    using CalcExplorerSession session = CreateHp65Session();
+    Assert.IsTrue(session.TryApplyProgramCodes([7], out string? applyError), applyError);
+    Assert.IsTrue(session.IsProgramDirty, "dirty vs card before entering W/PRGM");
+
+    session.ToggleProgramModeTo(true);
+    Assert.IsTrue(session.ProgramMode);
+    // Still dirty vs card, but this W/PRGM visit made no further edits.
+    Assert.IsTrue(session.IsProgramDirty);
+    session.ToggleProgramModeTo(false);
+    Assert.IsFalse(
+      session.PendingLeaveProgramConfirm,
+      "Leave confirm is for edits during this W/PRGM visit only.");
+    Assert.IsFalse(session.ProgramMode);
+    Assert.IsTrue(session.IsProgramDirty, "card-relative dirty preserved in RUN");
+  }
+
+  [TestMethod]
+  public void SeekPointer_DoesNotMarkDirty_OrBlockRun()
+  {
+    using CalcExplorerSession session = CreateHp65Session();
+    string path = Path.Combine(
+      CalcCardPanelComponent.SampleCardsDirectory(),
+      CalcCardPanelComponent.SampleHp65T65FileName);
+    Assert.IsTrue(session.TryLoadCardProgram(path, out string? error), error);
+    Assert.IsFalse(session.IsProgramDirty);
+
+    Assert.IsTrue(session.TrySetProgramStartStep(3));
+    Assert.IsFalse(
+      session.IsProgramDirty,
+      "PTR seek must not dirty — only opcode content counts.");
+
+    session.ToggleProgramModeTo(true);
+    Assert.IsFalse(session.IsProgramDirty);
+    session.ToggleProgramModeTo(false);
+    Assert.IsFalse(session.PendingLeaveProgramConfirm);
+    Assert.IsFalse(session.ProgramMode);
+  }
+
+  [TestMethod]
+  public void RestoreOriginalOpcodes_DuringWprgm_LeavesRunWithoutConfirm()
+  {
+    using CalcExplorerSession session = CreateHp65Session();
+    string path = Path.Combine(
+      CalcCardPanelComponent.SampleCardsDirectory(),
+      CalcCardPanelComponent.SampleHp65T65FileName);
+    Assert.IsTrue(session.TryLoadCardProgram(path, out string? loadError), loadError);
+    Assert.IsTrue(session.TryGetProgramListing(out IReadOnlyList<ClassicProgramLine> lines));
+    List<byte> original = lines.Select(l => l.Code).ToList();
+    Assert.IsTrue(original.Count > 3);
+
+    session.ToggleProgramModeTo(true);
+    List<byte> edited = [.. original];
+    edited[2] = (byte)(edited[2] == 0 ? 1 : 0);
+    Assert.IsTrue(session.TryApplyProgramCodes(edited, out string? applyError), applyError);
+
+    Assert.IsTrue(session.TryApplyProgramCodes(original, out string? restoreError), restoreError);
+    session.ToggleProgramModeTo(false);
+    Assert.IsFalse(
+      session.PendingLeaveProgramConfirm,
+      "Re-applying the same opcodes as W/PRGM entry must not confirm.");
+    Assert.IsFalse(session.ProgramMode);
+  }
+
+  [TestMethod]
   public void Wprgm_DigitEntry_MarksDirty_AndBlocksRunUntilConfirm()
   {
     using CalcExplorerSession session = CreateHp65Session();

@@ -61,6 +61,15 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
   /// <summary>Last loaded/saved program codes; compared to live RAM for dirty detection.</summary>
   private byte[]? _savedProgramSnapshot;
 
+  /// <summary>
+  /// Program export captured when entering W/PRGM. Leave-RUN confirm only if live content
+  /// differs from this (edits during this visit), not merely dirty vs the card file.
+  /// </summary>
+  private byte[]? _wprgmEntrySnapshot;
+
+  /// <summary>Card-metadata dirty flag at W/PRGM entry (leave confirm only for new meta edits).</summary>
+  private bool _wprgmEntryMetadataDirty;
+
   private const int MaxProgramUndoDepth = 32;
 
   private readonly List<ProgramEditSnapshot> _programUndoStack = [];
@@ -152,8 +161,9 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
   public string StudioStatusMessage { get; set; } = string.Empty;
 
   /// <summary>
-  /// True when Classic RAM differs from the last loaded/saved card snapshot, or card
-  /// metadata ([General] / [Label]) was edited in Studio.
+  /// True when user program opcodes differ from the last loaded/saved card snapshot, or card
+  /// metadata ([General] / [Label]) was edited in Studio. Classic PTR/START/MARK moves alone
+  /// do not count (SeekPointer / SST / W/PRGM enter).
   /// </summary>
   public bool IsProgramDirty =>
     SupportsCardProgram
@@ -161,7 +171,8 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
       || _cardMetadataDirty);
 
   /// <summary>
-  /// User moved W/PRGM → RUN while dirty; UI should confirm Save / Discard / Cancel.
+  /// User moved W/PRGM → RUN after editing program/metadata during this W/PRGM visit;
+  /// UI should confirm Save / Discard / Cancel.
   /// </summary>
   public bool PendingLeaveProgramConfirm { get; private set; }
 
@@ -389,21 +400,23 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
       return;
     }
 
-    // Leaving W/PRGM with unsaved RAM edits → confirm before RUN.
-    if (!programMode && IsProgramDirty)
+    // Leaving W/PRGM: confirm only when this visit changed program opcodes or card metadata.
+    // Pre-existing dirty-vs-card (or PTR seeks) must not block a no-edit round-trip.
+    if (!programMode && HasWprgmSessionEdits())
     {
       PendingLeaveProgramConfirm = true;
       return;
     }
 
     PendingLeaveProgramConfirm = false;
-    // Entering W/PRGM runs a firmware batch that can nudge program RAM (PTR/markers).
-    // Absorb that into the clean snapshot so RUN without edits does not confirm.
-    bool absorbModeSwitch = programMode && !IsProgramDirty;
     _firmware?.SetProgramMode(programMode);
-    if (absorbModeSwitch)
+    if (programMode)
     {
-      CaptureSavedProgramSnapshot();
+      CaptureWprgmEntryBaseline();
+    }
+    else
+    {
+      ClearWprgmEntryBaseline();
     }
   }
 
@@ -411,6 +424,7 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
   public void ConfirmDiscardProgramEditsAndRun()
   {
     PendingLeaveProgramConfirm = false;
+    ClearWprgmEntryBaseline();
     if (!PowerOn)
     {
       return;
@@ -471,6 +485,7 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
       return false;
     }
 
+    ClearWprgmEntryBaseline();
     _firmware?.SetProgramMode(false);
     return true;
   }
@@ -1552,6 +1567,53 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
     }
 
     _savedProgramSnapshot = codes;
+    // Save/load/settle while already in W/PRGM: treat current RAM as the new session baseline
+    // so leave-RUN does not re-prompt after a successful Save.
+    if (ProgramMode)
+    {
+      _wprgmEntrySnapshot = (byte[])codes.Clone();
+      _wprgmEntryMetadataDirty = _cardMetadataDirty;
+    }
+  }
+
+  private void CaptureWprgmEntryBaseline()
+  {
+    _wprgmEntryMetadataDirty = _cardMetadataDirty;
+    _wprgmEntrySnapshot = null;
+    if (_firmware is null
+        || !_firmware.SupportsCardProgram
+        || !_firmware.TryExportCardProgram(out byte[] codes, out _))
+    {
+      return;
+    }
+
+    _wprgmEntrySnapshot = codes;
+  }
+
+  private void ClearWprgmEntryBaseline()
+  {
+    _wprgmEntrySnapshot = null;
+    _wprgmEntryMetadataDirty = false;
+  }
+
+  /// <summary>
+  /// True when program opcodes or card metadata changed since the current W/PRGM entry.
+  /// </summary>
+  private bool HasWprgmSessionEdits()
+  {
+    if (_cardMetadataDirty && !_wprgmEntryMetadataDirty)
+    {
+      return true;
+    }
+
+    if (_wprgmEntrySnapshot is null
+        || _firmware is null
+        || !_firmware.TryExportCardProgram(out byte[] codes, out _))
+    {
+      return false;
+    }
+
+    return !ProgramExportsMatch(_wprgmEntrySnapshot, codes);
   }
 
   private bool ProgramMatchesSnapshot()
@@ -1563,14 +1625,26 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
       return true;
     }
 
-    if (codes.Length != _savedProgramSnapshot.Length)
+    return ProgramExportsMatch(_savedProgramSnapshot, codes);
+  }
+
+  private bool ProgramExportsMatch(byte[] baseline, byte[] live)
+  {
+    // Classic: compare opcode content only — embedded PTR/START/MARK move in RAM when
+    // seeking / SST / mode switch, but the program is unchanged.
+    if (_firmware is ClassicFirmwareGateway)
+    {
+      return ClassicCardProgramIo.ProgramContentEquals(baseline, live);
+    }
+
+    if (live.Length != baseline.Length)
     {
       return false;
     }
 
-    for (int i = 0; i < codes.Length; i++)
+    for (int i = 0; i < live.Length; i++)
     {
-      if (codes[i] != _savedProgramSnapshot[i])
+      if (live[i] != baseline[i])
       {
         return false;
       }
@@ -2611,6 +2685,7 @@ public sealed class CalcExplorerSession : ICalcExplorerSession, IDisposable
     _cardMetadataDirty = false;
     _cardMetadataEpoch++;
     _savedProgramSnapshot = null;
+    ClearWprgmEntryBaseline();
     PendingLeaveProgramConfirm = false;
     PendingStudioSaveConfirm = false;
     PendingStudioRevertConfirm = false;
