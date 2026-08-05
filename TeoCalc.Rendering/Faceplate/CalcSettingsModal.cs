@@ -1,6 +1,6 @@
 using System.Numerics;
 using ImGuiNET;
-using TeoTheme;
+using Teo.Theme;
 
 namespace TeoCalc.Rendering.Faceplate;
 

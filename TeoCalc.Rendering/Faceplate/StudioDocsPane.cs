@@ -2,7 +2,7 @@ using System.Diagnostics;
 using ImGuiNET;
 using TeoCalc.Core;
 using TeoCalc.Core.Engine.Classic;
-using TeoTheme;
+using Teo.Theme;
 using Session = TeoCalc.Rendering.CalcExplorerSession;
 
 namespace TeoCalc.Rendering.Faceplate;

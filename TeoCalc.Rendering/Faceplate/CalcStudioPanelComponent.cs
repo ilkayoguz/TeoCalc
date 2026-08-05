@@ -4,7 +4,7 @@ using System.Text;
 using TeoCalc.Core.Engine.Classic;
 using TeoCalc.Core.Firmware;
 using TeoCalc.Formats;
-using TeoTheme;
+using Teo.Theme;
 using Session = TeoCalc.Rendering.CalcExplorerSession;
 
 namespace TeoCalc.Rendering.Faceplate;

@@ -38,8 +38,8 @@ public static class StudioFlowchartView
     get
     {
       CalcAppTheme.EnsureInitialized();
-      return CalcAppTheme.Appearance == TeoTheme.ThemeAppearance.Light
-        ? CalcAppThemeColors.ToImGui(CalcAppTheme.Current, TeoTheme.ThemeTokens.PanelBorderColor)
+      return CalcAppTheme.Appearance == Teo.Theme.ThemeAppearance.Light
+        ? CalcAppThemeColors.ToImGui(CalcAppTheme.Current, Teo.Theme.ThemeTokens.PanelBorderColor)
         : BorderDark;
     }
   }
@@ -49,8 +49,8 @@ public static class StudioFlowchartView
     get
     {
       CalcAppTheme.EnsureInitialized();
-      return CalcAppTheme.Appearance == TeoTheme.ThemeAppearance.Light
-        ? CalcAppThemeColors.ToImGui(CalcAppTheme.Current, TeoTheme.ThemeTokens.AccentColor)
+      return CalcAppTheme.Appearance == Teo.Theme.ThemeAppearance.Light
+        ? CalcAppThemeColors.ToImGui(CalcAppTheme.Current, Teo.Theme.ThemeTokens.AccentColor)
         : BorderSelectedDark;
     }
   }
@@ -60,8 +60,8 @@ public static class StudioFlowchartView
     get
     {
       CalcAppTheme.EnsureInitialized();
-      return CalcAppTheme.Appearance == TeoTheme.ThemeAppearance.Light
-        ? CalcAppThemeColors.ToImGui(CalcAppTheme.Current, TeoTheme.ThemeTokens.TextDisabledColor)
+      return CalcAppTheme.Appearance == Teo.Theme.ThemeAppearance.Light
+        ? CalcAppThemeColors.ToImGui(CalcAppTheme.Current, Teo.Theme.ThemeTokens.TextDisabledColor)
         : EdgeInkDark;
     }
   }

@@ -1,8 +1,8 @@
 using System.Numerics;
 using ImGuiNET;
 using TeoCalc.Core;
-using TeoTheme;
-using TeoTheme.Windows;
+using Teo.Theme;
+using Teo.Theme.Windows;
 
 namespace TeoCalc.Rendering;
 

@@ -3,7 +3,7 @@ using ImGuiNET;
 using TeoCalc.Rendering.Faceplate;
 using TeoGame.Presentation.Components;
 using TeoGame.Presentation.Navigation;
-using TeoTheme;
+using Teo.Theme;
 
 namespace TeoCalc.Rendering;
 

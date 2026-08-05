@@ -1,5 +1,5 @@
 using Teo.Surface.Immediate;
-using TeoTheme;
+using Teo.Theme;
 
 namespace TeoCalc.Rendering;
 

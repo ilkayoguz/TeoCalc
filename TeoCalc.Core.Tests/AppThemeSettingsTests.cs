@@ -1,6 +1,6 @@
 using TeoCalc.Rendering;
 using TeoCalc.Rendering.Faceplate;
-using TeoTheme;
+using Teo.Theme;
 
 namespace TeoCalc.Core.Tests;
 

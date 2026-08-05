@@ -1,7 +1,7 @@
 using System.Numerics;
 using ImGuiNET;
 using TeoCalc.Formats;
-using TeoTheme;
+using Teo.Theme;
 
 namespace TeoCalc.Rendering.Faceplate;
 
