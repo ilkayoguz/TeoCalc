@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\..\TeoCave\TeoTheme\TeoTheme.csproj" />
-    <ProjectReference Include="..\..\TeoCave\TeoTheme.Windows\TeoTheme.Windows.csproj" />
+    <ProjectReference Include="..\..\Teo\Teo.Theme\Teo.Theme.csproj" />
+    <ProjectReference Include="..\..\Teo\Teo.Theme.Windows\Teo.Theme.Windows.csproj" />
     <ProjectReference Include="..\..\TeoCave\TeoGame\TeoGame.csproj" />
     <ProjectReference Include="..\..\Teo\Teo.Surface.ImGui\Teo.Surface.ImGui.csproj" />
     <ProjectReference Include="..\TeoCalc.Game\TeoCalc.Game.csproj" />
