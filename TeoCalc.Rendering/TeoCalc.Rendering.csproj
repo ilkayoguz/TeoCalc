@@ -1,13 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Teo\Teo.Theme\Teo.Theme.csproj" />
-    <ProjectReference Include="..\..\Teo\Teo.Theme.Windows\Teo.Theme.Windows.csproj" />
     <ProjectReference Include="..\..\TeoCave\TeoGame\TeoGame.csproj" />
-    <ProjectReference Include="..\..\Teo\Teo.Surface.ImGui\Teo.Surface.ImGui.csproj" />
     <ProjectReference Include="..\TeoCalc.Game\TeoCalc.Game.csproj" />
     <ProjectReference Include="..\TeoCalc.Core\TeoCalc.Core.csproj" />
     <ProjectReference Include="..\TeoCalc.Formats\TeoCalc.Formats.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Teo.Theme" Version="1.0.0" />
+    <PackageReference Include="Teo.Theme.Windows" Version="1.0.0" />
+    <PackageReference Include="Teo.Surface.ImGui" Version="1.0.0" />
   </ItemGroup>
 
   <PropertyGroup>
