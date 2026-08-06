@@ -261,7 +261,6 @@ public static class CalcExplorerApp
 
         CalculatorLauncherView.DrawContent(launcherModel, content);
         HandleLauncherTitleAction(titleAction);
-        CalcSettingsModal.PrepareOpen();
         if (!_launcher.IsClosing)
         {
           HandleLauncherFramelessChrome();
@@ -270,7 +269,6 @@ public static class CalcExplorerApp
         ImGui.End();
         ImGui.PopStyleColor();
         ImGui.PopStyleVar(2);
-        CalcSettingsModal.Draw();
         if (!_launcher.IsClosing)
         {
           controller.Render();
@@ -302,6 +300,7 @@ public static class CalcExplorerApp
       }
 
       OpenCalculators.Clear();
+      CalcSettingsModal.DisposeForAppExit();
       controller = null;
       input = null;
       gl = null;
@@ -344,6 +343,8 @@ public static class CalcExplorerApp
           host.PumpRender();
         }
       }
+
+      CalcSettingsModal.Pump(_launcher?.GLContext);
     }
 
     foreach (CalcFaceplateHost host in OpenCalculators.ToArray())
