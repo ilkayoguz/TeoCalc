@@ -8,9 +8,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Teo.Theme" Version="1.0.1" />
-    <PackageReference Include="Teo.Theme.Windows" Version="1.0.1" />
-    <PackageReference Include="Teo.Surface.ImGui" Version="1.0.1" />
+    <PackageReference Include="Teo.Theme" Version="1.0.2" />
+    <PackageReference Include="Teo.Theme.Windows" Version="1.0.2" />
+    <PackageReference Include="Teo.Surface.ImGui" Version="1.0.2" />
   </ItemGroup>
 
   <PropertyGroup>
