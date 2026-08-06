@@ -1,5 +1,7 @@
 using System.Numerics;
 using ImGuiNET;
+using Teo.Surface.Dialogs;
+using Teo.Surface.Immediate;
 using Teo.Theme;
 
 namespace TeoCalc.Rendering.Faceplate;
@@ -7,6 +9,7 @@ namespace TeoCalc.Rendering.Faceplate;
 /// <summary>
 /// App Settings modal. Opens in the ImGui context that requested it
 /// (launcher or a calculator host) so the dialog stays on that window.
+/// OK keeps live edits; Cancel/X/ESC restores the snapshot taken on open.
 /// </summary>
 public static class CalcSettingsModal
 {
@@ -14,6 +17,11 @@ public static class CalcSettingsModal
   private static string s_saveAsName = "";
   private static string? s_saveAsError;
   private static bool s_showSaveAs;
+  private static bool s_open;
+  private static AppThemePreference s_snapshotPreference;
+  private static string s_snapshotProfileId = string.Empty;
+
+  public static bool IsOpen => s_open || s_openForContext != IntPtr.Zero;
 
   /// <summary>Queue open for the current ImGui context (call while that window is current).</summary>
   public static void RequestOpen()
@@ -36,32 +44,38 @@ public static class CalcSettingsModal
     {
       ImGui.OpenPopup("##teo-settings");
       s_openForContext = IntPtr.Zero;
+      s_open = true;
       s_showSaveAs = false;
       s_saveAsError = null;
+      s_snapshotPreference = CalcAppTheme.Preference;
+      s_snapshotProfileId = CalcSessionProfiles.ActiveProfileId;
     }
 
-    CalcAppDialogStyle.PushModal();
-    ImGui.PushStyleVar(ImGuiStyleVar.ItemSpacing, new Vector2(12f, 12f));
-    ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, new Vector2(10f, 6f));
-
-    bool open = true;
-    if (!ImGui.BeginPopupModal(
-          "##teo-settings",
-          ref open,
-          ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoTitleBar))
+    if (!s_open && !ImGui.IsPopupOpen("##teo-settings"))
     {
-      ImGui.PopStyleVar(2);
-      CalcAppDialogStyle.PopModal();
       return;
     }
 
-    // Keep the dialog from collapsing into a tight strip.
-    ImGui.Dummy(new Vector2(340f, 0f));
+    ImGui.PushStyleVar(ImGuiStyleVar.ItemSpacing, new Vector2(12f, 12f));
+    ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, new Vector2(10f, 6f));
 
-    ImGui.TextUnformatted("Settings");
-    ImGui.Spacing();
-    ImGui.Separator();
-    ImGui.Spacing();
+    bool open = s_open || ImGui.IsPopupOpen("##teo-settings");
+    if (!ImGuiModalHost.Begin(
+          "##teo-settings",
+          DialogStyles.SettingsTitle,
+          CalcAppTheme.Current,
+          ref open,
+          minContentWidth: 340f))
+    {
+      ImGui.PopStyleVar(2);
+      if (!open && s_open)
+      {
+        RestoreSnapshot(session);
+        s_open = false;
+      }
+
+      return;
+    }
 
     ImGui.TextUnformatted("Appearance");
     ImGui.Spacing();
@@ -87,22 +101,44 @@ public static class CalcSettingsModal
     ImGui.Spacing();
     ImGui.Separator();
     ImGui.Spacing();
-    CalcAppDialogStyle.PushAffirmative();
-    if (ImGui.Button("Close", new Vector2(140f, 0f)))
+
+    bool apply = ImGuiModalHost.OkButton(new Vector2(90f, 0f));
+    ImGui.SameLine();
+    bool cancel = ImGuiModalHost.CancelButton(new Vector2(90f, 0f));
+
+    if (apply)
     {
+      open = false;
+      ImGui.CloseCurrentPopup();
+    }
+    else if (cancel)
+    {
+      RestoreSnapshot(session);
+      open = false;
       ImGui.CloseCurrentPopup();
     }
 
-    CalcAppDialogStyle.PopButton();
-
-    ImGui.EndPopup();
+    ImGuiModalHost.End();
     ImGui.PopStyleVar(2);
-    CalcAppDialogStyle.PopModal();
+    s_open = open;
+  }
+
+  private static void RestoreSnapshot(CalcExplorerSession? session)
+  {
+    if (CalcAppTheme.Preference != s_snapshotPreference)
+    {
+      CalcAppTheme.SetPreference(s_snapshotPreference);
+    }
+
+    if (!string.Equals(CalcSessionProfiles.ActiveProfileId, s_snapshotProfileId, StringComparison.Ordinal))
+    {
+      CalcSessionProfiles.Select(s_snapshotProfileId, session);
+    }
   }
 
   private static void DrawSessionProfiles(CalcExplorerSession? session)
   {
-    ImGui.TextUnformatted("Session profile");
+    ImGui.TextUnformatted("Session Profile");
     ImGui.Spacing();
 
     IReadOnlyList<CalcSessionProfile> profiles = CalcSessionProfiles.List();
@@ -139,13 +175,14 @@ public static class CalcSettingsModal
     }
 
     ImGui.SameLine();
-    if (ImGui.Button("Save as##profile"))
+    if (ImGui.Button("Save As##profile"))
     {
       s_showSaveAs = !s_showSaveAs;
       s_saveAsError = null;
       s_saveAsName = active.IsBuiltIn ? $"{active.Name} copy" : active.Name;
     }
 
+    ImGuiPointerStyle.MarkLastItemClickable();
     if (ImGui.IsItemHovered())
     {
       CalcAppTooltip.Set("Save current speed and feature toggles as a new profile");
@@ -156,7 +193,7 @@ public static class CalcSettingsModal
     ImGui.Spacing();
 
     bool controlSpeed = active.ControlExecutionSpeed;
-    if (ImGui.Checkbox("Execution speed##profile_feat_speed", ref controlSpeed))
+    if (ImGui.Checkbox("Execution Speed##profile_feat_speed", ref controlSpeed))
     {
       CalcSessionProfiles.SetControlExecutionSpeed(controlSpeed);
       if (controlSpeed && session is not null)
@@ -194,6 +231,8 @@ public static class CalcSettingsModal
           s_saveAsError = error;
         }
       }
+
+      ImGuiPointerStyle.MarkLastItemClickable();
 
       if (!string.IsNullOrEmpty(s_saveAsError))
       {

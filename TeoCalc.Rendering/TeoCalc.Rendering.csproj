@@ -8,9 +8,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Teo.Theme" Version="1.0.0" />
-    <PackageReference Include="Teo.Theme.Windows" Version="1.0.0" />
-    <PackageReference Include="Teo.Surface.ImGui" Version="1.0.0" />
+    <PackageReference Include="Teo.Theme" Version="1.0.1" />
+    <PackageReference Include="Teo.Theme.Windows" Version="1.0.1" />
+    <PackageReference Include="Teo.Surface.ImGui" Version="1.0.1" />
   </ItemGroup>
 
   <PropertyGroup>
@@ -22,8 +22,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="SkiaSharp" Version="4.148.0" />
-    <PackageReference Include="Svg.Skia" Version="5.1.1" />
+    <PackageReference Include="SkiaSharp" Version="4.151.1" />
+    <PackageReference Include="Svg.Skia" Version="5.2.0" />
     <PackageReference Include="StbImageSharp" Version="2.30.15" />
     <PackageReference Include="Silk.NET.Input" Version="2.23.0" />
     <PackageReference Include="Silk.NET.OpenGL" Version="2.23.0" />

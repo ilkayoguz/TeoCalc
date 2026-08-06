@@ -1,6 +1,8 @@
 using System.Numerics;
 using ImGuiNET;
+using Teo.Surface.Immediate;
 using Teo.Theme;
+using TeoCalc.Rendering.Faceplate;
 
 namespace TeoCalc.Rendering;
 
@@ -11,7 +13,12 @@ internal static class CalcAppTooltip
 
   public static void Set(string text)
   {
-    if (string.IsNullOrEmpty(text))
+    if (string.IsNullOrEmpty(text)
+        || ImGuiModalHost.IsBlockingUnderlay
+        || CalcRegisterEditor.IsOpen
+        || CalcCardFilePicker.IsOpen
+        || CalcSettingsModal.IsOpen
+        || CalcAboutModal.IsOpen)
     {
       return;
     }

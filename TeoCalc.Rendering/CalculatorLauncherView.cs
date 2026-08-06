@@ -3,6 +3,7 @@ using ImGuiNET;
 using TeoCalc.Rendering.Faceplate;
 using TeoGame.Presentation.Components;
 using TeoGame.Presentation.Navigation;
+using Teo.Surface.Immediate;
 using Teo.Theme;
 
 namespace TeoCalc.Rendering;
@@ -58,6 +59,7 @@ public static class CalculatorLauncherView
   public static bool DrawContent(CalculatorLauncherModel launcher, CalcFramelessShell.RectF content)
   {
     NavPointerStyle.BeginFrame();
+    ImGuiModalHost.BeginFrame();
 
     GridMetrics metrics = ComputeMetrics(launcher.Entries.Count, content.Width, content.Height);
     launcher.EnsureColumnCount(metrics.Columns);
@@ -69,7 +71,7 @@ public static class CalculatorLauncherView
     openSelected |= DrawIconGrid(launcher, content.Width - metrics.PadX * 2f, metrics);
     ImGui.PopClipRect();
 
-    if (NavPointerStyle.WantsHandCursor)
+    if (NavPointerStyle.WantsHandCursor || ImGuiPointerStyle.WantsHandCursor)
     {
       CalcFaceplatePointer.RequestHandCursor();
       ImGui.SetMouseCursor(ImGuiMouseCursor.Hand);

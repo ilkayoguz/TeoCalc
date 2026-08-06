@@ -2,6 +2,7 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using ImGuiNET;
 using Silk.NET.Input;
+using Teo.Surface.Immediate;
 using TeoCalc.Core.Catalog;
 
 namespace TeoCalc.Rendering;
@@ -118,6 +119,7 @@ public static class CalcFaceplatePointer
     s_wasOverScrollableUi = IsOverScrollableUi;
     _cursor = StandardCursor.Default;
     IsOverInteractive = false;
+    ImGuiModalHost.BeginFrame();
     IsOverScrollableUi = false;
   }
 
@@ -341,9 +343,13 @@ public static class CalcFaceplatePointer
   {
     _ = programMode;
 
+    if (ImGuiModalHost.IsBlockingUnderlay)
+    {
+      return;
+    }
+
     if (!ImGui.IsWindowHovered(
           ImGuiHoveredFlags.AllowWhenBlockedByActiveItem
-          | ImGuiHoveredFlags.AllowWhenBlockedByPopup
           | ImGuiHoveredFlags.ChildWindows))
     {
       return;
@@ -372,6 +378,11 @@ public static class CalcFaceplatePointer
   /// <summary>Apply OS cursor after ImGuiController.Render (Silk may overwrite in-frame cursor).</summary>
   public static void ApplyPendingCursor(IInputContext? input)
   {
+    if (ImGuiPointerStyle.WantsHandCursor)
+    {
+      RequestHandCursor();
+    }
+
     ImGui.SetMouseCursor(ToImGuiCursor(_cursor));
 
     if (TryApplySilkCursor(input, _cursor))

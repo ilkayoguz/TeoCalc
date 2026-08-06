@@ -6,6 +6,7 @@ using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 using Silk.NET.OpenGL.Extensions.ImGui;
 using Silk.NET.Windowing;
+using Teo.Surface.Immediate;
 using TeoCalc.Core;
 using TeoCalc.Core.Catalog;
 using TeoCalc.Game.Explorer;
@@ -721,9 +722,9 @@ public sealed class CalcFaceplateHost : IDisposable
       new System.Numerics.Vector2(MathF.Max(1f, SidePanelWidthPx - 20f), MathF.Max(1f, contentHeight - 20f)),
       ImGuiChildFlags.None,
       sideFlags);
-    if (ImGui.IsWindowHovered(
+    if (!ImGuiModalHost.IsBlockingUnderlay
+        && ImGui.IsWindowHovered(
           ImGuiHoveredFlags.AllowWhenBlockedByActiveItem
-          | ImGuiHoveredFlags.AllowWhenBlockedByPopup
           | ImGuiHoveredFlags.ChildWindows))
     {
       // Side panel (Studio code/FC, Debug, …) owns wheel + drag-to-scroll.

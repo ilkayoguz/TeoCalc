@@ -4,6 +4,8 @@ using System.Text;
 using TeoCalc.Core.Engine.Classic;
 using TeoCalc.Core.Firmware;
 using TeoCalc.Formats;
+using Teo.Surface.Dialogs;
+using Teo.Surface.Immediate;
 using Teo.Theme;
 using Session = TeoCalc.Rendering.CalcExplorerSession;
 
@@ -865,24 +867,24 @@ public static class CalcStudioPanelComponent
       ImGui.OpenPopup("##studio-save-confirm");
     }
 
-    CalcAppDialogStyle.PushModal();
-    bool open = true;
-    if (!ImGui.BeginPopupModal(
+    CalcAppTheme.EnsureInitialized();
+    bool open = session.PendingStudioSaveConfirm || ImGui.IsPopupOpen("##studio-save-confirm");
+    if (!ImGuiModalHost.Begin(
           "##studio-save-confirm",
+          DialogStyles.ResolveTitle(null, DialogButtons.OkCancel),
+          CalcAppTheme.Current,
           ref open,
-          ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoTitleBar))
+          minContentWidth: 360f))
     {
       if (!open && session.PendingStudioSaveConfirm)
       {
         session.CancelStudioSaveConfirm();
       }
 
-      CalcAppDialogStyle.PopModal();
       return;
     }
 
     string path = session.LoadedCardPath ?? cardPathBuffer.Trim();
-    ImGui.Dummy(new Vector2(360f, 0f));
     ImGui.TextUnformatted("Save changes?");
     if (!string.IsNullOrWhiteSpace(path))
     {
@@ -891,8 +893,7 @@ public static class CalcStudioPanelComponent
 
     ImGui.Spacing();
 
-    CalcAppDialogStyle.PushAffirmative();
-    if (ImGui.Button("Overwrite (keep .bak)", new Vector2(180f, 0f)))
+    if (ImGuiModalHost.Button(DialogButtonRole.Affirmative, "Overwrite (keep .bak)", new Vector2(180f, 0f)))
     {
       if (string.IsNullOrWhiteSpace(path))
       {
@@ -911,11 +912,8 @@ public static class CalcStudioPanelComponent
       }
     }
 
-    CalcAppDialogStyle.PopButton();
-
     ImGui.SameLine();
-    CalcAppDialogStyle.PushNeutral();
-    if (ImGui.Button("Save As...", new Vector2(100f, 0f)))
+    if (ImGuiModalHost.Button(DialogButtonRole.Neutral, "Save As...", new Vector2(100f, 0f)))
     {
       session.CancelStudioSaveConfirm();
       ImGui.CloseCurrentPopup();
@@ -929,20 +927,14 @@ public static class CalcStudioPanelComponent
       }
     }
 
-    CalcAppDialogStyle.PopButton();
-
     ImGui.SameLine();
-    CalcAppDialogStyle.PushNeutral();
-    if (ImGui.Button("Cancel", new Vector2(90f, 0f)))
+    if (ImGuiModalHost.CancelButton(new Vector2(90f, 0f)))
     {
       session.CancelStudioSaveConfirm();
       ImGui.CloseCurrentPopup();
     }
 
-    CalcAppDialogStyle.PopButton();
-
-    ImGui.EndPopup();
-    CalcAppDialogStyle.PopModal();
+    ImGuiModalHost.End();
   }
 
   private static void DrawStudioRevertConfirmPopup(Session session)
@@ -952,29 +944,28 @@ public static class CalcStudioPanelComponent
       ImGui.OpenPopup("##studio-revert-confirm");
     }
 
-    CalcAppDialogStyle.PushModal();
-    bool open = true;
-    if (!ImGui.BeginPopupModal(
+    CalcAppTheme.EnsureInitialized();
+    bool open = session.PendingStudioRevertConfirm || ImGui.IsPopupOpen("##studio-revert-confirm");
+    if (!ImGuiModalHost.Begin(
           "##studio-revert-confirm",
+          DialogStyles.ResolveTitle(null, DialogButtons.OkCancel),
+          CalcAppTheme.Current,
           ref open,
-          ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoTitleBar))
+          minContentWidth: 320f))
     {
       if (!open && session.PendingStudioRevertConfirm)
       {
         session.CancelStudioRevertConfirm();
       }
 
-      CalcAppDialogStyle.PopModal();
       return;
     }
 
-    ImGui.Dummy(new Vector2(320f, 0f));
     ImGui.TextUnformatted("Revert unsaved program changes?");
     ImGui.TextDisabled("Restores the last loaded/saved snapshot in RAM.");
     ImGui.Spacing();
 
-    CalcAppDialogStyle.PushDestructive();
-    if (ImGui.Button("Revert", new Vector2(90f, 0f)))
+    if (ImGuiModalHost.Button(DialogButtonRole.Destructive, "Revert", new Vector2(90f, 0f)))
     {
       if (session.TryRevertProgramToSnapshot(out string? error))
       {
@@ -989,20 +980,14 @@ public static class CalcStudioPanelComponent
       }
     }
 
-    CalcAppDialogStyle.PopButton();
-
     ImGui.SameLine();
-    CalcAppDialogStyle.PushNeutral();
-    if (ImGui.Button("Cancel", new Vector2(90f, 0f)))
+    if (ImGuiModalHost.CancelButton(new Vector2(90f, 0f)))
     {
       session.CancelStudioRevertConfirm();
       ImGui.CloseCurrentPopup();
     }
 
-    CalcAppDialogStyle.PopButton();
-
-    ImGui.EndPopup();
-    CalcAppDialogStyle.PopModal();
+    ImGuiModalHost.End();
   }
 
   private static void DrawLeaveProgramConfirmPopup(
@@ -1015,29 +1000,28 @@ public static class CalcStudioPanelComponent
       ImGui.OpenPopup("##leave-wprgm-confirm");
     }
 
-    CalcAppDialogStyle.PushModal();
-    bool open = true;
-    if (!ImGui.BeginPopupModal(
+    CalcAppTheme.EnsureInitialized();
+    bool open = session.PendingLeaveProgramConfirm || ImGui.IsPopupOpen("##leave-wprgm-confirm");
+    if (!ImGuiModalHost.Begin(
           "##leave-wprgm-confirm",
+          DialogStyles.ResolveTitle(null, DialogButtons.YesNoCancel),
+          CalcAppTheme.Current,
           ref open,
-          ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoTitleBar))
+          minContentWidth: 320f))
     {
       if (!open && session.PendingLeaveProgramConfirm)
       {
         session.CancelLeaveProgramConfirm();
       }
 
-      CalcAppDialogStyle.PopModal();
       return;
     }
 
-    ImGui.Dummy(new Vector2(320f, 0f));
     ImGui.TextUnformatted("Program has unsaved changes.");
     ImGui.TextDisabled("Save before switching to RUN?");
     ImGui.Spacing();
 
-    CalcAppDialogStyle.PushAffirmative();
-    if (ImGui.Button("Save", new Vector2(90f, 0f)))
+    if (ImGuiModalHost.Button(DialogButtonRole.Affirmative, "Save", new Vector2(90f, 0f)))
     {
       if (TryStudioSaveCard(session, ref cardPathBuffer, saveCard, out string status))
       {
@@ -1052,30 +1036,21 @@ public static class CalcStudioPanelComponent
       }
     }
 
-    CalcAppDialogStyle.PopButton();
-
     ImGui.SameLine();
-    CalcAppDialogStyle.PushDestructive();
-    if (ImGui.Button("Don't Save", new Vector2(100f, 0f)))
+    if (ImGuiModalHost.Button(DialogButtonRole.Destructive, "Don't Save", new Vector2(100f, 0f)))
     {
       session.ConfirmDiscardProgramEditsAndRun();
       ImGui.CloseCurrentPopup();
     }
 
-    CalcAppDialogStyle.PopButton();
-
     ImGui.SameLine();
-    CalcAppDialogStyle.PushNeutral();
-    if (ImGui.Button("Cancel", new Vector2(90f, 0f)))
+    if (ImGuiModalHost.CancelButton(new Vector2(90f, 0f)))
     {
       session.CancelLeaveProgramConfirm();
       ImGui.CloseCurrentPopup();
     }
 
-    CalcAppDialogStyle.PopButton();
-
-    ImGui.EndPopup();
-    CalcAppDialogStyle.PopModal();
+    ImGuiModalHost.End();
   }
 
   private static void DrawCompactDebugTransport(Session session)

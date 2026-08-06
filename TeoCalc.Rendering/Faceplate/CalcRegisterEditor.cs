@@ -1,6 +1,8 @@
 using System.Globalization;
 using System.Numerics;
 using ImGuiNET;
+using Teo.Surface.Dialogs;
+using Teo.Surface.Immediate;
 
 namespace TeoCalc.Rendering.Faceplate;
 
@@ -41,22 +43,19 @@ public static class CalcRegisterEditor
       return false;
     }
 
+    CalcAppTheme.EnsureInitialized();
     bool open = s_open;
     ImGui.SetNextWindowSize(new Vector2(360f, 0f), ImGuiCond.Appearing);
-    CalcAppDialogStyle.PushModal();
-    if (!ImGui.BeginPopupModal("##studio-reg-editor", ref open, ImGuiWindowFlags.AlwaysAutoResize))
+    if (!ImGuiModalHost.Begin(
+          "##studio-reg-editor",
+          DialogStyles.DataRegistersTitle,
+          CalcAppTheme.Current,
+          ref open,
+          minContentWidth: 320f))
     {
-      CalcAppDialogStyle.PopModal();
-      if (!open)
-      {
-        s_open = false;
-      }
-
+      s_open = open;
       return false;
     }
-
-    ImGui.TextUnformatted("DATA registers");
-    ImGui.Separator();
 
     bool apply = false;
     bool cancel = false;
@@ -73,30 +72,20 @@ public static class CalcRegisterEditor
     }
 
     ImGui.Spacing();
-    CalcAppDialogStyle.PushAffirmative();
-    if (ImGui.Button("OK", new Vector2(90f, 0f)))
+    if (ImGuiModalHost.OkButton(new Vector2(90f, 0f)))
     {
       apply = true;
     }
 
-    CalcAppDialogStyle.PopButton();
     ImGui.SameLine();
-    CalcAppDialogStyle.PushNeutral();
-    if (ImGui.Button("Cancel", new Vector2(90f, 0f)))
+    if (ImGuiModalHost.CancelButton(new Vector2(90f, 0f)))
     {
       cancel = true;
     }
-
-    CalcAppDialogStyle.PopButton();
 
     if (ImGui.IsKeyPressed(ImGuiKey.Enter) || ImGui.IsKeyPressed(ImGuiKey.KeypadEnter))
     {
       apply = true;
-    }
-
-    if (ImGui.IsKeyPressed(ImGuiKey.Escape))
-    {
-      cancel = true;
     }
 
     if (apply)
@@ -115,22 +104,20 @@ public static class CalcRegisterEditor
       }
 
       committed = regs;
-      s_open = false;
+      open = false;
       ImGui.CloseCurrentPopup();
     }
-    else if (cancel || !open)
+    else if (cancel)
     {
-      s_open = false;
+      open = false;
       ImGui.CloseCurrentPopup();
     }
 
-    ImGui.EndPopup();
-    CalcAppDialogStyle.PopModal();
+    ImGuiModalHost.End();
+    s_open = open;
     return committed is not null;
   }
 
   private static string Format(double value) =>
-    Math.Abs(value - Math.Round(value)) < 1e-9
-      ? Math.Round(value).ToString("0", CultureInfo.InvariantCulture)
-      : value.ToString("G6", CultureInfo.InvariantCulture);
+    value.ToString("G15", CultureInfo.InvariantCulture);
 }

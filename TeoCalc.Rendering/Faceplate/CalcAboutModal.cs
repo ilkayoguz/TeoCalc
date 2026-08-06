@@ -1,6 +1,8 @@
 using System.Numerics;
 using System.Reflection;
 using ImGuiNET;
+using Teo.Surface.Dialogs;
+using Teo.Surface.Immediate;
 using TeoCalc.Core.Catalog;
 using Session = TeoCalc.Rendering.CalcExplorerSession;
 
@@ -10,8 +12,11 @@ namespace TeoCalc.Rendering.Faceplate;
 public static class CalcAboutModal
 {
   private static bool s_openRequested;
+  private static bool s_open;
 
   public static void RequestOpen() => s_openRequested = true;
+
+  public static bool IsOpen => s_open || s_openRequested;
 
   public static void Draw(Session session, CalcModelDefinition faceplateModel)
   {
@@ -19,20 +24,27 @@ public static class CalcAboutModal
     {
       ImGui.OpenPopup("##teo-about");
       s_openRequested = false;
+      s_open = true;
     }
 
-    CalcAppDialogStyle.PushModal();
-    bool open = true;
-    if (!ImGui.BeginPopupModal(
-          "##teo-about",
-          ref open,
-          ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoTitleBar))
+    if (!s_open && !ImGui.IsPopupOpen("##teo-about"))
     {
-      CalcAppDialogStyle.PopModal();
       return;
     }
 
-    ImGui.Dummy(new Vector2(260f, 0f));
+    CalcAppTheme.EnsureInitialized();
+    bool open = s_open || ImGui.IsPopupOpen("##teo-about");
+    if (!ImGuiModalHost.Begin(
+          "##teo-about",
+          DialogStyles.AboutTitle,
+          CalcAppTheme.Current,
+          ref open,
+          minContentWidth: 260f))
+    {
+      s_open = open;
+      return;
+    }
+
     ImGui.TextUnformatted("TeoCalc");
     ImGui.TextDisabled(faceplateModel.LogoCaption);
     ImGui.Separator();
@@ -50,16 +62,14 @@ public static class CalcAboutModal
     }
 
     ImGui.Spacing();
-    CalcAppDialogStyle.PushAffirmative();
-    if (ImGui.Button("Close", new Vector2(120f, 0f)))
+    if (ImGuiModalHost.CloseButton(new Vector2(120f, 0f)))
     {
+      open = false;
       ImGui.CloseCurrentPopup();
     }
 
-    CalcAppDialogStyle.PopButton();
-
-    ImGui.EndPopup();
-    CalcAppDialogStyle.PopModal();
+    ImGuiModalHost.End();
+    s_open = open;
   }
 
   /// <summary>
@@ -71,7 +81,7 @@ public static class CalcAboutModal
     _ = ImGui.InvisibleButton("##teo-mark", new Vector2(markHit.Width, markHit.Height));
     if (ImGui.IsItemHovered())
     {
-      ImGui.SetMouseCursor(ImGuiMouseCursor.Hand);
+      ImGuiPointerStyle.MarkLastItemClickable();
       CalcAppTooltip.Set("About TeoCalc");
     }
 

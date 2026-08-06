@@ -1,5 +1,7 @@
 using System.Numerics;
 using ImGuiNET;
+using Teo.Surface.Dialogs;
+using Teo.Surface.Immediate;
 
 namespace TeoCalc.Rendering.Faceplate;
 
@@ -67,22 +69,20 @@ public static class CalcCardFilePicker
     ImGui.SetNextWindowPos(center, ImGuiCond.Appearing, new Vector2(0.5f, 0.5f));
     ImGui.SetNextWindowSize(new Vector2(520f, 420f), ImGuiCond.Appearing);
 
-    CalcAppDialogStyle.PushModal();
+    CalcAppTheme.EnsureInitialized();
     CalcStudioChromeStyle.PushToolbar();
-    bool visible = ImGui.BeginPopupModal(
-      "##studio-card-file-picker",
-      ref s_open,
-      ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoMove);
-    if (!visible)
+    bool open = s_open;
+    if (!ImGuiModalHost.Begin(
+          "##studio-card-file-picker",
+          DialogStyles.LoadCardTitle,
+          CalcAppTheme.Current,
+          ref open,
+          ImGuiWindowFlags.NoResize))
     {
       CalcStudioChromeStyle.PopToolbar();
-      CalcAppDialogStyle.PopModal();
-      s_open = false;
+      s_open = open;
       return false;
     }
-
-    ImGui.TextUnformatted("Load card");
-    ImGui.Separator();
 
     float folderW = ImGui.CalcTextSize("Folder...").X + ImGui.GetStyle().FramePadding.X * 2f + 8f;
     ImGui.SetNextItemWidth(MathF.Max(80f, ImGui.GetContentRegionAvail().X - folderW - ImGui.GetStyle().ItemSpacing.X));
@@ -99,6 +99,8 @@ public static class CalcCardFilePicker
         RefreshFiles();
       }
     }
+
+    ImGuiPointerStyle.MarkLastItemClickable();
 
     ImGui.TextDisabled(s_filterHint);
     ImGui.BeginChild(
@@ -122,11 +124,12 @@ public static class CalcCardFilePicker
           if (ImGui.IsMouseDoubleClicked(ImGuiMouseButton.Left))
           {
             pickedPath = s_files[i];
-            CloseModal();
+            open = false;
+            ImGui.CloseCurrentPopup();
             ImGui.EndChild();
-            ImGui.EndPopup();
+            ImGuiModalHost.End();
             CalcStudioChromeStyle.PopToolbar();
-            CalcAppDialogStyle.PopModal();
+            s_open = false;
             return true;
           }
         }
@@ -141,53 +144,45 @@ public static class CalcCardFilePicker
       ImGui.BeginDisabled();
     }
 
-    CalcAppDialogStyle.PushAffirmative();
-    bool ok = ImGui.Button("OK", new Vector2(96f, 0f));
-    CalcAppDialogStyle.PopButton();
+    bool ok = ImGuiModalHost.OkButton(new Vector2(96f, 0f));
     if (!canOk)
     {
       ImGui.EndDisabled();
     }
 
     ImGui.SameLine();
-    CalcAppDialogStyle.PushNeutral();
-    bool cancel = ImGui.Button("Cancel", new Vector2(96f, 0f));
-    CalcAppDialogStyle.PopButton();
+    bool cancel = ImGuiModalHost.CancelButton(new Vector2(96f, 0f));
 
     if (ImGui.IsKeyPressed(ImGuiKey.Enter) && canOk)
     {
       ok = true;
     }
 
-    if (ImGui.IsKeyPressed(ImGuiKey.Escape) || cancel)
+    if (cancel)
     {
-      CloseModal();
-      ImGui.EndPopup();
+      open = false;
+      ImGui.CloseCurrentPopup();
+      ImGuiModalHost.End();
       CalcStudioChromeStyle.PopToolbar();
-      CalcAppDialogStyle.PopModal();
+      s_open = false;
       return false;
     }
 
     if (ok && canOk)
     {
       pickedPath = s_files[s_selected];
-      CloseModal();
-      ImGui.EndPopup();
+      open = false;
+      ImGui.CloseCurrentPopup();
+      ImGuiModalHost.End();
       CalcStudioChromeStyle.PopToolbar();
-      CalcAppDialogStyle.PopModal();
+      s_open = false;
       return true;
     }
 
-    ImGui.EndPopup();
+    ImGuiModalHost.End();
     CalcStudioChromeStyle.PopToolbar();
-    CalcAppDialogStyle.PopModal();
+    s_open = open;
     return false;
-  }
-
-  private static void CloseModal()
-  {
-    s_open = false;
-    ImGui.CloseCurrentPopup();
   }
 
   private static void RefreshFiles()
