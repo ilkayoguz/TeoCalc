@@ -5,6 +5,7 @@ using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 using Silk.NET.OpenGL.Extensions.ImGui;
 using Silk.NET.Windowing;
+using Teo.Surface.Immediate;
 using TeoCalc.Core;
 using TeoCalc.Rendering.Faceplate;
 
@@ -394,6 +395,17 @@ public static class CalcExplorerApp
   {
     if (_launcher is null || _launcher.IsClosing)
     {
+      return;
+    }
+
+    if (ImGuiModalHost.IsBlockingUnderlay
+        || ImGuiModalHost.IsDragging
+        || CalcSettingsModal.IsOpen
+        || CalcAboutModal.IsOpen)
+    {
+      _draggingWindow = false;
+      _dragMoved = false;
+      _resizingWindow = false;
       return;
     }
 

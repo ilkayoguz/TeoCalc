@@ -775,6 +775,20 @@ public sealed class CalcFaceplateHost : IDisposable
 
   private void HandleFramelessChrome()
   {
+    // Modal dialogs own pointer drag; do not move the OS host underneath them.
+    if (ImGuiModalHost.IsBlockingUnderlay
+        || ImGuiModalHost.IsDragging
+        || CalcSettingsModal.IsOpen
+        || CalcRegisterEditor.IsOpen
+        || CalcCardFilePicker.IsOpen
+        || CalcAboutModal.IsOpen)
+    {
+      _draggingWindow = false;
+      _dragMoved = false;
+      _resizingWindow = false;
+      return;
+    }
+
     System.Numerics.Vector2 display = ImGui.GetIO().DisplaySize;
     System.Numerics.Vector2 mouse = ImGui.GetIO().MousePos;
     (bool _, bool hasPrinter) = ResolveCapabilityIcons();
