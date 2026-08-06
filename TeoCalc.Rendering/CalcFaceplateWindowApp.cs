@@ -436,12 +436,17 @@ public sealed class CalcFaceplateHost : IDisposable
             MathF.Max(1f, display.X - CalcBodyOffsetX - BandSide),
             contentHeight));
         HandleTitleAction(titleAction);
-        CalcSettingsModal.Draw(_session);
+        CalcSettingsModal.PrepareOpen();
+        CalcAboutModal.PrepareOpen();
         HandleFramelessChrome();
 
         ImGui.End();
         ImGui.PopStyleColor();
         ImGui.PopStyleVar(2);
+        // Popups must sit above the fullscreen host (NoBringToFrontOnFocus); draw after End.
+        CalcSettingsModal.Draw(_session);
+        CalcModelDefinition aboutModel = CalcModelCatalog.Resolve(_session.Model, _catalogModelId);
+        CalcAboutModal.Draw(_session, aboutModel);
         _controller.Render();
         CalcFaceplatePointer.ApplyPendingCursor(_input);
       }
@@ -531,7 +536,6 @@ public sealed class CalcFaceplateHost : IDisposable
     CalcModelDefinition model = CalcModelCatalog.Resolve(_session.Model, _catalogModelId);
     CalcLogoPanelComponent.Draw(draw, logoBand, logoScale, model, skipText: false, out RectF markHit);
     CalcAboutModal.HandleMarkInteraction(markHit);
-    CalcAboutModal.Draw(_session, model);
   }
 
   private static RectF DrawBead(

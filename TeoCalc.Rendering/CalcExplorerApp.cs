@@ -261,7 +261,7 @@ public static class CalcExplorerApp
 
         CalculatorLauncherView.DrawContent(launcherModel, content);
         HandleLauncherTitleAction(titleAction);
-        CalcSettingsModal.Draw();
+        CalcSettingsModal.PrepareOpen();
         if (!_launcher.IsClosing)
         {
           HandleLauncherFramelessChrome();
@@ -270,6 +270,7 @@ public static class CalcExplorerApp
         ImGui.End();
         ImGui.PopStyleColor();
         ImGui.PopStyleVar(2);
+        CalcSettingsModal.Draw();
         if (!_launcher.IsClosing)
         {
           controller.Render();

@@ -1,38 +1,70 @@
 using System.Numerics;
 using System.Reflection;
 using ImGuiNET;
+using Teo.Locale;
 using Teo.Surface.Dialogs;
 using Teo.Surface.Immediate;
+using Teo.Theme;
 using TeoCalc.Core.Catalog;
 using Session = TeoCalc.Rendering.CalcExplorerSession;
 
 namespace TeoCalc.Rendering.Faceplate;
 
-/// <summary>Mini About modal opened from the Teo mark on the logo band.</summary>
+/// <summary>About as BeginPopupModal owned by a fullscreen capture host.</summary>
 public static class CalcAboutModal
 {
-  private static bool s_openRequested;
+  private static bool s_pendingOpen;
   private static bool s_open;
+  private static bool s_openPopup;
 
-  public static void RequestOpen() => s_openRequested = true;
+  public static void RequestOpen() => s_pendingOpen = true;
 
-  public static bool IsOpen => s_open || s_openRequested;
+  public static bool IsOpen => s_open || s_pendingOpen;
+
+  public static void PrepareOpen()
+  {
+    if (!s_pendingOpen || s_open)
+      return;
+
+    s_pendingOpen = false;
+    s_open = true;
+    s_openPopup = true;
+  }
 
   public static void Draw(Session session, CalcModelDefinition faceplateModel)
   {
-    if (s_openRequested)
-    {
-      ImGui.OpenPopup("##teo-about");
-      s_openRequested = false;
-      s_open = true;
-    }
-
-    if (!s_open && !ImGui.IsPopupOpen("##teo-about"))
-    {
+    PrepareOpen();
+    if (!s_open && !s_openPopup && !ImGui.IsPopupOpen("##teo-about"))
       return;
-    }
 
     CalcAppTheme.EnsureInitialized();
+    CalcLocalization.EnsureInitialized();
+    LanguagePreference uiLang = CalcLocalization.Preference;
+    Vector2 display = ImGui.GetIO().DisplaySize;
+
+    ImGui.SetNextWindowPos(Vector2.Zero);
+    ImGui.SetNextWindowSize(display);
+    ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, Vector2.Zero);
+    ImGui.PushStyleVar(ImGuiStyleVar.WindowBorderSize, 0f);
+    ImGui.PushStyleColor(ImGuiCol.WindowBg, new Vector4(0f, 0f, 0f, 0.45f));
+    ImGui.Begin(
+      "##teo-about-modal-host",
+      ImGuiWindowFlags.NoTitleBar
+        | ImGuiWindowFlags.NoResize
+        | ImGuiWindowFlags.NoMove
+        | ImGuiWindowFlags.NoSavedSettings
+        | ImGuiWindowFlags.NoScrollbar
+        | ImGuiWindowFlags.NoNavInputs
+        | ImGuiWindowFlags.NoBringToFrontOnFocus);
+    ImGui.InvisibleButton("##teo-about-scrim", display);
+
+    if (s_openPopup)
+    {
+      ImGui.OpenPopup("##teo-about");
+      s_openPopup = false;
+    }
+
+    ImGui.PushFont(CalcFaceplateFonts.Ui);
     bool open = s_open || ImGui.IsPopupOpen("##teo-about");
     if (!ImGuiModalHost.Begin(
           "##teo-about",
@@ -41,6 +73,10 @@ public static class CalcAboutModal
           ref open,
           minContentWidth: 260f))
     {
+      ImGui.PopFont();
+      ImGui.End();
+      ImGui.PopStyleColor();
+      ImGui.PopStyleVar(2);
       s_open = open;
       return;
     }
@@ -49,32 +85,32 @@ public static class CalcAboutModal
     ImGui.TextDisabled(faceplateModel.LogoCaption);
     ImGui.Separator();
     ImGui.TextUnformatted(faceplateModel.ProductLabel);
-    ImGui.TextDisabled($"Family: {session.Model.Family}");
+    ImGui.TextDisabled($"{CalcUiText.Family(uiLang)}: {session.Model.Family}");
     if (session.Model.Hardware?.RomWordCount is int romWords and > 0)
-    {
-      ImGui.TextDisabled($"ROM words: {romWords}");
-    }
+      ImGui.TextDisabled($"{CalcUiText.RomWords(uiLang)}: {romWords}");
 
     Version? ver = Assembly.GetExecutingAssembly().GetName().Version;
     if (ver is not null)
-    {
-      ImGui.TextDisabled($"Build: {ver}");
-    }
+      ImGui.TextDisabled($"{CalcUiText.Build(uiLang)}: {ver}");
 
     ImGui.Spacing();
-    if (ImGuiModalHost.CloseButton(new Vector2(120f, 0f)))
+    if (ImGuiModalHost.Button(
+          DialogButtonRole.Affirmative,
+          CalcUiText.Close(uiLang),
+          new Vector2(120f, 0f)))
     {
       open = false;
       ImGui.CloseCurrentPopup();
     }
 
     ImGuiModalHost.End();
+    ImGui.PopFont();
+    ImGui.End();
+    ImGui.PopStyleColor();
+    ImGui.PopStyleVar(2);
     s_open = open;
   }
 
-  /// <summary>
-  /// Hit-test the Teo mark; hover shows a tip, click opens About.
-  /// </summary>
   public static void HandleMarkInteraction(RectF markHit)
   {
     ImGui.SetCursorScreenPos(markHit.Min);
@@ -82,12 +118,10 @@ public static class CalcAboutModal
     if (ImGui.IsItemHovered())
     {
       ImGuiPointerStyle.MarkLastItemClickable();
-      CalcAppTooltip.Set("About TeoCalc");
+      CalcAppTooltip.Set(CalcUiText.About(CalcLocalization.Preference));
     }
 
     if (ImGui.IsItemClicked())
-    {
       RequestOpen();
-    }
   }
 }
