@@ -1,3 +1,4 @@
+using System.Globalization;
 using Teo.Locale;
 using Teo.Locale.Windows;
 
@@ -21,7 +22,16 @@ public static class CalcLocalization
     LanguagePreferenceGate.HostResolver = OperatingSystem.IsWindows()
       ? WindowsHostCultureResolver.Instance
       : null;
-    LanguagePreferenceGate.Apply(_preference);
+
+    try
+    {
+      LanguagePreferenceGate.Apply(_preference);
+    }
+    catch (CultureNotFoundException)
+    {
+      // TeoCalc may run with InvariantGlobalization; preference is still tracked in-process.
+    }
+
     _initialized = true;
   }
 
@@ -29,7 +39,15 @@ public static class CalcLocalization
   {
     EnsureInitialized();
     _preference = preference;
-    LanguagePreferenceGate.Apply(preference);
+    try
+    {
+      LanguagePreferenceGate.Apply(preference);
+    }
+    catch (CultureNotFoundException)
+    {
+      // keep in-process preference even when ICU cultures are unavailable
+    }
+
     if (persist)
       CalcUserSettingsStore.SaveLanguagePreference(preference);
   }

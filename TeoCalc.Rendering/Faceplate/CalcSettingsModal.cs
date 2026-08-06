@@ -39,11 +39,11 @@ public static class CalcSettingsModal
   public static void Draw(CalcExplorerSession? session = null)
   {
     CalcAppTheme.EnsureInitialized();
-    CalcLocalization.EnsureInitialized();
 
     IntPtr ctx = ImGui.GetCurrentContext();
     if (ctx != IntPtr.Zero && s_openForContext == ctx)
     {
+      CalcLocalization.EnsureInitialized();
       ImGui.OpenPopup("##teo-settings");
       s_openForContext = IntPtr.Zero;
       s_open = true;
@@ -56,6 +56,8 @@ public static class CalcSettingsModal
 
     if (!s_open && !ImGui.IsPopupOpen("##teo-settings"))
       return;
+
+    CalcLocalization.EnsureInitialized();
 
     ImGui.PushStyleVar(ImGuiStyleVar.ItemSpacing, new Vector2(12f, 12f));
     ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, new Vector2(10f, 6f));

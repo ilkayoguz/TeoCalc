@@ -8,12 +8,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Teo.Theme" Version="1.0.3" />
-    <PackageReference Include="Teo.Theme.Windows" Version="1.0.3" />
-    <PackageReference Include="Teo.Locale" Version="1.0.3" />
-    <PackageReference Include="Teo.Locale.Windows" Version="1.0.3" />
-    <PackageReference Include="Teo.Settings" Version="1.0.3" />
-    <PackageReference Include="Teo.Surface.ImGui" Version="1.0.3" />
+    <PackageReference Include="Teo.Theme" Version="1.0.4" />
+    <PackageReference Include="Teo.Theme.Windows" Version="1.0.4" />
+    <PackageReference Include="Teo.Locale" Version="1.0.4" />
+    <PackageReference Include="Teo.Locale.Windows" Version="1.0.4" />
+    <PackageReference Include="Teo.Settings" Version="1.0.4" />
+    <PackageReference Include="Teo.Surface.ImGui" Version="1.0.4" />
   </ItemGroup>
 
   <PropertyGroup>
