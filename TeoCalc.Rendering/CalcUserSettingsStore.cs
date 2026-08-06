@@ -1,10 +1,12 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Teo.Locale;
+using Teo.Settings;
 using Teo.Theme;
 
 namespace TeoCalc.Rendering;
 
-/// <summary>Persists TeoCalc user preferences under LocalApplicationData (immediate write).</summary>
+/// <summary>Persists TeoCalc preferences via Teo.Settings dual-write (SiDE leaf).</summary>
 public static class CalcUserSettingsStore
 {
   private static readonly JsonSerializerOptions JsonOptions = new()
@@ -15,14 +17,28 @@ public static class CalcUserSettingsStore
   };
 
   private static UserSettingsDocument? _cache;
+  private static ISettingsStore? _store;
 
-  public static void Initialize() => _cache = LoadFromDisk();
+  public static void Initialize()
+  {
+    MigrateFromLegacyIfNeeded();
+    _store = CreateStore();
+    _cache = LoadFromStore();
+  }
 
   public static AppThemePreference LoadAppThemePreference() =>
     TryRead(() => ParseAppThemePreference(_cache!.Display.AppTheme), AppThemePreference.System);
 
   public static void SaveAppThemePreference(AppThemePreference preference) =>
     Update(settings => settings.Display.AppTheme = FormatAppThemePreference(preference));
+
+  public static LanguagePreference LoadLanguagePreference() =>
+    TryRead(
+      () => TextKeyword.ParsePreference(_cache!.Display.LanguageCode),
+      LanguagePreference.System);
+
+  public static void SaveLanguagePreference(LanguagePreference preference) =>
+    Update(settings => settings.Display.LanguageCode = TextKeyword.FormatPreference(preference));
 
   public static string LoadActiveSessionProfileId() =>
     TryRead(
@@ -53,14 +69,14 @@ public static class CalcUserSettingsStore
       ];
     });
 
-  public static string SettingsPath()
-  {
-    string directory = Path.Combine(
+  public static string SettingsPath() =>
+    SettingsPathGate.FilePath("TeoCalc", SettingsPathGate.TryResolveCoExVersion("TeoCalc"));
+
+  public static string LegacySettingsPath() =>
+    Path.Combine(
       Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-      "TeoCalc");
-    Directory.CreateDirectory(directory);
-    return Path.Combine(directory, "UserSettings.json");
-  }
+      "TeoCalc",
+      "UserSettings.json");
 
   internal static AppThemePreference ParseAppThemePreference(string? value) =>
     value?.Trim() switch
@@ -100,16 +116,19 @@ public static class CalcUserSettingsStore
   {
     EnsureCache();
     edit(_cache!);
-    WriteToDisk(_cache!);
+    WriteToStore(_cache!);
   }
 
   private static void EnsureCache()
   {
     if (_cache is null)
-    {
       Initialize();
-    }
   }
+
+  private static void EnsureStore() => _store ??= CreateStore();
+
+  private static ISettingsStore CreateStore() =>
+    SettingsPathGate.CreateDualStore("TeoCalc", SettingsPathGate.TryResolveCoExVersion("TeoCalc"));
 
   private static T TryRead<T>(Func<T> read, T fallback)
   {
@@ -128,32 +147,56 @@ public static class CalcUserSettingsStore
     }
   }
 
-  private static UserSettingsDocument LoadFromDisk()
+  private static UserSettingsDocument LoadFromStore()
   {
-    string path = SettingsPath();
-    if (!File.Exists(path))
+    EnsureStore();
+    if (_store!.TryLoad(out SettingsBlob blob))
     {
-      UserSettingsDocument defaults = new();
-      WriteToDisk(defaults);
-      return defaults;
+      try
+      {
+        return JsonSerializer.Deserialize<UserSettingsDocument>(blob.Json, JsonOptions)
+          ?? new UserSettingsDocument();
+      }
+      catch (JsonException)
+      {
+        // fall through
+      }
     }
+
+    UserSettingsDocument defaults = new();
+    WriteToStore(defaults);
+    return defaults;
+  }
+
+  private static void WriteToStore(UserSettingsDocument settings)
+  {
+    EnsureStore();
+    string json = JsonSerializer.Serialize(settings, JsonOptions);
+    _store!.Save(SettingsBlob.Create(json));
+  }
+
+  private static void MigrateFromLegacyIfNeeded()
+  {
+    string dualPath = SettingsPath();
+    if (File.Exists(dualPath))
+      return;
+
+    string legacy = LegacySettingsPath();
+    if (!File.Exists(legacy))
+      return;
 
     try
     {
-      string json = File.ReadAllText(path);
-      return JsonSerializer.Deserialize<UserSettingsDocument>(json, JsonOptions) ?? new UserSettingsDocument();
+      string json = File.ReadAllText(legacy);
+      UserSettingsDocument? doc = JsonSerializer.Deserialize<UserSettingsDocument>(json, JsonOptions);
+      if (doc is null)
+        return;
+      CreateStore().Save(SettingsBlob.Create(JsonSerializer.Serialize(doc, JsonOptions)));
     }
-    catch (JsonException)
+    catch
     {
-      return new UserSettingsDocument();
+      // ignore
     }
-  }
-
-  private static void WriteToDisk(UserSettingsDocument settings)
-  {
-    string path = SettingsPath();
-    string json = JsonSerializer.Serialize(settings, JsonOptions);
-    File.WriteAllText(path, json);
   }
 
   private sealed class UserSettingsDocument
@@ -166,6 +209,8 @@ public static class CalcUserSettingsStore
   private sealed class DisplaySettings
   {
     public string AppTheme { get; set; } = "System";
+
+    public string LanguageCode { get; set; } = "System";
   }
 
   private sealed class SessionSettings

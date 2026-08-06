@@ -47,7 +47,11 @@ public static class CalcAppTheme
     }
   }
 
-  public static void SetPreference(AppThemePreference preference)
+  public static void SetPreference(AppThemePreference preference) =>
+    SetPreference(preference, persist: true);
+
+  /// <summary>Applies theme preference; set <paramref name="persist"/> false for live Settings preview.</summary>
+  public static void SetPreference(AppThemePreference preference, bool persist)
   {
     EnsureInitialized();
     if (_service!.Preference == preference)
@@ -56,7 +60,8 @@ public static class CalcAppTheme
     }
 
     _service.Preference = preference;
-    CalcUserSettingsStore.SaveAppThemePreference(preference);
+    if (persist)
+      CalcUserSettingsStore.SaveAppThemePreference(preference);
   }
 
   /// <summary>Call after each ImGui context is current (launcher and each calc window).</summary>

@@ -57,6 +57,15 @@ public static class CalcFramelessShell
       draw.AddText(font, fontSize, new Vector2(textX, textY), CalcAppTheme.TitleBarInk, title);
     }
 
+    // Redraw outermost bead stroke so the top edge stays visible over the title band.
+    draw.AddRect(
+      frame.Min,
+      frame.Max,
+      Calc00dWireStyle.BlackFitilShine,
+      Calc00dWireStyle.OuterRadiusRef,
+      ImDrawFlags.RoundCornersAll,
+      MathF.Max(1f, q));
+
     return new RectF(
       cursor.X,
       cursor.Y + TopBandHeight,

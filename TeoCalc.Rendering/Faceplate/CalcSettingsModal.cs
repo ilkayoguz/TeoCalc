@@ -1,5 +1,8 @@
 using System.Numerics;
+using System.Text.Json;
 using ImGuiNET;
+using Teo.Locale;
+using Teo.Settings;
 using Teo.Surface.Dialogs;
 using Teo.Surface.Immediate;
 using Teo.Theme;
@@ -7,30 +10,28 @@ using Teo.Theme;
 namespace TeoCalc.Rendering.Faceplate;
 
 /// <summary>
-/// App Settings modal. Opens in the ImGui context that requested it
-/// (launcher or a calculator host) so the dialog stays on that window.
-/// OK keeps live edits; Cancel/X/ESC restores the snapshot taken on open.
+/// App Settings modal with SettingsSession: live preview, Default/Cancel/OK.
+/// Theme and language persist only on OK (dual-write via CalcUserSettingsStore).
 /// </summary>
 public static class CalcSettingsModal
 {
+  private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = false };
+
   private static IntPtr s_openForContext;
   private static string s_saveAsName = "";
   private static string? s_saveAsError;
   private static bool s_showSaveAs;
   private static bool s_open;
-  private static AppThemePreference s_snapshotPreference;
+  private static SettingsSession<CalcSettingsBag>? s_session;
   private static string s_snapshotProfileId = string.Empty;
 
   public static bool IsOpen => s_open || s_openForContext != IntPtr.Zero;
 
-  /// <summary>Queue open for the current ImGui context (call while that window is current).</summary>
   public static void RequestOpen()
   {
     IntPtr ctx = ImGui.GetCurrentContext();
     if (ctx == IntPtr.Zero)
-    {
       return;
-    }
 
     s_openForContext = ctx;
   }
@@ -38,6 +39,7 @@ public static class CalcSettingsModal
   public static void Draw(CalcExplorerSession? session = null)
   {
     CalcAppTheme.EnsureInitialized();
+    CalcLocalization.EnsureInitialized();
 
     IntPtr ctx = ImGui.GetCurrentContext();
     if (ctx != IntPtr.Zero && s_openForContext == ctx)
@@ -47,14 +49,13 @@ public static class CalcSettingsModal
       s_open = true;
       s_showSaveAs = false;
       s_saveAsError = null;
-      s_snapshotPreference = CalcAppTheme.Preference;
       s_snapshotProfileId = CalcSessionProfiles.ActiveProfileId;
+      s_session = CreateSession();
+      s_session.Open();
     }
 
     if (!s_open && !ImGui.IsPopupOpen("##teo-settings"))
-    {
       return;
-    }
 
     ImGui.PushStyleVar(ImGuiStyleVar.ItemSpacing, new Vector2(12f, 12f));
     ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, new Vector2(10f, 6f));
@@ -70,26 +71,47 @@ public static class CalcSettingsModal
       ImGui.PopStyleVar(2);
       if (!open && s_open)
       {
-        RestoreSnapshot(session);
+        s_session?.Revert();
+        RestoreProfile(session);
         s_open = false;
+        s_session = null;
       }
 
       return;
     }
 
+    CalcSettingsBag draft = s_session?.Current ?? new CalcSettingsBag();
+
+    ImGui.TextUnformatted("Language");
+    ImGui.Spacing();
+    int lang = (int)draft.Language;
+    ImGui.RadioButton("System##app_lang", ref lang, (int)LanguagePreference.System);
+    ImGui.RadioButton("English##app_lang", ref lang, (int)LanguagePreference.English);
+    ImGui.RadioButton("Turkish##app_lang", ref lang, (int)LanguagePreference.Turkish);
+    LanguagePreference nextLang = (LanguagePreference)lang;
+    if (nextLang != draft.Language)
+    {
+      draft.Language = nextLang;
+      s_session?.Preview(CloneForm(draft));
+    }
+
+    ImGui.Spacing();
+    ImGui.Separator();
+    ImGui.Spacing();
+
     ImGui.TextUnformatted("Appearance");
     ImGui.Spacing();
 
-    AppThemePreference current = CalcAppTheme.Preference;
-    int mode = (int)current;
+    int mode = (int)draft.Theme;
     ImGui.RadioButton("System##app_theme", ref mode, (int)AppThemePreference.System);
     ImGui.RadioButton("Light##app_theme", ref mode, (int)AppThemePreference.Light);
     ImGui.RadioButton("Dark##app_theme", ref mode, (int)AppThemePreference.Dark);
 
-    AppThemePreference next = (AppThemePreference)mode;
-    if (next != current)
+    AppThemePreference nextTheme = (AppThemePreference)mode;
+    if (nextTheme != draft.Theme)
     {
-      CalcAppTheme.SetPreference(next);
+      draft.Theme = nextTheme;
+      s_session?.Preview(CloneForm(draft));
     }
 
     ImGui.Spacing();
@@ -102,38 +124,88 @@ public static class CalcSettingsModal
     ImGui.Separator();
     ImGui.Spacing();
 
-    bool apply = ImGuiModalHost.OkButton(new Vector2(90f, 0f));
-    ImGui.SameLine();
-    bool cancel = ImGuiModalHost.CancelButton(new Vector2(90f, 0f));
-
-    if (apply)
+    DialogResult footer = ImGuiModalHost.DrawDefaultCancelOkFooter(new Vector2(90f, 0f));
+    if (footer is DialogResult.Ok)
     {
+      s_session?.Commit();
       open = false;
       ImGui.CloseCurrentPopup();
     }
-    else if (cancel)
+    else if (footer is DialogResult.Cancel)
     {
-      RestoreSnapshot(session);
+      s_session?.Revert();
+      RestoreProfile(session);
       open = false;
       ImGui.CloseCurrentPopup();
+    }
+    else if (footer is DialogResult.Default)
+    {
+      s_session?.ResetToDefaults();
     }
 
     ImGuiModalHost.End();
     ImGui.PopStyleVar(2);
     s_open = open;
+    if (!s_open)
+      s_session = null;
   }
 
-  private static void RestoreSnapshot(CalcExplorerSession? session)
+  private static void RestoreProfile(CalcExplorerSession? session)
   {
-    if (CalcAppTheme.Preference != s_snapshotPreference)
+    if (!string.Equals(CalcSessionProfiles.ActiveProfileId, s_snapshotProfileId, StringComparison.Ordinal))
+      CalcSessionProfiles.Select(s_snapshotProfileId, session);
+  }
+
+  private static SettingsSession<CalcSettingsBag> CreateSession() =>
+    new(
+      new AdapterStore(),
+      createDefaults: static () => new CalcSettingsBag(),
+      serialize: static f => JsonSerializer.Serialize(f, JsonOptions),
+      deserialize: static json => JsonSerializer.Deserialize<CalcSettingsBag>(json, JsonOptions),
+      applyPreview: static form =>
+      {
+        CalcAppTheme.SetPreference(form.Theme, persist: false);
+        CalcLocalization.SetPreference(form.Language, persist: false);
+      },
+      clone: CloneForm);
+
+  private static CalcSettingsBag CloneForm(CalcSettingsBag form) => new()
+  {
+    Theme = form.Theme,
+    Language = form.Language,
+  };
+
+  private sealed class AdapterStore : ISettingsStore
+  {
+    public string Location => "CalcUserSettingsStore";
+
+    public bool TryLoad(out SettingsBlob blob)
     {
-      CalcAppTheme.SetPreference(s_snapshotPreference);
+      CalcSettingsBag form = new()
+      {
+        Theme = CalcUserSettingsStore.LoadAppThemePreference(),
+        Language = CalcUserSettingsStore.LoadLanguagePreference(),
+      };
+      blob = SettingsBlob.Create(JsonSerializer.Serialize(form, JsonOptions));
+      return true;
     }
 
-    if (!string.Equals(CalcSessionProfiles.ActiveProfileId, s_snapshotProfileId, StringComparison.Ordinal))
+    public void Save(SettingsBlob blob)
     {
-      CalcSessionProfiles.Select(s_snapshotProfileId, session);
+      CalcSettingsBag? form = JsonSerializer.Deserialize<CalcSettingsBag>(blob.Json, JsonOptions);
+      if (form is null)
+        return;
+      CalcUserSettingsStore.SaveAppThemePreference(form.Theme);
+      CalcUserSettingsStore.SaveLanguagePreference(form.Language);
+      CalcAppTheme.SetPreference(form.Theme, persist: false);
+      CalcLocalization.SetPreference(form.Language, persist: true);
     }
+  }
+
+  private sealed class CalcSettingsBag
+  {
+    public AppThemePreference Theme { get; set; } = AppThemePreference.System;
+    public LanguagePreference Language { get; set; } = LanguagePreference.System;
   }
 
   private static void DrawSessionProfiles(CalcExplorerSession? session)
@@ -166,9 +238,7 @@ public static class CalcSettingsModal
         }
 
         if (isSelected)
-        {
           ImGui.SetItemDefaultFocus();
-        }
       }
 
       ImGui.EndCombo();
@@ -184,9 +254,7 @@ public static class CalcSettingsModal
 
     ImGuiPointerStyle.MarkLastItemClickable();
     if (ImGui.IsItemHovered())
-    {
       CalcAppTooltip.Set("Save current speed and feature toggles as a new profile");
-    }
 
     ImGui.Spacing();
     ImGui.TextUnformatted("Features");
@@ -197,9 +265,7 @@ public static class CalcSettingsModal
     {
       CalcSessionProfiles.SetControlExecutionSpeed(controlSpeed);
       if (controlSpeed && session is not null)
-      {
         CalcSessionProfiles.ApplyTo(session);
-      }
     }
 
     if (controlSpeed)
@@ -235,9 +301,7 @@ public static class CalcSettingsModal
       ImGuiPointerStyle.MarkLastItemClickable();
 
       if (!string.IsNullOrEmpty(s_saveAsError))
-      {
         ImGui.TextColored(new Vector4(0.9f, 0.35f, 0.3f, 1f), s_saveAsError);
-      }
     }
   }
 }
