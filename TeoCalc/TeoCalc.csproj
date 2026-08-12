@@ -13,7 +13,59 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <ApplicationIcon>App.ico</ApplicationIcon>
+    <AssemblyName>TeoCalc</AssemblyName>
+    <Version>1.0.0</Version>
+    <TeoHostOrganizeOutputLayout>true</TeoHostOrganizeOutputLayout>
+    <TeoHostEntryAssemblyName>TeoCalc</TeoHostEntryAssemblyName>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\Teo\packaging\HostAssemblyProbing.cs"
+             Link="Infrastructure\HostAssemblyProbing.cs"
+             Condition="Exists('..\..\Teo\packaging\HostAssemblyProbing.cs')" />
+  </ItemGroup>
+
+  <!-- Ship Resource/ next to the host (publish + local run). -->
+  <Target Name="CopyTeoCalcResource" AfterTargets="Build">
+    <ItemGroup>
+      <_TeoCalcResource Include="..\Resource\**\*" Exclude="..\Resource\**\*.md" />
+    </ItemGroup>
+    <RemoveDir Directories="$(OutDir)Resource" Condition="Exists('$(OutDir)Resource')" />
+    <Copy SourceFiles="@(_TeoCalcResource)"
+          DestinationFiles="@(_TeoCalcResource->'$(OutDir)Resource\%(RecursiveDir)%(Filename)%(Extension)')"
+          Condition="'@(_TeoCalcResource)' != ''"
+          SkipUnchangedFiles="true" />
+  </Target>
+  <Target Name="CopyTeoCalcResourceToPublish"
+          AfterTargets="Publish"
+          Condition="'$(PublishDir)' != ''">
+    <PropertyGroup>
+      <_PubOut>$([System.IO.Path]::GetFullPath('$(PublishDir)').TrimEnd('\').TrimEnd('/'))\</_PubOut>
+    </PropertyGroup>
+    <ItemGroup>
+      <_TeoCalcResourcePub Include="..\Resource\**\*" Exclude="..\Resource\**\*.md" />
+    </ItemGroup>
+    <RemoveDir Directories="$(_PubOut)Resource" Condition="Exists('$(_PubOut)Resource')" />
+    <Copy SourceFiles="@(_TeoCalcResourcePub)"
+          DestinationFiles="@(_TeoCalcResourcePub->'$(_PubOut)Resource\%(RecursiveDir)%(Filename)%(Extension)')"
+          Condition="'@(_TeoCalcResourcePub)' != ''"
+          SkipUnchangedFiles="true" />
+  </Target>
+
+  <!-- Loose icon next to exe / Assets so TeoAgent tray can resolve it (not only PE-embedded). -->
+  <Target Name="CopyTeoCalcAppIcon" AfterTargets="Build">
+    <MakeDir Directories="$(OutDir)Assets" />
+    <Copy SourceFiles="App.ico" DestinationFiles="$(OutDir)Assets\App.ico" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="App.ico" DestinationFiles="$(OutDir)TeoCalc.ico" SkipUnchangedFiles="true" />
+  </Target>
+  <Target Name="CopyTeoCalcAppIconToPublish" AfterTargets="Publish" Condition="'$(PublishDir)' != ''">
+    <PropertyGroup>
+      <_PubOut>$([System.IO.Path]::GetFullPath('$(PublishDir)').TrimEnd('\').TrimEnd('/'))\</_PubOut>
+    </PropertyGroup>
+    <MakeDir Directories="$(_PubOut)Assets" />
+    <Copy SourceFiles="App.ico" DestinationFiles="$(_PubOut)Assets\App.ico" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="App.ico" DestinationFiles="$(_PubOut)TeoCalc.ico" SkipUnchangedFiles="true" />
+  </Target>
 
   <Target Name="CopyPanamatikSources" AfterTargets="Build">
     <ItemGroup>
@@ -24,5 +76,36 @@
           SkipUnchangedFiles="true"
           Condition="Exists('..\TeoCalc.Panamatik\bin\$(Configuration)\$(TargetFramework)\Sources')" />
   </Target>
+
+  <Target Name="CopyPanamatikSourcesToPublish"
+          AfterTargets="Publish"
+          Condition="'$(PublishDir)' != ''">
+    <PropertyGroup>
+      <_PubOut>$([System.IO.Path]::GetFullPath('$(PublishDir)').TrimEnd('\').TrimEnd('/'))\</_PubOut>
+      <_SrcRoot>..\TeoCalc.Panamatik\bin\$(Configuration)\$(TargetFramework)\Sources</_SrcRoot>
+    </PropertyGroup>
+    <ItemGroup Condition="Exists('$(_SrcRoot)')">
+      <_PubPanamatik Include="$(_SrcRoot)\**\*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_PubPanamatik)"
+          DestinationFiles="@(_PubPanamatik->'$(_PubOut)Sources\%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true"
+          Condition="'@(_PubPanamatik)' != ''" />
+  </Target>
+
+  <PropertyGroup>
+    <SiDESetupId>TeoCalc</SiDESetupId>
+    <SiDESetupProductKind>Host</SiDESetupProductKind>
+    <SiDESetupDeployKind>Publish</SiDESetupDeployKind>
+    <SiDEStopStrategy>NamedEvent</SiDEStopStrategy>
+    <SiDEStopProcessName>TeoCalc</SiDEStopProcessName>
+    <SiDEStopEventName>Local\SiDE.TeoCalc.Shutdown</SiDEStopEventName>
+    <SiDEStopForce>true</SiDEStopForce>
+    <SiDEStopTimeoutSeconds>3</SiDEStopTimeoutSeconds>
+  </PropertyGroup>
+  <Import Project="..\..\Teo\packaging\RegisterSiDESetup.targets"
+          Condition="Exists('..\..\Teo\packaging\RegisterSiDESetup.targets')" />
+  <Import Project="..\..\Teo\packaging\TeoHost.OutputLayout.targets"
+          Condition="Exists('..\..\Teo\packaging\TeoHost.OutputLayout.targets')" />
 
 </Project>
