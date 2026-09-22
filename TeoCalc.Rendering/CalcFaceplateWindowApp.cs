@@ -444,6 +444,8 @@ public sealed class CalcFaceplateHost : IDisposable
         CalcModelDefinition aboutModel = CalcModelCatalog.Resolve(_session.Model, _catalogModelId);
         CalcAboutModal.PrepareOpen();
         CalcAboutModal.Draw(_session, aboutModel);
+        ImmediateFaceplateOverlay.ProcessToggle(_input?.Keyboards.Count > 0 ? _input.Keyboards[0] : null);
+        ImmediateFaceplateOverlay.Draw();
         _controller.Render();
         CalcFaceplatePointer.ApplyPendingCursor(_input);
       }

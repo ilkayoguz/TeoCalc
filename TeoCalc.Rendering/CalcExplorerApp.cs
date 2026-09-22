@@ -271,6 +271,8 @@ public static class CalcExplorerApp
         ImGui.PopStyleVar(2);
         if (!_launcher.IsClosing)
         {
+          ImmediateFaceplateOverlay.ProcessToggle(input?.Keyboards.Count > 0 ? input.Keyboards[0] : null);
+          ImmediateFaceplateOverlay.Draw();
           controller.Render();
           CalculatorLauncherThumbnail.BakePending(gl, _launcher.FramebufferSize);
           CalcFaceplatePointer.ApplyPendingCursor(input);

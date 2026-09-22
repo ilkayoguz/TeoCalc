@@ -1,16 +1,17 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
     <ProjectReference Include="..\..\TeoCave\TeoGame\TeoGame.csproj" />
     <ProjectReference Include="..\TeoCalc.Game\TeoCalc.Game.csproj" />
     <ProjectReference Include="..\TeoCalc.Core\TeoCalc.Core.csproj" />
     <ProjectReference Include="..\TeoCalc.Formats\TeoCalc.Formats.csproj" />
+    <ProjectReference Include="..\..\Teo\Teo.Surface.Portrayal\Teo.Surface.Portrayal.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Teo.Basis" Version="1.0.5" />
-    <PackageReference Include="Teo.Basis.Windows" Version="1.0.5" />
-    <PackageReference Include="Teo.Surface" Version="1.0.5" />
+    <PackageReference Include="Teo.Basis" Version="1.0.0-rc.1" />
+    <PackageReference Include="Teo.Basis.Windows" Version="1.0.0-rc.1" />
+    <PackageReference Include="Teo.Surface" Version="1.0.0-rc.1" />
   </ItemGroup>
 
   <PropertyGroup>
